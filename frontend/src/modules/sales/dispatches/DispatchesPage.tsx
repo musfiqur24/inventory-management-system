@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Truck, Search, FileText } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -103,12 +103,13 @@ export function DispatchesPage() {
   );
 
   return (
-    <section className="page-container">
-      <PageHeader cap="SALES & DISPATCH" title="FM Dispatches"
-        description="Record finished goods dispatches to customers with full lot traceability and printable delivery notes."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Dispatch</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="SALES & DISPATCH"
+      title="FM Dispatches"
+      description="Record finished goods dispatches to customers with full lot traceability and printable delivery notes."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Dispatch</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
         {[
@@ -196,7 +197,7 @@ export function DispatchesPage() {
           </div>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

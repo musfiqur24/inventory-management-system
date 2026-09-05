@@ -5,7 +5,7 @@ import {
   GitBranch, ArrowLeftRight
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { selectedOrg, selectedOrgName } from './shared/api/http';
+import { selectedOrg, selectedOrgName, ensureOrgDetails } from './shared/api/http';
 import { MobileMenuButton, Sidebar } from './components/layout/Sidebar';
 
 // Pages
@@ -77,12 +77,13 @@ const NAV_GROUPS = [
 
 function Shell() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [orgDisplay, setOrgDisplay] = useState<string>(() => selectedOrgName() || selectedOrg());
+  const [orgDisplay, setOrgDisplay] = useState<string>(() => selectedOrgName());
   const location = useLocation();
 
   useEffect(() => {
+    void ensureOrgDetails();
     const handler = () => {
-      setOrgDisplay(selectedOrgName() || selectedOrg());
+      setOrgDisplay(selectedOrgName());
     };
     window.addEventListener('organizationChanged', handler);
     return () => window.removeEventListener('organizationChanged', handler);
@@ -113,7 +114,7 @@ function Shell() {
             <Link to="/organizations">
               <div className="app-topbar__org-badge">
                 <div className="app-topbar__org-dot" />
-                {orgDisplay ? orgDisplay : 'Select Organisation'}
+                {orgDisplay ? orgDisplay : (selectedOrg() ? 'Loading…' : 'Select Organisation')}
               </div>
             </Link>
           </div>

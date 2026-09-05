@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, ChevronRight, FolderTree } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -181,23 +181,33 @@ export function ProductHierarchyPage() {
   const activeL4Obj = categories.find((c) => c.id === selectedL4);
 
   return (
-    <section className="page-container">
-      <PageHeader
-        cap="MASTER SETUP"
-        title="Product Hierarchy"
-        description="5-level product taxonomy: Type → Class → Sub-Class → Family → Product SKU. Select parents in cascading sequence to drill down or create new nodes."
-        actions={
-          <Button variant="primary" onClick={() => setOpen(true)}>
-            <Plus size={16} /> Add Hierarchy Node
-          </Button>
-        }
-      />
+    <PageContainer
+      cap="MASTER SETUP"
+      title="Product Hierarchy"
+      description="5-level product taxonomy: Type → Class → Sub-Class → Family → Product SKU. Select parents in cascading sequence to drill down or create new nodes."
+      actions={
+        <Button variant="primary" onClick={() => setOpen(true)}>
+          <Plus size={16} /> Add Hierarchy Node
+        </Button>
+      }
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
-      {message && <Notice variant="error">{message}</Notice>}
-
-      {/* Active Navigation Breadcrumb */}
-      <div className="card" style={{ padding: '12px 18px', marginBottom: 20, background: 'var(--bg-card)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, flexWrap: 'wrap' }}>
+      {/* Combined Hierarchy Explorer Container */}
+      <Card padding="none">
+        {/* Active Navigation Breadcrumb */}
+        <div
+          style={{
+            padding: '14px 20px',
+            borderBottom: '1px solid var(--border-subtle)',
+            background: 'var(--bg-card)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 13,
+            flexWrap: 'wrap',
+          }}
+        >
           <FolderTree size={16} style={{ color: 'var(--brand-primary)' }} />
           <span style={{ fontWeight: 700, color: 'var(--text-muted)' }}>Hierarchy Path:</span>
 
@@ -220,13 +230,12 @@ export function ProductHierarchyPage() {
             {activeL4Obj ? activeL4Obj.name : 'Select L4 Family'}
           </span>
         </div>
-      </div>
 
-      {/* 5-Column Drill-Down Explorer */}
-      <div style={{ overflowX: 'auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(200px, 1fr))', gap: 14, minWidth: 1050 }}>
-          {/* Level 1 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--bg-card)' }}>
+        {/* 5-Column Drill-Down Explorer */}
+        <div style={{ padding: 16, overflowX: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(200px, 1fr))', gap: 14, minWidth: 1050 }}>
+            {/* Level 1 Column */}
+            <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
             <div style={{ background: LEVEL_COLORS[0], color: '#0d3b2e', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
               Level 1 — Type
             </div>
@@ -265,7 +274,7 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 2 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--bg-card)' }}>
+          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
             <div style={{ background: LEVEL_COLORS[1], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
               Level 2 — Class
             </div>
@@ -306,7 +315,7 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 3 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--bg-card)' }}>
+          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
             <div style={{ background: LEVEL_COLORS[2], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
               Level 3 — Sub-Class
             </div>
@@ -347,7 +356,7 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 4 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--bg-card)' }}>
+          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
             <div style={{ background: LEVEL_COLORS[3], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
               Level 4 — Family
             </div>
@@ -388,7 +397,7 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 5 Product SKU Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--bg-card)' }}>
+          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
             <div style={{ background: LEVEL_COLORS[4], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
               Level 5 — Product SKUs
             </div>
@@ -423,6 +432,7 @@ export function ProductHierarchyPage() {
           </div>
         </div>
       </div>
+      </Card>
 
       {/* Dynamic Hierarchy Level Creation Modal */}
       {open && (
@@ -547,7 +557,7 @@ export function ProductHierarchyPage() {
           </Notice>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

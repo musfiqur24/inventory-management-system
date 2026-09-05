@@ -5,7 +5,8 @@ import { Button } from "../components/ui/Button";
 import { DataTable } from "../components/ui/DataTable";
 import { FormField } from "../components/ui/FormField";
 import { Input } from "../components/ui/Input";
-import { PageHeader } from "../components/ui/PageHeader";
+import { PageContainer } from "../components/ui/PageContainer";
+import { Card, CardHeader } from "../components/ui/Card";
 
 export type Field = {
   name: string;
@@ -83,60 +84,63 @@ export function ResourcePage({
         .slice(0, 7)
     : fields.map((field) => field.name);
   return (
-    <section className="page">
-      <PageHeader
-        title={title}
-        description={subtitle}
-        actions={
-          <>
-            {report && (
-              <Button onClick={() => window.print()}>Download report</Button>
-            )}
-            {!readOnly && (
-              <Button variant="primary" onClick={() => setOpen(!open)}>
-                <Plus />
-                Create {title.replace(/s$/, "")}
-              </Button>
-            )}
-          </>
-        }
-      />
+    <PageContainer
+      title={title}
+      description={subtitle}
+      actions={
+        <>
+          {report && (
+            <Button onClick={() => window.print()}>Download report</Button>
+          )}
+          {!readOnly && (
+            <Button variant="primary" onClick={() => setOpen(!open)}>
+              <Plus />
+              Create {title.replace(/s$/, "")}
+            </Button>
+          )}
+        </>
+      }
+    >
       {open && (
-        <form className="card ui-form" onSubmit={submit}>
-          <h2>New {title.replace(/s$/, "")}</h2>
-          <div className="ui-form-grid">
-            {fields.map((field) => (
-              <FormField key={field.name} label={field.label}>
-                <Input
-                  required
-                  type={field.type ?? "text"}
-                  value={form[field.name] ?? ""}
-                  placeholder={field.placeholder}
-                  onChange={(event) =>
-                    setForm({ ...form, [field.name]: event.target.value })
-                  }
-                />
-              </FormField>
-            ))}
-          </div>
-          <div className="ui-form-actions">
-            <Button type="button" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary">
-              Save record
-            </Button>
-          </div>
+        <form onSubmit={submit}>
+          <Card className="ui-form mb-4">
+            <h2>New {title.replace(/s$/, "")}</h2>
+            <div className="ui-form-grid">
+              {fields.map((field) => (
+                <FormField key={field.name} label={field.label}>
+                  <Input
+                    required
+                    type={field.type ?? "text"}
+                    value={form[field.name] ?? ""}
+                    placeholder={field.placeholder}
+                    onChange={(event) =>
+                      setForm({ ...form, [field.name]: event.target.value })
+                    }
+                  />
+                </FormField>
+              ))}
+            </div>
+            <div className="ui-form-actions">
+              <Button type="button" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary">
+                Save record
+              </Button>
+            </div>
+          </Card>
         </form>
       )}
-      <section className="card resource-table">
-        <div className="table-title">
-          <h2>Live records</h2>
-          <Button onClick={() => void load()}>
-            <RefreshCw />
-            Refresh
-          </Button>
-        </div>
+      <Card>
+        <CardHeader
+          title="Live records"
+          actions={
+            <Button onClick={() => void load()}>
+              <RefreshCw />
+              Refresh
+            </Button>
+          }
+        />
         {message && <p className="notice">{message}</p>}
         <DataTable
           columns={columns.map((column) =>
@@ -169,7 +173,7 @@ export function ResourcePage({
             </tr>
           ))}
         </DataTable>
-      </section>
-    </section>
+      </Card>
+    </PageContainer>
   );
 }

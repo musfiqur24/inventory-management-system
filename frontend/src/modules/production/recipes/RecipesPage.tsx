@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, FlaskConical, Search, Trash2, Info } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -83,12 +83,13 @@ export function RecipesPage() {
   };
 
   return (
-    <section className="page-container">
-      <PageHeader cap="PRODUCTION" title="Nutritionist Recipes"
-        description="Define 1-ton base formulations. Ingredient percentages must total 100%. Production orders auto-scale quantities."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Recipe</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="PRODUCTION"
+      title="Nutritionist Recipes"
+      description="Define 1-ton base formulations. Ingredient percentages must total 100%. Production orders auto-scale quantities."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Recipe</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="two-col">
         {/* Recipe list */}
@@ -221,7 +222,7 @@ export function RecipesPage() {
           </div>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

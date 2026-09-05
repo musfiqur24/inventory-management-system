@@ -1,4 +1,4 @@
-﻿import type { ReactNode, CSSProperties } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
 
 interface CardProps {
   children: ReactNode;
@@ -6,16 +6,27 @@ interface CardProps {
   variant?: 'default' | 'elevated' | 'flat' | 'accent';
   /** Padding: 'sm' | 'md' (default) | 'lg' | 'none' */
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  /** Rounded: 'none' | 'sm' (default) | 'md' | 'lg' */
+  rounded?: 'none' | 'sm' | 'md' | 'lg';
   className?: string;
   style?: CSSProperties;
   onClick?: () => void;
 }
 
-export function Card({ children, variant = 'default', padding = 'md', className = '', style, onClick }: CardProps) {
+export function Card({
+  children,
+  variant = 'default',
+  padding = 'md',
+  rounded = 'sm',
+  className = '',
+  style,
+  onClick,
+}: CardProps) {
   const cls = [
     'ui-card',
-    ui-card--,
-    ui-card--pad-,
+    `ui-card--${variant}`,
+    `ui-card--pad-${padding}`,
+    `ui-card--rounded-${rounded}`,
     onClick ? 'ui-card--clickable' : '',
     className,
   ].filter(Boolean).join(' ');
@@ -53,5 +64,5 @@ interface CardBodyProps {
 }
 
 export function CardBody({ children, className = '' }: CardBodyProps) {
-  return <div className={ui-card__body }>{children}</div>;
+  return <div className={`ui-card__body ${className}`.trim()}>{children}</div>;
 }

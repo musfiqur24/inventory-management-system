@@ -1,8 +1,7 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Package, ShoppingCart, Truck, Factory, CheckCircle2, AlertTriangle, TrendingUp, Layers } from 'lucide-react';
 import { api, selectedOrg } from '../../shared/api/http';
-import { PageContainer } from '../components/ui/PageContainer';
-import { Card } from '../components/ui/Card';
+import { PageContainer } from '../../components/ui/PageContainer';
 import { Notice } from '../../components/ui/Notice';
 
 interface DashboardStats {
@@ -71,14 +70,12 @@ export function DashboardPage() {
   };
 
   return (
-    <section className="page-container">
-      <PageHeader
-        cap="OPERATIONS OVERVIEW"
-        title="Dashboard"
-        description="Live feed production inventory snapshot across the entire workflow."
-      />
-
-      {message && <Notice variant={message.includes('select') ? 'warn' : 'error'}>{message}</Notice>}
+    <PageContainer
+      cap="OPERATIONS OVERVIEW"
+      title="Dashboard"
+      description="Live feed production inventory snapshot across the entire workflow."
+      notice={message ? <Notice variant={message.includes('select') ? 'warn' : 'error'}>{message}</Notice> : undefined}
+    >
 
       {loading && (
         <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>
@@ -171,7 +168,7 @@ export function DashboardPage() {
           </div>
         </>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

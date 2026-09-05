@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Scale, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -69,12 +69,13 @@ export function WeighbridgePage() {
   };
 
   return (
-    <section className="page-container">
-      <PageHeader cap="WEIGHBRIDGE STATION" title="Weighbridge Scale Records"
-        description="Capture gross and tare weights for incoming vehicles. Net weight is calculated automatically and compared against declared challan weights."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Record Weighment</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="WEIGHBRIDGE STATION"
+      title="Weighbridge Scale Records"
+      description="Capture gross and tare weights for incoming vehicles. Net weight is calculated automatically and compared against declared challan weights."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Record Weighment</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       {/* Live scale display */}
       <div className="weighbridge-display" style={{ marginBottom: 24 }}>
@@ -166,7 +167,7 @@ export function WeighbridgePage() {
           )}
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

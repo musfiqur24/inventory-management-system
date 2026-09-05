@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Factory, Search } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -76,12 +76,13 @@ export function ProductionOrdersPage() {
   );
 
   return (
-    <section className="page-container">
-      <PageHeader cap="PRODUCTION" title="FM Production Requisitions"
-        description="Auto-scale recipe formulations for target production quantities. RM requirement lines are calculated from the recipe."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Production Order</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="PRODUCTION"
+      title="FM Production Requisitions"
+      description="Auto-scale recipe formulations for target production quantities. RM requirement lines are calculated from the recipe."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Production Order</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
         {[{ label: 'Total Orders', v: rows.length, c: 'brand' }, { label: 'Draft', v: rows.filter((r) => r.status === 'DRAFT').length, c: 'gray' }, { label: 'Submitted', v: rows.filter((r) => r.status === 'SUBMITTED').length, c: 'blue' }, { label: 'Closed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' }].map((s) => (
@@ -189,7 +190,7 @@ export function ProductionOrdersPage() {
           </div>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

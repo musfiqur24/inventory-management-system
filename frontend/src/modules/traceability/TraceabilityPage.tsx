@@ -1,8 +1,8 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Search, GitBranch, Package, Truck, Factory, ArrowRight } from 'lucide-react';
 import { api, selectedOrg } from '../../shared/api/http';
-import { PageContainer } from '../components/ui/PageContainer';
-import { Card } from '../components/ui/Card';
+import { PageContainer } from '../../components/ui/PageContainer';
+import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { FormField } from '../../components/ui/FormField';
 import { Input } from '../../components/ui/Input';
@@ -51,11 +51,12 @@ export function TraceabilityPage() {
   };
 
   return (
-    <section className="page-container">
-      <PageHeader cap="TRACEABILITY" title="Full Chain Traceability"
-        description="Trace any lot, requisition, or dispatch through the complete supply chain — from raw material to customer delivery."
-      />
-      {message && <Notice variant={message.startsWith('Not found') ? 'error' : 'warn'}>{message}</Notice>}
+    <PageContainer
+      cap="TRACEABILITY"
+      title="Full Chain Traceability"
+      description="Trace any lot, requisition, or dispatch through the complete supply chain — from raw material to customer delivery."
+      notice={message ? <Notice variant={message.startsWith('Not found') ? 'error' : 'warn'}>{message}</Notice> : undefined}
+    >
 
       <div className="card" style={{ marginBottom: 24 }}>
         <div className="card-header"><h2>Trace Lookup</h2></div>
@@ -187,7 +188,7 @@ export function TraceabilityPage() {
           </div>
         </div>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

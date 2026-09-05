@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, ArrowLeftRight } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -72,12 +72,13 @@ export function MaterialIssuesPage() {
   };
 
   return (
-    <section className="page-container-compat">
-      <PageHeader cap="PRODUCTION" title="Issue RM to Factory"
-        description="Issue raw materials from RM store to the production floor. Deducts from lot balances and links to production orders."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Issue Materials</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="PRODUCTION"
+      title="Issue RM to Factory"
+      description="Issue raw materials from RM store to the production floor. Deducts from lot balances and links to production orders."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Issue Materials</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="card" style={{ padding: 0 }}>
         <div className="table-header"><h2>Material Issue Register</h2><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{rows.length} issues</span></div>
@@ -153,7 +154,7 @@ export function MaterialIssuesPage() {
           </div>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Factory, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -53,12 +53,13 @@ export function ProductionBatchesPage() {
   };
 
   return (
-    <section className="page-container">
-      <PageHeader cap="PRODUCTION" title="Factory Batches"
-        description="Track production batch execution, actual waste vs planned, and link to finished good inventory."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Start Batch</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="PRODUCTION"
+      title="Factory Batches"
+      description="Track production batch execution, actual waste vs planned, and link to finished good inventory."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Start Batch</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
         {[
@@ -129,7 +130,7 @@ export function ProductionBatchesPage() {
           </div>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

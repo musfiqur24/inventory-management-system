@@ -1,25 +1,12 @@
 import type { ReactNode } from 'react';
-import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
-
-type Variant = 'info' | 'warn' | 'error' | 'success';
+import { Tooltip, type TooltipVariant } from './Tooltip';
 
 interface Props {
-  variant?: Variant;
+  variant?: TooltipVariant;
   children: ReactNode;
+  onClose?: () => void;
 }
 
-const icons: Record<Variant, ReactNode> = {
-  info: <Info size={16} />,
-  warn: <AlertTriangle size={16} />,
-  error: <XCircle size={16} />,
-  success: <CheckCircle2 size={16} />,
-};
-
-export function Notice({ variant = 'info', children }: Props) {
-  return (
-    <div className={`notice notice--${variant}`}>
-      {icons[variant]}
-      <span>{children}</span>
-    </div>
-  );
+export function Notice({ variant = 'info', children, onClose }: Props) {
+  return <Tooltip variant={variant} content={children} onClose={onClose} />;
 }

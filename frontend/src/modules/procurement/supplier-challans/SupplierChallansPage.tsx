@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Truck, Scale, FileText } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
@@ -80,12 +80,13 @@ export function SupplierChallansPage() {
   };
 
   return (
-    <section className="page-container">
-      <PageHeader cap="RM PROCUREMENT" title="Supplier Delivery Challans"
-        description="Record supplier delivery challans with vehicle details, declared weights, and product lines."
-        actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Challan</Button>}
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="RM PROCUREMENT"
+      title="Supplier Delivery Challans"
+      description="Record supplier delivery challans with vehicle details, declared weights, and product lines."
+      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Challan</Button>}
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="card" style={{ padding: 0 }}>
         <div className="table-header">
@@ -179,7 +180,7 @@ export function SupplierChallansPage() {
           </div>
         </Modal>
       )}
-    </section>
+    </PageContainer>
   );
 }
 

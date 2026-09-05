@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, PackageCheck, TrendingUp, Package } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Notice } from '../../../components/ui/Notice';
 import { Badge } from '../../../components/ui/Badge';
 
@@ -56,12 +56,12 @@ export function FmStorePage() {
   );
 
   return (
-    <section className="page-container-compat">
-      <PageHeader cap="INVENTORY" title="Finished Goods Store"
-        description="Live FG stock balances and batch lot tracking, ready for customer dispatch."
-      />
-      {message && <Notice variant="error">{message}</Notice>}
-
+    <PageContainer
+      cap="INVENTORY"
+      title="Finished Goods Store"
+      description="Live FG stock balances and batch lot tracking, ready for customer dispatch."
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
         {[
           { label: 'Total FG Stock', value: `${totalQty.toLocaleString()} kg`, icon: TrendingUp, color: 'green' },
@@ -131,7 +131,7 @@ export function FmStorePage() {
           </div>
         )}
       </div>
-    </section>
+    </PageContainer>
   );
 }
 

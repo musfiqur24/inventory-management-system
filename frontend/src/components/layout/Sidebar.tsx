@@ -2,7 +2,7 @@ import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { selectedOrg, selectedOrgName } from '../../shared/api/http';
+import { selectedOrg, selectedOrgName, ensureOrgDetails } from '../../shared/api/http';
 
 type Item = { path: string; label: string; icon: LucideIcon };
 type Group = { label: string; items: Item[] };
@@ -19,6 +19,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
   const [orgName, setOrgName] = useState<string>(() => selectedOrgName());
 
   useEffect(() => {
+    void ensureOrgDetails();
     const handler = () => {
       setOrgId(selectedOrg());
       setOrgName(selectedOrgName());

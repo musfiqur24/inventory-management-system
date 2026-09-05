@@ -1,8 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, Warehouse, Package, TrendingUp } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../components/ui/PageContainer';
-import { Card } from '../../components/ui/Card';
+import { PageContainer } from '../../../components/ui/PageContainer';
+import { Card } from '../../../components/ui/Card';
 import { Notice } from '../../../components/ui/Notice';
 import { Badge } from '../../../components/ui/Badge';
 
@@ -54,11 +54,12 @@ export function RmStorePage() {
   );
 
   return (
-    <section className="page-container-compat">
-      <PageHeader cap="INVENTORY" title="Raw Material Store"
-        description="Live stock balances and lot-level traceability for all raw materials in RM warehouse bins."
-      />
-      {message && <Notice variant="error">{message}</Notice>}
+    <PageContainer
+      cap="INVENTORY"
+      title="Raw Material Store"
+      description="Live stock balances and lot-level traceability for all raw materials in RM warehouse bins."
+      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+    >
 
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
         {[
@@ -139,7 +140,7 @@ export function RmStorePage() {
           </div>
         )}
       </div>
-    </section>
+    </PageContainer>
   );
 }
 
