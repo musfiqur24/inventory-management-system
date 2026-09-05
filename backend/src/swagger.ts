@@ -1,0 +1,2 @@
+import swaggerJsdoc from "swagger-jsdoc";
+export const spec = swaggerJsdoc({ definition: { openapi: "3.1.0", info: { title: "Inventory Inventory API", version: "0.1.0", description: "Multi-tenant procurement, inventory, production and traceability API" }, servers: [{ url: "/api/v1" }], components: { securitySchemes: { bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" } } } }, apis: ["./src/**/*.ts"] });

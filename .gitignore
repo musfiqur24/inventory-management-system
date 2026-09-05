@@ -1,0 +1,91 @@
+﻿# ===== DEPENDENCIES =====
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ===== BUILD OUTPUTS =====
+# Frontend (Vite)
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+
+# Backend (TypeScript compiled output)
+backend/dist/
+backend/build/
+
+# Generic build dirs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vinext/
+
+# ===== ENVIRONMENT & SECRETS =====
+.env
+.env.local
+.env.*.local
+.env.production
+# Keep example files
+!.env.example
+!.env.*.example
+
+# ===== LOGS =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===== RUNTIME & CACHE =====
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ===== DATABASE =====
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# ===== OS FILES =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===== EDITOR / IDE =====
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===== TEST COVERAGE =====
+coverage/
+.nyc_output/
+
+# ===== MISC =====
+*.pem
+*.key
+*.cert
+.vercel/
+.netlify/

@@ -1,0 +1,401 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductType {
+  RAW_MATERIAL
+  FINISHED_GOOD
+  PACKAGING
+  BY_PRODUCT
+}
+enum DocumentStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CLOSED
+  CANCELLED
+}
+enum QualityStatus {
+  PENDING
+  RELEASED
+  HOLD
+  REJECTED
+}
+enum MovementType {
+  RECEIPT
+  ISSUE
+  TRANSFER
+  CONSUMPTION
+  PRODUCTION_OUTPUT
+  DISPATCH
+  ADJUSTMENT
+}
+
+model Organization {
+  id String @id @default(uuid())
+  code String @unique
+  name String
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sites Site[]
+  users User[]
+  uoms UnitOfMeasure[]
+  categories ProductCategory[]
+  products Product[]
+}
+model Site {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  address String?
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
+model User {
+  id String @id @default(uuid())
+  organizationId String
+  email String
+  fullName String
+  roleCode String
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  @@unique([organizationId,email])
+  @@index([organizationId,roleCode])
+}
+model UnitOfMeasure {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  dimension String
+  factorToBase Decimal @db.Decimal(18,6)
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  products Product[]
+  balances InventoryBalance[]
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
+model ProductCategory {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String?
+  level Int
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent ProductCategory? @relation("CategoryTree",fields:[parentId],references:[id])
+  children ProductCategory[] @relation("CategoryTree")
+  products Product[]
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId,level])
+}
+model Product {
+  id String @id @default(uuid())
+  organizationId String
+  categoryId String
+  baseUomId String
+  sku String
+  name String
+  type ProductType
+  shelfLifeDays Int?
+  reorderLevel Decimal? @db.Decimal(18,3)
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
+  category ProductCategory @relation(fields:[categoryId],references:[id])
+  baseUom UnitOfMeasure @relation(fields:[baseUomId],references:[id])
+  balances InventoryBalance[]
+  @@unique([organizationId,sku])
+  @@index([organizationId,type,categoryId])
+}
+model Partner {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  partnerType String
+  phone String?
+  address String?
+  isActive Boolean @default(true)
+  @@unique([organizationId,code])
+  @@index([organizationId,partnerType])
+}
+model Bin {
+  id String @id @default(uuid())
+  organizationId String
+  siteId String
+  code String
+  name String
+  zone String?
+  warehouseType String? @default("RM_STORE")
+  capacity Decimal? @db.Decimal(18,3)
+  isActive Boolean @default(true)
+  balances InventoryBalance[]
+  @@unique([organizationId,siteId,code])
+  @@index([organizationId,siteId])
+}
+model PurchaseRequisition {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  salesOrderRef String?
+  supplierId String?
+  status DocumentStatus @default(DRAFT)
+  requestedOn DateTime @default(now())
+  approvedAt DateTime?
+  lines PurchaseRequisitionLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,requestedOn])
+}
+model PurchaseRequisitionLine {
+  id String @id @default(uuid())
+  requisitionId String
+  productId String
+  uomId String
+  requestedQty Decimal @db.Decimal(18,3)
+  receivedQty Decimal @default(0) @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  requisition PurchaseRequisition @relation(fields:[requisitionId],references:[id],onDelete:Cascade)
+  @@index([requisitionId,productId])
+}
+model SupplierDelivery {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  requisitionId String?
+  supplierId String
+  invoiceNo String?
+  vehicleNo String?
+  grossWeight Decimal? @db.Decimal(18,3)
+  tareWeight Decimal? @db.Decimal(18,3)
+  netWeight Decimal? @db.Decimal(18,3)
+  status DocumentStatus @default(DRAFT)
+  deliveredAt DateTime?
+  lines SupplierDeliveryLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,requisitionId,status])
+}
+model SupplierDeliveryLine {
+  id String @id @default(uuid())
+  deliveryId String
+  productId String
+  uomId String
+  declaredQty Decimal @db.Decimal(18,3)
+  acceptedQty Decimal? @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  delivery SupplierDelivery @relation(fields:[deliveryId],references:[id],onDelete:Cascade)
+  @@index([deliveryId,productId])
+}
+model Weighment {
+  id String @id @default(uuid())
+  organizationId String
+  deliveryId String?
+  issueId String?
+  vehicleNo String?
+  grossWeight Decimal @db.Decimal(18,3)
+  tareWeight Decimal @db.Decimal(18,3)
+  netWeight Decimal @db.Decimal(18,3)
+  measuredAt DateTime @default(now())
+  operatorId String?
+  @@index([organizationId,deliveryId,measuredAt])
+}
+model Lot {
+  id String @id @default(uuid())
+  organizationId String
+  productId String
+  code String
+  supplierDeliveryId String?
+  productionBatchId String?
+  manufactureDate DateTime?
+  expiryDate DateTime?
+  qualityStatus QualityStatus @default(PENDING)
+  balances InventoryBalance[]
+  @@unique([organizationId,code])
+  @@index([organizationId,productId,expiryDate])
+}
+model InventoryBalance {
+  id String @id @default(uuid())
+  organizationId String
+  productId String
+  lotId String
+  binId String
+  uomId String
+  quantity Decimal @db.Decimal(18,3)
+  reservedQty Decimal @default(0) @db.Decimal(18,3)
+  updatedAt DateTime @updatedAt
+  product Product @relation(fields:[productId],references:[id])
+  lot Lot @relation(fields:[lotId],references:[id])
+  bin Bin @relation(fields:[binId],references:[id])
+  uom UnitOfMeasure @relation(fields:[uomId],references:[id])
+  @@unique([organizationId,productId,lotId,binId])
+  @@index([organizationId,binId])
+}
+model StockMovement {
+  id String @id @default(uuid())
+  organizationId String
+  movementType MovementType
+  productId String
+  lotId String?
+  fromBinId String?
+  toBinId String?
+  quantity Decimal @db.Decimal(18,3)
+  uomId String
+  documentType String
+  documentId String
+  occurredAt DateTime @default(now())
+  performedById String?
+  note String?
+  @@index([organizationId,productId,occurredAt])
+  @@index([organizationId,lotId,occurredAt])
+  @@index([organizationId,documentType,documentId])
+}
+model Recipe {
+  id String @id @default(uuid())
+  organizationId String
+  finishedProductId String
+  version Int
+  outputQty Decimal @db.Decimal(18,3)
+  outputUomId String
+  status DocumentStatus @default(DRAFT)
+  wastePercent Decimal @default(0) @db.Decimal(5,2)
+  effectiveFrom DateTime?
+  lines RecipeLine[]
+  @@unique([organizationId,finishedProductId,version])
+}
+model RecipeLine {
+  id String @id @default(uuid())
+  recipeId String
+  rawProductId String
+  uomId String
+  quantityPerOutput Decimal @db.Decimal(18,3)
+  recipe Recipe @relation(fields:[recipeId],references:[id],onDelete:Cascade)
+  @@index([recipeId,rawProductId])
+}
+model ProductionOrder {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  finishedProductId String
+  recipeId String
+  plannedQty Decimal @db.Decimal(18,3)
+  plannedUomId String
+  expectedWastePercent Decimal @db.Decimal(5,2)
+  status DocumentStatus @default(DRAFT)
+  scheduledFor DateTime?
+  lines ProductionOrderLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,scheduledFor])
+}
+model ProductionOrderLine {
+  id String @id @default(uuid())
+  productionOrderId String
+  productId String
+  uomId String
+  recipeQty Decimal @db.Decimal(18,3)
+  wasteAdjustedQty Decimal @db.Decimal(18,3)
+  issuedQty Decimal @default(0) @db.Decimal(18,3)
+  productionOrder ProductionOrder @relation(fields:[productionOrderId],references:[id],onDelete:Cascade)
+  @@index([productionOrderId,productId])
+}
+model MaterialIssue {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  productionOrderId String
+  fromSiteId String?
+  toSiteId String?
+  status DocumentStatus @default(DRAFT)
+  issuedAt DateTime?
+  lines MaterialIssueLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,productionOrderId,status])
+}
+model MaterialIssueLine {
+  id String @id @default(uuid())
+  issueId String
+  productId String
+  lotId String?
+  fromBinId String?
+  quantity Decimal @db.Decimal(18,3)
+  uomId String
+  materialIssue MaterialIssue @relation(fields:[issueId],references:[id],onDelete:Cascade)
+  @@index([issueId,productId])
+}
+model ProductionBatch {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  productionOrderId String
+  actualRMConsumed Decimal? @db.Decimal(18,3)
+  actualOutputQty Decimal? @db.Decimal(18,3)
+  actualWasteQty Decimal? @db.Decimal(18,3)
+  actualWastePercent Decimal? @db.Decimal(5,2)
+  wasteVariancePercent Decimal? @db.Decimal(5,2)
+  fgLotId String?
+  status DocumentStatus @default(DRAFT)
+  startedAt DateTime?
+  completedAt DateTime?
+  notes String?
+  @@unique([organizationId,number])
+  @@index([organizationId,productionOrderId,status])
+}
+model SalesOrder {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  customerId String
+  status DocumentStatus @default(DRAFT)
+  orderedAt DateTime @default(now())
+  lines SalesOrderLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,orderedAt])
+}
+model SalesOrderLine {
+  id String @id @default(uuid())
+  salesOrderId String
+  productId String
+  uomId String
+  quantity Decimal @db.Decimal(18,3)
+  dispatchedQty Decimal @default(0) @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  salesOrder SalesOrder @relation(fields:[salesOrderId],references:[id],onDelete:Cascade)
+  @@index([salesOrderId,productId])
+}
+model Dispatch {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  salesOrderId String
+  vehicleNo String?
+  status DocumentStatus @default(DRAFT)
+  dispatchedAt DateTime?
+  lines DispatchLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,salesOrderId,status])
+}
+model DispatchLine {
+  id String @id @default(uuid())
+  dispatchId String
+  productId String
+  lotId String?
+  fromBinId String?
+  quantity Decimal @db.Decimal(18,3)
+  uomId String
+  dispatch Dispatch @relation(fields:[dispatchId],references:[id],onDelete:Cascade)
+  @@index([dispatchId,productId])
+}
+
+
