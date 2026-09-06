@@ -5,7 +5,7 @@ import { prisma } from "../prisma.js";
 import { env } from "../config.js";
 
 export const PERMISSIONS = ["departments.read","departments.write","users.manage","roles.manage","organizations.manage"] as const;
-export type AppUser = { id: string; email: string; fullName: string; avatarUrl: string | null; permissions: string[]; isSuperAdmin: boolean; organizations: Array<{ id:string; name:string; code:string; role:{id:string;code:string;name:string} }> };
+export type AppUser = { id: string; email: string; fullName: string; avatarUrl: string | null; phone: string | null; presentAddress: string | null; permanentAddress: string | null; permissions: string[]; isSuperAdmin: boolean; organizations: Array<{ id:string; name:string; code:string; role:{id:string;code:string;name:string} }> };
 
 declare global { namespace Express { interface Request { auth?: AppUser; } } }
 
@@ -42,7 +42,7 @@ export async function getAppUser(userId:string):Promise<AppUser|null> {
   const permissions=new Set<string>();
   let isSuperAdmin=false;
   for(const m of user.memberships){ if(m.role.code==="SUPER_ADMIN")isSuperAdmin=true; m.role.permissions.forEach(x=>permissions.add(x.permission.key));m.overrides.forEach(x=>x.granted?permissions.add(x.permission.key):permissions.delete(x.permission.key));}
-  return {id:user.id,email:user.email,fullName:user.fullName,avatarUrl:user.avatarUrl,permissions:[...permissions],isSuperAdmin,organizations:user.memberships.map(m=>({id:m.organization.id,name:m.organization.name,code:m.organization.code,role:{id:m.role.id,code:m.role.code,name:m.role.name}}))};
+  return {id:user.id,email:user.email,fullName:user.fullName,avatarUrl:user.avatarUrl,phone:user.phone,presentAddress:user.presentAddress,permanentAddress:user.permanentAddress,permissions:[...permissions],isSuperAdmin,organizations:user.memberships.map(m=>({id:m.organization.id,name:m.organization.name,code:m.organization.code,role:{id:m.role.id,code:m.role.code,name:m.role.name}}))};
 }
 export function signAccessToken(user:AppUser){return jwt.sign({sub:user.id},env.JWT_SECRET,{expiresIn:"15m"});}
 export const authenticate:RequestHandler=async(req,res,next)=>{const token=req.header("authorization")?.replace(/^Bearer\s+/i,"");if(!token)return res.status(401).json({error:{message:"Authentication required"}});try{const payload=jwt.verify(token,env.JWT_SECRET) as jwt.JwtPayload;const user=payload.sub?await getAppUser(String(payload.sub)):null;if(!user)return res.status(401).json({error:{message:"Session is no longer valid"}});req.auth=user;next();}catch{return res.status(401).json({error:{message:"Invalid or expired token"}});}};
