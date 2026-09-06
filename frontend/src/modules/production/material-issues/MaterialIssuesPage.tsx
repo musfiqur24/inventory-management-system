@@ -1,3 +1,4 @@
+import { DataTable } from "../../../components/ui/DataTable";
 import { useEffect, useState } from 'react';
 import { Plus, ArrowLeftRight } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -83,9 +84,7 @@ export function MaterialIssuesPage() {
       <Card className="p-0">
         <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Material Issue Register</h2><span className="text-[12px] text-[#7a9185]">{rows.length} issues</span></div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-            <thead><tr><th>Issue #</th><th>Production Order</th><th>Lines</th><th>Status</th><th>Issued At</th></tr></thead>
-            <tbody>
+          <DataTable columns={["Issue #","Production Order","Lines","Status","Issued At"]}>
               {rows.map((mi) => (
                 <tr key={mi.id}>
                   <td><strong className="text-[#0d3b2e] font-mono">{mi.issueNumber}</strong></td>
@@ -95,8 +94,7 @@ export function MaterialIssuesPage() {
                   <td className="text-[12px] text-[#7a9185]">{new Date(mi.issuedAt).toLocaleString('en-GB')}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
+            </DataTable>
           {rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><ArrowLeftRight size={28} /></div><b>No issues yet</b><p>Issue raw materials to the factory floor to start production.</p></div>}
         </div>
       </Card>

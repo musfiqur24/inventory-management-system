@@ -67,6 +67,7 @@ model Site {
     id String @id @default(uuid())
     email String @unique
     fullName String
+    avatarUrl String?
     passwordHash String
     isActive Boolean @default(true)
     createdAt DateTime @default(now())

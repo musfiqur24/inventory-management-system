@@ -1,3 +1,4 @@
+import { DataTable } from "../../../components/ui/DataTable";
 import type { CSSProperties } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
@@ -189,19 +190,7 @@ export function BinsPage() {
 
         {/* Bins Table */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-            <thead>
-              <tr>
-                <th>Bin Code</th>
-                <th>Bin Name</th>
-                <th>Warehouse Type / Zone</th>
-                <th>Max Capacity</th>
-                <th>Current Occupancy</th>
-                <th>Utilization</th>
-                <th>Active Stock Balances</th>
-              </tr>
-            </thead>
-            <tbody>
+          <DataTable columns={["Bin Code","Bin Name","Warehouse Type / Zone","Max Capacity","Current Occupancy","Utilization","Active Stock Balances"]}>
               {filteredBins.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center p-8 text-[#7a9185]">
@@ -257,8 +246,7 @@ export function BinsPage() {
                   );
                 })
               )}
-            </tbody>
-          </table>
+            </DataTable>
         </div>
       </Card>
 

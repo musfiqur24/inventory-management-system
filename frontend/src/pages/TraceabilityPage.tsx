@@ -1,3 +1,4 @@
+import { DataTable } from "../components/ui/DataTable";
 import { Card } from '../components/ui/Card';
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
@@ -41,17 +42,7 @@ export function TraceabilityPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-            <thead>
-              <tr>
-                <th>Movement Type</th>
-                <th>Document Type</th>
-                <th>Document ID</th>
-                <th>Lot</th>
-                <th>Quantity</th>
-              </tr>
-            </thead>
-            <tbody>
+          <DataTable columns={["Movement Type","Document Type","Document ID","Lot","Quantity"]}>
               {filtered.map((row, index) => (
                 <tr key={String(row.id ?? index)}>
                   <td><strong>{String(row.movementType ?? "—")}</strong></td>
@@ -61,8 +52,7 @@ export function TraceabilityPage() {
                   <td><strong>{String(row.quantity ?? "—")}</strong></td>
                 </tr>
               ))}
-            </tbody>
-          </table>
+            </DataTable>
           {filtered.length === 0 && !message && (
             <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
               <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Search size={28} /></div>

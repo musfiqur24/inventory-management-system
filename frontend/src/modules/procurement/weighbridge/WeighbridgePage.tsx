@@ -1,3 +1,4 @@
+import { DataTable } from "../../../components/ui/DataTable";
 import { twMerge } from 'tailwind-merge';
 import { Card } from '../../../components/ui/Card';
 import { useEffect, useState } from 'react';
@@ -100,9 +101,7 @@ export function WeighbridgePage() {
       <Card className="p-0">
         <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Weighment Log</h2><span className="text-[12px] text-[#7a9185]">{rows.length} records</span></div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-            <thead><tr><th>Vehicle No</th><th>Challan</th><th>Gross (kg)</th><th>Tare (kg)</th><th>Net (kg)</th><th>Variance</th><th>Status</th><th>Measured At</th></tr></thead>
-            <tbody>
+          <DataTable columns={["Vehicle No","Challan","Gross (kg)","Tare (kg)","Net (kg)","Variance","Status","Measured At"]}>
               {rows.map((w) => (
                 <tr key={w.id}>
                   <td><span className="font-mono font-semibold">{w.vehicleNo ?? '—'}</span></td>
@@ -122,8 +121,7 @@ export function WeighbridgePage() {
                   <td className="text-[12px] text-[#7a9185]">{new Date(w.measuredAt).toLocaleString('en-GB')}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
+            </DataTable>
           {rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Scale size={28} /></div><b>No weighments yet</b><p>Record the first vehicle weighment at the gate.</p></div>}
         </div>
       </Card>

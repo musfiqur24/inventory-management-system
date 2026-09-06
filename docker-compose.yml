@@ -18,7 +18,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://inventory:inventory@db:5432/inventory?schema=public
+      DATABASE_URL: postgresql://postgres:1234@host.docker.internal:5432/inventory?schema=public
       WEB_ORIGIN: http://localhost:5173
       LOG_LEVEL: info
       INITIAL_SUPER_ADMIN_EMAIL: musfiqur.utsho@gmail.com

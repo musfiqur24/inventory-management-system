@@ -1,3 +1,4 @@
+import { DataTable } from "../../../components/ui/DataTable";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, FlaskConical, Search, PackageCheck, AlertTriangle, Boxes } from 'lucide-react';
@@ -249,20 +250,7 @@ export function ProductsPage() {
 
         {/* Products Table */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-            <thead>
-              <tr>
-                <th>SKU Code</th>
-                <th>Product Name</th>
-                <th>Classification Hierarchy (L1 → L2 → L3 → L4)</th>
-                <th>Type</th>
-                <th>Base UOM</th>
-                <th>Reorder Threshold</th>
-                <th>Total Stock</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
+          <DataTable columns={["SKU Code","Product Name","Classification Hierarchy (L1 → L2 → L3 → L4)","Type","Base UOM","Reorder Threshold","Total Stock","Status"]}>
               {filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center p-8 text-[#7a9185]">
@@ -299,8 +287,7 @@ export function ProductsPage() {
                   </tr>
                 ))
               )}
-            </tbody>
-          </table>
+            </DataTable>
         </div>
       </Card>
 

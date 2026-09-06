@@ -1,6 +1,6 @@
 import { api, selectedOrg, selectedOrgName, selectedOrgCode, setOrganizationDetails } from "../../../shared/api/http";
 
-export type Organization = { id: string; code: string; name: string };
+export type Organization = { id: string; code: string; name: string; isActive: boolean; createdAt: string; updatedAt: string };
 
 export const organizationApi = {
   list: () => api<{ data: Organization[] }>("/organizations"),

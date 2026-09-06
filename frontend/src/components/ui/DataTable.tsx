@@ -1,25 +1,6 @@
-import type { ReactNode } from 'react';
-
-interface Props {
-  columns: string[];
-  children: ReactNode;
-  empty?: ReactNode;
-}
-
-export function DataTable({ columns, children, empty }: Props) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-        <thead>
-          <tr>
-            {columns.map((col) => <th key={col}>{col}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {children}
-        </tbody>
-      </table>
-      {empty}
-    </div>
-  );
-}
+import type { ReactNode } from "react";
+export type DataTableColumn<T>={key:string;header:ReactNode;cell:(row:T)=>ReactNode;className?:string};
+type Base={toolbar?:ReactNode;empty?:ReactNode;total?:number;page?:number;pageSize?:number;onPageChange?:(p:number)=>void};
+type Legacy=Base&{columns:string[];children:ReactNode;rows?:never};
+type Dynamic<T>=Base&{columns:DataTableColumn<T>[];rows:T[];rowKey:(row:T)=>string;children?:never};
+export function DataTable<T>({toolbar,empty,total,page=1,pageSize=10,onPageChange,...props}:Legacy|Dynamic<T>){const dynamic="rows" in props;const dynamicProps=props as Dynamic<T>;const legacyProps=props as Legacy;const pages=Math.max(1,Math.ceil((total??(dynamic?dynamicProps.rows.length:0))/pageSize));const b="grid size-8 place-items-center rounded-md border border-[#dbe4da] bg-white text-xs font-semibold disabled:opacity-40";const headers=dynamic?dynamicProps.columns.map(c=>c.header):legacyProps.columns;return <div className="overflow-hidden rounded-xl border border-[#e0e5dd] bg-white">{toolbar&&<div className="border-b border-[#e0e5dd] p-4">{toolbar}</div>}<div className="overflow-x-auto"><table className="w-full min-w-180"><thead className="bg-[#f8faf7]"><tr>{headers.map((h,i)=><th key={i} className="border-b px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#5d7567]">{h}</th>)}</tr></thead><tbody>{dynamic?dynamicProps.rows.map(row=><tr key={dynamicProps.rowKey(row)} className="border-b last:border-0 hover:bg-[#f8faf7]">{dynamicProps.columns.map(c=><td key={c.key} className={"px-5 py-4 text-sm "+(c.className??"")}>{c.cell(row)}</td>)}</tr>):legacyProps.children}</tbody></table></div>{empty}{total!==undefined&&<div className="flex items-center justify-between border-t px-5 py-4 text-sm text-[#5d7567]"><span>Total {total} records</span><div className="flex items-center gap-2"><button className={b} disabled={page===1} onClick={()=>onPageChange?.(1)}>First</button><button className={b} disabled={page===1} onClick={()=>onPageChange?.(page-1)}>Prev</button><span className="rounded-md border bg-[#f8faf7] px-3 py-1.5 text-xs font-bold">{page} / {pages}</span><button className={b} disabled={page===pages} onClick={()=>onPageChange?.(page+1)}>Next</button><button className={b} disabled={page===pages} onClick={()=>onPageChange?.(pages)}>Last</button></div></div>}</div>}

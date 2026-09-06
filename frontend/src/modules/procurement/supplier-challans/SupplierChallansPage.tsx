@@ -1,3 +1,4 @@
+import { DataTable } from "../../../components/ui/DataTable";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Truck, Scale, FileText } from 'lucide-react';
@@ -95,9 +96,7 @@ export function SupplierChallansPage() {
           <span className="text-[12px] text-[#7a9185]">{rows.length} challans total</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-            <thead><tr><th>Challan #</th><th>Supplier</th><th>Requisition</th><th>Vehicle No</th><th>Declared Net (kg)</th><th>Actual Net (kg)</th><th>Variance</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-            <tbody>
+          <DataTable columns={["Challan #","Supplier","Requisition","Vehicle No","Declared Net (kg)","Actual Net (kg)","Variance","Status","Date","Actions"]}>
               {rows.map((d) => {
                 const varPct = d.weightVariancePercent;
                 const isWarn = varPct !== null && varPct !== undefined && Math.abs(varPct) > 0.5;
@@ -122,8 +121,7 @@ export function SupplierChallansPage() {
                   </tr>
                 );
               })}
-            </tbody>
-          </table>
+            </DataTable>
           {rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Truck size={28} /></div><b>No challans yet</b><p>Record your first supplier delivery challan.</p></div>}
         </div>
       </Card>
@@ -174,10 +172,7 @@ export function SupplierChallansPage() {
             ))}
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
-              <thead><tr><th>Product</th><th>Declared Qty</th><th>Accepted Qty</th><th>UOM</th><th>Unit Price</th></tr></thead>
-              <tbody>{selected.lines.map((l, i) => <tr key={i}><td>{l.product?.name ?? '—'}<br /><span className="text-[11px] text-[#7a9185] font-mono">{l.product?.sku}</span></td><td>{Number(l.declaredQty).toLocaleString()}</td><td>{l.acceptedQty != null ? Number(l.acceptedQty).toLocaleString() : '—'}</td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</tbody>
-            </table>
+            <DataTable columns={["Product","Declared Qty","Accepted Qty","UOM","Unit Price"]}>{selected.lines.map((l, i) => <tr key={i}><td>{l.product?.name ?? '—'}<br /><span className="text-[11px] text-[#7a9185] font-mono">{l.product?.sku}</span></td><td>{Number(l.declaredQty).toLocaleString()}</td><td>{l.acceptedQty != null ? Number(l.acceptedQty).toLocaleString() : '—'}</td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</DataTable>
           </div>
         </Modal>
       )}

@@ -1,0 +1,2 @@
+import type { InputHTMLAttributes } from "react";
+export function Checkbox({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) { return <label className="inline-flex items-center gap-2 rounded-lg border border-[#dbe4da] bg-white px-3 py-2 text-sm font-medium"><input type="checkbox" className="size-4 accent-[#0d3b2e]" {...props}/><span>{label}</span></label>; }
