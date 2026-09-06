@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Factory, Search } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -82,48 +84,48 @@ export function ProductionOrdersPage() {
       description="Auto-scale recipe formulations for target production quantities. RM requirement lines are calculated from the recipe."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Production Order</Button>}
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
-      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
+      <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[{ label: 'Total Orders', v: rows.length, c: 'brand' }, { label: 'Draft', v: rows.filter((r) => r.status === 'DRAFT').length, c: 'gray' }, { label: 'Submitted', v: rows.filter((r) => r.status === 'SUBMITTED').length, c: 'blue' }, { label: 'Closed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' }].map((s) => (
-          <div className="stat-card" key={s.label} style={{ padding: '14px 16px' }}>
-            <div className="stat-card__body"><div className="stat-card__value" style={{ fontSize: 22 }}>{s.v}</div><div className="stat-card__label">{s.label}</div></div>
-          </div>
+          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
+            <div className="min-w-0"><div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.v}</div><div className="text-[12px] text-[#7a9185] font-medium">{s.label}</div></div>
+          </Card>
         ))}
       </div>
 
-      <div className="card" style={{ padding: 0 }}>
-        <div className="table-header">
+      <Card className="p-0">
+        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
           <h2>Production Order Register</h2>
-          <div className="search-bar"><Search size={14} /><input placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+          <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] flex-1 max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]"><Search size={14} /><input placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         </div>
-        <div className="ui-table-wrap">
-          <table className="ui-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead><tr><th>Order #</th><th>Recipe</th><th>FG Product</th><th>Target Qty</th><th>RM Lines</th><th>Status</th><th>Planned Start</th><th>Actions</th></tr></thead>
             <tbody>
               {filtered.map((po) => (
                 <tr key={po.id}>
-                  <td><strong style={{ color: 'var(--brand-primary)', fontFamily: 'monospace' }}>{po.number}</strong></td>
-                  <td>{po.recipe?.name ?? '—'}<br /><span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{po.recipe?.code}</span></td>
-                  <td>{po.fgProduct?.name ?? '—'}<br /><span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace' }}>{po.fgProduct?.sku}</span></td>
+                  <td><strong className="text-[#0d3b2e] font-mono">{po.number}</strong></td>
+                  <td>{po.recipe?.name ?? '—'}<br /><span className="text-[11px] text-[#7a9185]">{po.recipe?.code}</span></td>
+                  <td>{po.fgProduct?.name ?? '—'}<br /><span className="text-[11px] text-[#7a9185] font-mono">{po.fgProduct?.sku}</span></td>
                   <td><strong>{Number(po.targetQty).toLocaleString()}</strong> {po.uom?.code ?? 'kg'}</td>
                   <td>{po.lines.length} materials</td>
                   <td>{statusBadge(po.status)}</td>
-                  <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{po.plannedStartDate ? new Date(po.plannedStartDate).toLocaleDateString('en-GB') : '—'}</td>
+                  <td className="text-[12px] text-[#7a9185]">{po.plannedStartDate ? new Date(po.plannedStartDate).toLocaleDateString('en-GB') : '—'}</td>
                   <td><Button size="sm" variant="secondary" onClick={() => setSelected(po)}>View Lines</Button></td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="empty-state"><div className="empty-state__icon"><Factory size={28} /></div><b>No production orders yet</b><p>Create an order to auto-scale a recipe to your target quantity.</p></div>}
+          {filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Factory size={28} /></div><b>No production orders yet</b><p>Create an order to auto-scale a recipe to your target quantity.</p></div>}
         </div>
-      </div>
+      </Card>
 
       {open && (
         <Modal title="New FM Production Order" description="Select a recipe and target quantity. RM requirements are calculated automatically." onClose={() => setOpen(false)}
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.targetQty}>Create Order</Button></>}
-        >
-          <div className="ui-form-grid">
+       >
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
             <FormField label="Recipe" required>
               <Select value={form.recipeId} onChange={(e) => setForm({ ...form, recipeId: e.target.value })}>
                 <option value="">— Select recipe —</option>
@@ -151,11 +153,11 @@ export function ProductionOrdersPage() {
           </div>
 
           {scaleFactor && selectedRecipe && (
-            <div style={{ background: 'var(--brand-glow)', border: '1px solid rgba(168,213,72,0.3)', borderRadius: 10, padding: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--brand-primary)', marginBottom: 8 }}>
+            <div className="bg-[rgba(168,213,72,0.18)] [border:1px_solid_rgba(168,213,72,0.3)] rounded-[10px] p-3.5">
+              <div className="font-bold text-[13px] text-[#0d3b2e] mb-2">
                 Scaled from {selectedRecipe.targetTonnage ?? 1}T base recipe → {form.targetQty}T target (×{scaleFactor.toFixed(2)})
               </div>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>
+              <p className="text-[12px] text-[#445e50] m-0">
                 RM requirement lines will be auto-generated with waste percentages applied. You can edit them after creation.
               </p>
             </div>
@@ -165,8 +167,8 @@ export function ProductionOrdersPage() {
 
       {selected && (
         <Modal title={`Order ${selected.number} — RM Requirements`} description={`Recipe: ${selected.recipe?.name ?? '—'} · Target: ${Number(selected.targetQty).toLocaleString()} ${selected.uom?.code ?? 'kg'}`} onClose={() => setSelected(null)} wide footer={<Button variant="secondary" onClick={() => setSelected(null)}>Close</Button>}>
-          <div className="ui-table-wrap">
-            <table className="ui-table">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
               <thead><tr><th>Raw Material</th><th>SKU</th><th>Required Qty</th><th>Issued Qty</th><th>Remaining</th><th>Progress</th></tr></thead>
               <tbody>
                 {selected.lines.map((l, i) => {
@@ -174,13 +176,13 @@ export function ProductionOrdersPage() {
                   return (
                     <tr key={i}>
                       <td>{l.rawMaterial?.name ?? '—'}</td>
-                      <td><span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)' }}>{l.rawMaterial?.sku}</span></td>
+                      <td><span className="text-[11px] font-mono text-[#7a9185]">{l.rawMaterial?.sku}</span></td>
                       <td><strong>{Number(l.requiredQty).toLocaleString()}</strong></td>
                       <td>{Number(l.issuedQty).toLocaleString()}</td>
-                      <td style={{ color: l.issuedQty >= l.requiredQty ? 'var(--success)' : 'var(--warning)', fontWeight: 600 }}>{Math.max(0, l.requiredQty - l.issuedQty).toLocaleString()}</td>
-                      <td style={{ minWidth: 120 }}>
-                        <div className="progress-bar"><div className="progress-bar__fill" style={{ width: `${pct}%` }} /></div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>{pct.toFixed(0)}%</div>
+                      <td className={twMerge("font-semibold", (l.issuedQty >= l.requiredQty ? "text-[#1b8f5a]" : "text-[#c87d12]"))}>{Math.max(0, l.requiredQty - l.issuedQty).toLocaleString()}</td>
+                      <td className="min-w-30">
+                        <div className="h-1.5 rounded-[4px] bg-[#e0e5dd] overflow-hidden"><div className="h-full rounded-[4px] [background:linear-gradient(90deg,_#a8d548,_#1a5c45)] [transition:width_0.5s_ease] w-[var(--meter-width)]" style={{ "--meter-width": `${pct}%` } as CSSProperties} /></div>
+                        <div className="text-[11px] text-[#7a9185] mt-0.75">{pct.toFixed(0)}%</div>
                       </td>
                     </tr>
                   );

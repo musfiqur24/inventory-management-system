@@ -1,3 +1,4 @@
+import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Truck, Scale, FileText } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -86,15 +87,15 @@ export function SupplierChallansPage() {
       description="Record supplier delivery challans with vehicle details, declared weights, and product lines."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Challan</Button>}
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
-      <div className="card" style={{ padding: 0 }}>
-        <div className="table-header">
+      <Card className="p-0">
+        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
           <h2>Challan Register</h2>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{rows.length} challans total</span>
+          <span className="text-[12px] text-[#7a9185]">{rows.length} challans total</span>
         </div>
-        <div className="ui-table-wrap">
-          <table className="ui-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead><tr><th>Challan #</th><th>Supplier</th><th>Requisition</th><th>Vehicle No</th><th>Declared Net (kg)</th><th>Actual Net (kg)</th><th>Variance</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>
               {rows.map((d) => {
@@ -102,36 +103,36 @@ export function SupplierChallansPage() {
                 const isWarn = varPct !== null && varPct !== undefined && Math.abs(varPct) > 0.5;
                 return (
                   <tr key={d.id}>
-                    <td><strong style={{ color: 'var(--brand-primary)' }}>{d.number}</strong></td>
+                    <td><strong className="text-[#0d3b2e]">{d.number}</strong></td>
                     <td>{d.supplier?.name ?? '—'}</td>
-                    <td><span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)' }}>{d.requisition?.number ?? '—'}</span></td>
-                    <td><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{d.vehicleNo ?? '—'}</span></td>
+                    <td><span className="text-[11px] font-mono text-[#7a9185]">{d.requisition?.number ?? '—'}</span></td>
+                    <td><span className="font-mono text-[12px]">{d.vehicleNo ?? '—'}</span></td>
                     <td>{d.netWeight ? Number(d.netWeight).toLocaleString() : '—'}</td>
-                    <td>{d.latestWeighment ? Number(d.latestWeighment.netWeight).toLocaleString() : <span style={{ color: 'var(--text-muted)' }}>Not weighed</span>}</td>
+                    <td>{d.latestWeighment ? Number(d.latestWeighment.netWeight).toLocaleString() : <span className="text-[#7a9185]">Not weighed</span>}</td>
                     <td>
                       {varPct !== null && varPct !== undefined ? (
-                        <span style={{ color: isWarn ? 'var(--error)' : 'var(--success)', fontWeight: 600, fontSize: 13 }}>
+                        <span className={twMerge("font-semibold text-[13px]", (isWarn ? "text-[#c03030]" : "text-[#1b8f5a]"))}>
                           {varPct >= 0 ? '+' : ''}{varPct.toFixed(2)}%
                         </span>
                       ) : '—'}
                     </td>
                     <td>{statusBadge(d.status)}</td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('en-GB') : '—'}</td>
+                    <td className="text-[12px] text-[#7a9185]">{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('en-GB') : '—'}</td>
                     <td><Button size="sm" variant="secondary" onClick={() => setSelected(d)}><FileText size={14} /> View</Button></td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-          {rows.length === 0 && <div className="empty-state"><div className="empty-state__icon"><Truck size={28} /></div><b>No challans yet</b><p>Record your first supplier delivery challan.</p></div>}
+          {rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Truck size={28} /></div><b>No challans yet</b><p>Record your first supplier delivery challan.</p></div>}
         </div>
-      </div>
+      </Card>
 
       {open && (
         <Modal title="New Supplier Delivery Challan" description="Register delivery with vehicle, weights and product lines." onClose={() => setOpen(false)} wide
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit}>Save Challan</Button></>}
-        >
-          <div className="ui-form-grid">
+       >
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
             <FormField label="Linked Requisition"><Select value={form.requisitionId} onChange={(e) => setForm({ ...form, requisitionId: e.target.value })}><option value="">— Select (optional) —</option>{requisitions.map((r) => <option key={r.id} value={r.id}>{r.number}</option>)}</Select></FormField>
             <FormField label="Supplier" required><Select value={form.supplierId} onChange={(e) => setForm({ ...form, supplierId: e.target.value })}><option value="">— Select supplier —</option>{suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</Select></FormField>
             <FormField label="Invoice Number"><Input placeholder="INV-2026-001" value={form.invoiceNo} onChange={(e) => setForm({ ...form, invoiceNo: e.target.value })} /></FormField>
@@ -140,18 +141,18 @@ export function SupplierChallansPage() {
             <FormField label="Tare Weight (kg)"><Input type="number" placeholder="Empty vehicle weight" value={form.tareWeight} onChange={(e) => setForm({ ...form, tareWeight: e.target.value })} /></FormField>
           </div>
           {netWeight !== null && (
-            <div style={{ background: 'var(--success-bg)', border: '1px solid #b0e8cc', borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Scale size={16} style={{ color: 'var(--success)' }} />
-              <span style={{ color: 'var(--success)', fontWeight: 700 }}>Calculated Net: {netWeight.toLocaleString()} kg</span>
+            <div className="bg-[#eaf8f0] [border:1px_solid_#b0e8cc] rounded-[10px] p-[10px_14px] flex items-center gap-2.5">
+              <Scale size={16} className="text-[#1b8f5a]" />
+              <span className="text-[#1b8f5a] font-bold">Calculated Net: {netWeight.toLocaleString()} kg</span>
             </div>
           )}
-          <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <strong style={{ fontSize: 14 }}>Product Lines</strong>
+          <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
+            <div className="flex justify-between mb-2.5">
+              <strong className="text-[14px]">Product Lines</strong>
               <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', declaredQty: '', unitPrice: '' }])}><Plus size={14} /> Add</Button>
             </div>
             {lines.map((line, i) => (
-              <div key={i} className="ui-form-grid" style={{ background: 'var(--bg-card-alt)', padding: 12, borderRadius: 10, marginBottom: 10 }}>
+              <div key={i} className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr] bg-[#f8faf7] p-3 rounded-[10px] mb-2.5">
                 <FormField label="Product"><Select value={line.productId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, productId: e.target.value } : l))}><option value="">— Select product —</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Select></FormField>
                 <FormField label="UOM"><Select value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">— UOM —</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</Select></FormField>
                 <FormField label="Declared Qty"><Input type="number" value={line.declaredQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, declaredQty: e.target.value } : l))} /></FormField>
@@ -164,18 +165,18 @@ export function SupplierChallansPage() {
 
       {selected && (
         <Modal title={`Challan: ${selected.number}`} description={`Supplier: ${selected.supplier?.name ?? '—'} · Vehicle: ${selected.vehicleNo ?? '—'}`} onClose={() => setSelected(null)} wide footer={<Button variant="secondary" onClick={() => setSelected(null)}>Close</Button>}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, padding: '0 0 16px' }}>
+          <div className="grid grid-cols-[1fr_1fr_1fr] gap-3 p-[0_0_16px]">
             {[['Declared Net', `${Number(selected.netWeight || 0).toLocaleString()} kg`], ['Actual Weighment', selected.latestWeighment ? `${Number(selected.latestWeighment.netWeight).toLocaleString()} kg` : 'Not weighed'], ['Variance', selected.weightVariancePercent != null ? `${selected.weightVariancePercent >= 0 ? '+' : ''}${selected.weightVariancePercent.toFixed(2)}%` : '—']].map(([k, v]) => (
-              <div key={k} style={{ background: 'var(--bg-card-alt)', borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>{k}</div>
-                <div style={{ fontWeight: 700, fontSize: 16 }}>{v}</div>
+              <div key={k} className="bg-[#f8faf7] rounded-[10px] p-3">
+                <div className="text-[11px] text-[#7a9185] mb-1">{k}</div>
+                <div className="font-bold text-[16px]">{v}</div>
               </div>
             ))}
           </div>
-          <div className="ui-table-wrap">
-            <table className="ui-table">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
               <thead><tr><th>Product</th><th>Declared Qty</th><th>Accepted Qty</th><th>UOM</th><th>Unit Price</th></tr></thead>
-              <tbody>{selected.lines.map((l, i) => <tr key={i}><td>{l.product?.name ?? '—'}<br /><span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace' }}>{l.product?.sku}</span></td><td>{Number(l.declaredQty).toLocaleString()}</td><td>{l.acceptedQty != null ? Number(l.acceptedQty).toLocaleString() : '—'}</td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</tbody>
+              <tbody>{selected.lines.map((l, i) => <tr key={i}><td>{l.product?.name ?? '—'}<br /><span className="text-[11px] text-[#7a9185] font-mono">{l.product?.sku}</span></td><td>{Number(l.declaredQty).toLocaleString()}</td><td>{l.acceptedQty != null ? Number(l.acceptedQty).toLocaleString() : '—'}</td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</tbody>
             </table>
           </div>
         </Modal>

@@ -1,3 +1,6 @@
+import { twMerge } from 'tailwind-merge';
+import { iconVariants, badgeVariants } from '../../shared/styles/variants';
+import { Card } from '../../components/ui/Card';
 import { useEffect, useState } from 'react';
 import { Package, ShoppingCart, Truck, Factory, CheckCircle2, AlertTriangle, TrendingUp, Layers } from 'lucide-react';
 import { api, selectedOrg } from '../../shared/api/http';
@@ -75,76 +78,76 @@ export function DashboardPage() {
       title="Dashboard"
       description="Live feed production inventory snapshot across the entire workflow."
       notice={message ? <Notice variant={message.includes('select') ? 'warn' : 'error'}>{message}</Notice> : undefined}
-    >
+   >
 
       {loading && (
-        <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>
+        <div className="text-center p-15 text-[#7a9185]">
           Loading dashboard...
         </div>
       )}
 
       {stats && (
         <>
-          <div className="stats-grid">
+          <div className="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] gap-4 mb-7 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
             {statCards.map((card) => (
-              <div className="stat-card" key={card.label}>
-                <div className={`stat-card__icon stat-card__icon--${card.color}`}>
+              <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md" key={card.label}>
+                <div className={twMerge(`w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 ${iconVariants[card.color] ?? ""}`)}>
                   <card.icon />
                 </div>
-                <div className="stat-card__body">
-                  <div className="stat-card__value">{card.value}</div>
-                  <div className="stat-card__label">{card.label}</div>
-                  <div className="stat-card__sub">{card.sub}</div>
+                <div className="min-w-0">
+                  <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{card.value}</div>
+                  <div className="text-[12px] text-[#7a9185] font-medium">{card.label}</div>
+                  <div className="text-[11.5px] text-[#7a9185] mt-1">{card.sub}</div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
-          <div className="two-col" style={{ marginTop: 0 }}>
-            <div className="card">
-              <div className="card-header">
+          <div className="grid grid-cols-[1fr_1.2fr] gap-5 max-[900px]:grid-cols-[1fr] mt-0">
+            <Card>
+              <div className="flex items-center justify-between gap-3 mb-5 [:where(&_h2)]:text-[16px] [:where(&_h2)]:font-bold [:where(&_h2)]:text-[#0f1c16] [:where(&_h2)]:m-0 [:where(&_p)]:text-[12.5px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-0">
                 <div>
                   <h2>Recent Stock Movements</h2>
                   <p>Latest ledger activity from across all stores</p>
                 </div>
-                <TrendingUp size={20} style={{ color: 'var(--text-muted)' }} />
+                <TrendingUp size={20} className="text-[#7a9185]" />
               </div>
               {stats.movements.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-state__icon"><CheckCircle2 size={28} /></div>
+                <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
+                  <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><CheckCircle2 size={28} /></div>
                   <b>No movements yet</b>
                   <p>Stock movements will appear once workflow transactions begin.</p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gap: 8 }}>
+                <div className="grid gap-2">
                   {stats.movements.map((m, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                      <span className={`badge badge--${movementTypeColor[m.movementType] ?? 'gray'}`}>
-                        <span className="badge__dot" />
+                    <div key={i} className="flex items-center gap-3 p-[10px_0] [border-bottom:1px_solid_#e0e5dd]">
+                      <span className={twMerge(`inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap ${badgeVariants[movementTypeColor[m.movementType] ?? 'gray'] ?? ""}`)}>
+                        <span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />
                         {m.movementType?.replace(/_/g, ' ')}
                       </span>
-                      <span style={{ flex: 1, fontSize: 13, color: 'var(--text-secondary)' }}>
+                      <span className="flex-1 text-[13px] text-[#445e50]">
                         {m.product?.name ?? m.productId?.slice(0, 8)}
                       </span>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>
+                      <span className="text-[13px] font-semibold">
                         {Number(m.quantity).toLocaleString()} {m.uom?.code ?? 'kg'}
                       </span>
-                      <span style={{ fontSize: 11, color: 'var(--text-muted)', minWidth: 80, textAlign: 'right' }}>
+                      <span className="text-[11px] text-[#7a9185] min-w-20 text-right">
                         {new Date(m.occurredAt).toLocaleDateString()}
                       </span>
                     </div>
                   ))}
                 </div>
               )}
-            </div>
+            </Card>
 
-            <div className="card">
-              <div className="card-header">
+            <Card>
+              <div className="flex items-center justify-between gap-3 mb-5 [:where(&_h2)]:text-[16px] [:where(&_h2)]:font-bold [:where(&_h2)]:text-[#0f1c16] [:where(&_h2)]:m-0 [:where(&_p)]:text-[12.5px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-0">
                 <div>
                   <h2>Workflow Status</h2>
                   <p>End-to-end pipeline health at a glance</p>
                 </div>
-                <CheckCircle2 size={20} style={{ color: 'var(--success)' }} />
+                <CheckCircle2 size={20} className="text-[#1b8f5a]" />
               </div>
               {[
                 { step: 'Sales Order → RM Requisition', status: 'ACTIVE', desc: 'Sales demand drives procurement planning' },
@@ -154,17 +157,17 @@ export function DashboardPage() {
                 { step: 'Factory Batch → Waste Verification', status: 'ACTIVE', desc: 'Compare actual vs planned waste allowance' },
                 { step: 'FM Store → Customer Dispatch', status: 'ACTIVE', desc: 'Complete genealogical dispatch traceability' },
               ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, padding: '11px 0', borderBottom: i < 5 ? '1px solid var(--border-subtle)' : 'none' }}>
-                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--success-bg)', display: 'grid', placeItems: 'center', flexShrink: 0, marginTop: 1 }}>
-                    <CheckCircle2 size={14} style={{ color: 'var(--success)' }} />
+                <div key={i} className={twMerge("flex gap-3 p-[11px_0]", (i < 5 ? "[border-bottom:1px_solid_#e0e5dd]" : "[border-bottom:none]"))}>
+                  <div className="w-6 h-6 rounded-full bg-[#eaf8f0] grid place-items-center shrink-0 mt-0.25">
+                    <CheckCircle2 size={14} className="text-[#1b8f5a]" />
                   </div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{item.step}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{item.desc}</div>
+                    <div className="text-[13px] font-semibold">{item.step}</div>
+                    <div className="text-[12px] text-[#7a9185] mt-0.5">{item.desc}</div>
                   </div>
                 </div>
               ))}
-            </div>
+            </Card>
           </div>
         </>
       )}

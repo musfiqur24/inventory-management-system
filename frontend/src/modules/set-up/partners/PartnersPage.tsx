@@ -1,3 +1,4 @@
+import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Building2, Search, Phone, Mail } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -55,68 +56,68 @@ export function PartnersPage() {
       description="Manage your partner directory — suppliers who provide raw materials and customers who receive finished goods."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Add Partner</Button>}
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
-      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 20 }}>
+      <div className="grid grid-cols-[repeat(3,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[
           { label: 'Total Partners', v: rows.length, color: 'brand' },
           { label: 'Suppliers', v: suppliers.length, color: 'blue' },
           { label: 'Customers', v: customers.length, color: 'green' },
         ].map((s) => (
-          <div className="stat-card" key={s.label} style={{ padding: '14px 16px' }}>
-            <div className="stat-card__body"><div className="stat-card__value" style={{ fontSize: 22 }}>{s.v}</div><div className="stat-card__label">{s.label}</div></div>
-          </div>
+          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
+            <div className="min-w-0"><div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.v}</div><div className="text-[12px] text-[#7a9185] font-medium">{s.label}</div></div>
+          </Card>
         ))}
       </div>
 
       <Card padding="none">
-        <div className="table-header">
+        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
           <h2>Partner Directory</h2>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div className="tabs" style={{ border: 'none', margin: 0 }}>
+          <div className="flex gap-2 items-center">
+            <div className="flex gap-1 [border-bottom:2px_solid_#e0e5dd] max-[480px]:overflow-x-auto max-[480px]:flex-nowrap [border:none] m-0">
               {(['ALL', 'SUPPLIER', 'CUSTOMER'] as const).map((t) => (
-                <button key={t} className={`tab ${typeFilter === t ? 'active' : ''}`} onClick={() => setTypeFilter(t)}>{t === 'ALL' ? 'All' : t === 'SUPPLIER' ? 'Suppliers' : 'Customers'}</button>
+                <button key={t} className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(typeFilter === t ? "active" : "")}`)} onClick={() => setTypeFilter(t)}>{t === 'ALL' ? 'All' : t === 'SUPPLIER' ? 'Suppliers' : 'Customers'}</button>
               ))}
             </div>
-            <div className="search-bar"><Search size={14} /><input placeholder="Search partners…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+            <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] flex-1 max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]"><Search size={14} /><input placeholder="Search partners…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
           </div>
         </div>
-        <div className="ui-table-wrap">
-          <table className="ui-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead><tr><th>Partner Name</th><th>Code</th><th>Type</th><th>Contact Person</th><th>Email</th><th>Phone</th></tr></thead>
             <tbody>
               {filtered.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: p.partnerType === 'SUPPLIER' ? 'var(--info-bg)' : 'var(--success-bg)', display: 'grid', placeItems: 'center', color: p.partnerType === 'SUPPLIER' ? 'var(--info)' : 'var(--success)', flexShrink: 0 }}>
+                    <div className="flex items-center gap-2.5">
+                      <div className={twMerge("w-8 h-8 rounded-[8px] grid place-items-center shrink-0", (p.partnerType === 'SUPPLIER' ? "bg-[#e8f2ff]" : "bg-[#eaf8f0]"), (p.partnerType === 'SUPPLIER' ? "text-[#1864ab]" : "text-[#1b8f5a]"))}>
                         <Building2 size={14} />
                       </div>
                       <strong>{p.name}</strong>
                     </div>
                   </td>
-                  <td><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{p.code}</span></td>
+                  <td><span className="font-mono text-[12px]">{p.code}</span></td>
                   <td>
                     {p.partnerType === 'SUPPLIER'
-                      ? <span className="badge badge--blue"><span className="badge__dot" />Supplier</span>
-                      : <span className="badge badge--green"><span className="badge__dot" />Customer</span>}
+                      ? <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap bg-[#e8f2ff] text-[#1864ab]"><span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />Supplier</span>
+                      : <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap bg-[#eaf8f0] text-[#1b8f5a]"><span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />Customer</span>}
                   </td>
-                  <td>{p.contactPerson ?? <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
-                  <td>{p.email ? <a href={`mailto:${p.email}`} style={{ color: 'var(--info)', display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={12} />{p.email}</a> : '—'}</td>
-                  <td>{p.phone ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}><Phone size={12} />{p.phone}</span> : '—'}</td>
+                  <td>{p.contactPerson ?? <span className="text-[#7a9185]">—</span>}</td>
+                  <td>{p.email ? <a href={`mailto:${p.email}`} className="text-[#1864ab] flex items-center gap-1"><Mail size={12} />{p.email}</a> : '—'}</td>
+                  <td>{p.phone ? <span className="flex items-center gap-1 text-[13px]"><Phone size={12} />{p.phone}</span> : '—'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="empty-state"><div className="empty-state__icon"><Building2 size={28} /></div><b>No partners found</b><p>Add suppliers who provide raw materials and customers who receive finished goods.</p></div>}
+          {filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Building2 size={28} /></div><b>No partners found</b><p>Add suppliers who provide raw materials and customers who receive finished goods.</p></div>}
         </div>
       </Card>
 
       {open && (
         <Modal title="Add Partner" description="Register a new supplier or customer in the partner directory." wide onClose={() => setOpen(false)}
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.name || !form.code}>Save Partner</Button></>}
-        >
-          <div className="form-grid-2">
+       >
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Partner Type" required>
               <Select value={form.partnerType} onChange={(e) => setForm({ ...form, partnerType: e.target.value })}>
                 <option value="SUPPLIER">Supplier (RM vendor)</option>

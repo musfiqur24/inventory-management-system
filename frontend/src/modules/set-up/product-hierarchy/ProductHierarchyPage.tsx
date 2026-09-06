@@ -1,3 +1,4 @@
+import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, ChevronRight, FolderTree } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -34,7 +35,6 @@ interface UOM {
   name: string;
 }
 
-const LEVEL_COLORS = ['#a8d548', '#1b8f5a', '#1864ab', '#7c3aed', '#c87d12'];
 
 export function ProductHierarchyPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -191,80 +191,58 @@ export function ProductHierarchyPage() {
         </Button>
       }
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
       {/* Combined Hierarchy Explorer Container */}
       <Card padding="none">
         {/* Active Navigation Breadcrumb */}
         <div
-          style={{
-            padding: '14px 20px',
-            borderBottom: '1px solid var(--border-subtle)',
-            background: 'var(--bg-card)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: 13,
-            flexWrap: 'wrap',
-          }}
-        >
-          <FolderTree size={16} style={{ color: 'var(--brand-primary)' }} />
-          <span style={{ fontWeight: 700, color: 'var(--text-muted)' }}>Hierarchy Path:</span>
+           className="p-[14px_20px] [border-bottom:1px_solid_#e0e5dd] bg-[#ffffff] flex items-center gap-2 text-[13px] flex-wrap"
+       >
+          <FolderTree size={16} className="text-[#0d3b2e]" />
+          <span className="font-bold text-[#7a9185]">Hierarchy Path:</span>
 
-          <span className={`badge ${activeL1Obj ? 'badge--info' : ''}`}>
+          <span className={twMerge(`inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap ${(activeL1Obj ? "bg-[#e8f2ff] text-[#1864ab]" : "")}`)}>
             {activeL1Obj ? activeL1Obj.name : 'All L1 Types'}
           </span>
-          <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
+          <ChevronRight size={14} className="text-[#7a9185]" />
 
-          <span className={`badge ${activeL2Obj ? 'badge--info' : ''}`}>
+          <span className={twMerge(`inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap ${(activeL2Obj ? "bg-[#e8f2ff] text-[#1864ab]" : "")}`)}>
             {activeL2Obj ? activeL2Obj.name : 'Select L2 Class'}
           </span>
-          <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
+          <ChevronRight size={14} className="text-[#7a9185]" />
 
-          <span className={`badge ${activeL3Obj ? 'badge--info' : ''}`}>
+          <span className={twMerge(`inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap ${(activeL3Obj ? "bg-[#e8f2ff] text-[#1864ab]" : "")}`)}>
             {activeL3Obj ? activeL3Obj.name : 'Select L3 Sub-Class'}
           </span>
-          <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
+          <ChevronRight size={14} className="text-[#7a9185]" />
 
-          <span className={`badge ${activeL4Obj ? 'badge--info' : ''}`}>
+          <span className={twMerge(`inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap ${(activeL4Obj ? "bg-[#e8f2ff] text-[#1864ab]" : "")}`)}>
             {activeL4Obj ? activeL4Obj.name : 'Select L4 Family'}
           </span>
         </div>
 
         {/* 5-Column Drill-Down Explorer */}
-        <div style={{ padding: 16, overflowX: 'auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(200px, 1fr))', gap: 14, minWidth: 1050 }}>
+        <div className="p-4 overflow-x-auto">
+          <div className="grid grid-cols-[repeat(5,_minmax(200px,_1fr))] gap-3.5 min-w-262.5">
             {/* Level 1 Column */}
-            <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
-            <div style={{ background: LEVEL_COLORS[0], color: '#0d3b2e', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
+            <div className="[border:1px_solid_#e0e5dd] rounded-[8px] overflow-hidden bg-[#ffffff]">
+            <div className="bg-[#a8d548] text-[#0d3b2e] p-[10px_14px] text-[12px] font-extrabold">
               Level 1 — Type
             </div>
-            <div style={{ padding: 8, minHeight: 280, maxHeight: 450, overflowY: 'auto' }}>
+            <div className="p-2 min-h-70 max-h-112.5 overflow-y-auto">
               {l1Categories.length === 0 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>No L1 items</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">No L1 items</div>
               ) : (
                 l1Categories.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => handleSelectL1(item.id)}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 8,
-                      marginBottom: 6,
-                      cursor: 'pointer',
-                      fontSize: 13,
-                      fontWeight: selectedL1 === item.id ? 700 : 500,
-                      background: selectedL1 === item.id ? 'var(--brand-glow)' : 'transparent',
-                      border: selectedL1 === item.id ? '1px solid rgba(168,213,72,0.4)' : '1px solid transparent',
-                      color: selectedL1 === item.id ? 'var(--brand-primary)' : 'var(--text-primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                     className={twMerge("p-[10px_12px] rounded-[8px] mb-1.5 cursor-pointer text-[13px] flex items-center justify-between", (selectedL1 === item.id ? "font-bold" : "font-medium"), (selectedL1 === item.id ? "bg-[rgba(168,213,72,0.18)]" : "bg-[transparent]"), (selectedL1 === item.id ? "[border:1px_solid_rgba(168,213,72,0.4)]" : "[border:1px_solid_transparent]"), (selectedL1 === item.id ? "text-[#0d3b2e]" : "text-[#0f1c16]"))}
+                 >
                     <div>
                       <div>{item.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Code: {item.code}</div>
+                      <div className="text-[10px] text-[#7a9185]">Code: {item.code}</div>
                     </div>
                     <ChevronRight size={14} />
                   </div>
@@ -274,38 +252,25 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 2 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
-            <div style={{ background: LEVEL_COLORS[1], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
+          <div className="[border:1px_solid_#e0e5dd] rounded-[8px] overflow-hidden bg-[#ffffff]">
+            <div className="bg-[#1b8f5a] text-[#ffffff] p-[10px_14px] text-[12px] font-extrabold">
               Level 2 — Class
             </div>
-            <div style={{ padding: 8, minHeight: 280, maxHeight: 450, overflowY: 'auto' }}>
+            <div className="p-2 min-h-70 max-h-112.5 overflow-y-auto">
               {!selectedL1 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>Select L1 parent</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">Select L1 parent</div>
               ) : l2Categories.length === 0 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>No L2 under active L1</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">No L2 under active L1</div>
               ) : (
                 l2Categories.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => handleSelectL2(item.id)}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 8,
-                      marginBottom: 6,
-                      cursor: 'pointer',
-                      fontSize: 13,
-                      fontWeight: selectedL2 === item.id ? 700 : 500,
-                      background: selectedL2 === item.id ? 'var(--brand-glow)' : 'transparent',
-                      border: selectedL2 === item.id ? '1px solid rgba(168,213,72,0.4)' : '1px solid transparent',
-                      color: selectedL2 === item.id ? 'var(--brand-primary)' : 'var(--text-primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                     className={twMerge("p-[10px_12px] rounded-[8px] mb-1.5 cursor-pointer text-[13px] flex items-center justify-between", (selectedL2 === item.id ? "font-bold" : "font-medium"), (selectedL2 === item.id ? "bg-[rgba(168,213,72,0.18)]" : "bg-[transparent]"), (selectedL2 === item.id ? "[border:1px_solid_rgba(168,213,72,0.4)]" : "[border:1px_solid_transparent]"), (selectedL2 === item.id ? "text-[#0d3b2e]" : "text-[#0f1c16]"))}
+                 >
                     <div>
                       <div>{item.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Code: {item.code}</div>
+                      <div className="text-[10px] text-[#7a9185]">Code: {item.code}</div>
                     </div>
                     <ChevronRight size={14} />
                   </div>
@@ -315,38 +280,25 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 3 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
-            <div style={{ background: LEVEL_COLORS[2], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
+          <div className="[border:1px_solid_#e0e5dd] rounded-[8px] overflow-hidden bg-[#ffffff]">
+            <div className="bg-[#1864ab] text-[#ffffff] p-[10px_14px] text-[12px] font-extrabold">
               Level 3 — Sub-Class
             </div>
-            <div style={{ padding: 8, minHeight: 280, maxHeight: 450, overflowY: 'auto' }}>
+            <div className="p-2 min-h-70 max-h-112.5 overflow-y-auto">
               {!selectedL2 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>Select L2 parent</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">Select L2 parent</div>
               ) : l3Categories.length === 0 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>No L3 under active L2</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">No L3 under active L2</div>
               ) : (
                 l3Categories.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => handleSelectL3(item.id)}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 8,
-                      marginBottom: 6,
-                      cursor: 'pointer',
-                      fontSize: 13,
-                      fontWeight: selectedL3 === item.id ? 700 : 500,
-                      background: selectedL3 === item.id ? 'var(--brand-glow)' : 'transparent',
-                      border: selectedL3 === item.id ? '1px solid rgba(168,213,72,0.4)' : '1px solid transparent',
-                      color: selectedL3 === item.id ? 'var(--brand-primary)' : 'var(--text-primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                     className={twMerge("p-[10px_12px] rounded-[8px] mb-1.5 cursor-pointer text-[13px] flex items-center justify-between", (selectedL3 === item.id ? "font-bold" : "font-medium"), (selectedL3 === item.id ? "bg-[rgba(168,213,72,0.18)]" : "bg-[transparent]"), (selectedL3 === item.id ? "[border:1px_solid_rgba(168,213,72,0.4)]" : "[border:1px_solid_transparent]"), (selectedL3 === item.id ? "text-[#0d3b2e]" : "text-[#0f1c16]"))}
+                 >
                     <div>
                       <div>{item.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Code: {item.code}</div>
+                      <div className="text-[10px] text-[#7a9185]">Code: {item.code}</div>
                     </div>
                     <ChevronRight size={14} />
                   </div>
@@ -356,38 +308,25 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 4 Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
-            <div style={{ background: LEVEL_COLORS[3], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
+          <div className="[border:1px_solid_#e0e5dd] rounded-[8px] overflow-hidden bg-[#ffffff]">
+            <div className="bg-[#7c3aed] text-[#ffffff] p-[10px_14px] text-[12px] font-extrabold">
               Level 4 — Family
             </div>
-            <div style={{ padding: 8, minHeight: 280, maxHeight: 450, overflowY: 'auto' }}>
+            <div className="p-2 min-h-70 max-h-112.5 overflow-y-auto">
               {!selectedL3 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>Select L3 parent</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">Select L3 parent</div>
               ) : l4Categories.length === 0 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>No L4 under active L3</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">No L4 under active L3</div>
               ) : (
                 l4Categories.map((item) => (
                   <div
                     key={item.id}
                     onClick={() => handleSelectL4(item.id)}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 8,
-                      marginBottom: 6,
-                      cursor: 'pointer',
-                      fontSize: 13,
-                      fontWeight: selectedL4 === item.id ? 700 : 500,
-                      background: selectedL4 === item.id ? 'var(--brand-glow)' : 'transparent',
-                      border: selectedL4 === item.id ? '1px solid rgba(168,213,72,0.4)' : '1px solid transparent',
-                      color: selectedL4 === item.id ? 'var(--brand-primary)' : 'var(--text-primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                     className={twMerge("p-[10px_12px] rounded-[8px] mb-1.5 cursor-pointer text-[13px] flex items-center justify-between", (selectedL4 === item.id ? "font-bold" : "font-medium"), (selectedL4 === item.id ? "bg-[rgba(168,213,72,0.18)]" : "bg-[transparent]"), (selectedL4 === item.id ? "[border:1px_solid_rgba(168,213,72,0.4)]" : "[border:1px_solid_transparent]"), (selectedL4 === item.id ? "text-[#0d3b2e]" : "text-[#0f1c16]"))}
+                 >
                     <div>
                       <div>{item.name}</div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Code: {item.code}</div>
+                      <div className="text-[10px] text-[#7a9185]">Code: {item.code}</div>
                     </div>
                     <ChevronRight size={14} />
                   </div>
@@ -397,30 +336,23 @@ export function ProductHierarchyPage() {
           </div>
 
           {/* Level 5 Product SKU Column */}
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-card)' }}>
-            <div style={{ background: LEVEL_COLORS[4], color: '#ffffff', padding: '10px 14px', fontSize: 12, fontWeight: 800 }}>
+          <div className="[border:1px_solid_#e0e5dd] rounded-[8px] overflow-hidden bg-[#ffffff]">
+            <div className="bg-[#c87d12] text-[#ffffff] p-[10px_14px] text-[12px] font-extrabold">
               Level 5 — Product SKUs
             </div>
-            <div style={{ padding: 8, minHeight: 280, maxHeight: 450, overflowY: 'auto' }}>
+            <div className="p-2 min-h-70 max-h-112.5 overflow-y-auto">
               {!selectedL4 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>Select L4 parent</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">Select L4 parent</div>
               ) : l5Products.length === 0 ? (
-                <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>No Product SKUs under active L4</div>
+                <div className="p-4 text-center text-[#7a9185] text-[12px]">No Product SKUs under active L4</div>
               ) : (
                 l5Products.map((prod) => (
                   <div
                     key={prod.id}
-                    style={{
-                      padding: '10px 12px',
-                      borderRadius: 8,
-                      marginBottom: 6,
-                      background: 'var(--bg-card-alt)',
-                      border: '1px solid var(--border-subtle)',
-                      fontSize: 13,
-                    }}
-                  >
-                    <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{prod.name}</div>
-                    <div style={{ display: 'flex', gap: 6, fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                     className="p-[10px_12px] rounded-[8px] mb-1.5 bg-[#f8faf7] [border:1px_solid_#e0e5dd] text-[13px]"
+                 >
+                    <div className="font-bold text-[#0f1c16]">{prod.name}</div>
+                    <div className="flex gap-1.5 text-[11px] text-[#7a9185] mt-1">
                       <span>SKU: {prod.sku}</span>
                       <span>·</span>
                       <span>UOM: {prod.baseUom?.code ?? 'kg'}</span>
@@ -451,8 +383,8 @@ export function ProductHierarchyPage() {
               </Button>
             </>
           }
-        >
-          <div className="form-grid-2">
+       >
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Target Hierarchy Level" required>
               <Select value={targetLevel} onChange={(e) => setTargetLevel(Number(e.target.value))}>
                 <option value={1}>Level 1 — Material Type (Classification)</option>

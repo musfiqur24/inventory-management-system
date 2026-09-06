@@ -30,3 +30,9 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Styling
+
+All application styling uses Tailwind utilities. Use `Card` from `src/components/ui/Card.tsx` for card surfaces; its padding, rounding, and visual variants can be overridden with `className`. Shared components merge utilities with `tailwind-merge`.
+
+Tailwind is compiled through the Vite plugin using the `virtual:tailwind.css` entry, so there are no application CSS files. Keep conditional styles as complete utility strings (see `src/shared/styles/variants.ts`). The only inline values are data-driven meter widths, passed through a CSS custom property. Print reports reuse the compiled Tailwind stylesheet.

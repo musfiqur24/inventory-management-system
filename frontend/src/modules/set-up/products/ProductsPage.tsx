@@ -1,3 +1,4 @@
+import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, FlaskConical, Search, PackageCheck, AlertTriangle, Boxes } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -175,80 +176,80 @@ export function ProductsPage() {
         </Button>
       }
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
       {/* Stats Summary Cards */}
-      <div className="stats-grid" style={{ marginBottom: 24 }}>
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'var(--brand-glow)', color: 'var(--brand-primary)' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] gap-4 mb-6 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(168,213,72,0.18)] text-[#0d3b2e]">
             <FlaskConical size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{totalProducts}</div>
-            <div className="stat-card__label">Total Registered SKUs</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{totalProducts}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Total Registered SKUs</div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(24, 100, 171, 0.1)', color: '#1864ab' }}>
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(24,_100,_171,_0.1)] text-[#1864ab]">
             <Boxes size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{rawCount}</div>
-            <div className="stat-card__label">Raw Ingredients</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{rawCount}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Raw Ingredients</div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(27, 143, 90, 0.1)', color: '#1b8f5a' }}>
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(27,_143,_90,_0.1)] text-[#1b8f5a]">
             <PackageCheck size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{fgCount}</div>
-            <div className="stat-card__label">Finished Feed SKUs</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{fgCount}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Finished Feed SKUs</div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'var(--error-bg)', color: 'var(--error)' }}>
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[#fdf0f0] text-[#c03030]">
             <AlertTriangle size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{lowStockCount}</div>
-            <div className="stat-card__label">Reorder Alerts</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{lowStockCount}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Reorder Alerts</div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Filter Tabs & Search */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
-          <div className="tabs">
-            <button className={`tab ${tab === 'ALL' ? 'tab--active' : ''}`} onClick={() => setTab('ALL')}>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+          <div className="flex gap-1 [border-bottom:2px_solid_#e0e5dd] mb-6 max-[480px]:overflow-x-auto max-[480px]:flex-nowrap">
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'ALL' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('ALL')}>
               All Products ({totalProducts})
             </button>
-            <button className={`tab ${tab === 'RAW_MATERIAL' ? 'tab--active' : ''}`} onClick={() => setTab('RAW_MATERIAL')}>
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'RAW_MATERIAL' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('RAW_MATERIAL')}>
               Raw Materials ({rawCount})
             </button>
-            <button className={`tab ${tab === 'FINISHED_GOOD' ? 'tab--active' : ''}`} onClick={() => setTab('FINISHED_GOOD')}>
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'FINISHED_GOOD' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('FINISHED_GOOD')}>
               Finished Feeds ({fgCount})
             </button>
           </div>
 
-          <div style={{ position: 'relative', minWidth: 260 }}>
-            <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
+          <div className="relative min-w-65">
+            <Search size={16} className="absolute left-3 top-3 text-[#7a9185]" />
             <Input
               placeholder="Search product name, SKU, or category..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ paddingLeft: 36 }}
+               className="pl-9"
             />
           </div>
         </div>
 
         {/* Products Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead>
               <tr>
                 <th>SKU Code</th>
@@ -264,7 +265,7 @@ export function ProductsPage() {
             <tbody>
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: 32, color: 'var(--text-muted)' }}>
+                  <td colSpan={8} className="text-center p-8 text-[#7a9185]">
                     No product SKUs found. Click <strong>Create Product SKU</strong> to add your first product.
                   </td>
                 </tr>
@@ -272,27 +273,27 @@ export function ProductsPage() {
                 filteredProducts.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <code style={{ background: 'var(--bg-card-alt)', padding: '3px 8px', borderRadius: 6, fontWeight: 700, fontSize: 12 }}>
+                      <code className="bg-[#f8faf7] p-[3px_8px] rounded-[6px] font-bold text-[12px]">
                         {p.sku}
                       </code>
                     </td>
-                    <td style={{ fontWeight: 600 }}>{p.name}</td>
-                    <td style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                      <span className="badge badge--info" style={{ fontSize: 11 }}>
+                    <td className="font-semibold">{p.name}</td>
+                    <td className="text-[12px] text-[#445e50]">
+                      <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11px] font-semibold whitespace-nowrap bg-[#e8f2ff] text-[#1864ab]">
                         {formatHierarchyPath(p)}
                       </span>
                     </td>
                     <td>{statusBadge(p.type)}</td>
-                    <td style={{ fontWeight: 600 }}>{p.baseUom?.code ?? 'kg'}</td>
+                    <td className="font-semibold">{p.baseUom?.code ?? 'kg'}</td>
                     <td>{p.reorderLevel !== null && p.reorderLevel !== undefined ? `${p.reorderLevel} ${p.baseUom?.code ?? 'kg'}` : '—'}</td>
-                    <td style={{ fontWeight: 700, color: p.isBelowReorder ? 'var(--error)' : 'var(--text-primary)' }}>
+                    <td className={twMerge("font-bold", (p.isBelowReorder ? "text-[#c03030]" : "text-[#0f1c16]"))}>
                       {(p.totalQty ?? 0).toLocaleString()} {p.baseUom?.code ?? 'kg'}
                     </td>
                     <td>
                       {p.isBelowReorder ? (
-                        <span className="badge badge--error">Low Stock Alert</span>
+                        <span className="bg-[#fdf0f0] text-[#c03030] inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap">Low Stock Alert</span>
                       ) : (
-                        <span className="badge badge--success">Normal</span>
+                        <span className="bg-[#eaf8f0] text-[#1b8f5a] inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap">Normal</span>
                       )}
                     </td>
                   </tr>
@@ -320,9 +321,9 @@ export function ProductsPage() {
               </Button>
             </>
           }
-        >
-          <div className="form-section-title">Stage 1 to 4: Category Hierarchy Selection</div>
-          <div className="form-grid-2">
+       >
+          <div className="text-[12px] font-extrabold tracking-[0.08em] uppercase text-[#0d3b2e] mt-2 mb-1 pb-1 [border-bottom:1px_dashed_#e0e5dd]">Stage 1 to 4: Category Hierarchy Selection</div>
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="1. Level 1 — Material Type" required>
               <Select
                 value={selectedL1}
@@ -332,7 +333,7 @@ export function ProductsPage() {
                   setSelectedL3('');
                   setSelectedL4('');
                 }}
-              >
+             >
                 <option value="">-- Choose Level 1 Type --</option>
                 {l1List.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -351,7 +352,7 @@ export function ProductsPage() {
                   setSelectedL3('');
                   setSelectedL4('');
                 }}
-              >
+             >
                 <option value="">-- Choose Level 2 Class --</option>
                 {l2List.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -369,7 +370,7 @@ export function ProductsPage() {
                   setSelectedL3(e.target.value);
                   setSelectedL4('');
                 }}
-              >
+             >
                 <option value="">-- Choose Level 3 Sub-Class --</option>
                 {l3List.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -391,8 +392,8 @@ export function ProductsPage() {
             </FormField>
           </div>
 
-          <div className="form-section-title">Stage 5: Product SKU Specification</div>
-          <div className="form-grid-2">
+          <div className="text-[12px] font-extrabold tracking-[0.08em] uppercase text-[#0d3b2e] mt-2 mb-1 pb-1 [border-bottom:1px_dashed_#e0e5dd]">Stage 5: Product SKU Specification</div>
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Product Name" required hint="e.g. Broiler Starter Crumble 50kg">
               <Input placeholder="Broiler Starter Crumble" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </FormField>

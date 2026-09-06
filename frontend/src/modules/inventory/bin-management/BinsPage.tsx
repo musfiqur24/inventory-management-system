@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Warehouse, Search, HardDrive, Factory } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -111,83 +113,83 @@ export function BinsPage() {
         </Button>
       }
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
       {/* Summary Cards */}
-      <div className="stats-grid" style={{ marginBottom: 24 }}>
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'var(--brand-glow)', color: 'var(--brand-primary)' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] gap-4 mb-6 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(168,213,72,0.18)] text-[#0d3b2e]">
             <Warehouse size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{totalBins}</div>
-            <div className="stat-card__label">Total Registered Bins</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{totalBins}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Total Registered Bins</div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(24, 100, 171, 0.1)', color: '#1864ab' }}>
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(24,_100,_171,_0.1)] text-[#1864ab]">
             <HardDrive size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{rmBins}</div>
-            <div className="stat-card__label">RM Store Locations</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{rmBins}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">RM Store Locations</div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7c3aed' }}>
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(124,_58,_237,_0.1)] text-[#7c3aed]">
             <HardDrive size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{siloBins}</div>
-            <div className="stat-card__label">Bulk Silos</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{siloBins}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Bulk Silos</div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card stat-card">
-          <div className="stat-card__icon" style={{ background: 'rgba(27, 143, 90, 0.1)', color: '#1b8f5a' }}>
+        <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md">
+          <div className="w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 bg-[rgba(27,_143,_90,_0.1)] text-[#1b8f5a]">
             <Factory size={20} />
           </div>
           <div>
-            <div className="stat-card__val">{totalCapacity > 0 ? `${(totalCapacity / 1000).toLocaleString()} Tons` : `${totalBins} Bays`}</div>
-            <div className="stat-card__label">Total Storage Capacity</div>
+            <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{totalCapacity > 0 ? `${(totalCapacity / 1000).toLocaleString()} Tons` : `${totalBins} Bays`}</div>
+            <div className="text-[12px] text-[#7a9185] font-medium">Total Storage Capacity</div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Filter Tabs & Search */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 16 }}>
-          <div className="tabs">
-            <button className={`tab ${tab === 'ALL' ? 'tab--active' : ''}`} onClick={() => setTab('ALL')}>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+          <div className="flex gap-1 [border-bottom:2px_solid_#e0e5dd] mb-6 max-[480px]:overflow-x-auto max-[480px]:flex-nowrap">
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'ALL' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('ALL')}>
               All Bins ({totalBins})
             </button>
-            <button className={`tab ${tab === 'RM_STORE' ? 'tab--active' : ''}`} onClick={() => setTab('RM_STORE')}>
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'RM_STORE' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('RM_STORE')}>
               RM Store ({rmBins})
             </button>
-            <button className={`tab ${tab === 'SILO' ? 'tab--active' : ''}`} onClick={() => setTab('SILO')}>
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'SILO' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('SILO')}>
               Bulk Silos ({siloBins})
             </button>
-            <button className={`tab ${tab === 'FM_STORE' ? 'tab--active' : ''}`} onClick={() => setTab('FM_STORE')}>
+            <button className={twMerge(`p-[10px_18px] [border:0] [background:none] text-[#7a9185] [font:600_13.5px_'Inter',_sans-serif] cursor-pointer [border-bottom:2px_solid_transparent] -mb-0.5 rounded-[8px_8px_0_0] [transition:all_0.15s] flex items-center gap-1.75 [:where(&_svg)]:w-3.75 [:where(&_svg)]:h-3.75 [&:hover]:text-[#445e50] [&:hover]:bg-[#f3f5f2] [&.active]:text-[#0d3b2e] [&.active]:[border-bottom-color:#0d3b2e] ${(tab === 'FM_STORE' ? "text-[#0d3b2e] [border-bottom-color:#0d3b2e]" : "")}`)} onClick={() => setTab('FM_STORE')}>
               FM Store ({fmBins})
             </button>
           </div>
 
-          <div style={{ position: 'relative', minWidth: 260 }}>
-            <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
+          <div className="relative min-w-65">
+            <Search size={16} className="absolute left-3 top-3 text-[#7a9185]" />
             <Input
               placeholder="Search bin code, name, zone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ paddingLeft: 36 }}
+               className="pl-9"
             />
           </div>
         </div>
 
         {/* Bins Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table className="data-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead>
               <tr>
                 <th>Bin Code</th>
@@ -202,7 +204,7 @@ export function BinsPage() {
             <tbody>
               {filteredBins.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: 32, color: 'var(--text-muted)' }}>
+                  <td colSpan={7} className="text-center p-8 text-[#7a9185]">
                     No warehouse bins found. Click <strong>Add Storage Bin</strong> to register a new storage location.
                   </td>
                 </tr>
@@ -215,41 +217,36 @@ export function BinsPage() {
                   return (
                     <tr key={bin.id}>
                       <td>
-                        <code style={{ background: 'var(--bg-card-alt)', padding: '4px 8px', borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
+                        <code className="bg-[#f8faf7] p-[4px_8px] rounded-[6px] font-bold text-[13px]">
                           {bin.code}
                         </code>
                       </td>
-                      <td style={{ fontWeight: 600 }}>{bin.name}</td>
+                      <td className="font-semibold">{bin.name}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <div className="flex gap-1.5 items-center">
                           {statusBadge(bin.warehouseType)}
-                          {bin.zone && <span className="badge badge--secondary" style={{ fontSize: 11 }}>Zone: {bin.zone}</span>}
+                          {bin.zone && <span className="bg-[#f0f2ee] text-[#7a9185] inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11px] font-semibold whitespace-nowrap">Zone: {bin.zone}</span>}
                         </div>
                       </td>
-                      <td style={{ fontWeight: 600 }}>{cap > 0 ? `${cap.toLocaleString()} kg` : 'Unlimited'}</td>
-                      <td style={{ fontWeight: 700 }}>{occ.toLocaleString()} kg</td>
-                      <td style={{ width: 160 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'var(--bg-card-alt)', overflow: 'hidden' }}>
+                      <td className="font-semibold">{cap > 0 ? `${cap.toLocaleString()} kg` : 'Unlimited'}</td>
+                      <td className="font-bold">{occ.toLocaleString()} kg</td>
+                      <td className="w-40">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-2 rounded-[4px] bg-[#f8faf7] overflow-hidden">
                             <div
-                              style={{
-                                height: '100%',
-                                width: `${Math.min(100, pct)}%`,
-                                borderRadius: 4,
-                                background: pct > 90 ? 'var(--error)' : pct > 75 ? '#c87d12' : 'var(--brand-primary)',
-                              }}
+                              style={{ "--meter-width": `${Math.min(100, pct)}%` } as CSSProperties} className={twMerge(twMerge("h-full rounded-[4px]", (pct > 90 ? "bg-[#c03030]" : (pct > 75 ? "bg-[#c87d12]" : "bg-[#0d3b2e]"))), "w-[var(--meter-width)]")}
                             />
                           </div>
-                          <span style={{ fontSize: 12, fontWeight: 700, width: 36 }}>{pct}%</span>
+                          <span className="text-[12px] font-bold w-9">{pct}%</span>
                         </div>
                       </td>
                       <td>
                         {!bin.balances || bin.balances.length === 0 ? (
-                          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Empty</span>
+                          <span className="text-[12px] text-[#7a9185]">Empty</span>
                         ) : (
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          <div className="flex flex-wrap gap-1">
                             {bin.balances.map((b) => (
-                              <span key={b.id} className="badge badge--info" style={{ fontSize: 11 }}>
+                              <span key={b.id} className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11px] font-semibold whitespace-nowrap bg-[#e8f2ff] text-[#1864ab]">
                                 {b.product?.name ?? 'Item'}: {Number(b.quantity).toLocaleString()} {b.uom?.code ?? 'kg'}
                               </span>
                             ))}
@@ -282,8 +279,8 @@ export function BinsPage() {
               </Button>
             </>
           }
-        >
-          <div className="form-grid-2">
+       >
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Bin / Location Code" required hint="e.g. SILO-01, RACK-A-12, FM-PALLET-04">
               <Input placeholder="SILO-01" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />
             </FormField>

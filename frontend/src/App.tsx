@@ -94,26 +94,26 @@ function Shell() {
   const pageTitle = currentItem?.label ?? (location.pathname === '/' ? 'Dashboard' : 'FeedTrack');
 
   return (
-    <div className="app-shell">
+    <div className="min-h-dvh grid grid-cols-[270px_minmax(0,_1fr)] print:block! max-[900px]:block">
       <Sidebar
         groups={NAV_GROUPS}
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
-      <main className="app-main">
-        <header className="app-topbar">
-          <div className="app-topbar__left">
+      <main className="min-w-0 print:min-w-full">
+        <header className="h-17 flex items-center gap-4 p-[0_clamp(20px,_4vw,_48px)] bg-[#fff] [border-bottom:1px_solid_#e0e5dd] sticky top-0 z-10 print:hidden! max-[900px]:p-[0_16px]">
+          <div className="flex items-center gap-3 flex-1">
             <MobileMenuButton onClick={() => setMobileOpen(true)} />
-            <div className="app-topbar__breadcrumb">
+            <div className="flex items-center gap-2 text-[13.5px] text-[#7a9185] [:where(&_strong)]:text-[#0f1c16] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-semibold">
               <span>FeedTrack</span>
               <span>›</span>
               <strong>{pageTitle}</strong>
             </div>
           </div>
-          <div className="app-topbar__right">
+          <div className="flex items-center gap-2.5">
             <Link to="/organizations">
-              <div className="app-topbar__org-badge">
-                <div className="app-topbar__org-dot" />
+              <div className="flex items-center gap-1.75 p-[6px_12px] rounded-[20px] bg-[#f8faf7] [border:1px_solid_#e0e5dd] text-[12.5px] font-medium text-[#445e50] cursor-pointer [transition:all_0.15s] [&:hover]:bg-[#f3f5f2]">
+                <div className="w-2 h-2 bg-[#a8d548] rounded-full" />
                 {orgDisplay ? orgDisplay : (selectedOrg() ? 'Loading…' : 'Select Organisation')}
               </div>
             </Link>

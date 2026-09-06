@@ -1,3 +1,4 @@
+import { twMerge } from 'tailwind-merge';
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
@@ -30,40 +31,40 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      <aside className={`app-sidebar ${mobileOpen ? 'app-sidebar--open' : ''}`}>
+      <aside className={twMerge(`sticky top-0 h-dvh overflow-y-auto overflow-x-hidden bg-[#0d3b2e] flex flex-col [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[rgba(255,255,255,0.1)] [&::-webkit-scrollbar-thumb]:rounded-[4px] print:hidden! max-[900px]:fixed max-[900px]:z-30 max-[900px]:h-dvh max-[900px]:w-[min(85vw,_280px)] max-[900px]:[transform:translateX(-110%)] max-[900px]:[transition:transform_0.22s_ease] ${(mobileOpen ? "max-[900px]:[transform:translateX(0)]" : "")}`)}>
         {/* Brand */}
-        <div className="app-sidebar__brand">
+        <div className="flex items-center justify-between p-[20px_18px_0] shrink-0 [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:text-[#fff] [&_a]:no-underline">
           <Link to="/" onClick={onClose}>
-            <div className="app-sidebar__brand-icon">F</div>
-            <div className="app-sidebar__brand-text">
+            <div className="w-10 h-10 rounded-[11px] [background:linear-gradient(135deg,_#a8d548,_#7ab832)] grid place-items-center text-[20px] font-extrabold text-[#0d3b2e] [font-family:'Outfit',_sans-serif] shrink-0">F</div>
+            <div className="[:where(&_strong)]:block [:where(&_strong)]:[font-family:'Outfit',_sans-serif] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-bold [:where(&_strong)]:text-[#fff] [:where(&_strong)]:leading-[1.2] [:where(&_small)]:block [:where(&_small)]:text-[10.5px] [:where(&_small)]:text-[rgba(255,255,255,0.45)] [:where(&_small)]:mt-0.25">
               <strong>FeedTrack</strong>
               <small>Production Inventory</small>
             </div>
           </Link>
-          <button className="app-sidebar__close" onClick={onClose} aria-label="Close menu">
+          <button className="hidden [border:0] [background:none] text-[rgba(255,255,255,0.6)] p-1 rounded-[6px] max-[900px]:grid" onClick={onClose} aria-label="Close menu">
             <X size={18} />
           </button>
         </div>
 
         {/* Organization switcher */}
-        <Link className="app-sidebar__org" to="/organizations" onClick={onClose}>
-          <div className="app-sidebar__org-icon">
+        <Link className="m-[14px_12px_6px] bg-[rgba(255,255,255,0.06)] [border:1px_solid_rgba(255,255,255,0.08)] rounded-[12px] p-[10px_12px] flex items-center gap-2.5 text-[rgba(255,255,255,0.85)] [transition:background_0.15s] shrink-0 [&:hover]:bg-[rgba(255,255,255,0.10)]" to="/organizations" onClick={onClose}>
+          <div className="w-8 h-8 rounded-[8px] bg-[#a8d548] grid place-items-center text-[#0d3b2e] font-extrabold text-[13px] shrink-0">
             {orgName ? orgName.slice(0, 2).toUpperCase() : 'ORG'}
           </div>
-          <div className="app-sidebar__org-text">
+          <div className="[:where(&_strong)]:block [:where(&_strong)]:text-[12.5px] [:where(&_strong)]:font-semibold [:where(&_small)]:block [:where(&_small)]:text-[10.5px] [:where(&_small)]:text-[rgba(255,255,255,0.4)] [:where(&_small)]:mt-0.25">
             <strong>{orgName ? orgName : (orgId ? 'Loading…' : 'No org selected')}</strong>
             <small>{orgId ? 'Click to switch' : 'Click to choose'}</small>
           </div>
         </Link>
 
         {/* Nav */}
-        <div className="app-sidebar__nav">
+        <div className="flex-1 p-[6px_0_20px]">
           {groups.map((group) => (
-            <div key={group.label} className="app-sidebar__group">
+            <div key={group.label} className="p-[0_8px] [&+div]:mt-1 [&_nav]:grid [&_nav]:gap-0.5 [&_nav_a]:flex [&_nav_a]:items-center [&_nav_a]:gap-2.5 [&_nav_a]:p-[9px_10px] [&_nav_a]:rounded-[9px] [&_nav_a]:text-[rgba(255,255,255,0.65)] [&_nav_a]:text-[13.5px] [&_nav_a]:font-medium [&_nav_a]:[transition:background_0.12s,_color_0.12s] [&_nav_a_svg]:w-4 [&_nav_a_svg]:h-4 [&_nav_a_svg]:shrink-0 [&_nav_a:hover]:bg-[rgba(255,255,255,0.07)] [&_nav_a:hover]:text-[#fff] [&_nav_a.active]:bg-[rgba(168,213,72,0.14)] [&_nav_a.active]:text-[#c8e87a] [&_nav_a.active]:font-semibold [&_nav_a.active_svg]:text-[#a8d548]">
               <button
-                className="app-sidebar__group-label"
+                className="flex items-center justify-between w-full p-[12px_10px_6px] [border:0] [background:none] text-[rgba(255,255,255,0.35)] text-[10px] font-bold tracking-[0.10em] uppercase [:where(&_svg)]:w-3.5 [:where(&_svg)]:h-3.5"
                 onClick={() => setCollapsed({ ...collapsed, [group.label]: !collapsed[group.label] })}
-              >
+             >
                 <span>{group.label}</span>
                 {collapsed[group.label] ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
               </button>
@@ -75,7 +76,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
                       to={item.path}
                       onClick={onClose}
                       className={({ isActive }) => isActive ? 'active' : ''}
-                    >
+                   >
                       <item.icon size={16} />
                       <span>{item.label}</span>
                     </NavLink>
@@ -87,15 +88,15 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Role indicator */}
-        <div className="app-sidebar__role">
-          <div className="app-sidebar__role-dot" />
+        <div className="m-[0_12px_12px] p-[8px_12px] rounded-[8px] bg-[rgba(168,213,72,0.08)] [border:1px_solid_rgba(168,213,72,0.15)] flex items-center gap-2 shrink-0 [&_span]:text-[11.5px] [&_span]:text-[#c8e87a] [&_span]:font-semibold">
+          <div className="w-2 h-2 rounded-full bg-[#a8d548] shrink-0" />
           <span>All Roles View</span>
         </div>
       </aside>
 
       {mobileOpen && (
         <button
-          className="app-sidebar__backdrop"
+          className="hidden max-[900px]:block max-[900px]:fixed max-[900px]:inset-0 max-[900px]:z-20 max-[900px]:bg-[rgba(0,0,0,0.45)] max-[900px]:[border:0] max-[900px]:cursor-pointer"
           aria-label="Close menu"
           onClick={onClose}
         />
@@ -106,7 +107,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
 
 export function MobileMenuButton({ onClick }: { onClick: () => void }) {
   return (
-    <button className="app-mobile-menu" onClick={onClick} aria-label="Open menu">
+    <button className="hidden [border:1px_solid_#e0e5dd] bg-[#f8faf7] rounded-[8px] p-2 text-[#445e50] max-[900px]:grid" onClick={onClick} aria-label="Open menu">
       <Menu size={20} />
     </button>
   );

@@ -1,3 +1,4 @@
+import { Card } from '../components/ui/Card';
 import { useMemo, useState } from "react";
 import { Calculator, Plus, Trash2 } from "lucide-react";
 import { PageContainer } from "../components/ui/PageContainer";
@@ -24,19 +25,19 @@ export function RecipePlannerPage() {
       cap="NUTRITION & PRODUCTION"
       title="Recipe Scaling Planner"
       description="Enter the recipe per tonne, target production quantity and permitted waste. Requirements are auto-calculated."
-    >
-      <div className="two-col">
+   >
+      <div className="grid grid-cols-[1fr_1.2fr] gap-5 max-[900px]:grid-cols-[1fr]">
         {/* Editor Panel */}
-        <div className="card">
-          <div className="card-header">
+        <Card>
+          <div className="flex items-center justify-between gap-3 mb-5 [:where(&_h2)]:text-[16px] [:where(&_h2)]:font-bold [:where(&_h2)]:text-[#0f1c16] [:where(&_h2)]:m-0 [:where(&_p)]:text-[12.5px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-0">
             <div>
               <h2>Production Requirement</h2>
               <p>Set target tonnage and acceptable waste percentage</p>
             </div>
-            <Calculator size={22} style={{ color: "var(--brand-primary)" }} />
+            <Calculator size={22} className="text-[#0d3b2e]" />
           </div>
 
-          <div className="ui-form-grid" style={{ marginBottom: 20 }}>
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr] mb-5">
             <FormField label="Target Finished Goods (Tonnes)">
               <Input
                 type="number"
@@ -57,20 +58,20 @@ export function RecipePlannerPage() {
             </FormField>
           </div>
 
-          <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <strong style={{ fontSize: 14 }}>Recipe per 1 Tonne</strong>
+          <div className="[border-top:1px_solid_#e0e5dd] pt-4">
+            <div className="flex justify-between items-center mb-3">
+              <strong className="text-[14px]">Recipe per 1 Tonne</strong>
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => setPerTon([...perTon, { material: "", qty: 0 }])}
-              >
+             >
                 <Plus size={14} /> Add Ingredient
               </Button>
             </div>
 
             {perTon.length === 0 && (
-              <div style={{ padding: "20px 0", color: "var(--text-muted)", fontSize: 13, textAlign: "center" }}>
+              <div className="p-[20px_0] text-[#7a9185] text-[13px] text-center">
                 No ingredients yet. Add one above.
               </div>
             )}
@@ -78,14 +79,8 @@ export function RecipePlannerPage() {
             {perTon.map((line, index) => (
               <div
                 key={index}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 120px 36px",
-                  gap: 8,
-                  marginBottom: 8,
-                  alignItems: "flex-end",
-                }}
-              >
+                 className="grid grid-cols-[1fr_120px_36px] gap-2 mb-2 items-end"
+             >
                 <FormField label={index === 0 ? "Raw Material" : ""}>
                   <Input
                     placeholder="e.g. Yellow Corn"
@@ -107,35 +102,25 @@ export function RecipePlannerPage() {
                 </FormField>
                 <button
                   onClick={() => setPerTon(perTon.filter((_, i) => i !== index))}
-                  style={{
-                    height: 40,
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: 8,
-                    background: "var(--bg-card-alt)",
-                    cursor: "pointer",
-                    display: "grid",
-                    placeItems: "center",
-                    color: "var(--error)",
-                    marginBottom: index === 0 ? 0 : undefined,
-                  }}
-                >
+                  className="h-10 [border:1px_solid_#e0e5dd] rounded-[8px] bg-[#f8faf7] cursor-pointer grid place-items-center text-[#c03030]"
+               >
                   <Trash2 size={14} />
                 </button>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Auto-calculated FM Requisition */}
-        <div className="card" style={{ padding: 0 }}>
-          <div className="table-header">
+        <Card className="p-0">
+          <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
             <h2>Auto-Calculated FM Requisition</h2>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            <span className="text-[12px] text-[#7a9185]">
               {target}T + {waste}% waste
             </span>
           </div>
-          <div className="ui-table-wrap">
-            <table className="ui-table">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
               <thead>
                 <tr>
                   <th>Raw Material</th>
@@ -149,7 +134,7 @@ export function RecipePlannerPage() {
                     <td><strong>{line.material || "—"}</strong></td>
                     <td>{line.qty.toLocaleString()} kg</td>
                     <td>
-                      <strong style={{ color: "var(--brand-primary)", fontSize: 15 }}>
+                      <strong className="text-[#0d3b2e] text-[15px]">
                         {line.required.toLocaleString(undefined, { maximumFractionDigits: 2 })} kg
                       </strong>
                     </td>
@@ -158,17 +143,17 @@ export function RecipePlannerPage() {
               </tbody>
             </table>
             {plan.length === 0 && (
-              <div className="empty-state">
-                <div className="empty-state__icon"><Calculator size={28} /></div>
+              <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
+                <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Calculator size={28} /></div>
                 <b>No ingredients added</b>
                 <p>Add raw material ingredients and set a target tonnage to see calculations.</p>
               </div>
             )}
           </div>
-          <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border-subtle)", fontSize: 12, color: "var(--text-muted)" }}>
+          <div className="p-[12px_16px] [border-top:1px_solid_#e0e5dd] text-[12px] text-[#7a9185]">
             Save the approved recipe as a version in Recipes, then create a Production Order from this plan.
           </div>
-        </div>
+        </Card>
       </div>
     </PageContainer>
   );

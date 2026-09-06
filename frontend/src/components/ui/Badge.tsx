@@ -1,3 +1,5 @@
+import { twMerge } from 'tailwind-merge';
+import { badgeVariants } from '../../shared/styles/variants';
 interface BadgeProps {
   variant?: 'green' | 'yellow' | 'red' | 'blue' | 'purple' | 'gray' | 'brand';
   children: string | number;
@@ -6,8 +8,8 @@ interface BadgeProps {
 
 export function Badge({ variant = 'gray', children, dot = true }: BadgeProps) {
   return (
-    <span className={`badge badge--${variant}`}>
-      {dot && <span className="badge__dot" />}
+    <span className={twMerge(`inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap ${badgeVariants[variant] ?? ""}`)}>
+      {dot && <span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />}
       {children}
     </span>
   );

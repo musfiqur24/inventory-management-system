@@ -100,12 +100,12 @@ export function ResourcePage({
           )}
         </>
       }
-    >
+   >
       {open && (
         <form onSubmit={submit}>
-          <Card className="ui-form mb-4">
+          <Card className="mb-4">
             <h2>New {title.replace(/s$/, "")}</h2>
-            <div className="ui-form-grid">
+            <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
               {fields.map((field) => (
                 <FormField key={field.name} label={field.label}>
                   <Input
@@ -120,7 +120,7 @@ export function ResourcePage({
                 </FormField>
               ))}
             </div>
-            <div className="ui-form-actions">
+            <div className="flex items-center gap-3 mt-6">
               <Button type="button" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
@@ -141,14 +141,14 @@ export function ResourcePage({
             </Button>
           }
         />
-        {message && <p className="notice">{message}</p>}
+        {message && <p className="p-[12px_16px] rounded-[8px] text-[13.5px] m-[10px_0] flex items-start gap-2.5 [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:shrink-0 [:where(&_svg)]:mt-0.25">{message}</p>}
         <DataTable
           columns={columns.map((column) =>
             column.replaceAll(/([A-Z])/g, " $1"),
           )}
           empty={
             !message && rows.length === 0 ? (
-              <div className="empty-state">
+              <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
                 <b>No {title.toLowerCase()} yet</b>
                 <span>
                   {readOnly
@@ -158,7 +158,7 @@ export function ResourcePage({
               </div>
             ) : undefined
           }
-        >
+       >
           {rows.map((row, index) => (
             <tr key={String(row.id ?? index)}>
               {columns.map((key) => (

@@ -9,13 +9,13 @@ interface Props {
 
 export function FormField({ label, children, hint, required }: Props) {
   return (
-    <div className="ui-field">
+    <div className="flex flex-col gap-1.5 mb-4 [&_label]:text-[12.5px] [&_label]:font-semibold [&_label]:text-[#445e50]">
       <label>
         {label}
-        {required && <span style={{ color: 'var(--error)', marginLeft: 3 }}>*</span>}
+        {required && <span className="text-[#c03030] ml-0.75">*</span>}
       </label>
       {children}
-      {hint && <p style={{ fontSize: 11.5, color: 'var(--text-muted)', margin: 0 }}>{hint}</p>}
+      {hint && <p className="text-[11.5px] text-[#7a9185] m-0">{hint}</p>}
     </div>
   );
 }

@@ -78,33 +78,33 @@ export function MaterialIssuesPage() {
       description="Issue raw materials from RM store to the production floor. Deducts from lot balances and links to production orders."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Issue Materials</Button>}
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
-      <div className="card" style={{ padding: 0 }}>
-        <div className="table-header"><h2>Material Issue Register</h2><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{rows.length} issues</span></div>
-        <div className="ui-table-wrap">
-          <table className="ui-table">
+      <Card className="p-0">
+        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Material Issue Register</h2><span className="text-[12px] text-[#7a9185]">{rows.length} issues</span></div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead><tr><th>Issue #</th><th>Production Order</th><th>Lines</th><th>Status</th><th>Issued At</th></tr></thead>
             <tbody>
               {rows.map((mi) => (
                 <tr key={mi.id}>
-                  <td><strong style={{ color: 'var(--brand-primary)', fontFamily: 'monospace' }}>{mi.issueNumber}</strong></td>
-                  <td>{mi.productionOrder?.number ?? <span style={{ color: 'var(--text-muted)' }}>Direct issue</span>}</td>
+                  <td><strong className="text-[#0d3b2e] font-mono">{mi.issueNumber}</strong></td>
+                  <td>{mi.productionOrder?.number ?? <span className="text-[#7a9185]">Direct issue</span>}</td>
                   <td>{mi.lines.length} materials</td>
                   <td>{statusBadge(mi.status)}</td>
-                  <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(mi.issuedAt).toLocaleString('en-GB')}</td>
+                  <td className="text-[12px] text-[#7a9185]">{new Date(mi.issuedAt).toLocaleString('en-GB')}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {rows.length === 0 && <div className="empty-state"><div className="empty-state__icon"><ArrowLeftRight size={28} /></div><b>No issues yet</b><p>Issue raw materials to the factory floor to start production.</p></div>}
+          {rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><ArrowLeftRight size={28} /></div><b>No issues yet</b><p>Issue raw materials to the factory floor to start production.</p></div>}
         </div>
-      </div>
+      </Card>
 
       {open && (
         <Modal title="Issue RM Materials to Factory" description="Select materials from RM lots. Stock will be deducted immediately on save." onClose={() => setOpen(false)} wide
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit}>Confirm Issue</Button></>}
-        >
+       >
           <FormField label="Linked Production Order">
             <Select value={form.productionOrderId} onChange={(e) => setForm({ productionOrderId: e.target.value })}>
               <option value="">— Select order (optional) —</option>
@@ -114,9 +114,9 @@ export function MaterialIssuesPage() {
 
           <Notice variant="warn">Stock will be deducted from the selected lot immediately. Ensure lot availability before issuing.</Notice>
 
-          <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <strong style={{ fontSize: 14 }}>Material Lines</strong>
+          <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
+            <div className="flex justify-between mb-2.5">
+              <strong className="text-[14px]">Material Lines</strong>
               <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { rawMaterialId: '', lotId: '', uomId: '', issuedQty: '' }])}>
                 <Plus size={14} /> Add Line
               </Button>
@@ -124,8 +124,8 @@ export function MaterialIssuesPage() {
             {lines.map((line, i) => {
               const availableLots = lots.filter((l) => l.productId === line.rawMaterialId && l.currentQty > 0);
               return (
-                <div key={i} style={{ background: 'var(--bg-card-alt)', borderRadius: 10, padding: 12, marginBottom: 10, display: 'grid', gap: 10 }}>
-                  <div className="ui-form-grid">
+                <div key={i} className="bg-[#f8faf7] rounded-[10px] p-3 mb-2.5 grid gap-2.5">
+                  <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
                     <FormField label="Raw Material">
                       <Select value={line.rawMaterialId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, rawMaterialId: e.target.value, lotId: '' } : l))}>
                         <option value="">— Select RM —</option>

@@ -1,3 +1,4 @@
+import { printReport } from '../../../shared/printReport';
 import { useEffect, useState } from 'react';
 import { Plus, Truck, Search, FileText } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -82,19 +83,12 @@ export function DispatchesPage() {
   };
 
   const printDispatch = (d: Dispatch) => {
-    const w = window.open('', '_blank');
-    if (!w) return;
-    w.document.write(`
-      <html><head><title>Dispatch ${d.dispatchNumber}</title>
-      <style>body{font-family:sans-serif;padding:32px;color:#111}h1{font-size:22px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border:1px solid #ccc;padding:10px;text-align:left}th{background:#f5f5f5}.header{display:flex;justify-content:space-between}.badge{background:#e8f0ff;color:#1864ab;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}.footer{margin-top:40px;font-size:13px;color:#777}</style>
-      </head><body>
-      <div class="header"><div><h1>Dispatch Note — ${d.dispatchNumber}</h1><p>Customer: <strong>${d.customer?.name ?? 'N/A'}</strong><br>Vehicle: <strong>${d.vehicleNo ?? 'N/A'}</strong><br>Sales Order: ${d.salesOrder?.number ?? 'N/A'}</p></div><span class="badge">${d.status}</span></div>
-      <table><thead><tr><th>#</th><th>FG Product</th><th>SKU</th><th>Batch Lot</th><th>Qty Dispatched</th><th>UOM</th><th>Unit Price</th></tr></thead>
+    printReport(`Dispatch ${d.dispatchNumber}`, `
+      <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">Dispatch Note — ${d.dispatchNumber}</h1><p>Customer: <strong>${d.customer?.name ?? 'N/A'}</strong><br>Vehicle: <strong>${d.vehicleNo ?? 'N/A'}</strong><br>Sales Order: ${d.salesOrder?.number ?? 'N/A'}</p></div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f0ff] text-[#1864ab]">${d.status}</span></div>
+      <table class="mt-5 w-full border-collapse [:where(&_th)]:border [:where(&_th)]:border-[#ccc] [:where(&_th)]:p-2.5 [:where(&_th)]:text-left [:where(&_th)]:bg-[#f5f5f5] [:where(&_td)]:border [:where(&_td)]:border-[#ccc] [:where(&_td)]:p-2.5 [:where(&_td)]:text-left"><thead><tr><th>#</th><th>FG Product</th><th>SKU</th><th>Batch Lot</th><th>Qty Dispatched</th><th>UOM</th><th>Unit Price</th></tr></thead>
       <tbody>${d.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.fgProduct?.name ?? ''}</td><td>${l.fgProduct?.sku ?? ''}</td><td>${l.lot?.lotNumber ?? '—'}</td><td>${Number(l.dispatchedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>`).join('')}</tbody></table>
-      <div class="footer"><p>Total Value: <strong>${d.totalValue ? d.totalValue.toLocaleString() : 'N/A'}</strong></p><p>Received by: _______________________ &nbsp;&nbsp; Date: _____________ &nbsp;&nbsp; Seal:</p></div>
-      <script>setTimeout(()=>window.print(),300)</script></body></html>
+      <div class="mt-10 text-[13px] text-[#777] "><p>Total Value: <strong>${d.totalValue ? d.totalValue.toLocaleString() : 'N/A'}</strong></p><p>Received by: _______________________ &nbsp;&nbsp; Date: _____________ &nbsp;&nbsp; Seal:</p></div>
     `);
-    w.document.close();
   };
 
   const filtered = rows.filter((r) =>
@@ -109,42 +103,42 @@ export function DispatchesPage() {
       description="Record finished goods dispatches to customers with full lot traceability and printable delivery notes."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Dispatch</Button>}
       notice={message ? <Notice variant="error">{message}</Notice> : undefined}
-    >
+   >
 
-      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 20 }}>
+      <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[
           { label: 'Total', v: rows.length, c: 'brand' },
           { label: 'Pending', v: rows.filter((r) => r.status === 'SUBMITTED').length, c: 'blue' },
           { label: 'Completed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' },
           { label: 'Cancelled', v: rows.filter((r) => r.status === 'CANCELLED').length, c: 'red' },
         ].map((s) => (
-          <div className="stat-card" key={s.label} style={{ padding: '14px 16px' }}>
-            <div className="stat-card__body"><div className="stat-card__value" style={{ fontSize: 22 }}>{s.v}</div><div className="stat-card__label">{s.label} Dispatches</div></div>
-          </div>
+          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
+            <div className="min-w-0"><div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.v}</div><div className="text-[12px] text-[#7a9185] font-medium">{s.label} Dispatches</div></div>
+          </Card>
         ))}
       </div>
 
-      <div className="card" style={{ padding: 0 }}>
-        <div className="table-header">
+      <Card className="p-0">
+        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
           <h2>Dispatch Register</h2>
-          <div className="search-bar"><Search size={14} /><input placeholder="Search dispatch or customer…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+          <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] flex-1 max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]"><Search size={14} /><input placeholder="Search dispatch or customer…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         </div>
-        <div className="ui-table-wrap">
-          <table className="ui-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
             <thead><tr><th>Dispatch #</th><th>Customer</th><th>Sales Order</th><th>Vehicle</th><th>Lines</th><th>Total Value</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody>
               {filtered.map((d) => (
                 <tr key={d.id}>
-                  <td><strong style={{ color: 'var(--brand-primary)', fontFamily: 'monospace' }}>{d.dispatchNumber}</strong></td>
+                  <td><strong className="text-[#0d3b2e] font-mono">{d.dispatchNumber}</strong></td>
                   <td><strong>{d.customer?.name ?? '—'}</strong></td>
-                  <td><span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{d.salesOrder?.number ?? '—'}</span></td>
-                  <td><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{d.vehicleNo ?? '—'}</span></td>
+                  <td><span className="text-[11px] text-[#7a9185]">{d.salesOrder?.number ?? '—'}</span></td>
+                  <td><span className="font-mono text-[12px]">{d.vehicleNo ?? '—'}</span></td>
                   <td>{d.lines.length} items</td>
                   <td>{d.totalValue ? d.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—'}</td>
                   <td>{statusBadge(d.status)}</td>
-                  <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{d.dispatchedAt ? new Date(d.dispatchedAt).toLocaleDateString('en-GB') : '—'}</td>
+                  <td className="text-[12px] text-[#7a9185]">{d.dispatchedAt ? new Date(d.dispatchedAt).toLocaleDateString('en-GB') : '—'}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: 6 }}>
+                    <div className="flex gap-1.5">
                       <Button size="sm" variant="secondary" onClick={() => setSelected(d)}><FileText size={14} /></Button>
                       <Button size="sm" variant="secondary" onClick={() => printDispatch(d)}><Truck size={14} /> Note</Button>
                     </div>
@@ -153,28 +147,28 @@ export function DispatchesPage() {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="empty-state"><div className="empty-state__icon"><Truck size={28} /></div><b>No dispatches yet</b><p>Record your first FG dispatch to a customer.</p></div>}
+          {filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Truck size={28} /></div><b>No dispatches yet</b><p>Record your first FG dispatch to a customer.</p></div>}
         </div>
-      </div>
+      </Card>
 
       {open && (
         <Modal title="New FM Dispatch" description="Dispatch finished goods with lot traceability." onClose={() => setOpen(false)} wide
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit}>Dispatch</Button></>}
-        >
-          <div className="ui-form-grid">
+       >
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
             <FormField label="Customer"><Select value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })}><option value="">— Select customer —</option>{customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></FormField>
             <FormField label="Sales Order Ref"><Select value={form.salesOrderId} onChange={(e) => setForm({ ...form, salesOrderId: e.target.value })}><option value="">— Link SO (optional) —</option>{salesOrders.map((so) => <option key={so.id} value={so.id}>{so.number}</option>)}</Select></FormField>
             <FormField label="Vehicle Number"><Input placeholder="DHK-TRK-0001" value={form.vehicleNo} onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })} /></FormField>
           </div>
-          <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <strong style={{ fontSize: 14 }}>Dispatch Lines</strong>
+          <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
+            <div className="flex justify-between mb-2.5">
+              <strong className="text-[14px]">Dispatch Lines</strong>
               <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { fgProductId: '', lotId: '', uomId: '', dispatchedQty: '', unitPrice: '' }])}><Plus size={14} /> Add</Button>
             </div>
             {lines.map((line, i) => {
               const avlLots = lots.filter((l) => l.productId === line.fgProductId && l.currentQty > 0);
               return (
-                <div key={i} className="ui-form-grid" style={{ background: 'var(--bg-card-alt)', padding: 12, borderRadius: 10, marginBottom: 10 }}>
+                <div key={i} className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr] bg-[#f8faf7] p-3 rounded-[10px] mb-2.5">
                   <FormField label="FG Product"><Select value={line.fgProductId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, fgProductId: e.target.value, lotId: '' } : l))}><option value="">— Select FG —</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Select></FormField>
                   <FormField label="Batch Lot"><Select value={line.lotId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, lotId: e.target.value } : l))}><option value="">— Select lot —</option>{avlLots.map((lt) => <option key={lt.id} value={lt.id}>{lt.lotNumber} ({Number(lt.currentQty).toLocaleString()} avail.)</option>)}</Select></FormField>
                   <FormField label="Qty"><Input type="number" value={line.dispatchedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, dispatchedQty: e.target.value } : l))} /></FormField>
@@ -189,10 +183,10 @@ export function DispatchesPage() {
 
       {selected && (
         <Modal title={`Dispatch: ${selected.dispatchNumber}`} description={`Customer: ${selected.customer?.name ?? '—'} · Vehicle: ${selected.vehicleNo ?? '—'}`} onClose={() => setSelected(null)} wide footer={<><Button variant="secondary" onClick={() => printDispatch(selected)}><Truck size={14} /> Print Note</Button><Button variant="secondary" onClick={() => setSelected(null)}>Close</Button></>}>
-          <div className="ui-table-wrap">
-            <table className="ui-table">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-140 border-collapse [:where(&_th)]:p-[10px_16px] [:where(&_th)]:text-left [:where(&_th)]:text-[11px] [:where(&_th)]:font-bold [:where(&_th)]:tracking-[0.07em] [:where(&_th)]:uppercase [:where(&_th)]:text-[#7a9185] [:where(&_th)]:bg-[#f8faf7] [:where(&_th)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:p-[13px_16px] [:where(&_td)]:[border-bottom:1px_solid_#e0e5dd] [:where(&_td)]:text-[13.5px] [:where(&_td)]:text-[#0f1c16] [&_tbody_tr]:[transition:background_0.1s] [&_tbody_tr:hover]:bg-[#f8faf7] [&_tbody_tr:last-child_td]:[border-bottom:0]">
               <thead><tr><th>FG Product</th><th>SKU</th><th>Batch Lot</th><th>Qty</th><th>UOM</th><th>Unit Price</th></tr></thead>
-              <tbody>{selected.lines.map((l, i) => <tr key={i}><td>{l.fgProduct?.name ?? '—'}</td><td><span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)' }}>{l.fgProduct?.sku}</span></td><td><span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--text-muted)' }}>{l.lot?.lotNumber ?? '—'}</span></td><td><strong>{Number(l.dispatchedQty).toLocaleString()}</strong></td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</tbody>
+              <tbody>{selected.lines.map((l, i) => <tr key={i}><td>{l.fgProduct?.name ?? '—'}</td><td><span className="text-[11px] font-mono text-[#7a9185]">{l.fgProduct?.sku}</span></td><td><span className="font-mono text-[11px] text-[#7a9185]">{l.lot?.lotNumber ?? '—'}</span></td><td><strong>{Number(l.dispatchedQty).toLocaleString()}</strong></td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</tbody>
             </table>
           </div>
         </Modal>

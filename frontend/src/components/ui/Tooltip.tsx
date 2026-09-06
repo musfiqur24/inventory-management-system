@@ -1,3 +1,5 @@
+import { twMerge } from 'tailwind-merge';
+import { noticeVariants, tooltipPositions } from '../../shared/styles/variants';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { Info, AlertTriangle, CheckCircle2, XCircle, X } from 'lucide-react';
@@ -35,11 +37,11 @@ export function Tooltip({
   if (message || content) {
     const bodyContent = message || content;
     return (
-      <div className={`ui-tooltip-banner ui-tooltip-banner--${variant}`}>
-        <div className="ui-tooltip-banner__icon">{icons[variant]}</div>
-        <div className="ui-tooltip-banner__text">{bodyContent}</div>
+      <div className={twMerge(`flex items-center gap-3 p-[12px_16px] rounded-[12px] text-[13px] font-medium mb-4.5 leading-[1.45] shadow-[0_2px_6px_rgba(0,_0,_0,_0.03)] [transition:all_0.2s_ease] ${noticeVariants[variant] ?? ""}`)}>
+        <div className="flex items-center shrink-0">{icons[variant]}</div>
+        <div className="flex-1">{bodyContent}</div>
         {onClose && (
-          <button type="button" className="ui-tooltip-banner__close" onClick={onClose} aria-label="Close tooltip">
+          <button type="button" className="bg-[transparent] [border:none] cursor-pointer p-1 text-inherit opacity-65 flex items-center rounded-[4px] [&:hover]:opacity-100 [&:hover]:bg-[rgba(0,_0,_0,_0.05)]" onClick={onClose} aria-label="Close tooltip">
             <X size={14} />
           </button>
         )}
@@ -50,13 +52,13 @@ export function Tooltip({
   // Hoverable tooltip wrapper around children
   return (
     <div
-      className="ui-tooltip-wrapper"
+      className="relative inline-block"
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}
-    >
+   >
       {children}
       {visible && content && (
-        <div className={`ui-tooltip-bubble ui-tooltip-bubble--${position}`}>
+        <div className={twMerge(`absolute z-1000 p-[6px_12px] bg-[#0f172a] text-[#f8fafc] text-[12px] font-medium rounded-[6px] whitespace-nowrap shadow-[0_4px_14px_rgba(0,_0,_0,_0.18)] pointer-events-none ${tooltipPositions[position] ?? ""}`)}>
           {content}
         </div>
       )}
