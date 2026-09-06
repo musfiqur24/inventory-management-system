@@ -10,7 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Dispatch {
@@ -153,8 +153,8 @@ export function DispatchesPage() {
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit}>Dispatch</Button></>}
        >
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
-            <FormField label="Customer"><Select value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })}><option value="">— Select customer —</option>{customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select></FormField>
-            <FormField label="Sales Order Ref"><Select value={form.salesOrderId} onChange={(e) => setForm({ ...form, salesOrderId: e.target.value })}><option value="">— Link SO (optional) —</option>{salesOrders.map((so) => <option key={so.id} value={so.id}>{so.number}</option>)}</Select></FormField>
+            <FormField label="Customer"><Dropdown value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })}><option value="">— Select customer —</option>{customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Dropdown></FormField>
+            <FormField label="Sales Order Ref"><Dropdown value={form.salesOrderId} onChange={(e) => setForm({ ...form, salesOrderId: e.target.value })}><option value="">— Link SO (optional) —</option>{salesOrders.map((so) => <option key={so.id} value={so.id}>{so.number}</option>)}</Dropdown></FormField>
             <FormField label="Vehicle Number"><Input placeholder="DHK-TRK-0001" value={form.vehicleNo} onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })} /></FormField>
           </div>
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
@@ -166,11 +166,11 @@ export function DispatchesPage() {
               const avlLots = lots.filter((l) => l.productId === line.fgProductId && l.currentQty > 0);
               return (
                 <div key={i} className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr] bg-[#f8faf7] p-3 rounded-[10px] mb-2.5">
-                  <FormField label="FG Product"><Select value={line.fgProductId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, fgProductId: e.target.value, lotId: '' } : l))}><option value="">— Select FG —</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Select></FormField>
-                  <FormField label="Batch Lot"><Select value={line.lotId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, lotId: e.target.value } : l))}><option value="">— Select lot —</option>{avlLots.map((lt) => <option key={lt.id} value={lt.id}>{lt.lotNumber} ({Number(lt.currentQty).toLocaleString()} avail.)</option>)}</Select></FormField>
+                  <FormField label="FG Product"><Dropdown value={line.fgProductId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, fgProductId: e.target.value, lotId: '' } : l))}><option value="">— Select FG —</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Dropdown></FormField>
+                  <FormField label="Batch Lot"><Dropdown value={line.lotId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, lotId: e.target.value } : l))}><option value="">— Select lot —</option>{avlLots.map((lt) => <option key={lt.id} value={lt.id}>{lt.lotNumber} ({Number(lt.currentQty).toLocaleString()} avail.)</option>)}</Dropdown></FormField>
                   <FormField label="Qty"><Input type="number" value={line.dispatchedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, dispatchedQty: e.target.value } : l))} /></FormField>
                   <FormField label="Unit Price"><Input type="number" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))} /></FormField>
-                  <FormField label="UOM"><Select value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">— UOM —</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</Select></FormField>
+                  <FormField label="UOM"><Dropdown value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">— UOM —</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</Dropdown></FormField>
                 </div>
               );
             })}

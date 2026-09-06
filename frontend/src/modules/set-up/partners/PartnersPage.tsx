@@ -10,7 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 
 interface Partner {
   id: string; name: string; code: string; partnerType: string;
@@ -116,10 +116,10 @@ export function PartnersPage() {
        >
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Partner Type" required>
-              <Select value={form.partnerType} onChange={(e) => setForm({ ...form, partnerType: e.target.value })}>
+              <Dropdown value={form.partnerType} onChange={(e) => setForm({ ...form, partnerType: e.target.value })}>
                 <option value="SUPPLIER">Supplier (RM vendor)</option>
                 <option value="CUSTOMER">Customer (FG buyer)</option>
-              </Select>
+              </Dropdown>
             </FormField>
             <FormField label="Partner Code" required hint="Short unique identifier">
               <Input placeholder="e.g. AGRO-BD-001" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />

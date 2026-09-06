@@ -11,7 +11,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
@@ -278,12 +278,12 @@ export function BinsPage() {
             </FormField>
 
             <FormField label="Warehouse Zone / Type" required>
-              <Select value={form.warehouseType} onChange={(e) => setForm({ ...form, warehouseType: e.target.value as any })}>
+              <Dropdown value={form.warehouseType} onChange={(e) => setForm({ ...form, warehouseType: e.target.value as any })}>
                 <option value="RM_STORE">Raw Material Store (RM Rack / Floor)</option>
                 <option value="SILO">Bulk Grain Silo (Corn / Soybean Silo)</option>
                 <option value="FM_STORE">Finished Goods Store (FG Pallet Rack)</option>
                 <option value="FACTORY_FLOOR">Factory Floor Staging Bay</option>
-              </Select>
+              </Dropdown>
             </FormField>
 
             <FormField label="Zone Identifier" hint="e.g. Zone A, Silo Bay 2, Rack Line 3">

@@ -10,7 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 
 interface Weighment {
   id: string; vehicleNo?: string; grossWeight: number; tareWeight: number; netWeight: number;
@@ -130,10 +130,10 @@ export function WeighbridgePage() {
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.vehicleNo || !form.grossWeight || !form.tareWeight}>Record Weighment</Button></>}
        >
           <FormField label="Linked Supplier Challan">
-            <Select value={form.deliveryId} onChange={(e) => setForm({ ...form, deliveryId: e.target.value })}>
+            <Dropdown value={form.deliveryId} onChange={(e) => setForm({ ...form, deliveryId: e.target.value })}>
               <option value="">— Select delivery (optional) —</option>
               {deliveries.map((d) => <option key={d.id} value={d.id}>{d.number} {d.vehicleNo ? `· ${d.vehicleNo}` : ''}</option>)}
-            </Select>
+            </Dropdown>
           </FormField>
           <FormField label="Vehicle Number" required>
             <Input placeholder="e.g. DHK-TRK-12-3456" value={form.vehicleNo} onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })} />

@@ -6,7 +6,7 @@ import { PageContainer } from "../../components/ui/PageContainer";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
-import { Select } from "../../components/ui/Select";
+import { Dropdown } from "../../components/ui/Dropdown";
 import { Checkbox } from "../../components/ui/Checkbox";
 import { DataTable } from "../../components/ui/DataTable";
 import { Badge } from "../../components/ui/Badge";
@@ -120,9 +120,9 @@ export function UserManagementPage() {
           <Input required placeholder="Full name" value={form.fullName} onChange={event => setForm({ ...form, fullName: event.target.value })} />
           <Input required type="email" placeholder="Email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} />
           <Input required minLength={8} type="password" placeholder="Temporary password (min 8)" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} />
-          <Select required value={form.roleId} onChange={event => setForm({ ...form, roleId: event.target.value })}>
+          <Dropdown required value={form.roleId} onChange={event => setForm({ ...form, roleId: event.target.value })}>
             {availableRoles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
-          </Select>
+          </Dropdown>
           <div className="flex flex-wrap gap-3 md:col-span-2">
             {orgs.map(org => <Checkbox key={org.id} label={org.name} checked={form.organizationIds.includes(org.id)} onChange={event => setForm({ ...form, organizationIds: event.target.checked ? [...form.organizationIds, org.id] : form.organizationIds.filter(id => id !== org.id) })} />)}
           </div>
@@ -131,10 +131,10 @@ export function UserManagementPage() {
       </Card>
 
       <div className="flex justify-end">
-        <Select value={organizationFilter} onChange={event => { setOrganizationFilter(event.target.value); setPage(1); }} className="max-w-70">
+        <Dropdown value={organizationFilter} onChange={event => { setOrganizationFilter(event.target.value); setPage(1); }} className="max-w-70">
           <option value="">All organizations</option>
           {orgs.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
-        </Select>
+        </Dropdown>
       </div>
 
       <Card padding="none">
@@ -160,9 +160,9 @@ export function UserManagementPage() {
         <Modal title="Edit user access" description={`${editing.fullName} - ${editing.email}`} onClose={() => setEditing(null)} footer={<><Button type="button" onClick={() => setEditing(null)}>Cancel</Button><Button type="button" variant="primary" disabled={saving || editForm.organizationIds.length === 0} onClick={() => void saveEdit()}>{saving ? "Saving..." : "Save changes"}</Button></>}>
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-[#31483d]">Role</label>
-            <Select value={editForm.roleId} onChange={event => setEditForm({ ...editForm, roleId: event.target.value })}>
+            <Dropdown value={editForm.roleId} onChange={event => setEditForm({ ...editForm, roleId: event.target.value })}>
               {availableRoles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
-            </Select>
+            </Dropdown>
           </div>
           <div>
             <div className="mb-2 text-sm font-semibold text-[#31483d]">Assigned organizations</div>

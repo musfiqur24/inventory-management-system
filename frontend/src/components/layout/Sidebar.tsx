@@ -5,6 +5,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { selectedOrg, selectedOrgName, ensureOrgDetails, setOrganizationDetails } from '../../shared/api/http';
 import { useAuth } from '../../modules/auth/AuthContext';
+import { Dropdown } from '../ui/Dropdown';
 
 type Item = { path: string; label: string; icon: LucideIcon };
 type Group = { label: string; items: Item[] };
@@ -58,9 +59,9 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
           <div className="m-[14px_12px_6px] flex shrink-0 items-center gap-2.5 rounded-[12px] border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.06)] p-[10px_12px] text-[rgba(255,255,255,0.85)]">
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-[#a8d548] text-[13px] font-extrabold text-[#0d3b2e]">{orgName.slice(0, 2).toUpperCase()}</div>
             {user && user.organizations.length > 1 ? (
-              <select aria-label="Active organization" value={orgId} onChange={(event) => { const org=user.organizations.find(item=>item.id===event.target.value); if(org)setOrganizationDetails(org); }} className="min-w-0 flex-1 cursor-pointer border-0 bg-transparent text-[12.5px] font-semibold text-white outline-none [&_option]:text-[#0d3b2e]">
+              <Dropdown variant="sidebar" aria-label="Active organization" value={orgId} onChange={(event) => { const org=user.organizations.find(item=>item.id===event.target.value); if(org)setOrganizationDetails(org); }}>
                 {user.organizations.map(org=><option key={org.id} value={org.id}>{org.name}</option>)}
-              </select>
+              </Dropdown>
             ) : (
               <div className="min-w-0"><strong className="block truncate text-[12.5px] font-semibold">{orgName}</strong><small className="mt-0.5 block text-[10.5px] text-[rgba(255,255,255,0.4)]">Assigned organization</small></div>
             )}

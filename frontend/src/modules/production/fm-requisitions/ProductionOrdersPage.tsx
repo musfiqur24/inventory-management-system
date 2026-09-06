@@ -11,7 +11,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface ProductionOrder {
@@ -124,25 +124,25 @@ export function ProductionOrdersPage() {
        >
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
             <FormField label="Recipe" required>
-              <Select value={form.recipeId} onChange={(e) => setForm({ ...form, recipeId: e.target.value })}>
+              <Dropdown value={form.recipeId} onChange={(e) => setForm({ ...form, recipeId: e.target.value })}>
                 <option value="">— Select recipe —</option>
                 {recipes.map((r) => <option key={r.id} value={r.id}>{r.name} ({r.code})</option>)}
-              </Select>
+              </Dropdown>
             </FormField>
             <FormField label="Target FG Product">
-              <Select value={form.fgProductId} onChange={(e) => setForm({ ...form, fgProductId: e.target.value })}>
+              <Dropdown value={form.fgProductId} onChange={(e) => setForm({ ...form, fgProductId: e.target.value })}>
                 <option value="">— Optional FG product —</option>
                 {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </Select>
+              </Dropdown>
             </FormField>
             <FormField label="Target Quantity (Tons)" required>
               <Input type="number" placeholder="e.g. 5 for 5-ton batch" value={form.targetQty} onChange={(e) => setForm({ ...form, targetQty: e.target.value })} />
             </FormField>
             <FormField label="UOM">
-              <Select value={form.uomId} onChange={(e) => setForm({ ...form, uomId: e.target.value })}>
+              <Dropdown value={form.uomId} onChange={(e) => setForm({ ...form, uomId: e.target.value })}>
                 <option value="">— Select UOM —</option>
                 {uoms.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.code})</option>)}
-              </Select>
+              </Dropdown>
             </FormField>
             <FormField label="Planned Start Date" required>
               <Input type="date" value={form.plannedStartDate} onChange={(e) => setForm({ ...form, plannedStartDate: e.target.value })} />

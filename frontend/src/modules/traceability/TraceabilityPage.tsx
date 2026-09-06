@@ -9,7 +9,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { FormField } from '../../components/ui/FormField';
 import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
+import { Dropdown } from '../../components/ui/Dropdown';
 
 type TraceType = 'lot' | 'requisition' | 'batch' | 'dispatch';
 
@@ -63,12 +63,12 @@ export function TraceabilityPage() {
         <div className="flex items-center justify-between gap-3 mb-5 [:where(&_h2)]:text-[16px] [:where(&_h2)]:font-bold [:where(&_h2)]:text-[#0f1c16] [:where(&_h2)]:m-0 [:where(&_p)]:text-[12.5px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-0"><h2>Trace Lookup</h2></div>
         <div className="grid grid-cols-[140px_1fr_auto] gap-3 items-end">
           <FormField label="Trace By">
-            <Select value={traceType} onChange={(e) => setTraceType(e.target.value as TraceType)}>
+            <Dropdown value={traceType} onChange={(e) => setTraceType(e.target.value as TraceType)}>
               <option value="lot">Lot Number</option>
               <option value="requisition">Requisition</option>
               <option value="batch">Batch Number</option>
               <option value="dispatch">Dispatch #</option>
-            </Select>
+            </Dropdown>
           </FormField>
           <FormField label="Reference ID or Number">
             <Input

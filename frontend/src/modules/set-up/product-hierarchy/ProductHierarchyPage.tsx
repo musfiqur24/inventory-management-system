@@ -9,7 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { Notice } from '../../../components/ui/Notice';
 
 interface Category {
@@ -386,13 +386,13 @@ export function ProductHierarchyPage() {
        >
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Target Hierarchy Level" required>
-              <Select value={targetLevel} onChange={(e) => setTargetLevel(Number(e.target.value))}>
+              <Dropdown value={targetLevel} onChange={(e) => setTargetLevel(Number(e.target.value))}>
                 <option value={1}>Level 1 — Material Type (Classification)</option>
                 <option value={2}>Level 2 — Division / Class (Select L1)</option>
                 <option value={3}>Level 3 — Sub-Class / Feed Line (Select L1 → L2)</option>
                 <option value={4}>Level 4 — Family / Stage (Select L1 → L2 → L3)</option>
                 <option value={5}>Level 5 — Product SKU (Select L1 → L2 → L3 → L4)</option>
-              </Select>
+              </Dropdown>
             </FormField>
 
             <FormField label="Name / Title" required hint="e.g. Poultry Feed, Broiler Starter Crumble">
@@ -405,76 +405,76 @@ export function ProductHierarchyPage() {
 
             {targetLevel >= 2 && (
               <FormField label="1. Select Level 1 Parent (Type)" required>
-                <Select value={parentL1} onChange={(e) => { setParentL1(e.target.value); setParentL2(''); setParentL3(''); setParentL4(''); }}>
+                <Dropdown value={parentL1} onChange={(e) => { setParentL1(e.target.value); setParentL2(''); setParentL3(''); setParentL4(''); }}>
                   <option value="">-- Choose L1 Parent --</option>
                   {l1Categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.code})
                     </option>
                   ))}
-                </Select>
+                </Dropdown>
               </FormField>
             )}
 
             {targetLevel >= 3 && (
               <FormField label="2. Select Level 2 Parent (Class)" required>
-                <Select value={parentL2} disabled={!parentL1} onChange={(e) => { setParentL2(e.target.value); setParentL3(''); setParentL4(''); }}>
+                <Dropdown value={parentL2} disabled={!parentL1} onChange={(e) => { setParentL2(e.target.value); setParentL3(''); setParentL4(''); }}>
                   <option value="">-- Choose L2 Parent --</option>
                   {modalL2Options.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.code})
                     </option>
                   ))}
-                </Select>
+                </Dropdown>
               </FormField>
             )}
 
             {targetLevel >= 4 && (
               <FormField label="3. Select Level 3 Parent (Sub-Class)" required>
-                <Select value={parentL3} disabled={!parentL2} onChange={(e) => { setParentL3(e.target.value); setParentL4(''); }}>
+                <Dropdown value={parentL3} disabled={!parentL2} onChange={(e) => { setParentL3(e.target.value); setParentL4(''); }}>
                   <option value="">-- Choose L3 Parent --</option>
                   {modalL3Options.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.code})
                     </option>
                   ))}
-                </Select>
+                </Dropdown>
               </FormField>
             )}
 
             {targetLevel === 5 && (
               <FormField label="4. Select Level 4 Parent (Family / Stage)" required>
-                <Select value={parentL4} disabled={!parentL3} onChange={(e) => setParentL4(e.target.value)}>
+                <Dropdown value={parentL4} disabled={!parentL3} onChange={(e) => setParentL4(e.target.value)}>
                   <option value="">-- Choose L4 Parent --</option>
                   {modalL4Options.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.code})
                     </option>
                   ))}
-                </Select>
+                </Dropdown>
               </FormField>
             )}
 
             {targetLevel === 5 && (
               <>
                 <FormField label="Product Material Type" required>
-                  <Select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                  <Dropdown value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
                     <option value="FINISHED_GOOD">Finished Good (Feed Product)</option>
                     <option value="RAW_MATERIAL">Raw Material (Ingredient)</option>
                     <option value="PACKAGING">Packaging Material</option>
                     <option value="BY_PRODUCT">By-Product</option>
-                  </Select>
+                  </Dropdown>
                 </FormField>
 
                 <FormField label="Base Unit of Measure (UOM)" required>
-                  <Select value={form.baseUomId} onChange={(e) => setForm({ ...form, baseUomId: e.target.value })}>
+                  <Dropdown value={form.baseUomId} onChange={(e) => setForm({ ...form, baseUomId: e.target.value })}>
                     <option value="">-- Select Base UOM --</option>
                     {uoms.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.name} ({u.code})
                       </option>
                     ))}
-                  </Select>
+                  </Dropdown>
                 </FormField>
 
                 <FormField label="Reorder Level Threshold">

@@ -82,20 +82,23 @@ const NAV_GROUPS = [
 
 function Shell() {
   const { user, loading, can, logout } = useAuth();
-  if (loading) return <div className="grid min-h-dvh place-items-center">Loading session�w^~)�v</div>;
-  if (!user) return <Navigate to="/login" replace />;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [orgDisplay, setOrgDisplay] = useState<string>(() => selectedOrgName());
+  const [orgRevision, setOrgRevision] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
     void ensureOrgDetails();
     const handler = () => {
       setOrgDisplay(selectedOrgName());
+      setOrgRevision(value => value + 1);
     };
     window.addEventListener('organizationChanged', handler);
     return () => window.removeEventListener('organizationChanged', handler);
   }, []);
+
+  if (loading) return <div className="grid min-h-dvh place-items-center text-sm text-[#61766a]">Loading session...</div>;
+  if (!user) return <Navigate to="/login" replace />;
 
   const visibleGroups = NAV_GROUPS.concat(can('users.manage') ? [{ label: 'Administration', items: [{ path: '/users', label: 'User Management', icon: Users }] }] : []).map(g => ({...g, items: g.items.filter(i => i.path !== '/organizations' || can('organizations.manage'))})).filter(g => g.items.length);
   const allItems = visibleGroups.flatMap((g) => g.items);
@@ -115,7 +118,7 @@ function Shell() {
             <MobileMenuButton onClick={() => setMobileOpen(true)} />
             <div className="flex items-center gap-2 text-[13.5px] text-[#7a9185] [:where(&_strong)]:text-[#0f1c16] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-semibold">
               <span>FeedTrack</span>
-              <span>›</span>
+              <span>â€º</span>
               <strong>{pageTitle}</strong>
             </div>
           </div>
@@ -126,7 +129,7 @@ function Shell() {
           </div>
         </header>
 
-        <Routes>
+        <Routes key={orgRevision}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/organizations" element={can("organizations.manage") ? <OrganizationPage /> : <Navigate to="/" replace />} />
           <Route path="/uoms" element={<UnitsOfMeasurePage />} />

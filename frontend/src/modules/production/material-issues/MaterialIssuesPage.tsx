@@ -9,7 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
@@ -104,10 +104,10 @@ export function MaterialIssuesPage() {
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit}>Confirm Issue</Button></>}
        >
           <FormField label="Linked Production Order">
-            <Select value={form.productionOrderId} onChange={(e) => setForm({ productionOrderId: e.target.value })}>
+            <Dropdown value={form.productionOrderId} onChange={(e) => setForm({ productionOrderId: e.target.value })}>
               <option value="">— Select order (optional) —</option>
               {orders.map((o) => <option key={o.id} value={o.id}>{o.number}</option>)}
-            </Select>
+            </Dropdown>
           </FormField>
 
           <Notice variant="warn">Stock will be deducted from the selected lot immediately. Ensure lot availability before issuing.</Notice>
@@ -125,25 +125,25 @@ export function MaterialIssuesPage() {
                 <div key={i} className="bg-[#f8faf7] rounded-[10px] p-3 mb-2.5 grid gap-2.5">
                   <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
                     <FormField label="Raw Material">
-                      <Select value={line.rawMaterialId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, rawMaterialId: e.target.value, lotId: '' } : l))}>
+                      <Dropdown value={line.rawMaterialId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, rawMaterialId: e.target.value, lotId: '' } : l))}>
                         <option value="">— Select RM —</option>
                         {products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
-                      </Select>
+                      </Dropdown>
                     </FormField>
                     <FormField label="Lot (for traceability)">
-                      <Select value={line.lotId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, lotId: e.target.value } : l))}>
+                      <Dropdown value={line.lotId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, lotId: e.target.value } : l))}>
                         <option value="">— Select lot —</option>
                         {availableLots.map((lt) => <option key={lt.id} value={lt.id}>{lt.lotNumber} ({Number(lt.currentQty).toLocaleString()} avail.)</option>)}
-                      </Select>
+                      </Dropdown>
                     </FormField>
                     <FormField label="Qty to Issue">
                       <Input type="number" placeholder="Quantity" value={line.issuedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, issuedQty: e.target.value } : l))} />
                     </FormField>
                     <FormField label="UOM">
-                      <Select value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}>
+                      <Dropdown value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}>
                         <option value="">— UOM —</option>
                         {uoms.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.code})</option>)}
-                      </Select>
+                      </Dropdown>
                     </FormField>
                   </div>
                 </div>

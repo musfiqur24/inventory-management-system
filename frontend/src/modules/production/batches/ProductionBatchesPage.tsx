@@ -10,7 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Batch {
@@ -113,10 +113,10 @@ export function ProductionBatchesPage() {
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.plannedQty}>Start Batch</Button></>}
        >
           <FormField label="Linked Production Order">
-            <Select value={form.productionOrderId} onChange={(e) => setForm({ ...form, productionOrderId: e.target.value })}>
+            <Dropdown value={form.productionOrderId} onChange={(e) => setForm({ ...form, productionOrderId: e.target.value })}>
               <option value="">— Select order —</option>
               {orders.map((o) => <option key={o.id} value={o.id}>{o.number} {o.fgProduct?.name ? `· ${o.fgProduct.name}` : ''}</option>)}
-            </Select>
+            </Dropdown>
           </FormField>
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
             <FormField label="Planned Output Qty (kg)" required>

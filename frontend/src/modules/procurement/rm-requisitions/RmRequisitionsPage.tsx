@@ -10,7 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Product { id: string; sku: string; name: string; type: string; }
@@ -202,10 +202,10 @@ export function RmRequisitionsPage() {
               <Input placeholder="e.g. SO-2026-0012" value={form.salesOrderRef} onChange={(e) => setForm({ ...form, salesOrderRef: e.target.value })} />
             </FormField>
             <FormField label="Preferred Supplier">
-              <Select value={form.supplierId} onChange={(e) => setForm({ ...form, supplierId: e.target.value })}>
+              <Dropdown value={form.supplierId} onChange={(e) => setForm({ ...form, supplierId: e.target.value })}>
                 <option value="">— Select supplier —</option>
                 {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </Select>
+              </Dropdown>
             </FormField>
           </div>
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
@@ -218,16 +218,16 @@ export function RmRequisitionsPage() {
             {lines.map((line, i) => (
               <div key={i} className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr] bg-[#f8faf7] p-3 rounded-[10px] mb-2.5">
                 <FormField label="Raw Material Product">
-                  <Select value={line.productId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, productId: e.target.value } : l))}>
+                  <Dropdown value={line.productId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, productId: e.target.value } : l))}>
                     <option value="">— Select product —</option>
                     {products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
-                  </Select>
+                  </Dropdown>
                 </FormField>
                 <FormField label="UOM">
-                  <Select value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}>
+                  <Dropdown value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}>
                     <option value="">— UOM —</option>
                     {uoms.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.code})</option>)}
-                  </Select>
+                  </Dropdown>
                 </FormField>
                 <FormField label="Requested Quantity">
                   <Input type="number" placeholder="e.g. 30000" value={line.requestedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, requestedQty: e.target.value } : l))} />

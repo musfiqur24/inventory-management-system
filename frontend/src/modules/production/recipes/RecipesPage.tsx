@@ -10,7 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
-import { Select } from '../../../components/ui/Select';
+import { Dropdown } from '../../../components/ui/Dropdown';
 
 interface RecipeLine { productId: string; name: string; percentage: number; wastePct: number; }
 interface Recipe {
@@ -187,7 +187,7 @@ export function RecipesPage() {
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
             <FormField label="Recipe Name" required><Input placeholder="e.g. Broiler Starter Formula" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></FormField>
             <FormField label="Recipe Code" required><Input placeholder="e.g. BSF-001" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></FormField>
-            <FormField label="Linked FG Product"><Select value={form.fgProductId} onChange={(e) => setForm({ ...form, fgProductId: e.target.value })}><option value="">— Select FG product —</option>{fgProducts.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}</Select></FormField>
+            <FormField label="Linked FG Product"><Dropdown value={form.fgProductId} onChange={(e) => setForm({ ...form, fgProductId: e.target.value })}><option value="">— Select FG product —</option>{fgProducts.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}</Dropdown></FormField>
             <FormField label="Base Target Tonnage"><Input type="number" value={form.targetTonnage} onChange={(e) => setForm({ ...form, targetTonnage: e.target.value })} /></FormField>
           </div>
 
@@ -204,10 +204,10 @@ export function RecipesPage() {
             {ingredients.map((ing, i) => (
               <div key={i} className="grid grid-cols-[1fr_100px_100px_36px] gap-2 mb-2 items-end">
                 <FormField label={i === 0 ? 'Raw Material' : ''}>
-                  <Select value={ing.productId} onChange={(e) => updateIngredient(i, 'productId', e.target.value)}>
+                  <Dropdown value={ing.productId} onChange={(e) => updateIngredient(i, 'productId', e.target.value)}>
                     <option value="">— Select RM —</option>
                     {rmProducts.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </Select>
+                  </Dropdown>
                 </FormField>
                 <FormField label={i === 0 ? '% Share' : ''}>
                   <Input type="number" placeholder="%" value={ing.percentage} onChange={(e) => updateIngredient(i, 'percentage', Number(e.target.value))} />
