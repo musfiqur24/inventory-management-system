@@ -11,6 +11,9 @@ import { ZodError, z } from "zod";
 import { env } from "./config.js";
 import { prisma } from "./prisma.js";
 import { spec } from "./swagger.js";
+import { authRouter } from "./modules/auth.js";
+import { usersRouter } from "./modules/users.js";
+import { authenticate, bootstrapRbac, requirePermission, tenant } from "./modules/rbac.js";
 declare global {
   namespace Express {
     interface Request {
@@ -30,21 +33,6 @@ export const logger = pino({
   },
   redact: ["req.headers.authorization", "password", "*.password"],
 });
-
-const tenant: RequestHandler = (req, res, next) => {
-  const id = req.header("x-organization-id");
-  if (!id)
-    return res
-      .status(400)
-      .json({
-        error: {
-          code: "TENANT_REQUIRED",
-          message: "x-organization-id header is required",
-        },
-      });
-  req.tenantId = id;
-  next();
-};
 
 const app = express();
 app.disable("x-powered-by");
@@ -73,6 +61,7 @@ app.use(
   }),
 );
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(spec));
+app.use("/api/v1/auth", authRouter);
 app.get("/api/v1/health", (_req, res) =>
   res.json({
     status: "ok",
@@ -80,15 +69,11 @@ app.get("/api/v1/health", (_req, res) =>
     timestamp: new Date().toISOString(),
   }),
 );
-// Tenant onboarding is intentionally available before tenant middleware.
-app.get("/api/v1/organizations", async (_req, res) =>
-  res.json({ data: await prisma.organization.findMany({ orderBy: { name: "asc" } }) }),
-);
-app.post("/api/v1/organizations", async (req, res) => {
-  const data = z.object({ code: z.string().min(2), name: z.string().min(2) }).parse(req.body);
-  res.status(201).json({ data: await prisma.organization.create({ data }) });
-});
-app.use("/api/v1", tenant);
+app.get("/api/v1/organizations", authenticate, requirePermission("organizations.manage"), async (_req, res) => res.json({ data: await prisma.organization.findMany({ orderBy: { name: "asc" } }) }));
+app.post("/api/v1/organizations", authenticate, requirePermission("organizations.manage"), async (req, res) => { const data = z.object({ code: z.string().min(2), name: z.string().min(2), adminUserId: z.string().uuid().optional() }).parse(req.body); const organization = await prisma.organization.create({data:{code:data.code,name:data.name}}); if(data.adminUserId){ const role=await prisma.role.findUniqueOrThrow({where:{code:"ADMIN"}}); await prisma.organizationMember.upsert({where:{userId_organizationId:{userId:data.adminUserId,organizationId:organization.id}},update:{roleId:role.id,isActive:true},create:{userId:data.adminUserId,organizationId:organization.id,roleId:role.id}}); } res.status(201).json({data:organization}); });
+app.get("/api/v1/my-organizations", authenticate, async (req,res)=>res.json({data:req.auth!.organizations}));
+app.use("/api/v1/users", authenticate, usersRouter);
+app.use("/api/v1", authenticate, tenant, (req,res,next)=>{ const p=req.method==="GET"?"departments.read":"departments.write"; return requirePermission(p)(req,res,next); });
 import { uomsRouter } from "./routes/uoms.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { productsRouter } from "./routes/products.js";
@@ -149,6 +134,7 @@ const errors: ErrorRequestHandler = (error, _req, res, _next) => {
   });
 };
 app.use(errors);
+void bootstrapRbac().then(() => logger.info("RBAC initialized"));
 const server = app.listen(env.PORT, () =>
   logger.info({ port: env.PORT }, "Inventory API started"),
 );

@@ -1,11 +1,11 @@
-import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
   Boxes, Building2, ClipboardList, Factory, FlaskConical,
   PackageCheck, Scale, ShoppingCart, Truck, Warehouse, LayoutDashboard,
-  GitBranch, ArrowLeftRight
+  GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { selectedOrg, selectedOrgName, ensureOrgDetails } from './shared/api/http';
+import { selectedOrgName, ensureOrgDetails } from './shared/api/http';
 import { MobileMenuButton, Sidebar } from './components/layout/Sidebar';
 
 // Pages
@@ -28,6 +28,10 @@ import { FmStorePage } from './modules/inventory/fm-store/FmStorePage';
 import { DispatchesPage } from './modules/sales/dispatches/DispatchesPage';
 import { TraceabilityPage } from './modules/traceability/TraceabilityPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
+import { AuthProvider, useAuth } from './modules/auth/AuthContext';
+import { LoginPage } from './modules/auth/LoginPage';
+import { UserManagementPage } from './modules/users/UserManagementPage';
+import { ProfilePage } from './modules/auth/ProfilePage';
 
 const NAV_GROUPS = [
   {
@@ -76,6 +80,9 @@ const NAV_GROUPS = [
 ];
 
 function Shell() {
+  const { user, loading, can, logout } = useAuth();
+  if (loading) return <div className="grid min-h-dvh place-items-center">Loading session�w^~)�v</div>;
+  if (!user) return <Navigate to="/login" replace />;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [orgDisplay, setOrgDisplay] = useState<string>(() => selectedOrgName());
   const location = useLocation();
@@ -89,14 +96,15 @@ function Shell() {
     return () => window.removeEventListener('organizationChanged', handler);
   }, []);
 
-  const allItems = NAV_GROUPS.flatMap((g) => g.items);
+  const visibleGroups = NAV_GROUPS.concat(can('users.manage') ? [{ label: 'Administration', items: [{ path: '/users', label: 'User Management', icon: Users }] }] : []).map(g => ({...g, items: g.items.filter(i => i.path !== '/organizations' || can('organizations.manage'))})).filter(g => g.items.length);
+  const allItems = visibleGroups.flatMap((g) => g.items);
   const currentItem = allItems.find((item) => item.path === location.pathname);
   const pageTitle = currentItem?.label ?? (location.pathname === '/' ? 'Dashboard' : 'FeedTrack');
 
   return (
     <div className="min-h-dvh grid grid-cols-[270px_minmax(0,_1fr)] print:block! max-[900px]:block">
       <Sidebar
-        groups={NAV_GROUPS}
+        groups={visibleGroups}
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
@@ -111,18 +119,15 @@ function Shell() {
             </div>
           </div>
           <div className="flex items-center gap-2.5">
-            <Link to="/organizations">
-              <div className="flex items-center gap-1.75 p-[6px_12px] rounded-[20px] bg-[#f8faf7] [border:1px_solid_#e0e5dd] text-[12.5px] font-medium text-[#445e50] cursor-pointer [transition:all_0.15s] [&:hover]:bg-[#f3f5f2]">
-                <div className="w-2 h-2 bg-[#a8d548] rounded-full" />
-                {orgDisplay ? orgDisplay : (selectedOrg() ? 'Loading…' : 'Select Organisation')}
-              </div>
-            </Link>
+            {can("organizations.manage") ? <Link to="/organizations"><div className="hidden rounded-full border border-[#e0e5dd] bg-[#f8faf7] px-3 py-1.5 text-xs font-medium text-[#445e50] sm:block">{orgDisplay || "Workspace"}</div></Link> : null}
+            <Link to="/profile" className="flex items-center gap-2 rounded-xl border border-[#e0e5dd] bg-white px-2.5 py-1.5 text-sm font-semibold text-[#31483d] hover:bg-[#f8faf7]"><span className="grid size-7 place-items-center rounded-lg bg-[#edf6df] text-[#1a5c45]"><CircleUserRound size={16}/></span><span className="hidden max-w-28 truncate sm:block">{user.fullName}</span></Link>
+            <button onClick={() => void logout()} className="grid size-9 place-items-center rounded-xl border border-[#e0e5dd] text-[#7a9185] hover:border-red-200 hover:bg-red-50 hover:text-red-700" title="Log out" aria-label="Log out"><LogOut size={17}/></button>
           </div>
         </header>
 
         <Routes>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/organizations" element={<OrganizationPage />} />
+          <Route path="/organizations" element={can("organizations.manage") ? <OrganizationPage /> : <Navigate to="/" replace />} />
           <Route path="/uoms" element={<UnitsOfMeasurePage />} />
           <Route path="/categories" element={<ProductHierarchyPage />} />
           <Route path="/products" element={<ProductsPage />} />
@@ -140,6 +145,8 @@ function Shell() {
           <Route path="/fm-store" element={<FmStorePage />} />
           <Route path="/dispatches" element={<DispatchesPage />} />
           <Route path="/traceability" element={<TraceabilityPage />} />
+          <Route path="/users" element={can("users.manage") ? <UserManagementPage /> : <Navigate to="/" replace />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>
     </div>
@@ -148,8 +155,6 @@ function Shell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Shell />
-    </BrowserRouter>
+    <BrowserRouter><AuthProvider><Routes><Route path="/login" element={<LoginPage />} /><Route path="/*" element={<Shell />} /></Routes></AuthProvider></BrowserRouter>
   );
 }

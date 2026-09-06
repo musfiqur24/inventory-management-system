@@ -48,7 +48,7 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   sites Site[]
-  users User[]
+  members OrganizationMember[]
   uoms UnitOfMeasure[]
   categories ProductCategory[]
   products Product[]
@@ -63,17 +63,17 @@ model Site {
   @@unique([organizationId,code])
   @@index([organizationId])
 }
-model User {
-  id String @id @default(uuid())
-  organizationId String
-  email String
-  fullName String
-  roleCode String
-  isActive Boolean @default(true)
-  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
-  @@unique([organizationId,email])
-  @@index([organizationId,roleCode])
-}
+  model User {
+    id String @id @default(uuid())
+    email String @unique
+    fullName String
+    passwordHash String
+    isActive Boolean @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    memberships OrganizationMember[]
+    refreshTokens RefreshToken[]
+  }
 model UnitOfMeasure {
   id String @id @default(uuid())
   organizationId String
@@ -399,3 +399,58 @@ model DispatchLine {
 }
 
 
+
+model Permission {
+  id String @id @default(uuid())
+  key String @unique
+  name String
+  description String?
+  roles RolePermission[]
+  overrides UserPermissionOverride[]
+}
+model Role {
+  id String @id @default(uuid())
+  code String @unique
+  name String
+  description String?
+  isSystem Boolean @default(false)
+  permissions RolePermission[]
+  members OrganizationMember[]
+}
+model RolePermission {
+  roleId String
+  permissionId String
+  role Role @relation(fields:[roleId], references:[id], onDelete:Cascade)
+  permission Permission @relation(fields:[permissionId], references:[id], onDelete:Cascade)
+  @@id([roleId, permissionId])
+}
+model OrganizationMember {
+  id String @id @default(uuid())
+  userId String
+  organizationId String
+  roleId String
+  isActive Boolean @default(true)
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  role Role @relation(fields:[roleId], references:[id])
+  overrides UserPermissionOverride[]
+  @@unique([userId, organizationId])
+  @@index([organizationId, roleId])
+}
+model UserPermissionOverride {
+  id String @id @default(uuid())
+  membershipId String
+  permissionId String
+  granted Boolean
+  membership OrganizationMember @relation(fields:[membershipId], references:[id], onDelete:Cascade)
+  permission Permission @relation(fields:[permissionId], references:[id], onDelete:Cascade)
+  @@unique([membershipId, permissionId])
+}
+model RefreshToken {
+  id String @id @default(uuid())
+  tokenHash String @unique
+  userId String
+  expiresAt DateTime
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@index([userId, expiresAt])
+}

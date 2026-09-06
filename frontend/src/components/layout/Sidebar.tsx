@@ -35,7 +35,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
         {/* Brand */}
         <div className="flex items-center justify-between p-[20px_18px_0] shrink-0 [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:text-[#fff] [&_a]:no-underline">
           <Link to="/" onClick={onClose}>
-            <div className="w-10 h-10 rounded-[11px] [background:linear-gradient(135deg,_#a8d548,_#7ab832)] grid place-items-center text-[20px] font-extrabold text-[#0d3b2e] [font-family:'Outfit',_sans-serif] shrink-0">F</div>
+            <div className="w-10 h-10 overflow-hidden rounded-[11px] bg-white p-1 shrink-0"><img src="/Inventory_Logo.png" alt="Feed Track" className="size-full object-contain" /></div>
             <div className="[:where(&_strong)]:block [:where(&_strong)]:[font-family:'Outfit',_sans-serif] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-bold [:where(&_strong)]:text-[#fff] [:where(&_strong)]:leading-[1.2] [:where(&_small)]:block [:where(&_small)]:text-[10.5px] [:where(&_small)]:text-[rgba(255,255,255,0.45)] [:where(&_small)]:mt-0.25">
               <strong>FeedTrack</strong>
               <small>Production Inventory</small>

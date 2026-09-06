@@ -1,0 +1,12 @@
+import { Router } from "express";
+import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
+import { z } from "zod";
+import { prisma } from "../prisma.js";
+import { getAppUser, signAccessToken, authenticate } from "./rbac.js";
+export const authRouter=Router();
+const hash=(value:string)=>crypto.createHash("sha256").update(value).digest("hex");
+authRouter.post("/login",async(req,res)=>{const body=z.object({email:z.string().email(),password:z.string().min(1)}).parse(req.body);const user=await prisma.user.findUnique({where:{email:body.email.toLowerCase()}});if(!user||!user.isActive||!await bcrypt.compare(body.password,user.passwordHash))return res.status(401).json({error:{message:"Invalid email or password"}});const appUser=await getAppUser(user.id);if(!appUser||!appUser.organizations.length)return res.status(403).json({error:{message:"No organization access is assigned to this user"}});const refreshToken=crypto.randomBytes(48).toString("base64url");await prisma.refreshToken.create({data:{userId:user.id,tokenHash:hash(refreshToken),expiresAt:new Date(Date.now()+1000*60*60*24*7)}});res.json({data:{accessToken:signAccessToken(appUser),refreshToken,user:appUser}});});
+authRouter.post("/refresh",async(req,res)=>{const body=z.object({refreshToken:z.string().min(1)}).parse(req.body);const token=await prisma.refreshToken.findUnique({where:{tokenHash:hash(body.refreshToken)}});if(!token||token.expiresAt<new Date())return res.status(401).json({error:{message:"Refresh token expired"}});const user=await getAppUser(token.userId);if(!user)return res.status(401).json({error:{message:"Session is no longer valid"}});res.json({data:{accessToken:signAccessToken(user),user}});});
+authRouter.post("/logout",async(req,res)=>{const token=req.body?.refreshToken;if(token)await prisma.refreshToken.deleteMany({where:{tokenHash:hash(token)}});res.status(204).end();});
+authRouter.get("/me",authenticate,(req,res)=>res.json({data:req.auth}));

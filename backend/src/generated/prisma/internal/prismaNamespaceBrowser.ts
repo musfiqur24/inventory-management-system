@@ -77,7 +77,13 @@ export const ModelName = {
   SalesOrder: 'SalesOrder',
   SalesOrderLine: 'SalesOrderLine',
   Dispatch: 'Dispatch',
-  DispatchLine: 'DispatchLine'
+  DispatchLine: 'DispatchLine',
+  Permission: 'Permission',
+  Role: 'Role',
+  RolePermission: 'RolePermission',
+  OrganizationMember: 'OrganizationMember',
+  UserPermissionOverride: 'UserPermissionOverride',
+  RefreshToken: 'RefreshToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -121,11 +127,12 @@ export type SiteScalarFieldEnum = (typeof SiteScalarFieldEnum)[keyof typeof Site
 
 export const UserScalarFieldEnum = {
   id: 'id',
-  organizationId: 'organizationId',
   email: 'email',
   fullName: 'fullName',
-  roleCode: 'roleCode',
-  isActive: 'isActive'
+  passwordHash: 'passwordHash',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -477,6 +484,66 @@ export const DispatchLineScalarFieldEnum = {
 } as const
 
 export type DispatchLineScalarFieldEnum = (typeof DispatchLineScalarFieldEnum)[keyof typeof DispatchLineScalarFieldEnum]
+
+
+export const PermissionScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  description: 'description'
+} as const
+
+export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
+
+
+export const RoleScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  isSystem: 'isSystem'
+} as const
+
+export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const RolePermissionScalarFieldEnum = {
+  roleId: 'roleId',
+  permissionId: 'permissionId'
+} as const
+
+export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnum)[keyof typeof RolePermissionScalarFieldEnum]
+
+
+export const OrganizationMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  roleId: 'roleId',
+  isActive: 'isActive'
+} as const
+
+export type OrganizationMemberScalarFieldEnum = (typeof OrganizationMemberScalarFieldEnum)[keyof typeof OrganizationMemberScalarFieldEnum]
+
+
+export const UserPermissionOverrideScalarFieldEnum = {
+  id: 'id',
+  membershipId: 'membershipId',
+  permissionId: 'permissionId',
+  granted: 'granted'
+} as const
+
+export type UserPermissionOverrideScalarFieldEnum = (typeof UserPermissionOverrideScalarFieldEnum)[keyof typeof UserPermissionOverrideScalarFieldEnum]
+
+
+export const RefreshTokenScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  userId: 'userId',
+  expiresAt: 'expiresAt'
+} as const
+
+export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
 
 
 export const SortOrder = {

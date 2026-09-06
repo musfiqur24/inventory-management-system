@@ -152,3 +152,33 @@ export type Dispatch = Prisma.DispatchModel
  * 
  */
 export type DispatchLine = Prisma.DispatchLineModel
+/**
+ * Model Permission
+ * 
+ */
+export type Permission = Prisma.PermissionModel
+/**
+ * Model Role
+ * 
+ */
+export type Role = Prisma.RoleModel
+/**
+ * Model RolePermission
+ * 
+ */
+export type RolePermission = Prisma.RolePermissionModel
+/**
+ * Model OrganizationMember
+ * 
+ */
+export type OrganizationMember = Prisma.OrganizationMemberModel
+/**
+ * Model UserPermissionOverride
+ * 
+ */
+export type UserPermissionOverride = Prisma.UserPermissionOverrideModel
+/**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel

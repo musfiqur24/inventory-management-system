@@ -1,0 +1,7 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { api, clearSession, session } from "../../shared/api/http";
+export type AuthUser={id:string;email:string;fullName:string;permissions:string[];isSuperAdmin:boolean;organizations:Array<{id:string;name:string;code:string;role:{id:string;code:string;name:string}}>};
+type Auth={user:AuthUser|null;loading:boolean;login:(email:string,password:string)=>Promise<void>;logout:()=>Promise<void>;can:(p:string)=>boolean};
+const Context=createContext<Auth|null>(null);
+export function AuthProvider({children}:{children:ReactNode}){const [user,setUser]=useState<AuthUser|null>(null);const [loading,setLoading]=useState(true);useEffect(()=>{if(!session.accessToken){setLoading(false);return;}api<{data:AuthUser}>("/auth/me").then(x=>setUser(x.data)).catch(clearSession).finally(()=>setLoading(false));},[]);const login=async(email:string,password:string)=>{const r=await api<{data:{accessToken:string;refreshToken:string;user:AuthUser}}>("/auth/login",{method:"POST",body:JSON.stringify({email,password})});session.set(r.data.accessToken,r.data.refreshToken);setUser(r.data.user);};const logout=async()=>{try{await api("/auth/logout",{method:"POST",body:JSON.stringify({refreshToken:session.refreshToken})});}finally{clearSession();setUser(null);}};return <Context.Provider value={{user,loading,login,logout,can:p=>!!user?.permissions.includes(p)}}>{children}</Context.Provider>}
+export const useAuth=()=>{const v=useContext(Context);if(!v)throw Error("AuthProvider missing");return v;};
