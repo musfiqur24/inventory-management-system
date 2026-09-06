@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useToastMessage } from "../components/ui/Toast";
 import { Plus, RefreshCw } from "lucide-react";
 import { api, selectedOrg } from "../shared/api/http";
 import { Button } from "../components/ui/Button";
@@ -33,7 +34,7 @@ export function ResourcePage({
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [form, setForm] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [, setMessage] = useToastMessage();
   const load = async () => {
     if (!selectedOrg())
       return setMessage("Select or create an organisation first.");
@@ -141,13 +142,12 @@ export function ResourcePage({
             </Button>
           }
         />
-        {message && <p className="p-[12px_16px] rounded-[8px] text-[13.5px] m-[10px_0] flex items-start gap-2.5 [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:shrink-0 [:where(&_svg)]:mt-0.25">{message}</p>}
         <DataTable
           columns={columns.map((column) =>
             column.replaceAll(/([A-Z])/g, " $1"),
           )}
           empty={
-            !message && rows.length === 0 ? (
+            rows.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
                 <b>No {title.toLowerCase()} yet</b>
                 <span>

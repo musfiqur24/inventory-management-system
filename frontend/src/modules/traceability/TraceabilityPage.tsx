@@ -1,4 +1,5 @@
 import { twMerge } from 'tailwind-merge';
+import { useToastMessage } from "../../components/ui/Toast";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
 import { useState } from 'react';
 import { Search, GitBranch, Package, Truck, Factory, ArrowRight } from 'lucide-react';
@@ -9,7 +10,6 @@ import { Button } from '../../components/ui/Button';
 import { FormField } from '../../components/ui/FormField';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
-import { Notice } from '../../components/ui/Notice';
 
 type TraceType = 'lot' | 'requisition' | 'batch' | 'dispatch';
 
@@ -39,7 +39,7 @@ export function TraceabilityPage() {
   const [traceType, setTraceType] = useState<TraceType>('lot');
   const [result, setResult] = useState<TraceResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
 
   const trace = async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
@@ -57,7 +57,6 @@ export function TraceabilityPage() {
       cap="TRACEABILITY"
       title="Full Chain Traceability"
       description="Trace any lot, requisition, or dispatch through the complete supply chain — from raw material to customer delivery."
-      notice={message ? <Notice variant={message.startsWith('Not found') ? 'error' : 'warn'}>{message}</Notice> : undefined}
    >
 
       <Card className="mb-6">

@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from 'react';
 import { Plus, ArrowLeftRight } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -30,7 +31,7 @@ export function MaterialIssuesPage() {
   const [lots, setLots] = useState<Lot[]>([]);
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [form, setForm] = useState({ productionOrderId: '' });
   const [lines, setLines] = useState([{ rawMaterialId: '', lotId: '', uomId: '', issuedQty: '' }]);
 
@@ -78,7 +79,6 @@ export function MaterialIssuesPage() {
       title="Issue RM to Factory"
       description="Issue raw materials from RM store to the production floor. Deducts from lot balances and links to production orders."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Issue Materials</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <Card className="p-0">

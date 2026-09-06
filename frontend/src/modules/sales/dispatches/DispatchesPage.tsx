@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { printReport } from '../../../shared/printReport';
 import { useEffect, useState } from 'react';
 import { Plus, Truck, Search, FileText } from 'lucide-react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Dispatch {
@@ -35,7 +35,7 @@ export function DispatchesPage() {
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Dispatch | null>(null);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ salesOrderId: '', customerId: '', vehicleNo: '' });
   const [lines, setLines] = useState([{ fgProductId: '', lotId: '', uomId: '', dispatchedQty: '', unitPrice: '' }]);
@@ -103,7 +103,6 @@ export function DispatchesPage() {
       title="FM Dispatches"
       description="Record finished goods dispatches to customers with full lot traceability and printable delivery notes."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Dispatch</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">

@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import type { CSSProperties } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
@@ -11,7 +12,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface ProductionOrder {
@@ -32,7 +32,7 @@ export function ProductionOrdersPage() {
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<ProductionOrder | null>(null);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ recipeId: '', fgProductId: '', uomId: '', targetQty: '', plannedStartDate: '' });
 
@@ -84,7 +84,6 @@ export function ProductionOrdersPage() {
       title="FM Production Requisitions"
       description="Auto-scale recipe formulations for target production quantities. RM requirement lines are calculated from the recipe."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Production Order</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">

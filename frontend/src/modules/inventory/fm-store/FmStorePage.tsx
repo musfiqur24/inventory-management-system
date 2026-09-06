@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { iconVariants } from '../../../shared/styles/variants';
 import { useEffect, useState } from 'react';
@@ -6,7 +7,6 @@ import { Search, PackageCheck, TrendingUp, Package } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
 import { Card } from '../../../components/ui/Card';
-import { Notice } from '../../../components/ui/Notice';
 import { Badge } from '../../../components/ui/Badge';
 
 interface FmBalance {
@@ -31,7 +31,7 @@ export function FmStorePage() {
   const [lots, setLots] = useState<FmLot[]>([]);
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'balances' | 'lots'>('balances');
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
 
   const load = async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
@@ -63,7 +63,6 @@ export function FmStorePage() {
       cap="INVENTORY"
       title="Finished Goods Store"
       description="Live FG stock balances and batch lot tracking, ready for customer dispatch."
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
       <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[

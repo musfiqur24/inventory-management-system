@@ -1,24 +1,19 @@
 import { useEffect, useState } from "react";
-import { Building2, Check, CircleCheck, XCircle } from "lucide-react";
+import { Building2, Check } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
 import { FormField } from "../../../components/ui/FormField";
 import { Input } from "../../../components/ui/Input";
 import { organizationApi, type Organization } from "./organization.api";
+import { appToast } from "../../../components/ui/Toast";
 
 export function OrganizationPage() {
   const [items, setItems] = useState<Organization[]>([]);
   const [selected, setSelected] = useState<Organization | null>(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageKind, setMessageKind] = useState<"success" | "error">("success");
-
-  const showMessage = (next: string, kind: "success" | "error") => {
-    setMessageKind(kind);
-    setMessage(next);
-  };
+  const showMessage = (next: string, kind: "success" | "error") => appToast[kind](next);
 
   const load = async () => {
     try {
@@ -31,11 +26,6 @@ export function OrganizationPage() {
   };
 
   useEffect(() => { void load(); }, []);
-  useEffect(() => {
-    if (!message) return;
-    const timer = window.setTimeout(() => setMessage(""), 4000);
-    return () => window.clearTimeout(timer);
-  }, [message]);
 
   const select = (organization: Organization) => {
     organizationApi.select(organization);
@@ -58,9 +48,6 @@ export function OrganizationPage() {
 
   return (
     <PageContainer title="Organisations" description="Create an organisation once, then select it as the workspace for all inventory records.">
-      {message && <div role="status" className={"fixed bottom-6 right-6 z-100 flex max-w-sm items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium shadow-xl " + (messageKind === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800")}>
-        {messageKind === "success" ? <CircleCheck size={18} /> : <XCircle size={18} />}<span>{message}</span>
-      </div>}
       <Card padding="none">
         <div className="grid min-h-110 grid-cols-[minmax(320px,_1fr)_minmax(360px,_1.2fr)] max-[860px]:grid-cols-[1fr]">
           <div className="bg-white p-7 [border-right:1px_solid_#e0e5dd] max-[860px]:[border-bottom:1px_solid_#e0e5dd] max-[860px]:[border-right:none]">

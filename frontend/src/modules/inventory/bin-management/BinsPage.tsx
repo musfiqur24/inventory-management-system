@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import type { CSSProperties } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
@@ -38,7 +39,7 @@ export function BinsPage() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'ALL' | 'RM_STORE' | 'FM_STORE' | 'SILO' | 'FACTORY_FLOOR'>('ALL');
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
 
   const [form, setForm] = useState({
     code: '',
@@ -113,7 +114,6 @@ export function BinsPage() {
           <Plus size={16} /> Add Storage Bin
         </Button>
       }
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       {/* Summary Cards */}

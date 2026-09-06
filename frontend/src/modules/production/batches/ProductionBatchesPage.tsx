@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Factory, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Batch {
@@ -27,7 +27,7 @@ export function ProductionBatchesPage() {
   const [rows, setRows] = useState<Batch[]>([]);
   const [orders, setOrders] = useState<ProductionOrder[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [form, setForm] = useState({ productionOrderId: '', plannedQty: '', plannedWastePct: '' });
 
   const load = async () => {
@@ -60,7 +60,6 @@ export function ProductionBatchesPage() {
       title="Factory Batches"
       description="Track production batch execution, actual waste vs planned, and link to finished good inventory."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Start Batch</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">

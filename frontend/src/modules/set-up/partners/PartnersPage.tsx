@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Building2, Search, Phone, Mail } from 'lucide-react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 
 interface Partner {
   id: string; name: string; code: string; partnerType: string;
@@ -20,7 +20,7 @@ interface Partner {
 export function PartnersPage() {
   const [rows, setRows] = useState<Partner[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'SUPPLIER' | 'CUSTOMER'>('ALL');
   const [form, setForm] = useState({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' });
@@ -56,7 +56,6 @@ export function PartnersPage() {
       title="Suppliers & Customers"
       description="Manage your partner directory — suppliers who provide raw materials and customers who receive finished goods."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Add Partner</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <div className="grid grid-cols-[repeat(3,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">

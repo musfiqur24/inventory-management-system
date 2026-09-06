@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, FlaskConical, Search, Trash2, Info } from 'lucide-react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 
 interface RecipeLine { productId: string; name: string; percentage: number; wastePct: number; }
 interface Recipe {
@@ -30,7 +30,7 @@ export function RecipesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Recipe | null>(null);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ name: '', code: '', fgProductId: '', targetTonnage: '1' });
   const [ingredients, setIngredients] = useState<RecipeLine[]>([
@@ -90,7 +90,6 @@ export function RecipesPage() {
       title="Nutritionist Recipes"
       description="Define 1-ton base formulations. Ingredient percentages must total 100%. Production orders auto-scale quantities."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Recipe</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <div className="grid grid-cols-[1fr_1.2fr] gap-5 max-[900px]:grid-cols-[1fr]">

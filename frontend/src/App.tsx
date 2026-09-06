@@ -7,6 +7,7 @@ import {
 import { useState, useEffect } from 'react';
 import { selectedOrgName, ensureOrgDetails } from './shared/api/http';
 import { MobileMenuButton, Sidebar } from './components/layout/Sidebar';
+import { AppToaster } from './components/ui/Toast';
 
 // Pages
 import { OrganizationPage } from './modules/platform/organizations/OrganizationPage';
@@ -155,6 +156,6 @@ function Shell() {
 
 export default function App() {
   return (
-    <BrowserRouter><AuthProvider><Routes><Route path="/login" element={<LoginPage />} /><Route path="/*" element={<Shell />} /></Routes></AuthProvider></BrowserRouter>
+    <BrowserRouter><AppToaster /><AuthProvider><Routes><Route path="/login" element={<LoginPage />} /><Route path="/*" element={<Shell />} /></Routes></AuthProvider></BrowserRouter>
   );
 }

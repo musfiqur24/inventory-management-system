@@ -1,15 +1,15 @@
 import { DataTable } from "../components/ui/DataTable";
+import { useToastMessage } from "../components/ui/Toast";
 import { Card } from '../components/ui/Card';
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { api, selectedOrg } from "../shared/api/http";
 import { PageContainer } from "../components/ui/PageContainer";
-import { Notice } from "../components/ui/Notice";
 
 export function TraceabilityPage() {
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
-  const [message, setMessage] = useState("");
+  const [, setMessage] = useToastMessage();
 
   useEffect(() => {
     if (!selectedOrg()) return setMessage("Select an organisation first.");
@@ -27,7 +27,7 @@ export function TraceabilityPage() {
       cap="LOT GENEALOGY"
       title="Traceability"
       description="Follow any lot from requisition and challan through production batch and customer dispatch."
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
+
    >
       <Card className="p-0">
         <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
@@ -53,7 +53,7 @@ export function TraceabilityPage() {
                 </tr>
               ))}
             </DataTable>
-          {filtered.length === 0 && !message && (
+          {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
               <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Search size={28} /></div>
               <b>No movements found</b>

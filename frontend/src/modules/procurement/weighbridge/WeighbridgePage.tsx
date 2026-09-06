@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { Card } from '../../../components/ui/Card';
 import { useEffect, useState } from 'react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 
 interface Weighment {
   id: string; vehicleNo?: string; grossWeight: number; tareWeight: number; netWeight: number;
@@ -23,7 +23,7 @@ export function WeighbridgePage() {
   const [rows, setRows] = useState<Weighment[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [form, setForm] = useState({ deliveryId: '', vehicleNo: '', grossWeight: '', tareWeight: '' });
   const [preview, setPreview] = useState<{ net: number; variance: number | null; variancePct: number | null; isWarn: boolean } | null>(null);
 
@@ -76,7 +76,6 @@ export function WeighbridgePage() {
       title="Weighbridge Scale Records"
       description="Capture gross and tare weights for incoming vehicles. Net weight is calculated automatically and compared against declared challan weights."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Record Weighment</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       {/* Live scale display */}

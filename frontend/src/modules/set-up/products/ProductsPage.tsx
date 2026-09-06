@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, FlaskConical, Search, PackageCheck, AlertTriangle, Boxes } from 'lucide-react';
@@ -61,7 +62,7 @@ export function ProductsPage() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'ALL' | 'RAW_MATERIAL' | 'FINISHED_GOOD' | 'PACKAGING'>('ALL');
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
 
   // Cascading Category Picker States for Create Form (L1 -> L2 -> L3 -> L4)
   const [selectedL1, setSelectedL1] = useState('');
@@ -176,7 +177,6 @@ export function ProductsPage() {
           <Plus size={16} /> Create Product SKU
         </Button>
       }
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       {/* Stats Summary Cards */}

@@ -1,11 +1,11 @@
 import { twMerge } from 'tailwind-merge';
+import { useToastMessage } from "../../components/ui/Toast";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
 import { Card } from '../../components/ui/Card';
 import { useEffect, useState } from 'react';
 import { Package, ShoppingCart, Truck, Factory, CheckCircle2, AlertTriangle, TrendingUp, Layers } from 'lucide-react';
 import { api, selectedOrg } from '../../shared/api/http';
 import { PageContainer } from '../../components/ui/PageContainer';
-import { Notice } from '../../components/ui/Notice';
 
 interface DashboardStats {
   totalRMProducts: number;
@@ -20,7 +20,7 @@ interface DashboardStats {
 
 export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,7 +77,6 @@ export function DashboardPage() {
       cap="OPERATIONS OVERVIEW"
       title="Dashboard"
       description="Live feed production inventory snapshot across the entire workflow."
-      notice={message ? <Notice variant={message.includes('select') ? 'warn' : 'error'}>{message}</Notice> : undefined}
    >
 
       {loading && (

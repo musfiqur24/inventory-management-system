@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from 'react';
 import { Plus, Scale, Search, Trash2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -15,7 +16,7 @@ interface UOM { id: string; name: string; code: string; decimalPlaces?: number; 
 export function UnitsOfMeasurePage() {
   const [rows, setRows] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ name: '', code: '', category: '', decimalPlaces: '2', conversionFactor: '1' });
 
@@ -56,7 +57,6 @@ export function UnitsOfMeasurePage() {
       title="Units of Measure"
       description="Dynamic UOM management. Create mass, volume, or custom units for products, recipes, and transactions."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New UOM</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       {/* Category quick filters */}

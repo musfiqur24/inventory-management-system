@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { printReport } from '../../../shared/printReport';
 import { useEffect, useState } from 'react';
 import { Plus, Printer, Search, FileText, CheckCircle2 } from 'lucide-react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Product { id: string; sku: string; name: string; type: string; }
@@ -31,7 +31,7 @@ export function RmRequisitionsPage() {
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Requisition | null>(null);
   const [form, setForm] = useState({ salesOrderRef: '', supplierId: '' });
@@ -111,7 +111,6 @@ export function RmRequisitionsPage() {
           <Plus size={16} /> New Requisition
         </Button>
       }
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       {/* Stats row */}

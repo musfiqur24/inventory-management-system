@@ -1,4 +1,5 @@
 import { DataTable } from "../../../components/ui/DataTable";
+import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
 import { Plus, Truck, Scale, FileText } from 'lucide-react';
@@ -10,7 +11,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { Notice } from '../../../components/ui/Notice';
 import { statusBadge } from '../../../components/ui/Badge';
 
 interface Delivery {
@@ -37,7 +37,7 @@ export function SupplierChallansPage() {
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Delivery | null>(null);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
   const [form, setForm] = useState({ requisitionId: '', supplierId: '', invoiceNo: '', vehicleNo: '', grossWeight: '', tareWeight: '' });
   const [lines, setLines] = useState([{ productId: '', uomId: '', declaredQty: '', unitPrice: '' }]);
 
@@ -87,7 +87,6 @@ export function SupplierChallansPage() {
       title="Supplier Delivery Challans"
       description="Record supplier delivery challans with vehicle details, declared weights, and product lines."
       actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Challan</Button>}
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       <Card className="p-0">

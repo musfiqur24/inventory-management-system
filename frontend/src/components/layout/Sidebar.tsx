@@ -3,7 +3,8 @@ import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { selectedOrg, selectedOrgName, ensureOrgDetails } from '../../shared/api/http';
+import { selectedOrg, selectedOrgName, ensureOrgDetails, setOrganizationDetails } from '../../shared/api/http';
+import { useAuth } from '../../modules/auth/AuthContext';
 
 type Item = { path: string; label: string; icon: LucideIcon };
 type Group = { label: string; items: Item[] };
@@ -15,6 +16,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
+  const { user } = useAuth();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [orgId, setOrgId] = useState<string>(() => selectedOrg());
   const [orgName, setOrgName] = useState<string>(() => selectedOrgName());
@@ -46,16 +48,24 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
           </button>
         </div>
 
-        {/* Organization switcher */}
-        <Link className="m-[14px_12px_6px] bg-[rgba(255,255,255,0.06)] [border:1px_solid_rgba(255,255,255,0.08)] rounded-[12px] p-[10px_12px] flex items-center gap-2.5 text-[rgba(255,255,255,0.85)] [transition:background_0.15s] shrink-0 [&:hover]:bg-[rgba(255,255,255,0.10)]" to="/organizations" onClick={onClose}>
-          <div className="w-8 h-8 rounded-[8px] bg-[#a8d548] grid place-items-center text-[#0d3b2e] font-extrabold text-[13px] shrink-0">
-            {orgName ? orgName.slice(0, 2).toUpperCase() : 'ORG'}
+        {/* Organization workspace */}
+        {user?.isSuperAdmin ? (
+          <Link className="m-[14px_12px_6px] bg-[rgba(255,255,255,0.06)] [border:1px_solid_rgba(255,255,255,0.08)] rounded-[12px] p-[10px_12px] flex items-center gap-2.5 text-[rgba(255,255,255,0.85)] [transition:background_0.15s] shrink-0 [&:hover]:bg-[rgba(255,255,255,0.10)]" to="/organizations" onClick={onClose}>
+            <div className="w-8 h-8 rounded-[8px] bg-[#a8d548] grid place-items-center text-[#0d3b2e] font-extrabold text-[13px] shrink-0">{orgName.slice(0, 2).toUpperCase()}</div>
+            <div className="min-w-0"><strong className="block truncate text-[12.5px] font-semibold">{orgName}</strong><small className="mt-0.5 block text-[10.5px] text-[rgba(255,255,255,0.4)]">Click to switch</small></div>
+          </Link>
+        ) : (
+          <div className="m-[14px_12px_6px] flex shrink-0 items-center gap-2.5 rounded-[12px] border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.06)] p-[10px_12px] text-[rgba(255,255,255,0.85)]">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-[#a8d548] text-[13px] font-extrabold text-[#0d3b2e]">{orgName.slice(0, 2).toUpperCase()}</div>
+            {user && user.organizations.length > 1 ? (
+              <select aria-label="Active organization" value={orgId} onChange={(event) => { const org=user.organizations.find(item=>item.id===event.target.value); if(org)setOrganizationDetails(org); }} className="min-w-0 flex-1 cursor-pointer border-0 bg-transparent text-[12.5px] font-semibold text-white outline-none [&_option]:text-[#0d3b2e]">
+                {user.organizations.map(org=><option key={org.id} value={org.id}>{org.name}</option>)}
+              </select>
+            ) : (
+              <div className="min-w-0"><strong className="block truncate text-[12.5px] font-semibold">{orgName}</strong><small className="mt-0.5 block text-[10.5px] text-[rgba(255,255,255,0.4)]">Assigned organization</small></div>
+            )}
           </div>
-          <div className="[:where(&_strong)]:block [:where(&_strong)]:text-[12.5px] [:where(&_strong)]:font-semibold [:where(&_small)]:block [:where(&_small)]:text-[10.5px] [:where(&_small)]:text-[rgba(255,255,255,0.4)] [:where(&_small)]:mt-0.25">
-            <strong>{orgName ? orgName : (orgId ? 'Loading…' : 'No org selected')}</strong>
-            <small>{orgId ? 'Click to switch' : 'Click to choose'}</small>
-          </div>
-        </Link>
+        )}
 
         {/* Nav */}
         <div className="flex-1 p-[6px_0_20px]">
@@ -87,11 +97,6 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
           ))}
         </div>
 
-        {/* Role indicator */}
-        <div className="m-[0_12px_12px] p-[8px_12px] rounded-[8px] bg-[rgba(168,213,72,0.08)] [border:1px_solid_rgba(168,213,72,0.15)] flex items-center gap-2 shrink-0 [&_span]:text-[11.5px] [&_span]:text-[#c8e87a] [&_span]:font-semibold">
-          <div className="w-2 h-2 rounded-full bg-[#a8d548] shrink-0" />
-          <span>All Roles View</span>
-        </div>
       </aside>
 
       {mobileOpen && (

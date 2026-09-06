@@ -1,4 +1,5 @@
 import { twMerge } from 'tailwind-merge';
+import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from 'react';
 import { Plus, ChevronRight, FolderTree } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -41,7 +42,7 @@ export function ProductHierarchyPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
+  const [, setMessage] = useToastMessage();
 
   // Active navigation selection state across 5 levels
   const [selectedL1, setSelectedL1] = useState<string | null>(null);
@@ -184,13 +185,12 @@ export function ProductHierarchyPage() {
     <PageContainer
       cap="MASTER SETUP"
       title="Product Hierarchy"
-      description="5-level product taxonomy: Type → Class → Sub-Class → Family → Product SKU. Select parents in cascading sequence to drill down or create new nodes."
+      description="Set Up Your Product"
       actions={
         <Button variant="primary" onClick={() => setOpen(true)}>
           <Plus size={16} /> Add Hierarchy Node
         </Button>
       }
-      notice={message ? <Notice variant="error">{message}</Notice> : undefined}
    >
 
       {/* Combined Hierarchy Explorer Container */}
