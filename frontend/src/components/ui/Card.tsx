@@ -13,7 +13,7 @@ const variants = {
   flat: 'shadow-none bg-[#f8faf7]',
   accent: 'border-[#1a5c45] bg-linear-to-br from-[#f0f9f5] to-white',
 };
-const paddings = { none: 'p-0', sm: 'p-4', md: 'p-6', lg: 'p-8' };
+const paddings = { none: 'p-0', sm: 'p-4', md: 'p-4 sm:p-6', lg: 'p-5 sm:p-8' };
 const radii = { none: 'rounded-none', sm: 'rounded-lg', md: 'rounded-xl', lg: 'rounded-[18px]' };
 
 export function Card({ children, variant = 'default', padding = 'md', rounded = 'sm', className, onClick, ...props }: CardProps) {
@@ -42,7 +42,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ title, description, icon, actions }: CardHeaderProps) {
   return (
-    <div className="mb-5 flex items-start gap-3.5">
+    <div className="mb-5 flex flex-wrap items-start gap-3.5">
       {icon && <div className="grid size-10 shrink-0 place-items-center rounded-lg border border-[#e0e5dd] bg-[#f8faf7] text-[#1a5c45] [:where(&_svg)]:size-4.5">{icon}</div>}
       <div className="min-w-0 flex-1">
         <h2 className="mb-0.75 text-[15px] font-bold text-[#0f1c16]">{title}</h2>

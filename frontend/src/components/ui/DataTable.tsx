@@ -70,14 +70,14 @@ export function DataTable<T>({
     <div className="relative overflow-hidden border border-[#d8dee4] bg-white shadow-[0_6px_20px_rgba(15,23,42,0.06)]">
 
       {toolbar && (
-        <div className="border-b border-[#e2e8e1] bg-gradient-to-r from-[#fbfdf9] to-white px-5 py-4">
+        <div className="border-b border-[#e2e8e1] bg-[#fafbfc] px-4 py-4 sm:px-5">
           {toolbar}
         </div>
       )}
 
       <div className="overflow-x-auto [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin]">
         <table className="w-full min-w-180 border-separate border-spacing-0 text-left">
-          <thead>
+          <thead className="sticky top-0 z-1">
             <tr className="bg-[#f4f6f8]">
               {headers.map((header, index) => (
                 <th
@@ -90,7 +90,7 @@ export function DataTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="[&_tr]:transition-colors [&_tr:nth-child(even)]:bg-[#fcfdfb] [&_tr:hover]:bg-[#f2f8ef] [&_td]:border-b [&_td]:border-[#e7ece6] [&_td]:px-5 [&_td]:py-4 [&_td]:text-sm [&_td]:text-[#263b31] [&_tr:last-child_td]:border-b-0">
+          <tbody className="[&_tr]:transition-colors [&_tr:nth-child(even)]:bg-[#fafbfc] [&_tr:hover]:bg-[#f5f7f8] [&_td]:border-b [&_td]:border-[#e7ece6] [&_td]:px-4 [&_td]:py-3.5 sm:[&_td]:px-5 sm:[&_td]:py-4 [&_td]:text-sm [&_td]:text-[#263b31] [&_tr:last-child_td]:border-b-0">
             {dynamic
               ? dynamicProps.rows.map(row => (
                   <tr key={dynamicProps.rowKey(row)}>
@@ -109,7 +109,7 @@ export function DataTable<T>({
       {empty}
 
       {total !== undefined && (
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#dbe4da] bg-gradient-to-r from-[#f8fbf6] to-white px-5 py-4">
+        <div className="flex flex-col items-stretch justify-between gap-3 border-t sm:flex-row sm:items-center sm:gap-4 border-[#dbe4da] bg-[#fafbfc] px-4 py-4 sm:px-5">
           <div className="flex items-center gap-3 text-xs text-[#6a8074]">
             <span className="rounded-full border border-[#d9e4d7] bg-white px-3 py-1.5 font-semibold shadow-sm">
               {recordCount} {recordCount === 1 ? "record" : "records"}
@@ -119,7 +119,7 @@ export function DataTable<T>({
             </span>
           </div>
 
-          <nav className="flex items-center gap-1.5" aria-label="Table pagination">
+          <nav className="flex items-center justify-between gap-1.5 sm:justify-end" aria-label="Table pagination">
             <button type="button" className={navigationButton} disabled={currentPage === 1} onClick={() => onPageChange?.(1)} title="First page" aria-label="First page">
               <ChevronsLeft size={16} />
             </button>
@@ -127,7 +127,8 @@ export function DataTable<T>({
               <ChevronLeft size={16} />
             </button>
 
-            <div className="mx-1 flex items-center gap-1">
+            <span className="px-2 text-xs font-semibold text-[#526b5e] sm:hidden">{currentPage} / {pages}</span>
+            <div className="mx-1 hidden items-center gap-1 sm:flex">
               {pageItems.map((item, index) =>
                 item === "ellipsis" ? (
                   <span key={"ellipsis-" + index} className="grid size-9 place-items-center text-sm text-[#8a9b91]">...</span>

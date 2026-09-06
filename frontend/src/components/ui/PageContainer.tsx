@@ -1,19 +1,9 @@
-﻿import type { ReactNode } from 'react';
-import { PageHeader } from './PageHeader';
-
-interface PageContainerProps {
-  title: string;
-  cap?: string;
-  description?: string;
-  actions?: ReactNode;
-  children: ReactNode;
-}
-
-export function PageContainer({ title, cap, description, actions, children }: PageContainerProps) {
-  return (
-    <section className="max-w-360 m-[0_auto] p-[36px_clamp(24px,_4vw,_52px)_72px] flex flex-col gap-0">
-      <PageHeader title={title} cap={cap} description={description} actions={actions} />
-      <div className="flex flex-col gap-6">{children}</div>
-    </section>
-  );
+import type { ReactNode } from "react";
+import { PageHeader } from "./PageHeader";
+interface PageContainerProps{title:string;cap?:string;description?:string;actions?:ReactNode;children:ReactNode;}
+export function PageContainer({title,cap,description,actions,children}:PageContainerProps){
+  return <section className="mx-auto flex w-full max-w-360 flex-col px-4 pb-16 pt-5 sm:px-6 sm:pt-7 lg:px-10 lg:pb-20 lg:pt-9 xl:px-13">
+    <PageHeader title={title} cap={cap} description={description} actions={actions}/>
+    <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6">{children}</div>
+  </section>;
 }

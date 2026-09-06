@@ -43,3 +43,11 @@ npm run build
 npm run lint --prefix frontend
 docker compose up -d --build
 ```
+
+## Responsive UI standards
+
+- Build pages mobile-first with shared `PageContainer`, `PageHeader`, `Card`, form controls, `Modal`, and `DataTable` components.
+- Interactive controls need a visible keyboard focus state and a minimum 44px touch target unless they are compact table actions.
+- Page actions wrap on small screens, forms collapse to one column, dialogs become bottom-aligned mobile sheets, and tables keep horizontal scrolling with mobile pagination.
+- Preserve semantic labels, dialog titles, accessible icon-button names, reduced-motion preferences, and the application skip link.
+- Keep table headers neutral and square as part of the current Feed Track visual language.

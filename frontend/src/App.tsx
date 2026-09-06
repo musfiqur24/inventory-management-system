@@ -106,19 +106,21 @@ function Shell() {
   const pageTitle = currentItem?.label ?? (location.pathname === '/' ? 'Dashboard' : 'FeedTrack');
 
   return (
-    <div className="min-h-dvh grid grid-cols-[270px_minmax(0,_1fr)] print:block! max-[900px]:block">
+    <>
+      <a href="#main-content" className="fixed left-4 top-3 z-100 -translate-y-20 rounded-lg bg-[#0d3b2e] px-4 py-2 text-sm font-semibold text-white shadow-lg transition focus:translate-y-0">Skip to content</a>
+      <div className="min-h-dvh grid grid-cols-[270px_minmax(0,_1fr)] print:block! max-[900px]:block">
       <Sidebar
         groups={visibleGroups}
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
-      <main className="min-w-0 print:min-w-full">
-        <header className="h-17 flex items-center gap-4 p-[0_clamp(20px,_4vw,_48px)] bg-[#fff] [border-bottom:1px_solid_#e0e5dd] sticky top-0 z-10 print:hidden! max-[900px]:p-[0_16px]">
+      <main id="main-content" tabIndex={-1} className="min-h-dvh min-w-0 bg-[#f4f6f3] print:min-w-full">
+        <header className="flex h-16 items-center gap-3 sm:h-17 sm:gap-4 px-4 sm:px-6 lg:px-10 xl:px-12 bg-[#fff] [border-bottom:1px_solid_#e0e5dd] sticky top-0 z-10 print:hidden! max-[900px]:p-[0_16px]">
           <div className="flex items-center gap-3 flex-1">
             <MobileMenuButton onClick={() => setMobileOpen(true)} />
             <div className="flex items-center gap-2 text-[13.5px] text-[#7a9185] [:where(&_strong)]:text-[#0f1c16] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-semibold">
               <span>FeedTrack</span>
-              <span>â€º</span>
+              <span aria-hidden="true">/</span>
               <strong>{pageTitle}</strong>
             </div>
           </div>
@@ -153,7 +155,8 @@ function Shell() {
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>
-    </div>
+      </div>
+    </>
   );
 }
 

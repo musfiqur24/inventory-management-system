@@ -4,7 +4,7 @@ import { Toaster, toast } from "react-hot-toast";
 
 export type ToastKind = "success" | "error" | "validation" | "info";
 
-const toastClass = "!max-w-[420px] !rounded-xl !border !border-[#dce4dc] !bg-white !px-4 !py-3 !text-sm !font-medium !text-[#183428] !shadow-[0_16px_40px_rgba(13,59,46,0.16)]";
+const toastClass = "!max-w-[min(420px,calc(100vw-2rem))] !rounded-xl !border !border-[#dce4dc] !bg-white !px-4 !py-3 !text-sm !font-medium !text-[#183428] !shadow-[0_16px_40px_rgba(13,59,46,0.16)]";
 
 export const appToast = {
   success: (message: string) => toast.success(message, { className: toastClass, duration: 3500 }),
