@@ -401,7 +401,10 @@ export const ModelName = {
   Site: 'Site',
   User: 'User',
   UnitOfMeasure: 'UnitOfMeasure',
-  ProductCategory: 'ProductCategory',
+  GroupLayer: 'GroupLayer',
+  ControlLayer: 'ControlLayer',
+  SubLayer: 'SubLayer',
+  SubSubLayer: 'SubSubLayer',
   Product: 'Product',
   Partner: 'Partner',
   Bin: 'Bin',
@@ -445,7 +448,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "productCategory" | "product" | "partner" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken"
+    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "product" | "partner" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -745,77 +748,299 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProductCategory: {
-      payload: Prisma.$ProductCategoryPayload<ExtArgs>
-      fields: Prisma.ProductCategoryFieldRefs
+    GroupLayer: {
+      payload: Prisma.$GroupLayerPayload<ExtArgs>
+      fields: Prisma.GroupLayerFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ProductCategoryFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload> | null
+          args: Prisma.GroupLayerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ProductCategoryFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          args: Prisma.GroupLayerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>
         }
         findFirst: {
-          args: Prisma.ProductCategoryFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload> | null
+          args: Prisma.GroupLayerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ProductCategoryFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          args: Prisma.GroupLayerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>
         }
         findMany: {
-          args: Prisma.ProductCategoryFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>[]
+          args: Prisma.GroupLayerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>[]
         }
         create: {
-          args: Prisma.ProductCategoryCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          args: Prisma.GroupLayerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>
         }
         createMany: {
-          args: Prisma.ProductCategoryCreateManyArgs<ExtArgs>
+          args: Prisma.GroupLayerCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ProductCategoryCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>[]
+          args: Prisma.GroupLayerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>[]
         }
         delete: {
-          args: Prisma.ProductCategoryDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          args: Prisma.GroupLayerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>
         }
         update: {
-          args: Prisma.ProductCategoryUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          args: Prisma.GroupLayerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>
         }
         deleteMany: {
-          args: Prisma.ProductCategoryDeleteManyArgs<ExtArgs>
+          args: Prisma.GroupLayerDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ProductCategoryUpdateManyArgs<ExtArgs>
+          args: Prisma.GroupLayerUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ProductCategoryUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>[]
+          args: Prisma.GroupLayerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>[]
         }
         upsert: {
-          args: Prisma.ProductCategoryUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductCategoryPayload>
+          args: Prisma.GroupLayerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GroupLayerPayload>
         }
         aggregate: {
-          args: Prisma.ProductCategoryAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductCategory>
+          args: Prisma.GroupLayerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGroupLayer>
         }
         groupBy: {
-          args: Prisma.ProductCategoryGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductCategoryGroupByOutputType>[]
+          args: Prisma.GroupLayerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GroupLayerGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ProductCategoryCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductCategoryCountAggregateOutputType> | number
+          args: Prisma.GroupLayerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GroupLayerCountAggregateOutputType> | number
+        }
+      }
+    }
+    ControlLayer: {
+      payload: Prisma.$ControlLayerPayload<ExtArgs>
+      fields: Prisma.ControlLayerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ControlLayerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ControlLayerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>
+        }
+        findFirst: {
+          args: Prisma.ControlLayerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ControlLayerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>
+        }
+        findMany: {
+          args: Prisma.ControlLayerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>[]
+        }
+        create: {
+          args: Prisma.ControlLayerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>
+        }
+        createMany: {
+          args: Prisma.ControlLayerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ControlLayerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>[]
+        }
+        delete: {
+          args: Prisma.ControlLayerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>
+        }
+        update: {
+          args: Prisma.ControlLayerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>
+        }
+        deleteMany: {
+          args: Prisma.ControlLayerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ControlLayerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ControlLayerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>[]
+        }
+        upsert: {
+          args: Prisma.ControlLayerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ControlLayerPayload>
+        }
+        aggregate: {
+          args: Prisma.ControlLayerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateControlLayer>
+        }
+        groupBy: {
+          args: Prisma.ControlLayerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ControlLayerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ControlLayerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ControlLayerCountAggregateOutputType> | number
+        }
+      }
+    }
+    SubLayer: {
+      payload: Prisma.$SubLayerPayload<ExtArgs>
+      fields: Prisma.SubLayerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubLayerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubLayerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>
+        }
+        findFirst: {
+          args: Prisma.SubLayerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubLayerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>
+        }
+        findMany: {
+          args: Prisma.SubLayerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>[]
+        }
+        create: {
+          args: Prisma.SubLayerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>
+        }
+        createMany: {
+          args: Prisma.SubLayerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubLayerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>[]
+        }
+        delete: {
+          args: Prisma.SubLayerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>
+        }
+        update: {
+          args: Prisma.SubLayerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubLayerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubLayerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubLayerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubLayerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubLayerPayload>
+        }
+        aggregate: {
+          args: Prisma.SubLayerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubLayer>
+        }
+        groupBy: {
+          args: Prisma.SubLayerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubLayerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubLayerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubLayerCountAggregateOutputType> | number
+        }
+      }
+    }
+    SubSubLayer: {
+      payload: Prisma.$SubSubLayerPayload<ExtArgs>
+      fields: Prisma.SubSubLayerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubSubLayerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubSubLayerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>
+        }
+        findFirst: {
+          args: Prisma.SubSubLayerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubSubLayerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>
+        }
+        findMany: {
+          args: Prisma.SubSubLayerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>[]
+        }
+        create: {
+          args: Prisma.SubSubLayerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>
+        }
+        createMany: {
+          args: Prisma.SubSubLayerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubSubLayerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>[]
+        }
+        delete: {
+          args: Prisma.SubSubLayerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>
+        }
+        update: {
+          args: Prisma.SubSubLayerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubSubLayerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubSubLayerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubSubLayerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubSubLayerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubSubLayerPayload>
+        }
+        aggregate: {
+          args: Prisma.SubSubLayerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubSubLayer>
+        }
+        groupBy: {
+          args: Prisma.SubSubLayerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubSubLayerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubSubLayerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubSubLayerCountAggregateOutputType> | number
         }
       }
     }
@@ -2983,17 +3208,51 @@ export const UnitOfMeasureScalarFieldEnum = {
 export type UnitOfMeasureScalarFieldEnum = (typeof UnitOfMeasureScalarFieldEnum)[keyof typeof UnitOfMeasureScalarFieldEnum]
 
 
-export const ProductCategoryScalarFieldEnum = {
+export const GroupLayerScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
-  parentId: 'parentId',
-  level: 'level',
   code: 'code',
   name: 'name',
   sortOrder: 'sortOrder'
 } as const
 
-export type ProductCategoryScalarFieldEnum = (typeof ProductCategoryScalarFieldEnum)[keyof typeof ProductCategoryScalarFieldEnum]
+export type GroupLayerScalarFieldEnum = (typeof GroupLayerScalarFieldEnum)[keyof typeof GroupLayerScalarFieldEnum]
+
+
+export const ControlLayerScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  parentId: 'parentId',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder'
+} as const
+
+export type ControlLayerScalarFieldEnum = (typeof ControlLayerScalarFieldEnum)[keyof typeof ControlLayerScalarFieldEnum]
+
+
+export const SubLayerScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  parentId: 'parentId',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder'
+} as const
+
+export type SubLayerScalarFieldEnum = (typeof SubLayerScalarFieldEnum)[keyof typeof SubLayerScalarFieldEnum]
+
+
+export const SubSubLayerScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  parentId: 'parentId',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder'
+} as const
+
+export type SubSubLayerScalarFieldEnum = (typeof SubSubLayerScalarFieldEnum)[keyof typeof SubSubLayerScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -3020,6 +3279,8 @@ export const PartnerScalarFieldEnum = {
   partnerType: 'partnerType',
   phone: 'phone',
   address: 'address',
+  email: 'email',
+  contactPerson: 'contactPerson',
   isActive: 'isActive'
 } as const
 
@@ -3444,6 +3705,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'UomCategory'
+ */
+export type EnumUomCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UomCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'UomCategory[]'
+ */
+export type ListEnumUomCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UomCategory[]'>
+    
+
+
+/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -3695,7 +3970,10 @@ export type GlobalOmitConfig = {
   site?: Prisma.SiteOmit
   user?: Prisma.UserOmit
   unitOfMeasure?: Prisma.UnitOfMeasureOmit
-  productCategory?: Prisma.ProductCategoryOmit
+  groupLayer?: Prisma.GroupLayerOmit
+  controlLayer?: Prisma.ControlLayerOmit
+  subLayer?: Prisma.SubLayerOmit
+  subSubLayer?: Prisma.SubSubLayerOmit
   product?: Prisma.ProductOmit
   partner?: Prisma.PartnerOmit
   bin?: Prisma.BinOmit

@@ -9,6 +9,18 @@
 * 🟢 You can import this file directly.
 */
 
+export const UomCategory = {
+  WEIGHT: 'WEIGHT',
+  VOLUME: 'VOLUME',
+  COUNT: 'COUNT',
+  LENGTH: 'LENGTH',
+  AREA: 'AREA',
+  TIME: 'TIME'
+} as const
+
+export type UomCategory = (typeof UomCategory)[keyof typeof UomCategory]
+
+
 export const ProductType = {
   RAW_MATERIAL: 'RAW_MATERIAL',
   FINISHED_GOOD: 'FINISHED_GOOD',

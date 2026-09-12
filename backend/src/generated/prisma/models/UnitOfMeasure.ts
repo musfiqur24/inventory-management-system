@@ -39,7 +39,7 @@ export type UnitOfMeasureMinAggregateOutputType = {
   organizationId: string | null
   code: string | null
   name: string | null
-  dimension: string | null
+  dimension: $Enums.UomCategory | null
   factorToBase: runtime.Decimal | null
   isActive: boolean | null
 }
@@ -49,7 +49,7 @@ export type UnitOfMeasureMaxAggregateOutputType = {
   organizationId: string | null
   code: string | null
   name: string | null
-  dimension: string | null
+  dimension: $Enums.UomCategory | null
   factorToBase: runtime.Decimal | null
   isActive: boolean | null
 }
@@ -196,7 +196,7 @@ export type UnitOfMeasureGroupByOutputType = {
   organizationId: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal
   isActive: boolean
   _count: UnitOfMeasureCountAggregateOutputType | null
@@ -229,7 +229,7 @@ export type UnitOfMeasureWhereInput = {
   organizationId?: Prisma.StringFilter<"UnitOfMeasure"> | string
   code?: Prisma.StringFilter<"UnitOfMeasure"> | string
   name?: Prisma.StringFilter<"UnitOfMeasure"> | string
-  dimension?: Prisma.StringFilter<"UnitOfMeasure"> | string
+  dimension?: Prisma.EnumUomCategoryFilter<"UnitOfMeasure"> | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFilter<"UnitOfMeasure"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"UnitOfMeasure"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -259,7 +259,7 @@ export type UnitOfMeasureWhereUniqueInput = Prisma.AtLeast<{
   organizationId?: Prisma.StringFilter<"UnitOfMeasure"> | string
   code?: Prisma.StringFilter<"UnitOfMeasure"> | string
   name?: Prisma.StringFilter<"UnitOfMeasure"> | string
-  dimension?: Prisma.StringFilter<"UnitOfMeasure"> | string
+  dimension?: Prisma.EnumUomCategoryFilter<"UnitOfMeasure"> | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFilter<"UnitOfMeasure"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"UnitOfMeasure"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -290,7 +290,7 @@ export type UnitOfMeasureScalarWhereWithAggregatesInput = {
   organizationId?: Prisma.StringWithAggregatesFilter<"UnitOfMeasure"> | string
   code?: Prisma.StringWithAggregatesFilter<"UnitOfMeasure"> | string
   name?: Prisma.StringWithAggregatesFilter<"UnitOfMeasure"> | string
-  dimension?: Prisma.StringWithAggregatesFilter<"UnitOfMeasure"> | string
+  dimension?: Prisma.EnumUomCategoryWithAggregatesFilter<"UnitOfMeasure"> | $Enums.UomCategory
   factorToBase?: Prisma.DecimalWithAggregatesFilter<"UnitOfMeasure"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolWithAggregatesFilter<"UnitOfMeasure"> | boolean
 }
@@ -299,7 +299,7 @@ export type UnitOfMeasureCreateInput = {
   id?: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutUomsInput
@@ -312,7 +312,7 @@ export type UnitOfMeasureUncheckedCreateInput = {
   organizationId: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutBaseUomInput
@@ -323,7 +323,7 @@ export type UnitOfMeasureUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutUomsNestedInput
@@ -336,7 +336,7 @@ export type UnitOfMeasureUncheckedUpdateInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   products?: Prisma.ProductUncheckedUpdateManyWithoutBaseUomNestedInput
@@ -348,7 +348,7 @@ export type UnitOfMeasureCreateManyInput = {
   organizationId: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
 }
@@ -357,7 +357,7 @@ export type UnitOfMeasureUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -367,7 +367,7 @@ export type UnitOfMeasureUncheckedUpdateManyInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -472,6 +472,10 @@ export type UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput = {
   deleteMany?: Prisma.UnitOfMeasureScalarWhereInput | Prisma.UnitOfMeasureScalarWhereInput[]
 }
 
+export type EnumUomCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.UomCategory
+}
+
 export type DecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -512,7 +516,7 @@ export type UnitOfMeasureCreateWithoutOrganizationInput = {
   id?: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   products?: Prisma.ProductCreateNestedManyWithoutBaseUomInput
@@ -523,7 +527,7 @@ export type UnitOfMeasureUncheckedCreateWithoutOrganizationInput = {
   id?: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutBaseUomInput
@@ -564,7 +568,7 @@ export type UnitOfMeasureScalarWhereInput = {
   organizationId?: Prisma.StringFilter<"UnitOfMeasure"> | string
   code?: Prisma.StringFilter<"UnitOfMeasure"> | string
   name?: Prisma.StringFilter<"UnitOfMeasure"> | string
-  dimension?: Prisma.StringFilter<"UnitOfMeasure"> | string
+  dimension?: Prisma.EnumUomCategoryFilter<"UnitOfMeasure"> | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFilter<"UnitOfMeasure"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"UnitOfMeasure"> | boolean
 }
@@ -573,7 +577,7 @@ export type UnitOfMeasureCreateWithoutProductsInput = {
   id?: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutUomsInput
@@ -585,7 +589,7 @@ export type UnitOfMeasureUncheckedCreateWithoutProductsInput = {
   organizationId: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutUomInput
@@ -611,7 +615,7 @@ export type UnitOfMeasureUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutUomsNestedInput
@@ -623,7 +627,7 @@ export type UnitOfMeasureUncheckedUpdateWithoutProductsInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutUomNestedInput
@@ -633,7 +637,7 @@ export type UnitOfMeasureCreateWithoutBalancesInput = {
   id?: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutUomsInput
@@ -645,7 +649,7 @@ export type UnitOfMeasureUncheckedCreateWithoutBalancesInput = {
   organizationId: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutBaseUomInput
@@ -671,7 +675,7 @@ export type UnitOfMeasureUpdateWithoutBalancesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutUomsNestedInput
@@ -683,7 +687,7 @@ export type UnitOfMeasureUncheckedUpdateWithoutBalancesInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   products?: Prisma.ProductUncheckedUpdateManyWithoutBaseUomNestedInput
@@ -693,7 +697,7 @@ export type UnitOfMeasureCreateManyOrganizationInput = {
   id?: string
   code: string
   name: string
-  dimension: string
+  dimension: $Enums.UomCategory
   factorToBase: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
 }
@@ -702,7 +706,7 @@ export type UnitOfMeasureUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   products?: Prisma.ProductUpdateManyWithoutBaseUomNestedInput
@@ -713,7 +717,7 @@ export type UnitOfMeasureUncheckedUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   products?: Prisma.ProductUncheckedUpdateManyWithoutBaseUomNestedInput
@@ -724,7 +728,7 @@ export type UnitOfMeasureUncheckedUpdateManyWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.EnumUomCategoryFieldUpdateOperationsInput | $Enums.UomCategory
   factorToBase?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -841,7 +845,7 @@ export type $UnitOfMeasurePayload<ExtArgs extends runtime.Types.Extensions.Inter
     organizationId: string
     code: string
     name: string
-    dimension: string
+    dimension: $Enums.UomCategory
     factorToBase: runtime.Decimal
     isActive: boolean
   }, ExtArgs["result"]["unitOfMeasure"]>
@@ -1274,7 +1278,7 @@ export interface UnitOfMeasureFieldRefs {
   readonly organizationId: Prisma.FieldRef<"UnitOfMeasure", 'String'>
   readonly code: Prisma.FieldRef<"UnitOfMeasure", 'String'>
   readonly name: Prisma.FieldRef<"UnitOfMeasure", 'String'>
-  readonly dimension: Prisma.FieldRef<"UnitOfMeasure", 'String'>
+  readonly dimension: Prisma.FieldRef<"UnitOfMeasure", 'UomCategory'>
   readonly factorToBase: Prisma.FieldRef<"UnitOfMeasure", 'Decimal'>
   readonly isActive: Prisma.FieldRef<"UnitOfMeasure", 'Boolean'>
 }

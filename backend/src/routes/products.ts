@@ -18,7 +18,7 @@ productsRouter.get("/", async (req, res) => {
         include: {
           parent: {
             include: {
-              parent: true,
+              parent: { include: { parent: true } },
             },
           },
         },
@@ -65,6 +65,11 @@ const createProductSchema = z.object({
 
 productsRouter.post("/", async (req, res) => {
   const parsed = createProductSchema.parse(req.body);
+  const [category, uom] = await Promise.all([
+    prisma.subSubLayer.findFirst({ where: { id: parsed.categoryId, organizationId: req.tenantId! } }),
+    prisma.unitOfMeasure.findFirst({ where: { id: parsed.baseUomId, organizationId: req.tenantId! } }),
+  ]);
+  if (!category || !uom) return res.status(422).json({ error: { code: 'INVALID_REFERENCE', message: 'Select a Sub- Sub Layer and UOM in this organization.' } });
   const product = await prisma.product.create({
     data: {
       organizationId: req.tenantId!,

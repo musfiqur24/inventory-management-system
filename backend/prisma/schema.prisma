@@ -8,6 +8,15 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UomCategory {
+  WEIGHT
+  VOLUME
+  COUNT
+  LENGTH
+  AREA
+  TIME
+}
+
 enum ProductType {
   RAW_MATERIAL
   FINISHED_GOOD
@@ -50,7 +59,10 @@ model Organization {
   sites Site[]
   members OrganizationMember[]
   uoms UnitOfMeasure[]
-  categories ProductCategory[]
+  groupLayers GroupLayer[]
+  controlLayers ControlLayer[]
+  subLayers SubLayer[]
+  subSubLayers SubSubLayer[]
   products Product[]
 }
 model Site {
@@ -83,7 +95,7 @@ model UnitOfMeasure {
   organizationId String
   code String
   name String
-  dimension String
+  dimension UomCategory
   factorToBase Decimal @db.Decimal(18,6)
   isActive Boolean @default(true)
   organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
@@ -92,20 +104,59 @@ model UnitOfMeasure {
   @@unique([organizationId,code])
   @@index([organizationId])
 }
-model ProductCategory {
+model GroupLayer {
   id String @id @default(uuid())
   organizationId String
-  parentId String?
-  level Int
   code String
   name String
   sortOrder Int @default(0)
   organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
-  parent ProductCategory? @relation("CategoryTree",fields:[parentId],references:[id])
-  children ProductCategory[] @relation("CategoryTree")
-  products Product[]
+  children ControlLayer[]
+  @@unique([organizationId,id])
   @@unique([organizationId,code])
-  @@index([organizationId,parentId,level])
+  @@index([organizationId])
+}
+model ControlLayer {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent GroupLayer @relation(fields:[organizationId,parentId], references:[organizationId,id], onDelete:Restrict, onUpdate:Cascade)
+  children SubLayer[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId])
+}
+model SubLayer {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent ControlLayer @relation(fields:[organizationId,parentId], references:[organizationId,id], onDelete:Restrict, onUpdate:Cascade)
+  children SubSubLayer[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId])
+}
+model SubSubLayer {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent SubLayer @relation(fields:[organizationId,parentId], references:[organizationId,id], onDelete:Restrict, onUpdate:Cascade)
+  products Product[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId])
 }
 model Product {
   id String @id @default(uuid())
@@ -119,7 +170,7 @@ model Product {
   reorderLevel Decimal? @db.Decimal(18,3)
   isActive Boolean @default(true)
   organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
-  category ProductCategory @relation(fields:[categoryId],references:[id])
+  category SubSubLayer @relation(fields:[organizationId,categoryId],references:[organizationId,id],onDelete:Restrict,onUpdate:Cascade)
   baseUom UnitOfMeasure @relation(fields:[baseUomId],references:[id])
   balances InventoryBalance[]
   @@unique([organizationId,sku])
@@ -133,6 +184,8 @@ model Partner {
   partnerType String
   phone String?
   address String?
+  email String?
+  contactPerson String?
   isActive Boolean @default(true)
   @@unique([organizationId,code])
   @@index([organizationId,partnerType])

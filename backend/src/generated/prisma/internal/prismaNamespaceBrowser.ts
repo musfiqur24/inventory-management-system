@@ -55,7 +55,10 @@ export const ModelName = {
   Site: 'Site',
   User: 'User',
   UnitOfMeasure: 'UnitOfMeasure',
-  ProductCategory: 'ProductCategory',
+  GroupLayer: 'GroupLayer',
+  ControlLayer: 'ControlLayer',
+  SubLayer: 'SubLayer',
+  SubSubLayer: 'SubSubLayer',
   Product: 'Product',
   Partner: 'Partner',
   Bin: 'Bin',
@@ -155,17 +158,51 @@ export const UnitOfMeasureScalarFieldEnum = {
 export type UnitOfMeasureScalarFieldEnum = (typeof UnitOfMeasureScalarFieldEnum)[keyof typeof UnitOfMeasureScalarFieldEnum]
 
 
-export const ProductCategoryScalarFieldEnum = {
+export const GroupLayerScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
-  parentId: 'parentId',
-  level: 'level',
   code: 'code',
   name: 'name',
   sortOrder: 'sortOrder'
 } as const
 
-export type ProductCategoryScalarFieldEnum = (typeof ProductCategoryScalarFieldEnum)[keyof typeof ProductCategoryScalarFieldEnum]
+export type GroupLayerScalarFieldEnum = (typeof GroupLayerScalarFieldEnum)[keyof typeof GroupLayerScalarFieldEnum]
+
+
+export const ControlLayerScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  parentId: 'parentId',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder'
+} as const
+
+export type ControlLayerScalarFieldEnum = (typeof ControlLayerScalarFieldEnum)[keyof typeof ControlLayerScalarFieldEnum]
+
+
+export const SubLayerScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  parentId: 'parentId',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder'
+} as const
+
+export type SubLayerScalarFieldEnum = (typeof SubLayerScalarFieldEnum)[keyof typeof SubLayerScalarFieldEnum]
+
+
+export const SubSubLayerScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  parentId: 'parentId',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder'
+} as const
+
+export type SubSubLayerScalarFieldEnum = (typeof SubSubLayerScalarFieldEnum)[keyof typeof SubSubLayerScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -192,6 +229,8 @@ export const PartnerScalarFieldEnum = {
   partnerType: 'partnerType',
   phone: 'phone',
   address: 'address',
+  email: 'email',
+  contactPerson: 'contactPerson',
   isActive: 'isActive'
 } as const
 

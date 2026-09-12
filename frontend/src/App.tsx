@@ -14,7 +14,6 @@ import { OrganizationPage } from './modules/platform/organizations/OrganizationP
 import { UnitsOfMeasurePage } from './modules/set-up/units-of-measure/UnitsOfMeasurePage';
 import { ProductHierarchyPage } from './modules/set-up/product-hierarchy/ProductHierarchyPage';
 import { PartnersPage } from './modules/set-up/partners/PartnersPage';
-import { ProductsPage } from './modules/set-up/products/ProductsPage';
 import { BinsPage } from './modules/inventory/bin-management/BinsPage';
 import { SalesOrdersPage } from './modules/sales/sales-orders/SalesOrdersPage';
 import { RmRequisitionsPage } from './modules/procurement/rm-requisitions/RmRequisitionsPage';
@@ -45,8 +44,7 @@ const NAV_GROUPS = [
     label: 'Master Setup',
     items: [
       { path: '/uoms', label: 'Units of Measure', icon: Scale },
-      { path: '/categories', label: 'Product Hierarchy', icon: Boxes },
-      { path: '/products', label: 'Products (L5 SKUs)', icon: FlaskConical },
+      { path: '/categories', label: 'Product Set Up', icon: Boxes },
       { path: '/partners', label: 'Suppliers & Customers', icon: Building2 },
       { path: '/bins', label: 'Warehouse Bins', icon: Warehouse },
     ],
@@ -136,7 +134,7 @@ function Shell() {
           <Route path="/organizations" element={can("organizations.manage") ? <OrganizationPage /> : <Navigate to="/" replace />} />
           <Route path="/uoms" element={<UnitsOfMeasurePage />} />
           <Route path="/categories" element={<ProductHierarchyPage />} />
-          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products" element={<Navigate to="/categories" replace />} />
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/bins" element={<BinsPage />} />
           <Route path="/sales-orders" element={<SalesOrdersPage />} />

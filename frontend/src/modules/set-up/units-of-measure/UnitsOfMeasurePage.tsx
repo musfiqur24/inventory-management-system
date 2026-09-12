@@ -1,24 +1,30 @@
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from 'react';
-import { Plus, Scale, Search, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Scale, Search, Trash2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
+import { ConfirmationModal } from '../../../components/ui/ConfirmationModal';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
+import { Dropdown } from '../../../components/ui/Dropdown';
 import { Input } from '../../../components/ui/Input';
-import { Notice } from '../../../components/ui/Notice';
 
-interface UOM { id: string; name: string; code: string; decimalPlaces?: number; isBase?: boolean; category?: string; conversionFactor?: number; }
+interface UOM { id: string; name: string; code: string; decimalPlaces?: number; isBase?: boolean; dimension: string; factorToBase: string | number; }
 
 export function UnitsOfMeasurePage() {
+  const [categoryOptions, setCategoryOptions] = useState<{ value: string; label: string }[]>([]);
   const [rows, setRows] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<UOM | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
-  const [form, setForm] = useState({ name: '', code: '', category: '', decimalPlaces: '2', conversionFactor: '1' });
+  const [form, setForm] = useState({ name: '', code: '', category: 'WEIGHT', decimalPlaces: '2', conversionFactor: '1' });
 
   const load = async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
@@ -26,22 +32,34 @@ export function UnitsOfMeasurePage() {
     catch (e: any) { setMessage(e.message); }
   };
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); void api<{ data: { value: string; label: string }[] }>('/uoms/categories').then(result => setCategoryOptions(result.data)).catch(error => setMessage(error.message)); }, []);
 
   const submit = async () => {
+    if (saving) return;
+    const factorToBase = Number(form.conversionFactor);
+    if (!form.name.trim() || !form.code.trim()) return setMessage('Enter a unit name and code.');
+    if (!form.conversionFactor.trim() || !Number.isFinite(factorToBase) || factorToBase <= 0) {
+      return setMessage('Enter a conversion factor greater than zero.');
+    }
+    setSaving(true);
     try {
-      await api('/uoms', {
-        method: 'POST',
-        body: JSON.stringify({ ...form, decimalPlaces: Number(form.decimalPlaces), conversionFactor: Number(form.conversionFactor) }),
+      await api(editingId ? `/uoms/${editingId}` : '/uoms', {
+        method: editingId ? 'PUT' : 'POST',
+        body: JSON.stringify({ name: form.name.trim(), code: form.code.trim(), dimension: form.category.trim() || 'WEIGHT', factorToBase }),
       });
       setOpen(false); setForm({ name: '', code: '', category: '', decimalPlaces: '2', conversionFactor: '1' }); void load();
-    } catch (e: any) { setMessage(e.message); }
+    } catch (e: any) { setMessage(e.message); } finally { setSaving(false); }
   };
 
-  const deleteUom = async (id: string) => {
-    if (!window.confirm('Delete this UOM?')) return;
-    try { await api(`/uoms/${id}`, { method: 'DELETE' }); void load(); }
-    catch (e: any) { setMessage(e.message); }
+  const deleteUom = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    try {
+      await api(`/uoms/${deleteTarget.id}`, { method: 'DELETE' });
+      setDeleteTarget(null);
+      void load();
+    } catch (e: any) { setMessage(e.message); }
+    finally { setDeleting(false); }
   };
 
   const filtered = rows.filter((r) =>
@@ -49,14 +67,14 @@ export function UnitsOfMeasurePage() {
     r.code.toLowerCase().includes(search.toLowerCase())
   );
 
-  const categories = [...new Set(rows.map((r) => r.category).filter(Boolean))];
+  const categories = [...new Set(rows.map((r) => r.dimension).filter(Boolean))];
 
   return (
     <PageContainer
       cap="MASTER SETUP"
       title="Units of Measure"
       description="Dynamic UOM management. Create mass, volume, or custom units for products, recipes, and transactions."
-      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New UOM</Button>}
+      actions={<Button variant="primary" onClick={() => { setEditingId(null); setForm({ name: '', code: '', category: '', decimalPlaces: '2', conversionFactor: '1' }); setOpen(true); }}><Plus size={16} /> New UOM</Button>}
    >
 
       {/* Category quick filters */}
@@ -82,14 +100,17 @@ export function UnitsOfMeasurePage() {
                 <tr key={uom.id}>
                   <td><strong>{uom.name}</strong></td>
                   <td><span className="font-mono bg-[#f8faf7] p-[2px_8px] rounded-[6px] text-[13px] font-bold">{uom.code}</span></td>
-                  <td>{uom.category ?? <span className="text-[#7a9185]">—</span>}</td>
+                  <td>{categoryOptions.find(category => category.value === uom.dimension)?.label ?? uom.dimension ?? <span className="text-[#7a9185]">—</span>}</td>
                   <td>{uom.decimalPlaces ?? 2}</td>
-                  <td>{uom.conversionFactor ?? 1}</td>
+                  <td>{uom.factorToBase}</td>
                   <td>{uom.isBase ? <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap bg-[#eaf8f0] text-[#1b8f5a]"><span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />Base unit</span> : <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap bg-[#f0f2ee] text-[#7a9185]"><span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />Derived</span>}</td>
                   <td>
-                    <button onClick={() => deleteUom(uom.id)} className="[border:1px_solid_#e0e5dd] bg-[#f8faf7] rounded-[7px] p-[5px_8px] cursor-pointer text-[#c03030]">
-                      <Trash2 size={13} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                    <Button variant="secondary" className="size-11 shrink-0 p-0" aria-label={`Edit ${uom.name}`} onClick={() => { setEditingId(uom.id); setForm({ name: uom.name, code: uom.code, category: uom.dimension, decimalPlaces: String(uom.decimalPlaces ?? 2), conversionFactor: String(uom.factorToBase) }); setOpen(true); }}><Pencil size={16} /></Button>
+                    <Button variant="secondary" className="size-11 shrink-0 p-0 text-[#c03030] hover:border-red-200 hover:bg-red-50 hover:text-red-700" aria-label={`Delete ${uom.name}`} onClick={() => setDeleteTarget(uom)}>
+                      <Trash2 size={16} />
+                    </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -98,11 +119,17 @@ export function UnitsOfMeasurePage() {
         </div>
       </Card>
 
+      {deleteTarget && (
+        <ConfirmationModal title="Delete unit of measure?" confirmLabel="Delete UOM" pendingLabel="Deleting..." pending={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={deleteUom}>
+          <p>Are you sure you want to delete <strong>{deleteTarget.name} ({deleteTarget.code})</strong>? This action cannot be undone.</p>
+        </ConfirmationModal>
+      )}
+
       {open && (
-        <Modal title="Create Unit of Measure" description="Add a new dynamic UOM. Set the category and conversion factor to support unit-agnostic quantity tracking." wide onClose={() => setOpen(false)}
-          footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.name || !form.code}>Create UOM</Button></>}
+        <Modal title={editingId ? "Edit Unit of Measure" : "Create Unit of Measure"} description="Set the unit name, code, category and conversion factor." wide onClose={() => setOpen(false)}
+          footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={saving || !categoryOptions.length || !form.name.trim() || !form.code.trim()}>{saving ? 'Saving...' : editingId ? 'Save Changes' : 'Create UOM'}</Button></>}
        >
-          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-x-4 gap-y-2 [&>div]:mb-0 max-[640px]:grid-cols-[1fr]">
             <FormField label="Unit Name" required hint="e.g. Metric Ton, Kilogram, Bag">
               <Input placeholder="Kilogram" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </FormField>
@@ -110,16 +137,18 @@ export function UnitsOfMeasurePage() {
               <Input placeholder="kg" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} />
             </FormField>
             <FormField label="Category" hint="Group related UOMs — e.g. Mass, Volume, Count">
-              <Input placeholder="Mass" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+              <Dropdown aria-label="Category" value={form.category} disabled={!categoryOptions.length} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+                {!categoryOptions.length && <option value="WEIGHT">Loading categories...</option>}
+                {categoryOptions.map(category => <option key={category.value} value={category.value}>{category.label}</option>)}
+              </Dropdown>
             </FormField>
             <FormField label="Decimal Places">
               <Input type="number" min={0} max={6} value={form.decimalPlaces} onChange={(e) => setForm({ ...form, decimalPlaces: e.target.value })} />
             </FormField>
             <FormField label="Conversion Factor" hint="Relative to base unit in category">
-              <Input type="number" step="0.001" value={form.conversionFactor} onChange={(e) => setForm({ ...form, conversionFactor: e.target.value })} />
+              <Input type="number" min="0" step="any" value={form.conversionFactor} onChange={(e) => setForm({ ...form, conversionFactor: e.target.value })} />
             </FormField>
           </div>
-          <Notice variant="info">The conversion factor is used to normalise quantities across different units within the same category for reporting.</Notice>
         </Modal>
       )}
     </PageContainer>

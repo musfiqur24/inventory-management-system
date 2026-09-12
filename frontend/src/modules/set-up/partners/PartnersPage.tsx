@@ -2,11 +2,12 @@ import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
-import { Plus, Building2, Search, Phone, Mail } from 'lucide-react';
+import { Plus, Building2, Search, Phone, Mail, Pencil, Trash2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
+import { ConfirmationModal } from '../../../components/ui/ConfirmationModal';
 import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
@@ -20,6 +21,10 @@ interface Partner {
 export function PartnersPage() {
   const [rows, setRows] = useState<Partner[]>([]);
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Partner | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'SUPPLIER' | 'CUSTOMER'>('ALL');
@@ -34,10 +39,20 @@ export function PartnersPage() {
   useEffect(() => { void load(); }, []);
 
   const submit = async () => {
+    if (saving) return;
+    setSaving(true);
     try {
-      await api('/partners', { method: 'POST', body: JSON.stringify(form) });
+      await api(editingId ? `/partners/${editingId}` : '/partners', { method: editingId ? 'PUT' : 'POST', body: JSON.stringify(form) });
       setOpen(false); setForm({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' }); void load();
-    } catch (e: any) { setMessage(e.message); }
+    } catch (e: any) { setMessage(e.message); } finally { setSaving(false); }
+  };
+
+  const deletePartner = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    try { await api(`/partners/${deleteTarget.id}`, { method: 'DELETE' }); setDeleteTarget(null); void load(); }
+    catch (e: any) { setMessage(e.message); }
+    finally { setDeleting(false); }
   };
 
   const filtered = rows.filter((r) =>
@@ -55,7 +70,7 @@ export function PartnersPage() {
       cap="MASTER SETUP"
       title="Suppliers & Customers"
       description="Manage your partner directory — suppliers who provide raw materials and customers who receive finished goods."
-      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Add Partner</Button>}
+      actions={<Button variant="primary" onClick={() => { setEditingId(null); setForm({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' }); setOpen(true); }}><Plus size={16} /> Add Partner</Button>}
    >
 
       <div className="grid grid-cols-[repeat(3,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
@@ -83,7 +98,7 @@ export function PartnersPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <DataTable columns={["Partner Name","Code","Type","Contact Person","Email","Phone"]}>
+          <DataTable columns={["Partner Name","Code","Type","Contact Person","Email","Phone","Actions"]}>
               {filtered.map((p) => (
                 <tr key={p.id}>
                   <td>
@@ -103,6 +118,10 @@ export function PartnersPage() {
                   <td>{p.contactPerson ?? <span className="text-[#7a9185]">—</span>}</td>
                   <td>{p.email ? <a href={`mailto:${p.email}`} className="text-[#1864ab] flex items-center gap-1"><Mail size={12} />{p.email}</a> : '—'}</td>
                   <td>{p.phone ? <span className="flex items-center gap-1 text-[13px]"><Phone size={12} />{p.phone}</span> : '—'}</td>
+                  <td><div className="flex items-center gap-2">
+                    <Button className="size-11 shrink-0 p-0" aria-label={`Edit ${p.name}`} onClick={() => { setEditingId(p.id); setForm({ name: p.name, code: p.code, partnerType: p.partnerType, email: p.email ?? '', phone: p.phone ?? '', address: p.address ?? '', contactPerson: p.contactPerson ?? '' }); setOpen(true); }}><Pencil size={16} /></Button>
+                    <Button className="size-11 shrink-0 p-0 text-[#c03030] hover:border-red-200 hover:bg-red-50" aria-label={`Delete ${p.name}`} onClick={() => setDeleteTarget(p)}><Trash2 size={16} /></Button>
+                  </div></td>
                 </tr>
               ))}
             </DataTable>
@@ -110,9 +129,12 @@ export function PartnersPage() {
         </div>
       </Card>
 
+      {deleteTarget && <ConfirmationModal title="Delete partner?" confirmLabel="Delete Partner" pendingLabel="Deleting..." pending={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={deletePartner}>
+        <p>Delete <strong>{deleteTarget.name} ({deleteTarget.code})</strong>? This action cannot be undone.</p>
+      </ConfirmationModal>}
       {open && (
-        <Modal title="Add Partner" description="Register a new supplier or customer in the partner directory." wide onClose={() => setOpen(false)}
-          footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.name || !form.code}>Save Partner</Button></>}
+        <Modal title={editingId ? "Edit Partner" : "Add Partner"} description="Enter supplier or customer details." wide onClose={() => setOpen(false)}
+          footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={saving || !form.name.trim() || !form.code.trim()}>{saving ? 'Saving...' : editingId ? 'Save Changes' : 'Save Partner'}</Button></>}
        >
           <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
             <FormField label="Partner Type" required>

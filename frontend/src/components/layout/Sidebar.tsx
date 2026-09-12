@@ -34,7 +34,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      <aside className={twMerge(`sticky top-0 h-dvh overflow-y-auto overflow-x-hidden bg-[#0d3b2e] flex flex-col [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[rgba(255,255,255,0.1)] [&::-webkit-scrollbar-thumb]:rounded-[4px] print:hidden! max-[900px]:fixed max-[900px]:z-30 max-[900px]:h-dvh max-[900px]:w-[min(85vw,_280px)] max-[900px]:[transform:translateX(-110%)] max-[900px]:[transition:transform_0.22s_ease] ${(mobileOpen ? "max-[900px]:[transform:translateX(0)]" : "")}`)}>
+      <aside className={twMerge(`sticky top-0 h-dvh overflow-hidden bg-[#0d3b2e] flex flex-col print:hidden! max-[900px]:fixed max-[900px]:z-30 max-[900px]:h-dvh max-[900px]:w-[min(85vw,_280px)] max-[900px]:[transform:translateX(-110%)] max-[900px]:[transition:transform_0.22s_ease] ${(mobileOpen ? "max-[900px]:[transform:translateX(0)]" : "")}`)}>
         {/* Brand */}
         <div className="flex items-center justify-between p-[20px_18px_0] shrink-0 [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:text-[#fff] [&_a]:no-underline">
           <Link to="/" onClick={onClose}>
@@ -69,7 +69,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
         )}
 
         {/* Nav */}
-        <div className="flex-1 p-[6px_0_20px]">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-[6px_0_20px] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[rgba(255,255,255,0.1)] [&::-webkit-scrollbar-thumb]:rounded-[4px]">
           {groups.map((group) => (
             <div key={group.label} className="p-[0_8px] [&+div]:mt-1 [&_nav]:grid [&_nav]:gap-0.5 [&_nav_a]:flex [&_nav_a]:items-center [&_nav_a]:gap-2.5 [&_nav_a]:min-h-11 [&_nav_a]:p-[9px_10px] [&_nav_a]:rounded-[9px] [&_nav_a]:text-[rgba(255,255,255,0.65)] [&_nav_a]:text-[13.5px] [&_nav_a]:font-medium [&_nav_a]:[transition:background_0.12s,_color_0.12s] [&_nav_a_svg]:w-4 [&_nav_a_svg]:h-4 [&_nav_a_svg]:shrink-0 [&_nav_a:hover]:bg-[rgba(255,255,255,0.07)] [&_nav_a:hover]:text-[#fff] [&_nav_a.active]:bg-[rgba(168,213,72,0.14)] [&_nav_a.active]:text-[#c8e87a] [&_nav_a.active]:font-semibold [&_nav_a.active_svg]:text-[#a8d548]">
               <button

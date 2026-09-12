@@ -261,7 +261,7 @@ export type ProductWhereInput = {
   reorderLevel?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
-  category?: Prisma.XOR<Prisma.ProductCategoryScalarRelationFilter, Prisma.ProductCategoryWhereInput>
+  category?: Prisma.XOR<Prisma.SubSubLayerScalarRelationFilter, Prisma.SubSubLayerWhereInput>
   baseUom?: Prisma.XOR<Prisma.UnitOfMeasureScalarRelationFilter, Prisma.UnitOfMeasureWhereInput>
   balances?: Prisma.InventoryBalanceListRelationFilter
 }
@@ -278,7 +278,7 @@ export type ProductOrderByWithRelationInput = {
   reorderLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
-  category?: Prisma.ProductCategoryOrderByWithRelationInput
+  category?: Prisma.SubSubLayerOrderByWithRelationInput
   baseUom?: Prisma.UnitOfMeasureOrderByWithRelationInput
   balances?: Prisma.InventoryBalanceOrderByRelationAggregateInput
 }
@@ -299,7 +299,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   reorderLevel?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
-  category?: Prisma.XOR<Prisma.ProductCategoryScalarRelationFilter, Prisma.ProductCategoryWhereInput>
+  category?: Prisma.XOR<Prisma.SubSubLayerScalarRelationFilter, Prisma.SubSubLayerWhereInput>
   baseUom?: Prisma.XOR<Prisma.UnitOfMeasureScalarRelationFilter, Prisma.UnitOfMeasureWhereInput>
   balances?: Prisma.InventoryBalanceListRelationFilter
 }, "id" | "organizationId_sku">
@@ -347,7 +347,7 @@ export type ProductCreateInput = {
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
-  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
@@ -375,7 +375,7 @@ export type ProductUpdateInput = {
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
@@ -667,7 +667,7 @@ export type ProductCreateWithoutOrganizationInput = {
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
-  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
@@ -736,7 +736,7 @@ export type ProductCreateWithoutBaseUomInput = {
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
-  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
 
@@ -794,7 +794,6 @@ export type ProductCreateWithoutCategoryInput = {
 
 export type ProductUncheckedCreateWithoutCategoryInput = {
   id?: string
-  organizationId: string
   baseUomId: string
   sku: string
   name: string
@@ -840,7 +839,7 @@ export type ProductCreateWithoutBalancesInput = {
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
-  category: Prisma.ProductCategoryCreateNestedOneWithoutProductsInput
+  category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
 }
 
@@ -882,7 +881,7 @@ export type ProductUpdateWithoutBalancesInput = {
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
 }
 
@@ -919,7 +918,7 @@ export type ProductUpdateWithoutOrganizationInput = {
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
@@ -970,7 +969,7 @@ export type ProductUpdateWithoutBaseUomInput = {
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
-  category?: Prisma.ProductCategoryUpdateOneRequiredWithoutProductsNestedInput
+  category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
 
@@ -1001,7 +1000,6 @@ export type ProductUncheckedUpdateManyWithoutBaseUomInput = {
 
 export type ProductCreateManyCategoryInput = {
   id?: string
-  organizationId: string
   baseUomId: string
   sku: string
   name: string
@@ -1026,7 +1024,6 @@ export type ProductUpdateWithoutCategoryInput = {
 
 export type ProductUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   baseUomId?: Prisma.StringFieldUpdateOperationsInput | string
   sku?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1039,7 +1036,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
 
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   baseUomId?: Prisma.StringFieldUpdateOperationsInput | string
   sku?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1092,7 +1088,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   reorderLevel?: boolean
   isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
   balances?: boolean | Prisma.Product$balancesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -1110,7 +1106,7 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   reorderLevel?: boolean
   isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -1126,7 +1122,7 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   reorderLevel?: boolean
   isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -1146,19 +1142,19 @@ export type ProductSelectScalar = {
 export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "categoryId" | "baseUomId" | "sku" | "name" | "type" | "shelfLifeDays" | "reorderLevel" | "isActive", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
   balances?: boolean | Prisma.Product$balancesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
 }
 export type ProductIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ProductCategoryDefaultArgs<ExtArgs>
+  category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
 }
 
@@ -1166,7 +1162,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Product"
   objects: {
     organization: Prisma.$OrganizationPayload<ExtArgs>
-    category: Prisma.$ProductCategoryPayload<ExtArgs>
+    category: Prisma.$SubSubLayerPayload<ExtArgs>
     baseUom: Prisma.$UnitOfMeasurePayload<ExtArgs>
     balances: Prisma.$InventoryBalancePayload<ExtArgs>[]
   }
@@ -1576,7 +1572,7 @@ readonly fields: ProductFieldRefs;
 export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  category<T extends Prisma.ProductCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductCategoryClient<runtime.Types.Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  category<T extends Prisma.SubSubLayerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SubSubLayerDefaultArgs<ExtArgs>>): Prisma.Prisma__SubSubLayerClient<runtime.Types.Result.GetResult<Prisma.$SubSubLayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   baseUom<T extends Prisma.UnitOfMeasureDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UnitOfMeasureDefaultArgs<ExtArgs>>): Prisma.Prisma__UnitOfMeasureClient<runtime.Types.Result.GetResult<Prisma.$UnitOfMeasurePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   balances<T extends Prisma.Product$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**

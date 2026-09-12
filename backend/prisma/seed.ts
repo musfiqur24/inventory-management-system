@@ -60,167 +60,174 @@ async function main() {
         organizationId: orgId,
         code: u.code,
         name: u.name,
-        dimension: u.dimension,
+        dimension: u.dimension as "WEIGHT" | "VOLUME",
         factorToBase: new Decimal(u.factorToBase),
       },
     });
     uomMap[u.code] = record.id;
   }
 
+  const groupRaw = await prisma.groupLayer.upsert({ where: { organizationId_code: { organizationId: orgId, code: 'RM' } }, update: {}, create: { organizationId: orgId, code: 'RM', name: 'Raw Materials' } });
+  const groupFinished = await prisma.groupLayer.upsert({ where: { organizationId_code: { organizationId: orgId, code: 'FG' } }, update: {}, create: { organizationId: orgId, code: 'FG', name: 'Finished Goods' } });
   // 4. 5-Layer Product Hierarchy (L1: Type -> L2: Division -> L3: Feed Line -> L4: Stage/Form -> L5: SKU)
   // L1: Finished Goods Categories
-  const catL2Poultry = await prisma.productCategory.upsert({
+  const catL2Poultry = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-FG-POULTRY" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupFinished.id,
       code: "CAT-FG-POULTRY",
       name: "Poultry Feed Division",
     },
   });
 
-  const catL2Aqua = await prisma.productCategory.upsert({
+  const catL2Aqua = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-FG-AQUA" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupFinished.id,
       code: "CAT-FG-AQUA",
       name: "Aqua Feed Division",
     },
   });
 
   // L2 Raw Materials Categories
-  const catL2Grains = await prisma.productCategory.upsert({
+  const catL2Grains = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-RM-GRAINS" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupRaw.id,
       code: "CAT-RM-GRAINS",
       name: "Grains & Energy Sources",
     },
   });
 
-  const catL2PlantProtein = await prisma.productCategory.upsert({
+  const catL2PlantProtein = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-RM-PLANT-PROT" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupRaw.id,
       code: "CAT-RM-PLANT-PROT",
       name: "Plant Protein Meals",
     },
   });
 
-  const catL2AnimalProtein = await prisma.productCategory.upsert({
+  const catL2AnimalProtein = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-RM-ANIM-PROT" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupRaw.id,
       code: "CAT-RM-ANIM-PROT",
       name: "Animal Protein Sources",
     },
   });
 
-  const catL2Micros = await prisma.productCategory.upsert({
+  const catL2Micros = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-RM-MICROS" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupRaw.id,
       code: "CAT-RM-MICROS",
       name: "Premixes, Vitamins & Amino Acids",
     },
   });
 
-  const catL2Minerals = await prisma.productCategory.upsert({
+  const catL2Minerals = await prisma.controlLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-RM-MINERALS" } },
     update: {},
     create: {
       organizationId: orgId,
-      level: 2,
+      parentId: groupRaw.id,
       code: "CAT-RM-MINERALS",
       name: "Minerals & Additives",
     },
   });
 
   // L3 Lines
-  const catL3Broiler = await prisma.productCategory.upsert({
+  const catL3Broiler = await prisma.subLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-LINE-BROILER" } },
     update: {},
     create: {
       organizationId: orgId,
       parentId: catL2Poultry.id,
-      level: 3,
       code: "CAT-LINE-BROILER",
       name: "Broiler Commercial Feeds",
     },
   });
 
-  const catL3Layer = await prisma.productCategory.upsert({
+  const catL3Layer = await prisma.subLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-LINE-LAYER" } },
     update: {},
     create: {
       organizationId: orgId,
       parentId: catL2Poultry.id,
-      level: 3,
       code: "CAT-LINE-LAYER",
       name: "Commercial Layer Feeds",
     },
   });
 
-  const catL3Corn = await prisma.productCategory.upsert({
+  const catL3Corn = await prisma.subLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-LINE-CORN" } },
     update: {},
     create: {
       organizationId: orgId,
       parentId: catL2Grains.id,
-      level: 3,
       code: "CAT-LINE-CORN",
       name: "Yellow Maize & Grains",
     },
   });
 
-  const catL3SBM = await prisma.productCategory.upsert({
+  const catL3SBM = await prisma.subLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-LINE-SBM" } },
     update: {},
     create: {
       organizationId: orgId,
       parentId: catL2PlantProtein.id,
-      level: 3,
       code: "CAT-LINE-SBM",
       name: "Soybean Meal Products",
     },
   });
 
   // L4 Stages
-  const catL4BroilerStarter = await prisma.productCategory.upsert({
+  const catL4BroilerStarter = await prisma.subSubLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-STG-BROIL-START" } },
     update: {},
     create: {
       organizationId: orgId,
       parentId: catL3Broiler.id,
-      level: 4,
       code: "CAT-STG-BROIL-START",
       name: "Starter Phase Crumble (Day 1 - 14)",
     },
   });
 
-  const catL4BroilerGrower = await prisma.productCategory.upsert({
+  const catL4BroilerGrower = await prisma.subSubLayer.upsert({
     where: { organizationId_code: { organizationId: orgId, code: "CAT-STG-BROIL-GROW" } },
     update: {},
     create: {
       organizationId: orgId,
       parentId: catL3Broiler.id,
-      level: 4,
       code: "CAT-STG-BROIL-GROW",
       name: "Grower Phase Pellet (Day 15 - 28)",
     },
   });
 
+  // Complete parent chains for seeded products previously attached to earlier layers.
+  async function productLeaf(categoryId: string): Promise<string> {
+    if (await prisma.subSubLayer.findFirst({ where: { id: categoryId, organizationId: orgId } })) return categoryId;
+    let sub = await prisma.subLayer.findFirst({ where: { id: categoryId, organizationId: orgId } });
+    if (!sub) {
+      const control = await prisma.controlLayer.findFirstOrThrow({ where: { id: categoryId, organizationId: orgId } });
+      sub = await prisma.subLayer.upsert({ where: { organizationId_code: { organizationId: orgId, code: 'SEED-' + control.code } }, update: {}, create: { organizationId: orgId, parentId: control.id, code: 'SEED-' + control.code, name: control.name + ' - General' } });
+    }
+    const leaf = await prisma.subSubLayer.upsert({ where: { organizationId_code: { organizationId: orgId, code: 'SEED-' + sub.code } }, update: {}, create: { organizationId: orgId, parentId: sub.id, code: 'SEED-' + sub.code, name: sub.name + ' - General' } });
+    return leaf.id;
+  }
   // 5. Products (Level 5)
   // Raw Materials
   const rawProducts = [
@@ -245,7 +252,7 @@ async function main() {
         sku: p.sku,
         name: p.name,
         type: p.type,
-        categoryId: p.catId,
+        categoryId: await productLeaf(p.catId),
         baseUomId: uomMap[p.uom],
         shelfLifeDays: p.shelfLife,
         reorderLevel: new Decimal(p.reorder),
@@ -270,7 +277,7 @@ async function main() {
         sku: p.sku,
         name: p.name,
         type: p.type,
-        categoryId: p.catId,
+        categoryId: await productLeaf(p.catId),
         baseUomId: uomMap[p.uom],
         shelfLifeDays: p.shelfLife,
         reorderLevel: new Decimal(p.reorder),

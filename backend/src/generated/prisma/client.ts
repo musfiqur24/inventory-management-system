@@ -62,10 +62,25 @@ export type User = Prisma.UserModel
  */
 export type UnitOfMeasure = Prisma.UnitOfMeasureModel
 /**
- * Model ProductCategory
+ * Model GroupLayer
  * 
  */
-export type ProductCategory = Prisma.ProductCategoryModel
+export type GroupLayer = Prisma.GroupLayerModel
+/**
+ * Model ControlLayer
+ * 
+ */
+export type ControlLayer = Prisma.ControlLayerModel
+/**
+ * Model SubLayer
+ * 
+ */
+export type SubLayer = Prisma.SubLayerModel
+/**
+ * Model SubSubLayer
+ * 
+ */
+export type SubSubLayer = Prisma.SubSubLayerModel
 /**
  * Model Product
  * 
