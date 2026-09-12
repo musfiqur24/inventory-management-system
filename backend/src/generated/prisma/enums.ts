@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const StoreType = {
+  RM_STORE: 'RM_STORE',
+  FM_STORE: 'FM_STORE'
+} as const
+
+export type StoreType = (typeof StoreType)[keyof typeof StoreType]
+
+
 export const UomCategory = {
   WEIGHT: 'WEIGHT',
   VOLUME: 'VOLUME',

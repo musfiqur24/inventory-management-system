@@ -42,7 +42,13 @@ export function TraceabilityPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <DataTable columns={["Movement Type","Document Type","Document ID","Lot","Quantity"]}>
+          <DataTable columns={["Movement Type","Document Type","Document ID","Lot","Quantity"]} empty={filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
+              <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Search size={28} /></div>
+              <b>No movements found</b>
+              <p>Stock movements appear once your store receives, issues, produces or dispatches stock.</p>
+            </div>
+          )}>
               {filtered.map((row, index) => (
                 <tr key={String(row.id ?? index)}>
                   <td><strong>{String(row.movementType ?? "—")}</strong></td>
@@ -53,13 +59,7 @@ export function TraceabilityPage() {
                 </tr>
               ))}
             </DataTable>
-          {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
-              <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Search size={28} /></div>
-              <b>No movements found</b>
-              <p>Stock movements appear once your store receives, issues, produces or dispatches stock.</p>
-            </div>
-          )}
+          
         </div>
       </Card>
     </PageContainer>

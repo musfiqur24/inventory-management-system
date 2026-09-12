@@ -121,7 +121,13 @@ export function RecipePlannerPage() {
             </span>
           </div>
           <div className="overflow-x-auto">
-            <DataTable columns={["Raw Material","Per Tonne (kg)","Required Quantity"]}>
+            <DataTable columns={["Raw Material","Per Tonne (kg)","Required Quantity"]} empty={plan.length === 0 && (
+              <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
+                <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Calculator size={28} /></div>
+                <b>No ingredients added</b>
+                <p>Add raw material ingredients and set a target tonnage to see calculations.</p>
+              </div>
+            )}>
                 {plan.map((line, i) => (
                   <tr key={i}>
                     <td><strong>{line.material || "—"}</strong></td>
@@ -134,13 +140,7 @@ export function RecipePlannerPage() {
                   </tr>
                 ))}
               </DataTable>
-            {plan.length === 0 && (
-              <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
-                <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Calculator size={28} /></div>
-                <b>No ingredients added</b>
-                <p>Add raw material ingredients and set a target tonnage to see calculations.</p>
-              </div>
-            )}
+            
           </div>
           <div className="p-[12px_16px] [border-top:1px_solid_#e0e5dd] text-[12px] text-[#7a9185]">
             Save the approved recipe as a version in Recipes, then create a Production Order from this plan.

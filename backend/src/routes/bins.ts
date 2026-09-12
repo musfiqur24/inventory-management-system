@@ -1,94 +1,103 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
-import { Prisma } from "../generated/prisma/client.js";
-
 export const binsRouter = Router();
-
 binsRouter.get("/", async (req, res) => {
-  const typeFilter = req.query.type as string | undefined;
   const bins = await prisma.bin.findMany({
     where: {
       organizationId: req.tenantId,
       isActive: true,
-      ...(typeFilter ? { warehouseType: typeFilter } : {}),
-    },
-    include: {
-      balances: {
-        include: {
-          product: true,
-          lot: true,
-          uom: true,
-        },
+      ...(req.query.storeId ? { storeId: String(req.query.storeId) } : {}),
+      store: {
+        isActive: true,
+        ...(req.query.type
+          ? {
+              storeType: z.enum(["RM_STORE", "FM_STORE"]).parse(req.query.type),
+            }
+          : {}),
       },
     },
-    orderBy: { code: "asc" },
+    include: {
+      store: true,
+      balances: { include: { product: true, lot: true, uom: true } },
+    },
+    orderBy: [{ storeId: "asc" }, { code: "asc" }],
   });
-
-  const enriched = bins.map((bin) => {
-    const currentOccupancy = bin.balances.reduce(
-      (sum, b) => sum + Number(b.quantity),
-      0
-    );
-    const capacityNum = bin.capacity ? Number(bin.capacity) : 0;
-    const utilizationPercent =
-      capacityNum > 0
-        ? Math.min(100, Math.round((currentOccupancy / capacityNum) * 100))
-        : 0;
-
-    return {
+  res.json({
+    data: bins.map((bin) => ({
       ...bin,
-      currentOccupancy,
-      utilizationPercent,
-    };
+      warehouseType: bin.store.storeType,
+      siteId: bin.store.siteId,
+      stockPositions: bin.balances.filter((b) => b.quantity.gt(0)).length,
+    })),
   });
-
-  res.json({ data: enriched });
 });
-
-const createBinSchema = z.object({
-  siteId: z.string().uuid().optional(),
-  code: z.string().min(2),
-  name: z.string().min(2),
-  zone: z.string().optional(),
-  warehouseType: z.enum(["RM_STORE", "FM_STORE", "SILO", "FACTORY_FLOOR"]).default("RM_STORE"),
+const schema = z.object({
+  storeId: z.string().uuid(),
+  code: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  zone: z.string().trim().optional(),
   capacity: z.coerce.number().positive().optional(),
 });
-
 binsRouter.post("/", async (req, res) => {
-  const parsed = createBinSchema.parse(req.body);
-
-  // If siteId not provided, pick first site for tenant or create a default plant site
-  let siteId = parsed.siteId;
-  if (!siteId) {
-    const site = await prisma.site.findFirst({
-      where: { organizationId: req.tenantId },
+  const value = schema.parse(req.body);
+  const bin = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Store" WHERE id=${value.storeId} AND "organizationId"=${req.tenantId!} FOR UPDATE`;
+    const store = await tx.store.findFirst({
+      where: {
+        id: value.storeId,
+        organizationId: req.tenantId,
+        isActive: true,
+      },
     });
-    if (site) {
-      siteId = site.id;
-    } else {
-      const newSite = await prisma.site.create({
-        data: {
-          organizationId: req.tenantId!,
-          code: "MAIN-PLANT",
-          name: "Main Production Plant",
+    if (!store) return null;
+    return tx.bin.create({
+      data: {
+        ...value,
+        organizationId: req.tenantId!,
+        code: value.code.toUpperCase(),
+      },
+      include: { store: true },
+    });
+  });
+  if (!bin)
+    return res
+      .status(422)
+      .json({
+        error: {
+          code: "INVALID_STORE",
+          message: "Select an active store in this organization.",
         },
       });
-      siteId = newSite.id;
-    }
-  }
+  return res.status(201).json({ data: bin });
+});
 
-  const bin = await prisma.bin.create({
+binsRouter.put("/:id", async (req, res) => {
+  const value = schema.parse(req.body),
+    where = { id: String(req.params.id), organizationId: req.tenantId! };
+  const current = await prisma.bin.findFirst({ where });
+  if (!current)
+    return res
+      .status(404)
+      .json({ error: { code: "NOT_FOUND", message: "Bin not found." } });
+  if (current.storeId !== value.storeId)
+    return res
+      .status(409)
+      .json({
+        error: {
+          code: "BIN_STORE_FIXED",
+          message:
+            "A bin stays in its original store to preserve activity history.",
+        },
+      });
+  const bin = await prisma.bin.update({
+    where,
     data: {
-      organizationId: req.tenantId!,
-      siteId,
-      code: parsed.code.toUpperCase().trim(),
-      name: parsed.name.trim(),
-      zone: parsed.zone?.trim() || null,
-      warehouseType: parsed.warehouseType,
-      capacity: parsed.capacity ? new Prisma.Decimal(parsed.capacity) : null,
+      code: value.code.toUpperCase(),
+      name: value.name,
+      zone: value.zone || null,
+      capacity: value.capacity ?? null,
     },
   });
-
-  res.status(201).json({ data: bin });
+  return res.json({ data: bin });
 });

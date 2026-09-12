@@ -33,6 +33,10 @@ export type PurchaseRequisitionMinAggregateOutputType = {
   status: $Enums.DocumentStatus | null
   requestedOn: Date | null
   approvedAt: Date | null
+  createdById: string | null
+  deletedAt: Date | null
+  assignedManagerId: string | null
+  approvedById: string | null
 }
 
 export type PurchaseRequisitionMaxAggregateOutputType = {
@@ -44,6 +48,10 @@ export type PurchaseRequisitionMaxAggregateOutputType = {
   status: $Enums.DocumentStatus | null
   requestedOn: Date | null
   approvedAt: Date | null
+  createdById: string | null
+  deletedAt: Date | null
+  assignedManagerId: string | null
+  approvedById: string | null
 }
 
 export type PurchaseRequisitionCountAggregateOutputType = {
@@ -55,6 +63,10 @@ export type PurchaseRequisitionCountAggregateOutputType = {
   status: number
   requestedOn: number
   approvedAt: number
+  createdById: number
+  deletedAt: number
+  assignedManagerId: number
+  approvedById: number
   _all: number
 }
 
@@ -68,6 +80,10 @@ export type PurchaseRequisitionMinAggregateInputType = {
   status?: true
   requestedOn?: true
   approvedAt?: true
+  createdById?: true
+  deletedAt?: true
+  assignedManagerId?: true
+  approvedById?: true
 }
 
 export type PurchaseRequisitionMaxAggregateInputType = {
@@ -79,6 +95,10 @@ export type PurchaseRequisitionMaxAggregateInputType = {
   status?: true
   requestedOn?: true
   approvedAt?: true
+  createdById?: true
+  deletedAt?: true
+  assignedManagerId?: true
+  approvedById?: true
 }
 
 export type PurchaseRequisitionCountAggregateInputType = {
@@ -90,6 +110,10 @@ export type PurchaseRequisitionCountAggregateInputType = {
   status?: true
   requestedOn?: true
   approvedAt?: true
+  createdById?: true
+  deletedAt?: true
+  assignedManagerId?: true
+  approvedById?: true
   _all?: true
 }
 
@@ -174,6 +198,10 @@ export type PurchaseRequisitionGroupByOutputType = {
   status: $Enums.DocumentStatus
   requestedOn: Date
   approvedAt: Date | null
+  createdById: string | null
+  deletedAt: Date | null
+  assignedManagerId: string | null
+  approvedById: string | null
   _count: PurchaseRequisitionCountAggregateOutputType | null
   _min: PurchaseRequisitionMinAggregateOutputType | null
   _max: PurchaseRequisitionMaxAggregateOutputType | null
@@ -206,6 +234,11 @@ export type PurchaseRequisitionWhereInput = {
   status?: Prisma.EnumDocumentStatusFilter<"PurchaseRequisition"> | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFilter<"PurchaseRequisition"> | Date | string
   approvedAt?: Prisma.DateTimeNullableFilter<"PurchaseRequisition"> | Date | string | null
+  createdById?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"PurchaseRequisition"> | Date | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  assignedManager?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lines?: Prisma.PurchaseRequisitionLineListRelationFilter
 }
 
@@ -218,6 +251,11 @@ export type PurchaseRequisitionOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManager?: Prisma.UserOrderByWithRelationInput
   lines?: Prisma.PurchaseRequisitionLineOrderByRelationAggregateInput
 }
 
@@ -234,6 +272,11 @@ export type PurchaseRequisitionWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumDocumentStatusFilter<"PurchaseRequisition"> | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFilter<"PurchaseRequisition"> | Date | string
   approvedAt?: Prisma.DateTimeNullableFilter<"PurchaseRequisition"> | Date | string | null
+  createdById?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"PurchaseRequisition"> | Date | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  assignedManager?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lines?: Prisma.PurchaseRequisitionLineListRelationFilter
 }, "id" | "organizationId_number">
 
@@ -246,6 +289,10 @@ export type PurchaseRequisitionOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PurchaseRequisitionCountOrderByAggregateInput
   _max?: Prisma.PurchaseRequisitionMaxOrderByAggregateInput
   _min?: Prisma.PurchaseRequisitionMinOrderByAggregateInput
@@ -263,6 +310,10 @@ export type PurchaseRequisitionScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumDocumentStatusWithAggregatesFilter<"PurchaseRequisition"> | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeWithAggregatesFilter<"PurchaseRequisition"> | Date | string
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PurchaseRequisition"> | Date | string | null
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"PurchaseRequisition"> | string | null
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PurchaseRequisition"> | Date | string | null
+  assignedManagerId?: Prisma.StringNullableWithAggregatesFilter<"PurchaseRequisition"> | string | null
+  approvedById?: Prisma.StringNullableWithAggregatesFilter<"PurchaseRequisition"> | string | null
 }
 
 export type PurchaseRequisitionCreateInput = {
@@ -274,6 +325,10 @@ export type PurchaseRequisitionCreateInput = {
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
   approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  approvedById?: string | null
+  assignedManager?: Prisma.UserCreateNestedOneWithoutAssignedRequisitionsInput
   lines?: Prisma.PurchaseRequisitionLineCreateNestedManyWithoutRequisitionInput
 }
 
@@ -286,6 +341,10 @@ export type PurchaseRequisitionUncheckedCreateInput = {
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
   approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
   lines?: Prisma.PurchaseRequisitionLineUncheckedCreateNestedManyWithoutRequisitionInput
 }
 
@@ -298,6 +357,10 @@ export type PurchaseRequisitionUpdateInput = {
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManager?: Prisma.UserUpdateOneWithoutAssignedRequisitionsNestedInput
   lines?: Prisma.PurchaseRequisitionLineUpdateManyWithoutRequisitionNestedInput
 }
 
@@ -310,6 +373,10 @@ export type PurchaseRequisitionUncheckedUpdateInput = {
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lines?: Prisma.PurchaseRequisitionLineUncheckedUpdateManyWithoutRequisitionNestedInput
 }
 
@@ -322,6 +389,10 @@ export type PurchaseRequisitionCreateManyInput = {
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
   approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
 }
 
 export type PurchaseRequisitionUpdateManyMutationInput = {
@@ -333,6 +404,9 @@ export type PurchaseRequisitionUpdateManyMutationInput = {
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PurchaseRequisitionUncheckedUpdateManyInput = {
@@ -344,6 +418,20 @@ export type PurchaseRequisitionUncheckedUpdateManyInput = {
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type PurchaseRequisitionListRelationFilter = {
+  every?: Prisma.PurchaseRequisitionWhereInput
+  some?: Prisma.PurchaseRequisitionWhereInput
+  none?: Prisma.PurchaseRequisitionWhereInput
+}
+
+export type PurchaseRequisitionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type PurchaseRequisitionOrganizationIdNumberCompoundUniqueInput = {
@@ -360,6 +448,10 @@ export type PurchaseRequisitionCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
 }
 
 export type PurchaseRequisitionMaxOrderByAggregateInput = {
@@ -371,6 +463,10 @@ export type PurchaseRequisitionMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
 }
 
 export type PurchaseRequisitionMinOrderByAggregateInput = {
@@ -382,11 +478,57 @@ export type PurchaseRequisitionMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
 }
 
 export type PurchaseRequisitionScalarRelationFilter = {
   is?: Prisma.PurchaseRequisitionWhereInput
   isNot?: Prisma.PurchaseRequisitionWhereInput
+}
+
+export type PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput = {
+  create?: Prisma.XOR<Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput[] | Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  createMany?: Prisma.PurchaseRequisitionCreateManyAssignedManagerInputEnvelope
+  connect?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+}
+
+export type PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput = {
+  create?: Prisma.XOR<Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput[] | Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  createMany?: Prisma.PurchaseRequisitionCreateManyAssignedManagerInputEnvelope
+  connect?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+}
+
+export type PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput[] | Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  upsert?: Prisma.PurchaseRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput | Prisma.PurchaseRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput[]
+  createMany?: Prisma.PurchaseRequisitionCreateManyAssignedManagerInputEnvelope
+  set?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  delete?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  connect?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  update?: Prisma.PurchaseRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput | Prisma.PurchaseRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput[]
+  updateMany?: Prisma.PurchaseRequisitionUpdateManyWithWhereWithoutAssignedManagerInput | Prisma.PurchaseRequisitionUpdateManyWithWhereWithoutAssignedManagerInput[]
+  deleteMany?: Prisma.PurchaseRequisitionScalarWhereInput | Prisma.PurchaseRequisitionScalarWhereInput[]
+}
+
+export type PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput[] | Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  upsert?: Prisma.PurchaseRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput | Prisma.PurchaseRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput[]
+  createMany?: Prisma.PurchaseRequisitionCreateManyAssignedManagerInputEnvelope
+  set?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  delete?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  connect?: Prisma.PurchaseRequisitionWhereUniqueInput | Prisma.PurchaseRequisitionWhereUniqueInput[]
+  update?: Prisma.PurchaseRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput | Prisma.PurchaseRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput[]
+  updateMany?: Prisma.PurchaseRequisitionUpdateManyWithWhereWithoutAssignedManagerInput | Prisma.PurchaseRequisitionUpdateManyWithWhereWithoutAssignedManagerInput[]
+  deleteMany?: Prisma.PurchaseRequisitionScalarWhereInput | Prisma.PurchaseRequisitionScalarWhereInput[]
 }
 
 export type EnumDocumentStatusFieldUpdateOperationsInput = {
@@ -411,6 +553,80 @@ export type PurchaseRequisitionUpdateOneRequiredWithoutLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseRequisitionUpdateToOneWithWhereWithoutLinesInput, Prisma.PurchaseRequisitionUpdateWithoutLinesInput>, Prisma.PurchaseRequisitionUncheckedUpdateWithoutLinesInput>
 }
 
+export type PurchaseRequisitionCreateWithoutAssignedManagerInput = {
+  id?: string
+  organizationId: string
+  number: string
+  salesOrderRef?: string | null
+  supplierId?: string | null
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  approvedById?: string | null
+  lines?: Prisma.PurchaseRequisitionLineCreateNestedManyWithoutRequisitionInput
+}
+
+export type PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput = {
+  id?: string
+  organizationId: string
+  number: string
+  salesOrderRef?: string | null
+  supplierId?: string | null
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  approvedById?: string | null
+  lines?: Prisma.PurchaseRequisitionLineUncheckedCreateNestedManyWithoutRequisitionInput
+}
+
+export type PurchaseRequisitionCreateOrConnectWithoutAssignedManagerInput = {
+  where: Prisma.PurchaseRequisitionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput>
+}
+
+export type PurchaseRequisitionCreateManyAssignedManagerInputEnvelope = {
+  data: Prisma.PurchaseRequisitionCreateManyAssignedManagerInput | Prisma.PurchaseRequisitionCreateManyAssignedManagerInput[]
+  skipDuplicates?: boolean
+}
+
+export type PurchaseRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput = {
+  where: Prisma.PurchaseRequisitionWhereUniqueInput
+  update: Prisma.XOR<Prisma.PurchaseRequisitionUpdateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedUpdateWithoutAssignedManagerInput>
+  create: Prisma.XOR<Prisma.PurchaseRequisitionCreateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedCreateWithoutAssignedManagerInput>
+}
+
+export type PurchaseRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput = {
+  where: Prisma.PurchaseRequisitionWhereUniqueInput
+  data: Prisma.XOR<Prisma.PurchaseRequisitionUpdateWithoutAssignedManagerInput, Prisma.PurchaseRequisitionUncheckedUpdateWithoutAssignedManagerInput>
+}
+
+export type PurchaseRequisitionUpdateManyWithWhereWithoutAssignedManagerInput = {
+  where: Prisma.PurchaseRequisitionScalarWhereInput
+  data: Prisma.XOR<Prisma.PurchaseRequisitionUpdateManyMutationInput, Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerInput>
+}
+
+export type PurchaseRequisitionScalarWhereInput = {
+  AND?: Prisma.PurchaseRequisitionScalarWhereInput | Prisma.PurchaseRequisitionScalarWhereInput[]
+  OR?: Prisma.PurchaseRequisitionScalarWhereInput[]
+  NOT?: Prisma.PurchaseRequisitionScalarWhereInput | Prisma.PurchaseRequisitionScalarWhereInput[]
+  id?: Prisma.StringFilter<"PurchaseRequisition"> | string
+  organizationId?: Prisma.StringFilter<"PurchaseRequisition"> | string
+  number?: Prisma.StringFilter<"PurchaseRequisition"> | string
+  salesOrderRef?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  supplierId?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  status?: Prisma.EnumDocumentStatusFilter<"PurchaseRequisition"> | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFilter<"PurchaseRequisition"> | Date | string
+  approvedAt?: Prisma.DateTimeNullableFilter<"PurchaseRequisition"> | Date | string | null
+  createdById?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"PurchaseRequisition"> | Date | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"PurchaseRequisition"> | string | null
+}
+
 export type PurchaseRequisitionCreateWithoutLinesInput = {
   id?: string
   organizationId: string
@@ -420,6 +636,10 @@ export type PurchaseRequisitionCreateWithoutLinesInput = {
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
   approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  approvedById?: string | null
+  assignedManager?: Prisma.UserCreateNestedOneWithoutAssignedRequisitionsInput
 }
 
 export type PurchaseRequisitionUncheckedCreateWithoutLinesInput = {
@@ -431,6 +651,10 @@ export type PurchaseRequisitionUncheckedCreateWithoutLinesInput = {
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
   approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
 }
 
 export type PurchaseRequisitionCreateOrConnectWithoutLinesInput = {
@@ -458,6 +682,10 @@ export type PurchaseRequisitionUpdateWithoutLinesInput = {
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManager?: Prisma.UserUpdateOneWithoutAssignedRequisitionsNestedInput
 }
 
 export type PurchaseRequisitionUncheckedUpdateWithoutLinesInput = {
@@ -469,6 +697,68 @@ export type PurchaseRequisitionUncheckedUpdateWithoutLinesInput = {
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type PurchaseRequisitionCreateManyAssignedManagerInput = {
+  id?: string
+  organizationId: string
+  number: string
+  salesOrderRef?: string | null
+  supplierId?: string | null
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  approvedAt?: Date | string | null
+  createdById?: string | null
+  deletedAt?: Date | string | null
+  approvedById?: string | null
+}
+
+export type PurchaseRequisitionUpdateWithoutAssignedManagerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  salesOrderRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lines?: Prisma.PurchaseRequisitionLineUpdateManyWithoutRequisitionNestedInput
+}
+
+export type PurchaseRequisitionUncheckedUpdateWithoutAssignedManagerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  salesOrderRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lines?: Prisma.PurchaseRequisitionLineUncheckedUpdateManyWithoutRequisitionNestedInput
+}
+
+export type PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  salesOrderRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -511,6 +801,11 @@ export type PurchaseRequisitionSelect<ExtArgs extends runtime.Types.Extensions.I
   status?: boolean
   requestedOn?: boolean
   approvedAt?: boolean
+  createdById?: boolean
+  deletedAt?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  assignedManager?: boolean | Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>
   lines?: boolean | Prisma.PurchaseRequisition$linesArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseRequisitionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseRequisition"]>
@@ -524,6 +819,11 @@ export type PurchaseRequisitionSelectCreateManyAndReturn<ExtArgs extends runtime
   status?: boolean
   requestedOn?: boolean
   approvedAt?: boolean
+  createdById?: boolean
+  deletedAt?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  assignedManager?: boolean | Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseRequisition"]>
 
 export type PurchaseRequisitionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -535,6 +835,11 @@ export type PurchaseRequisitionSelectUpdateManyAndReturn<ExtArgs extends runtime
   status?: boolean
   requestedOn?: boolean
   approvedAt?: boolean
+  createdById?: boolean
+  deletedAt?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  assignedManager?: boolean | Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseRequisition"]>
 
 export type PurchaseRequisitionSelectScalar = {
@@ -546,19 +851,29 @@ export type PurchaseRequisitionSelectScalar = {
   status?: boolean
   requestedOn?: boolean
   approvedAt?: boolean
+  createdById?: boolean
+  deletedAt?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
 }
 
-export type PurchaseRequisitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "salesOrderRef" | "supplierId" | "status" | "requestedOn" | "approvedAt", ExtArgs["result"]["purchaseRequisition"]>
+export type PurchaseRequisitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "salesOrderRef" | "supplierId" | "status" | "requestedOn" | "approvedAt" | "createdById" | "deletedAt" | "assignedManagerId" | "approvedById", ExtArgs["result"]["purchaseRequisition"]>
 export type PurchaseRequisitionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedManager?: boolean | Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>
   lines?: boolean | Prisma.PurchaseRequisition$linesArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseRequisitionCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type PurchaseRequisitionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type PurchaseRequisitionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type PurchaseRequisitionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedManager?: boolean | Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>
+}
+export type PurchaseRequisitionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedManager?: boolean | Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>
+}
 
 export type $PurchaseRequisitionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PurchaseRequisition"
   objects: {
+    assignedManager: Prisma.$UserPayload<ExtArgs> | null
     lines: Prisma.$PurchaseRequisitionLinePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -570,6 +885,10 @@ export type $PurchaseRequisitionPayload<ExtArgs extends runtime.Types.Extensions
     status: $Enums.DocumentStatus
     requestedOn: Date
     approvedAt: Date | null
+    createdById: string | null
+    deletedAt: Date | null
+    assignedManagerId: string | null
+    approvedById: string | null
   }, ExtArgs["result"]["purchaseRequisition"]>
   composites: {}
 }
@@ -964,6 +1283,7 @@ readonly fields: PurchaseRequisitionFieldRefs;
  */
 export interface Prisma__PurchaseRequisitionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  assignedManager<T extends Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PurchaseRequisition$assignedManagerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.PurchaseRequisition$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PurchaseRequisition$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseRequisitionLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1002,6 +1322,10 @@ export interface PurchaseRequisitionFieldRefs {
   readonly status: Prisma.FieldRef<"PurchaseRequisition", 'DocumentStatus'>
   readonly requestedOn: Prisma.FieldRef<"PurchaseRequisition", 'DateTime'>
   readonly approvedAt: Prisma.FieldRef<"PurchaseRequisition", 'DateTime'>
+  readonly createdById: Prisma.FieldRef<"PurchaseRequisition", 'String'>
+  readonly deletedAt: Prisma.FieldRef<"PurchaseRequisition", 'DateTime'>
+  readonly assignedManagerId: Prisma.FieldRef<"PurchaseRequisition", 'String'>
+  readonly approvedById: Prisma.FieldRef<"PurchaseRequisition", 'String'>
 }
     
 
@@ -1256,6 +1580,10 @@ export type PurchaseRequisitionCreateManyAndReturnArgs<ExtArgs extends runtime.T
    */
   data: Prisma.PurchaseRequisitionCreateManyInput | Prisma.PurchaseRequisitionCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchaseRequisitionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1326,6 +1654,10 @@ export type PurchaseRequisitionUpdateManyAndReturnArgs<ExtArgs extends runtime.T
    * Limit how many PurchaseRequisitions to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchaseRequisitionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1392,6 +1724,25 @@ export type PurchaseRequisitionDeleteManyArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many PurchaseRequisitions to delete.
    */
   limit?: number
+}
+
+/**
+ * PurchaseRequisition.assignedManager
+ */
+export type PurchaseRequisition$assignedManagerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

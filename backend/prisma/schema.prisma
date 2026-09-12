@@ -8,6 +8,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum StoreType {
+  RM_STORE
+  FM_STORE
+}
+
 enum UomCategory {
   WEIGHT
   VOLUME
@@ -59,6 +64,7 @@ model Organization {
   sites Site[]
   members OrganizationMember[]
   uoms UnitOfMeasure[]
+  stores Store[]
   groupLayers GroupLayer[]
   controlLayers ControlLayer[]
   subLayers SubLayer[]
@@ -89,6 +95,8 @@ model Site {
     updatedAt DateTime @updatedAt
     memberships OrganizationMember[]
     refreshTokens RefreshToken[]
+    assignedRequisitions PurchaseRequisition[] @relation("RequisitionManager")
+    notifications Notification[]
   }
 model UnitOfMeasure {
   id String @id @default(uuid())
@@ -190,19 +198,38 @@ model Partner {
   @@unique([organizationId,code])
   @@index([organizationId,partnerType])
 }
+model Store {
+  id String @id @default(uuid())
+  organizationId String
+  siteId String?
+  code String
+  name String
+  storeType StoreType
+  address String?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
+  bins Bin[]
+  outgoing StockMovement[] @relation("FromStore")
+  incoming StockMovement[] @relation("ToStore")
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,storeType])
+}
 model Bin {
   id String @id @default(uuid())
   organizationId String
-  siteId String
+  storeId String
   code String
   name String
   zone String?
-  warehouseType String? @default("RM_STORE")
   capacity Decimal? @db.Decimal(18,3)
   isActive Boolean @default(true)
+  store Store @relation(fields:[organizationId,storeId],references:[organizationId,id],onDelete:Restrict)
   balances InventoryBalance[]
-  @@unique([organizationId,siteId,code])
-  @@index([organizationId,siteId])
+  @@unique([organizationId,storeId,code])
+  @@index([organizationId,storeId])
 }
 model PurchaseRequisition {
   id String @id @default(uuid())
@@ -213,6 +240,11 @@ model PurchaseRequisition {
   status DocumentStatus @default(DRAFT)
   requestedOn DateTime @default(now())
   approvedAt DateTime?
+  createdById String?
+  deletedAt DateTime?
+  assignedManagerId String?
+  approvedById String?
+  assignedManager User? @relation("RequisitionManager", fields:[assignedManagerId], references:[id], onDelete:Restrict)
   lines PurchaseRequisitionLine[]
   @@unique([organizationId,number])
   @@index([organizationId,status,requestedOn])
@@ -308,6 +340,17 @@ model StockMovement {
   lotId String?
   fromBinId String?
   toBinId String?
+  fromStoreId String?
+  toStoreId String?
+  fromStore Store? @relation("FromStore",fields:[fromStoreId],references:[id],onDelete:Restrict)
+  toStore Store? @relation("ToStore",fields:[toStoreId],references:[id],onDelete:Restrict)
+  sourceDocumentId String?
+  sourceLineId String?
+  referenceType String?
+  referenceId String?
+  referenceNumber String?
+  postingKey String?
+  balanceAfter Decimal? @db.Decimal(18,3)
   quantity Decimal @db.Decimal(18,3)
   uomId String
   documentType String
@@ -318,6 +361,9 @@ model StockMovement {
   @@index([organizationId,productId,occurredAt])
   @@index([organizationId,lotId,occurredAt])
   @@index([organizationId,documentType,documentId])
+  @@unique([organizationId,postingKey])
+  @@index([organizationId,fromStoreId,occurredAt])
+  @@index([organizationId,toStoreId,occurredAt])
 }
 model Recipe {
   id String @id @default(uuid())
@@ -510,4 +556,17 @@ model RefreshToken {
   expiresAt DateTime
   user User @relation(fields:[userId], references:[id], onDelete:Cascade)
   @@index([userId, expiresAt])
+}
+
+model Notification {
+ id String @id @default(uuid())
+ organizationId String
+ recipientId String
+ requisitionId String
+ title String
+ message String
+ createdAt DateTime @default(now())
+ readAt DateTime?
+ recipient User @relation(fields:[recipientId],references:[id],onDelete:Cascade)
+ @@index([organizationId,recipientId,createdAt])
 }

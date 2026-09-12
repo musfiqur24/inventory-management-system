@@ -1,3 +1,5 @@
+import { notificationsRouter } from "./routes/notifications.js";
+import { StockError } from "./services/stock.js";
 import express, { type ErrorRequestHandler } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -15,6 +17,7 @@ import { uomsRouter } from "./routes/uoms.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { productsRouter } from "./routes/products.js";
 import { partnersRouter } from "./routes/partners.js";
+import { storesRouter } from "./routes/stores.js";
 import { binsRouter } from "./routes/bins.js";
 import { purchaseRequisitionsRouter } from "./routes/purchaseRequisitions.js";
 import { deliveriesRouter } from "./routes/deliveries.js";
@@ -98,6 +101,14 @@ export function createApp() {
   );
   app.use("/api/v1/users", authenticate, usersRouter);
 
+  app.use("/api/v1/notifications", authenticate, tenant, notificationsRouter);
+
+  app.use("/api/v1/purchase-requisitions", authenticate, tenant, (req,res,next)=>{
+    const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
+    if(role==='STAFF' && ((req.method==='POST' && req.path==='/') || req.method==='PUT'))return next();
+    return requirePermission(req.method==='GET'?'departments.read':'departments.write')(req,res,next);
+  }, purchaseRequisitionsRouter);
+
   app.use("/api/v1", authenticate, tenant, (req, res, next) =>
     requirePermission(
       req.method === "GET" ? "departments.read" : "departments.write",
@@ -108,7 +119,8 @@ export function createApp() {
   app.use("/api/v1/products", productsRouter);
   app.use("/api/v1/partners", partnersRouter);
   app.use("/api/v1/bins", binsRouter);
-  app.use("/api/v1/purchase-requisitions", purchaseRequisitionsRouter);
+  app.use("/api/v1/stores", storesRouter);
+
   app.use("/api/v1/deliveries", deliveriesRouter);
   app.use("/api/v1/weighments", weighmentsRouter);
   app.use("/api/v1/rm-store", rmStoreRouter);
@@ -128,6 +140,7 @@ export function createApp() {
       .json({ error: { code: "NOT_FOUND", message: "Route not found" } }),
   );
   const errors: ErrorRequestHandler = (error, _req, res, _next) => {
+    if (error instanceof StockError) return res.status(error.status).json({ error: { code: error.code, message: error.message } });
     if (error instanceof ZodError)
       return res
         .status(422)

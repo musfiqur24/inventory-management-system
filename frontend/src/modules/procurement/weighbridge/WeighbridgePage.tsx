@@ -100,7 +100,7 @@ export function WeighbridgePage() {
       <Card className="p-0">
         <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Weighment Log</h2><span className="text-[12px] text-[#7a9185]">{rows.length} records</span></div>
         <div className="overflow-x-auto">
-          <DataTable columns={["Vehicle No","Challan","Gross (kg)","Tare (kg)","Net (kg)","Variance","Status","Measured At"]}>
+          <DataTable columns={["Vehicle No","Challan","Gross (kg)","Tare (kg)","Net (kg)","Variance","Status","Measured At"]} empty={rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Scale size={28} /></div><b>No weighments yet</b><p>Record the first vehicle weighment at the gate.</p></div>}>
               {rows.map((w) => (
                 <tr key={w.id}>
                   <td><span className="font-mono font-semibold">{w.vehicleNo ?? '—'}</span></td>
@@ -121,7 +121,7 @@ export function WeighbridgePage() {
                 </tr>
               ))}
             </DataTable>
-          {rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Scale size={28} /></div><b>No weighments yet</b><p>Record the first vehicle weighment at the gate.</p></div>}
+          
         </div>
       </Card>
 

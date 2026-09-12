@@ -18,7 +18,7 @@ inventoryRouter.get("/balances", async (req, res) => {
         },
       },
       lot: true,
-      bin: true,
+      bin: { include: { store: true } },
       uom: true,
     },
     orderBy: { updatedAt: "desc" },

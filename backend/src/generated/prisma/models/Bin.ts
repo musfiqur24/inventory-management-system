@@ -37,11 +37,10 @@ export type BinSumAggregateOutputType = {
 export type BinMinAggregateOutputType = {
   id: string | null
   organizationId: string | null
-  siteId: string | null
+  storeId: string | null
   code: string | null
   name: string | null
   zone: string | null
-  warehouseType: string | null
   capacity: runtime.Decimal | null
   isActive: boolean | null
 }
@@ -49,11 +48,10 @@ export type BinMinAggregateOutputType = {
 export type BinMaxAggregateOutputType = {
   id: string | null
   organizationId: string | null
-  siteId: string | null
+  storeId: string | null
   code: string | null
   name: string | null
   zone: string | null
-  warehouseType: string | null
   capacity: runtime.Decimal | null
   isActive: boolean | null
 }
@@ -61,11 +59,10 @@ export type BinMaxAggregateOutputType = {
 export type BinCountAggregateOutputType = {
   id: number
   organizationId: number
-  siteId: number
+  storeId: number
   code: number
   name: number
   zone: number
-  warehouseType: number
   capacity: number
   isActive: number
   _all: number
@@ -83,11 +80,10 @@ export type BinSumAggregateInputType = {
 export type BinMinAggregateInputType = {
   id?: true
   organizationId?: true
-  siteId?: true
+  storeId?: true
   code?: true
   name?: true
   zone?: true
-  warehouseType?: true
   capacity?: true
   isActive?: true
 }
@@ -95,11 +91,10 @@ export type BinMinAggregateInputType = {
 export type BinMaxAggregateInputType = {
   id?: true
   organizationId?: true
-  siteId?: true
+  storeId?: true
   code?: true
   name?: true
   zone?: true
-  warehouseType?: true
   capacity?: true
   isActive?: true
 }
@@ -107,11 +102,10 @@ export type BinMaxAggregateInputType = {
 export type BinCountAggregateInputType = {
   id?: true
   organizationId?: true
-  siteId?: true
+  storeId?: true
   code?: true
   name?: true
   zone?: true
-  warehouseType?: true
   capacity?: true
   isActive?: true
   _all?: true
@@ -206,11 +200,10 @@ export type BinGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type BinGroupByOutputType = {
   id: string
   organizationId: string
-  siteId: string
+  storeId: string
   code: string
   name: string
   zone: string | null
-  warehouseType: string | null
   capacity: runtime.Decimal | null
   isActive: boolean
   _count: BinCountAggregateOutputType | null
@@ -241,54 +234,53 @@ export type BinWhereInput = {
   NOT?: Prisma.BinWhereInput | Prisma.BinWhereInput[]
   id?: Prisma.StringFilter<"Bin"> | string
   organizationId?: Prisma.StringFilter<"Bin"> | string
-  siteId?: Prisma.StringFilter<"Bin"> | string
+  storeId?: Prisma.StringFilter<"Bin"> | string
   code?: Prisma.StringFilter<"Bin"> | string
   name?: Prisma.StringFilter<"Bin"> | string
   zone?: Prisma.StringNullableFilter<"Bin"> | string | null
-  warehouseType?: Prisma.StringNullableFilter<"Bin"> | string | null
   capacity?: Prisma.DecimalNullableFilter<"Bin"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFilter<"Bin"> | boolean
+  store?: Prisma.XOR<Prisma.StoreScalarRelationFilter, Prisma.StoreWhereInput>
   balances?: Prisma.InventoryBalanceListRelationFilter
 }
 
 export type BinOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
-  siteId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   zone?: Prisma.SortOrderInput | Prisma.SortOrder
-  warehouseType?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  store?: Prisma.StoreOrderByWithRelationInput
   balances?: Prisma.InventoryBalanceOrderByRelationAggregateInput
 }
 
 export type BinWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  organizationId_siteId_code?: Prisma.BinOrganizationIdSiteIdCodeCompoundUniqueInput
+  organizationId_storeId_code?: Prisma.BinOrganizationIdStoreIdCodeCompoundUniqueInput
   AND?: Prisma.BinWhereInput | Prisma.BinWhereInput[]
   OR?: Prisma.BinWhereInput[]
   NOT?: Prisma.BinWhereInput | Prisma.BinWhereInput[]
   organizationId?: Prisma.StringFilter<"Bin"> | string
-  siteId?: Prisma.StringFilter<"Bin"> | string
+  storeId?: Prisma.StringFilter<"Bin"> | string
   code?: Prisma.StringFilter<"Bin"> | string
   name?: Prisma.StringFilter<"Bin"> | string
   zone?: Prisma.StringNullableFilter<"Bin"> | string | null
-  warehouseType?: Prisma.StringNullableFilter<"Bin"> | string | null
   capacity?: Prisma.DecimalNullableFilter<"Bin"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFilter<"Bin"> | boolean
+  store?: Prisma.XOR<Prisma.StoreScalarRelationFilter, Prisma.StoreWhereInput>
   balances?: Prisma.InventoryBalanceListRelationFilter
-}, "id" | "organizationId_siteId_code">
+}, "id" | "organizationId_storeId_code">
 
 export type BinOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
-  siteId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   zone?: Prisma.SortOrderInput | Prisma.SortOrder
-  warehouseType?: Prisma.SortOrderInput | Prisma.SortOrder
   capacity?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   _count?: Prisma.BinCountOrderByAggregateInput
@@ -304,36 +296,32 @@ export type BinScalarWhereWithAggregatesInput = {
   NOT?: Prisma.BinScalarWhereWithAggregatesInput | Prisma.BinScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Bin"> | string
   organizationId?: Prisma.StringWithAggregatesFilter<"Bin"> | string
-  siteId?: Prisma.StringWithAggregatesFilter<"Bin"> | string
+  storeId?: Prisma.StringWithAggregatesFilter<"Bin"> | string
   code?: Prisma.StringWithAggregatesFilter<"Bin"> | string
   name?: Prisma.StringWithAggregatesFilter<"Bin"> | string
   zone?: Prisma.StringNullableWithAggregatesFilter<"Bin"> | string | null
-  warehouseType?: Prisma.StringNullableWithAggregatesFilter<"Bin"> | string | null
   capacity?: Prisma.DecimalNullableWithAggregatesFilter<"Bin"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Bin"> | boolean
 }
 
 export type BinCreateInput = {
   id?: string
-  organizationId: string
-  siteId: string
   code: string
   name: string
   zone?: string | null
-  warehouseType?: string | null
   capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
+  store: Prisma.StoreCreateNestedOneWithoutBinsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutBinInput
 }
 
 export type BinUncheckedCreateInput = {
   id?: string
   organizationId: string
-  siteId: string
+  storeId: string
   code: string
   name: string
   zone?: string | null
-  warehouseType?: string | null
   capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutBinInput
@@ -341,25 +329,22 @@ export type BinUncheckedCreateInput = {
 
 export type BinUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  warehouseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  store?: Prisma.StoreUpdateOneRequiredWithoutBinsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutBinNestedInput
 }
 
 export type BinUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  warehouseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutBinNestedInput
@@ -368,23 +353,19 @@ export type BinUncheckedUpdateInput = {
 export type BinCreateManyInput = {
   id?: string
   organizationId: string
-  siteId: string
+  storeId: string
   code: string
   name: string
   zone?: string | null
-  warehouseType?: string | null
   capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
 }
 
 export type BinUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  warehouseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -392,29 +373,37 @@ export type BinUpdateManyMutationInput = {
 export type BinUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  warehouseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
-export type BinOrganizationIdSiteIdCodeCompoundUniqueInput = {
+export type BinListRelationFilter = {
+  every?: Prisma.BinWhereInput
+  some?: Prisma.BinWhereInput
+  none?: Prisma.BinWhereInput
+}
+
+export type BinOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type BinOrganizationIdStoreIdCodeCompoundUniqueInput = {
   organizationId: string
-  siteId: string
+  storeId: string
   code: string
 }
 
 export type BinCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
-  siteId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   zone?: Prisma.SortOrder
-  warehouseType?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -426,11 +415,10 @@ export type BinAvgOrderByAggregateInput = {
 export type BinMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
-  siteId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   zone?: Prisma.SortOrder
-  warehouseType?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -438,11 +426,10 @@ export type BinMaxOrderByAggregateInput = {
 export type BinMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
-  siteId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrder
   code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   zone?: Prisma.SortOrder
-  warehouseType?: Prisma.SortOrder
   capacity?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
@@ -454,6 +441,48 @@ export type BinSumOrderByAggregateInput = {
 export type BinScalarRelationFilter = {
   is?: Prisma.BinWhereInput
   isNot?: Prisma.BinWhereInput
+}
+
+export type BinCreateNestedManyWithoutStoreInput = {
+  create?: Prisma.XOR<Prisma.BinCreateWithoutStoreInput, Prisma.BinUncheckedCreateWithoutStoreInput> | Prisma.BinCreateWithoutStoreInput[] | Prisma.BinUncheckedCreateWithoutStoreInput[]
+  connectOrCreate?: Prisma.BinCreateOrConnectWithoutStoreInput | Prisma.BinCreateOrConnectWithoutStoreInput[]
+  createMany?: Prisma.BinCreateManyStoreInputEnvelope
+  connect?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+}
+
+export type BinUncheckedCreateNestedManyWithoutStoreInput = {
+  create?: Prisma.XOR<Prisma.BinCreateWithoutStoreInput, Prisma.BinUncheckedCreateWithoutStoreInput> | Prisma.BinCreateWithoutStoreInput[] | Prisma.BinUncheckedCreateWithoutStoreInput[]
+  connectOrCreate?: Prisma.BinCreateOrConnectWithoutStoreInput | Prisma.BinCreateOrConnectWithoutStoreInput[]
+  createMany?: Prisma.BinCreateManyStoreInputEnvelope
+  connect?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+}
+
+export type BinUpdateManyWithoutStoreNestedInput = {
+  create?: Prisma.XOR<Prisma.BinCreateWithoutStoreInput, Prisma.BinUncheckedCreateWithoutStoreInput> | Prisma.BinCreateWithoutStoreInput[] | Prisma.BinUncheckedCreateWithoutStoreInput[]
+  connectOrCreate?: Prisma.BinCreateOrConnectWithoutStoreInput | Prisma.BinCreateOrConnectWithoutStoreInput[]
+  upsert?: Prisma.BinUpsertWithWhereUniqueWithoutStoreInput | Prisma.BinUpsertWithWhereUniqueWithoutStoreInput[]
+  createMany?: Prisma.BinCreateManyStoreInputEnvelope
+  set?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  disconnect?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  delete?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  connect?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  update?: Prisma.BinUpdateWithWhereUniqueWithoutStoreInput | Prisma.BinUpdateWithWhereUniqueWithoutStoreInput[]
+  updateMany?: Prisma.BinUpdateManyWithWhereWithoutStoreInput | Prisma.BinUpdateManyWithWhereWithoutStoreInput[]
+  deleteMany?: Prisma.BinScalarWhereInput | Prisma.BinScalarWhereInput[]
+}
+
+export type BinUncheckedUpdateManyWithoutStoreNestedInput = {
+  create?: Prisma.XOR<Prisma.BinCreateWithoutStoreInput, Prisma.BinUncheckedCreateWithoutStoreInput> | Prisma.BinCreateWithoutStoreInput[] | Prisma.BinUncheckedCreateWithoutStoreInput[]
+  connectOrCreate?: Prisma.BinCreateOrConnectWithoutStoreInput | Prisma.BinCreateOrConnectWithoutStoreInput[]
+  upsert?: Prisma.BinUpsertWithWhereUniqueWithoutStoreInput | Prisma.BinUpsertWithWhereUniqueWithoutStoreInput[]
+  createMany?: Prisma.BinCreateManyStoreInputEnvelope
+  set?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  disconnect?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  delete?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  connect?: Prisma.BinWhereUniqueInput | Prisma.BinWhereUniqueInput[]
+  update?: Prisma.BinUpdateWithWhereUniqueWithoutStoreInput | Prisma.BinUpdateWithWhereUniqueWithoutStoreInput[]
+  updateMany?: Prisma.BinUpdateManyWithWhereWithoutStoreInput | Prisma.BinUpdateManyWithWhereWithoutStoreInput[]
+  deleteMany?: Prisma.BinScalarWhereInput | Prisma.BinScalarWhereInput[]
 }
 
 export type BinCreateNestedOneWithoutBalancesInput = {
@@ -470,26 +499,83 @@ export type BinUpdateOneRequiredWithoutBalancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BinUpdateToOneWithWhereWithoutBalancesInput, Prisma.BinUpdateWithoutBalancesInput>, Prisma.BinUncheckedUpdateWithoutBalancesInput>
 }
 
-export type BinCreateWithoutBalancesInput = {
+export type BinCreateWithoutStoreInput = {
   id?: string
-  organizationId: string
-  siteId: string
   code: string
   name: string
   zone?: string | null
-  warehouseType?: string | null
   capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutBinInput
+}
+
+export type BinUncheckedCreateWithoutStoreInput = {
+  id?: string
+  code: string
+  name: string
+  zone?: string | null
+  capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: boolean
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutBinInput
+}
+
+export type BinCreateOrConnectWithoutStoreInput = {
+  where: Prisma.BinWhereUniqueInput
+  create: Prisma.XOR<Prisma.BinCreateWithoutStoreInput, Prisma.BinUncheckedCreateWithoutStoreInput>
+}
+
+export type BinCreateManyStoreInputEnvelope = {
+  data: Prisma.BinCreateManyStoreInput | Prisma.BinCreateManyStoreInput[]
+  skipDuplicates?: boolean
+}
+
+export type BinUpsertWithWhereUniqueWithoutStoreInput = {
+  where: Prisma.BinWhereUniqueInput
+  update: Prisma.XOR<Prisma.BinUpdateWithoutStoreInput, Prisma.BinUncheckedUpdateWithoutStoreInput>
+  create: Prisma.XOR<Prisma.BinCreateWithoutStoreInput, Prisma.BinUncheckedCreateWithoutStoreInput>
+}
+
+export type BinUpdateWithWhereUniqueWithoutStoreInput = {
+  where: Prisma.BinWhereUniqueInput
+  data: Prisma.XOR<Prisma.BinUpdateWithoutStoreInput, Prisma.BinUncheckedUpdateWithoutStoreInput>
+}
+
+export type BinUpdateManyWithWhereWithoutStoreInput = {
+  where: Prisma.BinScalarWhereInput
+  data: Prisma.XOR<Prisma.BinUpdateManyMutationInput, Prisma.BinUncheckedUpdateManyWithoutStoreInput>
+}
+
+export type BinScalarWhereInput = {
+  AND?: Prisma.BinScalarWhereInput | Prisma.BinScalarWhereInput[]
+  OR?: Prisma.BinScalarWhereInput[]
+  NOT?: Prisma.BinScalarWhereInput | Prisma.BinScalarWhereInput[]
+  id?: Prisma.StringFilter<"Bin"> | string
+  organizationId?: Prisma.StringFilter<"Bin"> | string
+  storeId?: Prisma.StringFilter<"Bin"> | string
+  code?: Prisma.StringFilter<"Bin"> | string
+  name?: Prisma.StringFilter<"Bin"> | string
+  zone?: Prisma.StringNullableFilter<"Bin"> | string | null
+  capacity?: Prisma.DecimalNullableFilter<"Bin"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: Prisma.BoolFilter<"Bin"> | boolean
+}
+
+export type BinCreateWithoutBalancesInput = {
+  id?: string
+  code: string
+  name: string
+  zone?: string | null
+  capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: boolean
+  store: Prisma.StoreCreateNestedOneWithoutBinsInput
 }
 
 export type BinUncheckedCreateWithoutBalancesInput = {
   id?: string
   organizationId: string
-  siteId: string
+  storeId: string
   code: string
   name: string
   zone?: string | null
-  warehouseType?: string | null
   capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
 }
@@ -512,24 +598,59 @@ export type BinUpdateToOneWithWhereWithoutBalancesInput = {
 
 export type BinUpdateWithoutBalancesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  warehouseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  store?: Prisma.StoreUpdateOneRequiredWithoutBinsNestedInput
 }
 
 export type BinUncheckedUpdateWithoutBalancesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  warehouseType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type BinCreateManyStoreInput = {
+  id?: string
+  code: string
+  name: string
+  zone?: string | null
+  capacity?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: boolean
+}
+
+export type BinUpdateWithoutStoreInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutBinNestedInput
+}
+
+export type BinUncheckedUpdateWithoutStoreInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutBinNestedInput
+}
+
+export type BinUncheckedUpdateManyWithoutStoreInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   capacity?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -568,13 +689,13 @@ export type BinCountOutputTypeCountBalancesArgs<ExtArgs extends runtime.Types.Ex
 export type BinSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
-  siteId?: boolean
+  storeId?: boolean
   code?: boolean
   name?: boolean
   zone?: boolean
-  warehouseType?: boolean
   capacity?: boolean
   isActive?: boolean
+  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
   balances?: boolean | Prisma.Bin$balancesArgs<ExtArgs>
   _count?: boolean | Prisma.BinCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bin"]>
@@ -582,60 +703,64 @@ export type BinSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
 export type BinSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
-  siteId?: boolean
+  storeId?: boolean
   code?: boolean
   name?: boolean
   zone?: boolean
-  warehouseType?: boolean
   capacity?: boolean
   isActive?: boolean
+  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bin"]>
 
 export type BinSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
-  siteId?: boolean
+  storeId?: boolean
   code?: boolean
   name?: boolean
   zone?: boolean
-  warehouseType?: boolean
   capacity?: boolean
   isActive?: boolean
+  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bin"]>
 
 export type BinSelectScalar = {
   id?: boolean
   organizationId?: boolean
-  siteId?: boolean
+  storeId?: boolean
   code?: boolean
   name?: boolean
   zone?: boolean
-  warehouseType?: boolean
   capacity?: boolean
   isActive?: boolean
 }
 
-export type BinOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "siteId" | "code" | "name" | "zone" | "warehouseType" | "capacity" | "isActive", ExtArgs["result"]["bin"]>
+export type BinOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "storeId" | "code" | "name" | "zone" | "capacity" | "isActive", ExtArgs["result"]["bin"]>
 export type BinInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
   balances?: boolean | Prisma.Bin$balancesArgs<ExtArgs>
   _count?: boolean | Prisma.BinCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type BinIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type BinIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type BinIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+}
+export type BinIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+}
 
 export type $BinPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Bin"
   objects: {
+    store: Prisma.$StorePayload<ExtArgs>
     balances: Prisma.$InventoryBalancePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     organizationId: string
-    siteId: string
+    storeId: string
     code: string
     name: string
     zone: string | null
-    warehouseType: string | null
     capacity: runtime.Decimal | null
     isActive: boolean
   }, ExtArgs["result"]["bin"]>
@@ -1032,6 +1157,7 @@ readonly fields: BinFieldRefs;
  */
 export interface Prisma__BinClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  store<T extends Prisma.StoreDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreDefaultArgs<ExtArgs>>): Prisma.Prisma__StoreClient<runtime.Types.Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   balances<T extends Prisma.Bin$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bin$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1064,11 +1190,10 @@ export interface Prisma__BinClient<T, Null = never, ExtArgs extends runtime.Type
 export interface BinFieldRefs {
   readonly id: Prisma.FieldRef<"Bin", 'String'>
   readonly organizationId: Prisma.FieldRef<"Bin", 'String'>
-  readonly siteId: Prisma.FieldRef<"Bin", 'String'>
+  readonly storeId: Prisma.FieldRef<"Bin", 'String'>
   readonly code: Prisma.FieldRef<"Bin", 'String'>
   readonly name: Prisma.FieldRef<"Bin", 'String'>
   readonly zone: Prisma.FieldRef<"Bin", 'String'>
-  readonly warehouseType: Prisma.FieldRef<"Bin", 'String'>
   readonly capacity: Prisma.FieldRef<"Bin", 'Decimal'>
   readonly isActive: Prisma.FieldRef<"Bin", 'Boolean'>
 }
@@ -1325,6 +1450,10 @@ export type BinCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.
    */
   data: Prisma.BinCreateManyInput | Prisma.BinCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BinIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1395,6 +1524,10 @@ export type BinUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many Bins to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BinIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

@@ -61,6 +61,7 @@ export const ModelName = {
   SubSubLayer: 'SubSubLayer',
   Product: 'Product',
   Partner: 'Partner',
+  Store: 'Store',
   Bin: 'Bin',
   PurchaseRequisition: 'PurchaseRequisition',
   PurchaseRequisitionLine: 'PurchaseRequisitionLine',
@@ -86,7 +87,8 @@ export const ModelName = {
   RolePermission: 'RolePermission',
   OrganizationMember: 'OrganizationMember',
   UserPermissionOverride: 'UserPermissionOverride',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -237,14 +239,29 @@ export const PartnerScalarFieldEnum = {
 export type PartnerScalarFieldEnum = (typeof PartnerScalarFieldEnum)[keyof typeof PartnerScalarFieldEnum]
 
 
-export const BinScalarFieldEnum = {
+export const StoreScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
   siteId: 'siteId',
   code: 'code',
   name: 'name',
+  storeType: 'storeType',
+  address: 'address',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StoreScalarFieldEnum = (typeof StoreScalarFieldEnum)[keyof typeof StoreScalarFieldEnum]
+
+
+export const BinScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  storeId: 'storeId',
+  code: 'code',
+  name: 'name',
   zone: 'zone',
-  warehouseType: 'warehouseType',
   capacity: 'capacity',
   isActive: 'isActive'
 } as const
@@ -260,7 +277,11 @@ export const PurchaseRequisitionScalarFieldEnum = {
   supplierId: 'supplierId',
   status: 'status',
   requestedOn: 'requestedOn',
-  approvedAt: 'approvedAt'
+  approvedAt: 'approvedAt',
+  createdById: 'createdById',
+  deletedAt: 'deletedAt',
+  assignedManagerId: 'assignedManagerId',
+  approvedById: 'approvedById'
 } as const
 
 export type PurchaseRequisitionScalarFieldEnum = (typeof PurchaseRequisitionScalarFieldEnum)[keyof typeof PurchaseRequisitionScalarFieldEnum]
@@ -364,6 +385,15 @@ export const StockMovementScalarFieldEnum = {
   lotId: 'lotId',
   fromBinId: 'fromBinId',
   toBinId: 'toBinId',
+  fromStoreId: 'fromStoreId',
+  toStoreId: 'toStoreId',
+  sourceDocumentId: 'sourceDocumentId',
+  sourceLineId: 'sourceLineId',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  referenceNumber: 'referenceNumber',
+  postingKey: 'postingKey',
+  balanceAfter: 'balanceAfter',
   quantity: 'quantity',
   uomId: 'uomId',
   documentType: 'documentType',
@@ -587,6 +617,20 @@ export const RefreshTokenScalarFieldEnum = {
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  recipientId: 'recipientId',
+  requisitionId: 'requisitionId',
+  title: 'title',
+  message: 'message',
+  createdAt: 'createdAt',
+  readAt: 'readAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
 export const SortOrder = {

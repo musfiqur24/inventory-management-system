@@ -1,3 +1,4 @@
+import { NotificationBell } from "./components/layout/NotificationBell";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
   Boxes, Building2, ClipboardList, Factory, FlaskConical,
@@ -14,7 +15,7 @@ import { OrganizationPage } from './modules/platform/organizations/OrganizationP
 import { UnitsOfMeasurePage } from './modules/set-up/units-of-measure/UnitsOfMeasurePage';
 import { ProductHierarchyPage } from './modules/set-up/product-hierarchy/ProductHierarchyPage';
 import { PartnersPage } from './modules/set-up/partners/PartnersPage';
-import { BinsPage } from './modules/inventory/bin-management/BinsPage';
+import { StoresPage } from './modules/inventory/stores/StoresPage';
 import { SalesOrdersPage } from './modules/sales/sales-orders/SalesOrdersPage';
 import { RmRequisitionsPage } from './modules/procurement/rm-requisitions/RmRequisitionsPage';
 import { SupplierChallansPage } from './modules/procurement/supplier-challans/SupplierChallansPage';
@@ -41,15 +42,6 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: 'Master Setup',
-    items: [
-      { path: '/uoms', label: 'Units of Measure', icon: Scale },
-      { path: '/categories', label: 'Product Set Up', icon: Boxes },
-      { path: '/partners', label: 'Suppliers & Customers', icon: Building2 },
-      { path: '/bins', label: 'Warehouse Bins', icon: Warehouse },
-    ],
-  },
-  {
     label: 'RM Procurement',
     items: [
       { path: '/sales-orders', label: 'Sales Orders', icon: ShoppingCart },
@@ -67,6 +59,15 @@ const NAV_GROUPS = [
       { path: '/material-issues', label: 'Issue RM to Factory', icon: ArrowLeftRight },
       { path: '/batches', label: 'Factory Batches', icon: Factory },
       { path: '/fm-store', label: 'FM Store', icon: PackageCheck },
+    ],
+  },
+  {
+    label: 'Master Setup',
+    items: [
+      { path: '/uoms', label: 'Units of Measure', icon: Scale },
+      { path: '/categories', label: 'Product Set Up', icon: Boxes },
+      { path: '/partners', label: 'Suppliers & Customers', icon: Building2 },
+      { path: '/stores', label: 'Stores & Bins', icon: Warehouse },
     ],
   },
   {
@@ -123,6 +124,7 @@ function Shell() {
             </div>
           </div>
           <div className="flex items-center gap-2.5">
+            <NotificationBell key={orgRevision} />
             {can("organizations.manage") ? <Link to="/organizations"><div className="hidden rounded-full border border-[#e0e5dd] bg-[#f8faf7] px-3 py-1.5 text-xs font-medium text-[#445e50] sm:block">{orgDisplay || "Workspace"}</div></Link> : null}
             <Link to="/profile" className="flex items-center gap-2 rounded-xl border border-[#e0e5dd] bg-white px-2.5 py-1.5 text-sm font-semibold text-[#31483d] hover:bg-[#f8faf7]"><span className="grid size-7 place-items-center rounded-lg bg-[#edf6df] text-[#1a5c45]"><CircleUserRound size={16}/></span><span className="hidden max-w-40 truncate text-sm sm:block">{user.fullName}</span></Link>
             <button onClick={() => void logout()} className="grid size-9 place-items-center rounded-xl border border-[#e0e5dd] text-[#7a9185] hover:border-red-200 hover:bg-red-50 hover:text-red-700" title="Log out" aria-label="Log out"><LogOut size={17}/></button>
@@ -136,7 +138,8 @@ function Shell() {
           <Route path="/categories" element={<ProductHierarchyPage />} />
           <Route path="/products" element={<Navigate to="/categories" replace />} />
           <Route path="/partners" element={<PartnersPage />} />
-          <Route path="/bins" element={<BinsPage />} />
+          <Route path="/stores" element={<StoresPage />} />
+          <Route path="/bins" element={<Navigate to="/stores" replace />} />
           <Route path="/sales-orders" element={<SalesOrdersPage />} />
           <Route path="/purchase-requisitions" element={<RmRequisitionsPage />} />
           <Route path="/deliveries" element={<SupplierChallansPage />} />

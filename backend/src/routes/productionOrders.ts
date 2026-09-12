@@ -18,7 +18,9 @@ productionOrdersRouter.get("/", async (req, res) => {
     prisma.product.findMany({ where: { organizationId: req.tenantId } }),
     prisma.unitOfMeasure.findMany({ where: { organizationId: req.tenantId } }),
     prisma.recipe.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.productionBatch.findMany({ where: { organizationId: req.tenantId } }),
+    prisma.productionBatch.findMany({
+      where: { organizationId: req.tenantId },
+    }),
     prisma.materialIssue.findMany({ where: { organizationId: req.tenantId } }),
   ]);
 
@@ -41,7 +43,7 @@ productionOrdersRouter.get("/", async (req, res) => {
 
     const totalRawMaterialRequired = lines.reduce(
       (sum, l) => sum + Number(l.wasteAdjustedQty),
-      0
+      0,
     );
 
     return {
@@ -71,7 +73,10 @@ productionOrdersRouter.post("/preview-scale", async (req, res) => {
     return res.status(404).json({ error: { message: "Recipe not found" } });
   }
 
-  const wastePct = expectedWastePercent !== undefined ? Number(expectedWastePercent) : Number(recipe.wastePercent);
+  const wastePct =
+    expectedWastePercent !== undefined
+      ? Number(expectedWastePercent)
+      : Number(recipe.wastePercent);
   const scaleRatio = Number(plannedQty) / Number(recipe.outputQty);
 
   const lines = recipe.lines.map((l) => {
@@ -140,7 +145,9 @@ productionOrdersRouter.post("/", async (req, res) => {
       plannedUomId: parsed.plannedUomId,
       expectedWastePercent: new Prisma.Decimal(wastePercent),
       status: DocumentStatus.SUBMITTED,
-      scheduledFor: parsed.scheduledFor ? new Date(parsed.scheduledFor) : new Date(),
+      scheduledFor: parsed.scheduledFor
+        ? new Date(parsed.scheduledFor)
+        : new Date(),
       lines: {
         create: recipe.lines.map((l) => {
           const recipeQty = Number(l.quantityPerOutput) * scaleRatio;

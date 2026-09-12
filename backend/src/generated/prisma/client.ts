@@ -92,6 +92,11 @@ export type Product = Prisma.ProductModel
  */
 export type Partner = Prisma.PartnerModel
 /**
+ * Model Store
+ * 
+ */
+export type Store = Prisma.StoreModel
+/**
  * Model Bin
  * 
  */
@@ -221,3 +226,8 @@ export type UserPermissionOverride = Prisma.UserPermissionOverrideModel
  * 
  */
 export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel

@@ -323,18 +323,23 @@ async function main() {
     { code: "BIN-FM-P2", name: "Finished Goods Pallet Bay P-02", zone: "FM_BAY", warehouseType: "FM_STORE", capacity: 100000 },
   ];
 
+  const storeMap: Record<string,string> = {};
+  for (const storeType of ['RM_STORE','FM_STORE'] as const) {
+    const existing = await prisma.store.findFirst({where:{organizationId:orgId,siteId:siteMain.id,storeType}});
+    const store = existing ?? await prisma.store.create({data:{organizationId:orgId,siteId:siteMain.id,code:storeType,name:storeType==='RM_STORE'?'Raw Material Store':'Finished Material Store',storeType}});
+    storeMap[storeType]=store.id;
+  }
   const binMap: Record<string, string> = {};
   for (const b of bins) {
     const record = await prisma.bin.upsert({
-      where: { organizationId_siteId_code: { organizationId: orgId, siteId: siteMain.id, code: b.code } },
-      update: { warehouseType: b.warehouseType, zone: b.zone, capacity: new Decimal(b.capacity) },
+      where: { organizationId_storeId_code: { organizationId: orgId, storeId: storeMap[b.warehouseType], code: b.code } },
+      update: { zone: b.zone, capacity: new Decimal(b.capacity) },
       create: {
         organizationId: orgId,
-        siteId: siteMain.id,
+        storeId: storeMap[b.warehouseType],
         code: b.code,
         name: b.name,
         zone: b.zone,
-        warehouseType: b.warehouseType,
         capacity: new Decimal(b.capacity),
       },
     });
@@ -494,6 +499,7 @@ async function main() {
       productId: productMap["RM-CORN-01"],
       lotId: rmLot.id,
       toBinId: binMap["SILO-01"],
+      toStoreId: storeMap['RM_STORE'],
       quantity: new Decimal(29950.0),
       uomId: uomMap["kg"],
       documentType: "SUPPLIER_DELIVERY",
@@ -608,6 +614,7 @@ async function main() {
       productId: productMap["RM-CORN-01"],
       lotId: rmLot.id,
       fromBinId: binMap["SILO-01"],
+      fromStoreId: storeMap['RM_STORE'],
       quantity: new Decimal(11275.0),
       uomId: uomMap["kg"],
     },
@@ -620,6 +627,7 @@ async function main() {
       productId: productMap["RM-CORN-01"],
       lotId: rmLot.id,
       fromBinId: binMap["SILO-01"],
+      fromStoreId: storeMap['RM_STORE'],
       quantity: new Decimal(11275.0),
       uomId: uomMap["kg"],
       documentType: "MATERIAL_ISSUE",
@@ -695,6 +703,7 @@ async function main() {
       productId: fgBroilerId,
       lotId: fgLot.id,
       toBinId: binMap["BIN-FM-P1"],
+      toStoreId: storeMap['FM_STORE'],
       quantity: new Decimal(20000.0),
       uomId: uomMap["kg"],
       documentType: "PRODUCTION_BATCH",
@@ -751,6 +760,7 @@ async function main() {
       productId: fgBroilerId,
       lotId: fgLot.id,
       fromBinId: binMap["BIN-FM-P1"],
+      fromStoreId: storeMap['FM_STORE'],
       quantity: new Decimal(10000.0),
       uomId: uomMap["kg"],
     },
@@ -763,6 +773,7 @@ async function main() {
       productId: fgBroilerId,
       lotId: fgLot.id,
       fromBinId: binMap["BIN-FM-P1"],
+      fromStoreId: storeMap['FM_STORE'],
       quantity: new Decimal(10000.0),
       uomId: uomMap["kg"],
       documentType: "DISPATCH",

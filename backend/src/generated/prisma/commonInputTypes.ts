@@ -265,6 +265,23 @@ export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
 }
 
+export type EnumStoreTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoreType | Prisma.EnumStoreTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStoreTypeFilter<$PrismaModel> | $Enums.StoreType
+}
+
+export type EnumStoreTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoreType | Prisma.EnumStoreTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStoreTypeWithAggregatesFilter<$PrismaModel> | $Enums.StoreType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStoreTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStoreTypeFilter<$PrismaModel>
+}
+
 export type EnumDocumentStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.DocumentStatus | Prisma.EnumDocumentStatusFieldRefInput<$PrismaModel>
   in?: $Enums.DocumentStatus[] | Prisma.ListEnumDocumentStatusFieldRefInput<$PrismaModel>
@@ -603,6 +620,23 @@ export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumStoreTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoreType | Prisma.EnumStoreTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStoreTypeFilter<$PrismaModel> | $Enums.StoreType
+}
+
+export type NestedEnumStoreTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StoreType | Prisma.EnumStoreTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StoreType[] | Prisma.ListEnumStoreTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStoreTypeWithAggregatesFilter<$PrismaModel> | $Enums.StoreType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStoreTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStoreTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumDocumentStatusFilter<$PrismaModel = never> = {

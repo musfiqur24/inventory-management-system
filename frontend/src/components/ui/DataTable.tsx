@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Children, isValidElement, useState, type ReactNode, type ReactElement } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
@@ -10,6 +10,11 @@ export type DataTableColumn<T> = {
 };
 
 type Base = {
+  scrollAreaClassName?: string;
+  tableClassName?: string;
+  columnWidths?: string[];
+  summary?: ReactNode;
+  pagination?: boolean;
   toolbar?: ReactNode;
   empty?: ReactNode;
   total?: number;
@@ -45,9 +50,14 @@ function getPageItems(page: number, pages: number): Array<number | "ellipsis"> {
 
 export function DataTable<T>({
   toolbar,
+  scrollAreaClassName,
+  tableClassName,
+  columnWidths,
+  summary,
+  pagination = true,
   empty,
   total,
-  page = 1,
+  page,
   pageSize = 10,
   onPageChange,
   ...props
@@ -55,14 +65,31 @@ export function DataTable<T>({
   const dynamic = "rows" in props;
   const dynamicProps = props as Dynamic<T>;
   const legacyProps = props as Legacy;
-  const rowCount = dynamic ? dynamicProps.rows.length : undefined;
-  const recordCount = total ?? rowCount ?? 0;
-  const pages = Math.max(1, Math.ceil(recordCount / pageSize));
-  const currentPage = Math.min(Math.max(page, 1), pages);
-  const start = recordCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const end = Math.min(currentPage * pageSize, recordCount);
+  // Existing controlled tables supply an already-paged result and a total.
+  const serverPaged = total !== undefined && onPageChange !== undefined;
   const headers = dynamic ? dynamicProps.columns.map(column => column.header) : legacyProps.columns;
-  const pageItems = getPageItems(currentPage, pages);
+  const childRows = Children.toArray(legacyProps.children).filter(isValidElement) as ReactElement<{children?:ReactNode}>[];
+  const isEmptyRow = (row:ReactElement<{children?:ReactNode}>) => {
+    const cells=Children.toArray(row.props.children);
+    return cells.length===1 && isValidElement<{colSpan?:number}>(cells[0]) && (cells[0].props.colSpan??1)>1;
+  };
+  const records=childRows.filter(row=>!isEmptyRow(row));
+  const placeholders=childRows.filter(isEmptyRow);
+  const rowCount=dynamic?dynamicProps.rows.length:records.length;
+  const recordCount=serverPaged?Math.max(0,total):rowCount;
+  const size=pagination?Math.max(1,Math.floor(pageSize)||10):Math.max(1,recordCount);
+  const pages=Math.max(1,Math.ceil(recordCount/size));
+  const dataKey=dynamic?dynamicProps.rows.map(dynamicProps.rowKey).join('|'):records.map(row=>String(row.key)).join('|');
+  const [localPage,setLocalPage]=useState({key:dataKey,value:1});
+  const requestedPage=page??(localPage.key===dataKey?localPage.value:1);
+  const currentPage=pagination?Math.min(Math.max(requestedPage,1),pages):1;
+  const offset=(currentPage-1)*size;
+  const visibleRows=serverPaged?dynamicProps.rows:dynamicProps.rows?.slice(offset,offset+size);
+  const visibleChildren=records.length?(serverPaged?records:records.slice(offset,offset+size)):placeholders;
+  const start=recordCount===0?0:offset+1;
+  const end=recordCount===0?0:Math.min(offset+(serverPaged?rowCount:Math.min(size,rowCount-offset)),recordCount);
+  const changePage=(value:number)=>{const next=Math.min(Math.max(value,1),pages);setLocalPage({key:dataKey,value:next});onPageChange?.(next);};
+  const pageItems=getPageItems(currentPage,pages);
 
   const navigationButton = "grid size-9 place-items-center rounded-lg border border-[#d9e2d8] bg-white text-[#526b5e] shadow-sm transition hover:border-[#9caf9f] hover:bg-[#f1f6ef] hover:text-[#164c39] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#d9e2d8] disabled:hover:bg-white";
 
@@ -75,8 +102,9 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className="overflow-x-auto [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin]">
-        <table className="w-full min-w-180 border-separate border-spacing-0 text-left">
+      <div className={twMerge("overflow-x-auto [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin]", scrollAreaClassName)}>
+        <table className={twMerge("w-full min-w-180 border-separate border-spacing-0 text-left", tableClassName)}>
+          {columnWidths && <colgroup>{columnWidths.map((width,index)=><col key={index} style={{width}}/>)}</colgroup>}
           <thead className="sticky top-0 z-1">
             <tr className="bg-[#f4f6f8]">
               {headers.map((header, index) => (
@@ -92,7 +120,7 @@ export function DataTable<T>({
           </thead>
           <tbody className="[&_tr]:transition-colors [&_tr:nth-child(even)]:bg-[#fafbfc] [&_tr:hover]:bg-[#f5f7f8] [&_td]:border-b [&_td]:border-[#e7ece6] [&_td]:px-4 [&_td]:py-3.5 sm:[&_td]:px-5 sm:[&_td]:py-4 [&_td]:text-sm [&_td]:text-[#263b31] [&_tr:last-child_td]:border-b-0">
             {dynamic
-              ? dynamicProps.rows.map(row => (
+              ? visibleRows?.map(row => (
                   <tr key={dynamicProps.rowKey(row)}>
                     {dynamicProps.columns.map(column => (
                       <td key={column.key} className={twMerge("align-middle", column.className)}>
@@ -101,14 +129,15 @@ export function DataTable<T>({
                     ))}
                   </tr>
                 ))
-              : legacyProps.children}
+              : visibleChildren}
           </tbody>
+          {summary && <tfoot>{summary}</tfoot>}
         </table>
       </div>
 
       {empty}
 
-      {total !== undefined && (
+      {(
         <div className="flex flex-col items-stretch justify-between gap-3 border-t sm:flex-row sm:items-center sm:gap-4 border-[#dbe4da] bg-[#fafbfc] px-4 py-4 sm:px-5">
           <div className="flex items-center gap-3 text-xs text-[#6a8074]">
             <span className="rounded-full border border-[#d9e4d7] bg-white px-3 py-1.5 font-semibold shadow-sm">
@@ -120,10 +149,10 @@ export function DataTable<T>({
           </div>
 
           <nav className="flex items-center justify-between gap-1.5 sm:justify-end" aria-label="Table pagination">
-            <button type="button" className={navigationButton} disabled={currentPage === 1} onClick={() => onPageChange?.(1)} title="First page" aria-label="First page">
+            <button type="button" className={navigationButton} disabled={currentPage === 1} onClick={() => changePage(1)} title="First page" aria-label="First page">
               <ChevronsLeft size={16} />
             </button>
-            <button type="button" className={navigationButton} disabled={currentPage === 1} onClick={() => onPageChange?.(currentPage - 1)} title="Previous page" aria-label="Previous page">
+            <button type="button" className={navigationButton} disabled={currentPage === 1} onClick={() => changePage(currentPage - 1)} title="Previous page" aria-label="Previous page">
               <ChevronLeft size={16} />
             </button>
 
@@ -136,7 +165,7 @@ export function DataTable<T>({
                   <button
                     type="button"
                     key={item}
-                    onClick={() => onPageChange?.(item)}
+                    onClick={() => changePage(item)}
                     aria-current={item === currentPage ? "page" : undefined}
                     className={twMerge(
                       "grid size-9 place-items-center rounded-lg border text-xs font-bold transition",
@@ -151,10 +180,10 @@ export function DataTable<T>({
               )}
             </div>
 
-            <button type="button" className={navigationButton} disabled={currentPage === pages} onClick={() => onPageChange?.(currentPage + 1)} title="Next page" aria-label="Next page">
+            <button type="button" className={navigationButton} disabled={currentPage === pages} onClick={() => changePage(currentPage + 1)} title="Next page" aria-label="Next page">
               <ChevronRight size={16} />
             </button>
-            <button type="button" className={navigationButton} disabled={currentPage === pages} onClick={() => onPageChange?.(pages)} title="Last page" aria-label="Last page">
+            <button type="button" className={navigationButton} disabled={currentPage === pages} onClick={() => changePage(pages)} title="Last page" aria-label="Last page">
               <ChevronsRight size={16} />
             </button>
           </nav>

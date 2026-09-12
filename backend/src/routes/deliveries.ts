@@ -1,3 +1,4 @@
+import { StockError } from "../services/stock.js";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
@@ -14,13 +15,18 @@ deliveriesRouter.get("/", async (req, res) => {
     orderBy: { deliveredAt: "desc" },
   });
 
-  const [products, uoms, partners, weighments, requisitions] = await Promise.all([
-    prisma.product.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.unitOfMeasure.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.partner.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.weighment.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.purchaseRequisition.findMany({ where: { organizationId: req.tenantId } }),
-  ]);
+  const [products, uoms, partners, weighments, requisitions] =
+    await Promise.all([
+      prisma.product.findMany({ where: { organizationId: req.tenantId } }),
+      prisma.unitOfMeasure.findMany({
+        where: { organizationId: req.tenantId },
+      }),
+      prisma.partner.findMany({ where: { organizationId: req.tenantId } }),
+      prisma.weighment.findMany({ where: { organizationId: req.tenantId } }),
+      prisma.purchaseRequisition.findMany({
+        where: { organizationId: req.tenantId },
+      }),
+    ]);
 
   const prodMap = new Map(products.map((p) => [p.id, p]));
   const uomMap = new Map(uoms.map((u) => [u.id, u]));
@@ -29,8 +35,12 @@ deliveriesRouter.get("/", async (req, res) => {
 
   const enriched = deliveries.map((del) => {
     const supplier = partMap.get(del.supplierId);
-    const requisition = del.requisitionId ? reqMap.get(del.requisitionId) : null;
-    const deliveryWeighments = weighments.filter((w) => w.deliveryId === del.id);
+    const requisition = del.requisitionId
+      ? reqMap.get(del.requisitionId)
+      : null;
+    const deliveryWeighments = weighments.filter(
+      (w) => w.deliveryId === del.id,
+    );
     const latestWeighment = deliveryWeighments[deliveryWeighments.length - 1];
 
     const lines = del.lines.map((l) => ({
@@ -46,7 +56,8 @@ deliveriesRouter.get("/", async (req, res) => {
       const declaredNet = Number(del.netWeight);
       const measuredNet = Number(latestWeighment.netWeight);
       weightVariance = measuredNet - declaredNet;
-      weightVariancePercent = declaredNet > 0 ? (weightVariance / declaredNet) * 100 : 0;
+      weightVariancePercent =
+        declaredNet > 0 ? (weightVariance / declaredNet) * 100 : 0;
     }
 
     return {
@@ -72,14 +83,16 @@ const createDeliverySchema = z.object({
   grossWeight: z.coerce.number().positive().optional(),
   tareWeight: z.coerce.number().positive().optional(),
   netWeight: z.coerce.number().positive().optional(),
-  lines: z.array(
-    z.object({
-      productId: z.string().uuid(),
-      uomId: z.string().uuid(),
-      declaredQty: z.coerce.number().positive(),
-      unitPrice: z.coerce.number().positive().optional(),
-    })
-  ).min(1, "At least one delivery item is required"),
+  lines: z
+    .array(
+      z.object({
+        productId: z.string().uuid(),
+        uomId: z.string().uuid(),
+        declaredQty: z.coerce.number().positive(),
+        unitPrice: z.coerce.number().positive().optional(),
+      }),
+    )
+    .min(1, "At least one delivery item is required"),
 });
 
 deliveriesRouter.post("/", async (req, res) => {
@@ -97,33 +110,55 @@ deliveriesRouter.post("/", async (req, res) => {
     netWeight = parsed.grossWeight - parsed.tareWeight;
   }
 
-  const delivery = await prisma.supplierDelivery.create({
-    data: {
-      organizationId: req.tenantId!,
-      number,
-      requisitionId: parsed.requisitionId || null,
-      supplierId: parsed.supplierId,
-      invoiceNo: parsed.invoiceNo?.trim() || null,
-      vehicleNo: parsed.vehicleNo.toUpperCase().trim(),
-      grossWeight: parsed.grossWeight ? new Prisma.Decimal(parsed.grossWeight) : null,
-      tareWeight: parsed.tareWeight ? new Prisma.Decimal(parsed.tareWeight) : null,
-      netWeight: netWeight ? new Prisma.Decimal(netWeight) : null,
-      status: DocumentStatus.SUBMITTED,
-      deliveredAt: new Date(),
-      lines: {
-        create: parsed.lines.map((l) => ({
-          productId: l.productId,
-          uomId: l.uomId,
-          declaredQty: new Prisma.Decimal(l.declaredQty),
-          acceptedQty: new Prisma.Decimal(l.declaredQty),
-          unitPrice: l.unitPrice ? new Prisma.Decimal(l.unitPrice) : null,
-        })),
+  const delivery = await prisma.$transaction(async (tx) => {
+    if (parsed.requisitionId) {
+      await tx.$queryRaw`SELECT id FROM "PurchaseRequisition" WHERE id=${parsed.requisitionId} AND "organizationId"=${req.tenantId!} FOR UPDATE`;
+      if (
+        !(await tx.purchaseRequisition.findFirst({
+          where: {
+            id: parsed.requisitionId,
+            organizationId: req.tenantId,
+            deletedAt: null,
+          },
+        }))
+      )
+        throw new StockError(
+          "INVALID_REQUISITION",
+          "Requisition not found or deleted.",
+          422,
+        );
+    }
+    return tx.supplierDelivery.create({
+      data: {
+        organizationId: req.tenantId!,
+        number,
+        requisitionId: parsed.requisitionId || null,
+        supplierId: parsed.supplierId,
+        invoiceNo: parsed.invoiceNo?.trim() || null,
+        vehicleNo: parsed.vehicleNo.toUpperCase().trim(),
+        grossWeight: parsed.grossWeight
+          ? new Prisma.Decimal(parsed.grossWeight)
+          : null,
+        tareWeight: parsed.tareWeight
+          ? new Prisma.Decimal(parsed.tareWeight)
+          : null,
+        netWeight: netWeight ? new Prisma.Decimal(netWeight) : null,
+        status: DocumentStatus.SUBMITTED,
+        deliveredAt: new Date(),
+        lines: {
+          create: parsed.lines.map((l) => ({
+            productId: l.productId,
+            uomId: l.uomId,
+            declaredQty: new Prisma.Decimal(l.declaredQty),
+            acceptedQty: new Prisma.Decimal(l.declaredQty),
+            unitPrice: l.unitPrice ? new Prisma.Decimal(l.unitPrice) : null,
+          })),
+        },
       },
-    },
-    include: {
-      lines: true,
-    },
+      include: {
+        lines: true,
+      },
+    });
   });
-
   res.status(201).json({ data: delivery });
 });
