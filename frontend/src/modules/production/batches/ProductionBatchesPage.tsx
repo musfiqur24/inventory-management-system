@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
@@ -24,19 +25,20 @@ interface Batch {
 interface ProductionOrder { id: string; number: string; fgProduct?: { name: string } | null; }
 
 export function ProductionBatchesPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Batch[]>([]);
   const [orders, setOrders] = useState<ProductionOrder[]>([]);
   const [open, setOpen] = useState(false);
   const [, setMessage] = useToastMessage();
   const [form, setForm] = useState({ productionOrderId: '', plannedQty: '', plannedWastePct: '' });
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [b, po] = await Promise.all([api<{ data: Batch[] }>('/batches'), api<{ data: ProductionOrder[] }>('/production-orders')]);
       setRows(b.data); setOrders(po.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -55,7 +57,7 @@ export function ProductionBatchesPage() {
   };
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="PRODUCTION"
       title="Factory Batches"
       description="Track production batch execution, actual waste vs planned, and link to finished good inventory."

@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
@@ -16,7 +17,7 @@ import { Input } from '../../../components/ui/Input';
 import { Dropdown } from '../../../components/ui/Dropdown';
 import { statusBadge } from '../../../components/ui/Badge';
 
-interface Product { id: string; sku: string; name: string; type: string; }
+interface Product { id: string; sku: string; name: string; type: string; baseUomId: string; }
 interface UOM { id: string; code: string; name: string; }
 interface Partner { id: string; name: string; partnerType: string; }
 
@@ -32,6 +33,7 @@ interface Requisition {
 }
 
 export function RmRequisitionsPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const { user, can } = useAuth();
   const [params, setParams] = useSearchParams();
   const [managers, setManagers] = useState<Manager[]>([]);
@@ -57,7 +59,7 @@ export function RmRequisitionsPage() {
   const [form, setForm] = useState({ salesOrderRef: '', supplierId: '', assignedManagerId: '' });
   const [lines, setLines] = useState<ReqLine[]>([{ productId: '', uomId: '', requestedQty: '', unitPrice: '' }]);
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [reqs, prods, uomData, partnerData, managerData] = await Promise.all([
@@ -74,7 +76,7 @@ export function RmRequisitionsPage() {
       setPartners(partnerData.data.filter((p) => p.partnerType === 'SUPPLIER'));
       setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -140,8 +142,8 @@ export function RmRequisitionsPage() {
     printReport(`Requisition ${req.number}`, `
       <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">RM Purchase Requisition</h1><p>ID: <strong>${req.number}</strong> &nbsp;|&nbsp; Date: ${new Date(req.requestedOn).toLocaleDateString('en-GB')}</p>${req.supplier ? `<p>Supplier: <strong>${req.supplier.name}</strong></p>` : ''}</div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f8ef] text-[#1b8f5a]">${req.status}</span></div>
       ${req.salesOrderRef ? `<p>Sales Order Ref: <strong>${req.salesOrderRef}</strong></p>` : ''}
-      <table class="mt-5 w-full border-collapse [:where(&_th)]:border [:where(&_th)]:border-[#ccc] [:where(&_th)]:p-2.5 [:where(&_th)]:text-left [:where(&_th)]:bg-[#f5f5f5] [:where(&_td)]:border [:where(&_td)]:border-[#ccc] [:where(&_td)]:p-2.5 [:where(&_td)]:text-left"><thead><tr><th>#</th><th>Product</th><th>Requested Qty</th><th>Received Qty</th><th>UOM</th><th>Unit Price</th></tr></thead>
-      <tbody>${req.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.product?.name ?? ''}<br><small>${l.product?.sku ?? ''}</small></td><td>${Number(l.requestedQty).toLocaleString()}</td><td>${Number(l.receivedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>`).join('')}</tbody></table>
+      <table class="mt-5 w-full border-collapse [:where(&_th)]:border [:where(&_th)]:border-[#ccc] [:where(&_th)]:p-2.5 [:where(&_th)]:text-left [:where(&_th)]:bg-[#f5f5f5] [:where(&_td)]:border [:where(&_td)]:border-[#ccc] [:where(&_td)]:p-2.5 [:where(&_td)]:text-left"><thead><tr><th>#</th><th>Product</th><th>Requested Qty</th><th>Received Qty</th><th>UOM</th><th>Unit Price</th><th>Total Price</th></tr></thead>
+      <tbody>${req.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.product?.name ?? ''}<br><small>${l.product?.sku ?? ''}</small></td><td>${Number(l.requestedQty).toLocaleString()}</td><td>${Number(l.receivedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="6" class="text-right font-bold">Total Price</td><td class="font-bold">${req.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr></tfoot></table>
       <div class="mt-10 text-[13px] text-[#777] flex justify-between"><span>Prepared by: _______________________</span><span>Approved by: _______________________</span><span>Date: _____________</span></div>
     `);
   };
@@ -151,7 +153,7 @@ export function RmRequisitionsPage() {
 
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="RM PROCUREMENT"
       title="Purchase Requisitions"
       description="Generate production requisitions from Sales demand"
@@ -245,7 +247,7 @@ export function RmRequisitionsPage() {
             </>
           }
        >
-          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
+          <div className="grid grid-cols-3 gap-3.5 max-[1000px]:grid-cols-2 max-[700px]:grid-cols-1">
             <FormField label="Sales Order Reference">
               <Input placeholder="e.g. SO-2026-0012" value={form.salesOrderRef} onChange={(e) => setForm({ ...form, salesOrderRef: e.target.value })} />
             </FormField>
@@ -255,14 +257,14 @@ export function RmRequisitionsPage() {
                 {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </Dropdown>
             </FormField>
-          </div>
           <FormField label="Assigned Manager" required>
             <Dropdown aria-label="Assigned Manager" value={form.assignedManagerId} onChange={e=>setForm({...form,assignedManagerId:e.target.value})}>
               <option value="">Select manager</option>
-              {managers.map(manager=><option key={manager.id} value={manager.id}>{manager.fullName} ({manager.email})</option>)}
+              {managers.map(manager=><option key={manager.id} value={manager.id}>{manager.fullName}</option>)}
             </Dropdown>
             {!managers.length && <p className="mt-2 text-sm text-amber-700">No active managers are assigned to this organization. Assign a user the Manager role in User Management first.</p>}
           </FormField>
+          </div>
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
             <div className="flex justify-between items-center mb-3">
               <strong className="text-[14px]">Raw Material Lines</strong>
@@ -270,22 +272,23 @@ export function RmRequisitionsPage() {
                 <Plus size={14} /> Add Line
               </Button>
             </div>
-            <div className="overflow-x-auto rounded-lg border border-[#e0e5dd] pb-1">
+            <div className="overflow-x-auto rounded-lg border border-[#e0e5dd] pb-1 [&_thead_th:nth-child(5)]:text-right [&_thead_th:last-child]:text-center">
               <DataTable
-                columns={['Raw Material Product','UOM','Requested Qty','Unit Price (optional)','Total Price','Actions']}
-                columnWidths={['28%','18%','16%','16%','16%','6%']}
-                tableClassName="min-w-[900px] table-fixed"
+                columns={['Raw Material Product','UOM','Qty','Unit Price (optional)','Total Price','Actions']}
+                columnWidths={['27%','18%','15%','21%','12%','7%']}
+                scrollAreaClassName="h-[360px]"
+                tableClassName="min-w-[800px] table-fixed [&_th]:px-2 [&_th]:py-3.5 [&_th]:text-[10px] [&_td]:text-xs"
                 pagination={false}
                 summary={<tr className="border-t border-[#e0e5dd] bg-[#f8faf7]"><th colSpan={4} className="px-3 py-3 text-right text-sm">Estimated Total</th><td className="px-2 py-3 text-right font-semibold tabular-nums">{price(lines.reduce((sum,line)=>sum+lineTotal(line),0))}</td><td/></tr>}
               >
                   {lines.map((line, i) => (
                     <tr key={i} className="border-t border-[#e0e5dd] align-middle">
-                      <td className="px-3 py-2"><Dropdown aria-label={`Product for line ${i + 1}`} value={line.productId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, productId: e.target.value } : l))}><option value="">Select product</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}</Dropdown></td>
-                      <td className="px-2 py-2"><Dropdown aria-label={`UOM for line ${i + 1}`} value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">Select UOM</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.code} - {u.name}</option>)}</Dropdown></td>
-                      <td className="px-2 py-2"><Input aria-label={`Requested quantity for line ${i + 1}`} className="h-11" type="number" min="0.001" step="0.001" placeholder="Quantity" value={line.requestedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, requestedQty: e.target.value } : l))}/></td>
-                      <td className="px-2 py-2"><Input aria-label={`Unit price for line ${i + 1}`} className="h-11" type="number" min="0" step="0.0001" placeholder="Price" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))}/></td>
+                      <td className="px-3 py-2"><Dropdown controlClassName="text-xs px-3 pr-14" aria-label={`Product for line ${i + 1}`} value={line.productId} onChange={(e) => { const product=products.find(p=>p.id===e.target.value); setLines(lines.map((l,li)=>li===i?{...l,productId:e.target.value,uomId:product?.baseUomId??""}:l)); }}><option value="">Select product</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Dropdown></td>
+                      <td className="px-2 py-2"><Dropdown controlClassName="text-xs px-2.5 pr-9" aria-label={`UOM for line ${i + 1}`} value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">UOM</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.code}</option>)}</Dropdown></td>
+                      <td className="px-2 py-2"><Input aria-label={`Requested quantity for line ${i + 1}`} className="h-11 px-2 text-xs" type="number" min="0.001" step="0.001" placeholder="Qty" value={line.requestedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, requestedQty: e.target.value } : l))}/></td>
+                      <td className="px-2 py-2"><Input aria-label={`Unit price for line ${i + 1}`} className="h-11 px-3 text-xs" type="number" min="0" step="0.0001" placeholder="Price" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))}/></td>
                       <td className="px-2 py-2 text-right tabular-nums font-semibold">{line.unitPrice!=="" && line.requestedQty!=="" ? price(lineTotal(line)) : "-"}</td>
-                      <td className="px-2 py-2 text-center"><Button variant="ghost" className="size-11 p-0 text-red-600 hover:bg-red-50" aria-label={`Remove line ${i + 1}`} title="Remove line" disabled={lines.length === 1} onClick={() => setLines(lines.filter((_, li) => li !== i))}><Trash2 size={16}/></Button></td>
+                      <td className="px-2 py-2 text-center"><Button variant="ghost" className="size-9 min-h-9 p-0 text-red-600 hover:bg-red-50" aria-label={`Remove line ${i + 1}`} title="Remove line" disabled={lines.length === 1} onClick={() => setLines(lines.filter((_, li) => li !== i))}><Trash2 size={16}/></Button></td>
                     </tr>
                   ))}
               </DataTable>
@@ -313,7 +316,7 @@ export function RmRequisitionsPage() {
        >
           <p className="mb-4 text-sm"><strong>Assigned Manager:</strong> {selected.assignedManager?.fullName ?? "Not assigned"}</p>
           <div className="overflow-x-auto">
-            <DataTable columns={["Product","SKU","Requested","Received","UOM","Unit Price"]}>
+            <DataTable columns={["Product","SKU","Requested","Received","UOM","Unit Price","Total Price"]} summary={<tr className="border-t-2 border-[#cfd8d1] bg-[#f3f7f1]"><th colSpan={6} className="px-5 py-4 text-right text-sm font-bold text-[#263b31]">Total Price</th><td className="px-5 py-4 font-bold tabular-nums text-[#0d3b2e]">{selected.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr>}>
                 {selected.lines.map((l, i) => (
                   <tr key={i}>
                     <td>{l.product?.name ?? '—'}</td>

@@ -71,12 +71,39 @@ storesRouter.put("/:id", async (req, res) => {
   return res.json({ data: result });
 });
 storesRouter.get("/:id/balances", async (req, res) => {
+  const storeId = String(req.params.id);
+  const filters = z.object({
+    binId: z.string().uuid().optional(),
+    requisition: z.string().trim().min(1).optional(),
+  }).parse(req.query);
+  let requisitionPositions: Prisma.InventoryBalanceWhereInput[] | undefined;
+  if (filters.requisition) {
+    const movements = await prisma.stockMovement.findMany({
+      where: {
+        organizationId: req.tenantId,
+        toStoreId: storeId,
+        referenceNumber: filters.requisition,
+        lotId: { not: null },
+        toBinId: { not: null },
+      },
+      select: { productId: true, lotId: true, toBinId: true, uomId: true },
+      distinct: ["productId", "lotId", "toBinId", "uomId"],
+    });
+    requisitionPositions = movements.map((movement) => ({
+      productId: movement.productId,
+      lotId: movement.lotId!,
+      binId: movement.toBinId!,
+      uomId: movement.uomId,
+    }));
+    if (!requisitionPositions.length) return res.json({ data: [] });
+  }
   const data = await prisma.inventoryBalance.findMany({
     where: {
       organizationId: req.tenantId,
-      bin: { storeId: String(req.params.id) },
+      bin: { storeId },
       quantity: { gt: 0 },
-      ...(req.query.binId ? { binId: String(req.query.binId) } : {}),
+      ...(filters.binId ? { binId: filters.binId } : {}),
+      ...(requisitionPositions ? { OR: requisitionPositions } : {}),
     },
     include: {
       product: true,
@@ -233,7 +260,7 @@ storesRouter.get("/:id/receiving-options", async (req, res) => {
       prisma.supplierDelivery.findMany({
         where: {
           organizationId: req.tenantId,
-          status: { notIn: ["RECEIVED", "CLOSED", "CANCELLED", "REJECTED"] },
+          status: { in: ["APPROVED", "PARTIALLY_RECEIVED"] },
         },
         include: { lines: true },
         orderBy: { number: "desc" },

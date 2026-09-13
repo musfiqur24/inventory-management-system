@@ -1,182 +1,73 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
-import { twMerge } from 'tailwind-merge';
-import { useEffect, useState } from 'react';
-import { Plus, Truck, Scale, FileText } from 'lucide-react';
-import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../../components/ui/PageContainer';
-import { Card } from '../../../components/ui/Card';
-import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { FormField } from '../../../components/ui/FormField';
-import { Input } from '../../../components/ui/Input';
-import { Dropdown } from '../../../components/ui/Dropdown';
-import { statusBadge } from '../../../components/ui/Badge';
+import { appToast } from "../../../components/ui/Toast";
+import { useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Eye, FileImage, FileText, Pencil, Plus, Printer, Trash2, Truck } from "lucide-react";
+import { api, selectedOrg } from "../../../shared/api/http";
+import { useAuth } from "../../auth/AuthContext";
+import { PageContainer } from "../../../components/ui/PageContainer";
+import { Card } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
+import { Modal } from "../../../components/ui/Modal";
+import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
+import { FormField } from "../../../components/ui/FormField";
+import { Input } from "../../../components/ui/Input";
+import { Dropdown } from "../../../components/ui/Dropdown";
+import { statusBadge } from "../../../components/ui/Badge";
 
-interface Delivery {
-  id: string; number: string; status: string; vehicleNo?: string;
-  invoiceNo?: string; deliveredAt?: string;
-  grossWeight?: number; tareWeight?: number; netWeight?: number;
-  supplier?: { name: string } | null;
-  requisition?: { number: string } | null;
-  weightVariance?: number; weightVariancePercent?: number;
-  lines: Array<{ id: string; product?: { name: string; sku: string }; uom?: { code: string }; declaredQty: number; acceptedQty?: number; unitPrice?: number; }>;
-  latestWeighment?: { netWeight: number; grossWeight: number; tareWeight: number; } | null;
+type Line={id?:string;productId:string;uomId:string;declaredQty:string;unitPrice:string;product?:{name:string;sku:string};uom?:{code:string}};
+type Delivery={id:string;number:string;status:string;supplierId:string;requisitionId?:string;createdById?:string;assignedManagerId?:string;approvedAt?:string;assignedManager?:Manager;vehicleNo?:string;invoiceNo?:string;deliveredAt?:string;grossWeight?:number;tareWeight?:number;netWeight?:number;supplier?:{name:string}|null;requisition?:{number:string}|null;hasAttachment?:boolean;attachmentName?:string;lines:Line[]};
+type Requisition={id:string;number:string;status:string};type Partner={id:string;name:string;partnerType?:string;type?:string};type Product={id:string;name:string;sku:string;type:string;baseUomId?:string};type UOM={id:string;name:string;code:string};type Manager={id:string;fullName:string;email:string};
+const blank=()=>({productId:"",uomId:"",declaredQty:"",unitPrice:""});
+const emptyForm={requisitionId:"",supplierId:"",assignedManagerId:"",invoiceNo:"",vehicleNo:"",grossWeight:"",tareWeight:""};
+function fileBase64(file:File){return new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error("Unable to read attachment."));reader.onload=()=>resolve(String(reader.result).split(",")[1]??"");reader.readAsDataURL(file)})}
+export function SupplierChallansPage(){
+ const [pageLoading,runPageLoad]=usePageLoading(),{user}=useAuth();
+ const [rows,setRows]=useState<Delivery[]>([]),[requisitions,setRequisitions]=useState<Requisition[]>([]),[suppliers,setSuppliers]=useState<Partner[]>([]),[products,setProducts]=useState<Product[]>([]),[uoms,setUoms]=useState<UOM[]>([]),[managers,setManagers]=useState<Manager[]>([]);
+ const [open,setOpen]=useState(false),[selected,setSelected]=useState<Delivery|null>(null),[editing,setEditing]=useState<Delivery|null>(null),[deleting,setDeleting]=useState<Delivery|null>(null),[saving,setSaving]=useState(false),[acting,setActing]=useState("");
+ const [form,setForm]=useState(emptyForm),[lines,setLines]=useState<Line[]>([blank()]),[attachment,setAttachment]=useState<{name:string;mime:string;contentBase64:string}|null>(null);
+ const [requestedId]=useState(()=>new URLSearchParams(window.location.search).get("challan"));
+ const role=user?.organizations.find(o=>o.id===selectedOrg())?.role.code,isManager=role==="MANAGER";
+ const load=async()=>runPageLoad(async()=>{if(!selectedOrg())return;try{const[d,r,p,pr,u,m]=await Promise.all([api<{data:Delivery[]}>("/deliveries"),api<{data:Requisition[]}>("/purchase-requisitions"),api<{data:Partner[]}>("/partners"),api<{data:Product[]}>("/products"),api<{data:UOM[]}>("/uoms"),api<{data:Manager[]}>("/deliveries/managers")]);setRows(d.data);setRequisitions(r.data.filter(x=>!["CANCELLED","REJECTED"].includes(x.status)));setSuppliers(p.data.filter(x=>x.partnerType==="SUPPLIER"||x.type==="SUPPLIER"||x.type==="BOTH"));setProducts(pr.data.filter(x=>x.type==="RAW_MATERIAL"));setUoms(u.data);setManagers(m.data)}catch(e){appToast.error(e instanceof Error?e.message:"Unable to load challans.")}});
+ useEffect(()=>{void load()},[]);
+ useEffect(()=>{if(requestedId&&rows.length){const found=rows.find(x=>x.id===requestedId);if(found)setSelected(found)}},[requestedId,rows]);
+ const reset=()=>{setEditing(null);setForm(emptyForm);setLines([blank()]);setAttachment(null)};
+ const startNew=()=>{reset();setOpen(true)};
+ const edit=(d:Delivery)=>{setEditing(d);setForm({requisitionId:d.requisitionId??"",supplierId:d.supplierId,assignedManagerId:d.assignedManagerId??"",invoiceNo:d.invoiceNo??"",vehicleNo:d.vehicleNo??"",grossWeight:d.grossWeight?String(d.grossWeight):"",tareWeight:d.tareWeight?String(d.tareWeight):""});setLines(d.lines.map(l=>({...l,declaredQty:String(l.declaredQty),unitPrice:l.unitPrice?String(l.unitPrice):""})));setAttachment(null);setOpen(true)};
+ const setLine=(i:number,key:keyof Line,value:string)=>setLines(v=>v.map((l,n)=>n===i?{...l,[key]:value,...(key==="productId"?{uomId:products.find(p=>p.id===value)?.baseUomId??l.uomId}:{} )}:l));
+ const total=useMemo(()=>lines.reduce((s,l)=>s+(Number(l.declaredQty)||0)*(Number(l.unitPrice)||0),0),[lines]);
+ const chooseFile=async(file?:File)=>{if(!file)return;if(!["image/png","image/jpeg","application/pdf"].includes(file.type)||file.size>8*1024*1024)return appToast.error("Choose a PNG, JPG, or PDF up to 8 MB.");try{setAttachment({name:file.name,mime:file.type,contentBase64:await fileBase64(file)})}catch(e){appToast.error(e instanceof Error?e.message:"Unable to read attachment.")}};
+ const submit=async()=>{if(saving)return;const valid=lines.filter(l=>l.productId&&l.uomId&&Number(l.declaredQty)>0);if(!form.supplierId||!form.assignedManagerId||!form.vehicleNo.trim()||valid.length!==lines.length)return appToast.error("Complete supplier, manager, vehicle, and every product line.");setSaving(true);try{await api(editing?`/deliveries/${editing.id}`:"/deliveries",{method:editing?"PUT":"POST",body:JSON.stringify({...form,requisitionId:form.requisitionId||undefined,grossWeight:form.grossWeight?Number(form.grossWeight):undefined,tareWeight:form.tareWeight?Number(form.tareWeight):undefined,attachment:attachment??undefined,lines:valid.map(l=>({...l,declaredQty:Number(l.declaredQty),unitPrice:l.unitPrice?Number(l.unitPrice):undefined}))})});setOpen(false);reset();await load();window.dispatchEvent(new Event("notificationsChanged"))}catch(e){appToast.error(e instanceof Error?e.message:"Unable to save challan.")}finally{setSaving(false)}};
+ const approve=async(d:Delivery)=>{setActing(d.id);try{await api(`/deliveries/${d.id}/approve`,{method:"POST"});await load();window.dispatchEvent(new Event("notificationsChanged"))}catch(e){appToast.error(e instanceof Error?e.message:"Unable to approve.")}finally{setActing("")}};
+ const remove=async()=>{if(!deleting)return;setActing(deleting.id);try{await api(`/deliveries/${deleting.id}`,{method:"DELETE"});setDeleting(null);await load()}catch(e){appToast.error(e instanceof Error?e.message:"Unable to delete.")}finally{setActing("")}};
+ const preview=async(d:Delivery)=>{try{const r=await api<{data:{name:string;mime:string;contentBase64:string}}>(`/deliveries/${d.id}/attachment`),bytes=atob(r.data.contentBase64),array=new Uint8Array(bytes.length);for(let i=0;i<bytes.length;i++)array[i]=bytes.charCodeAt(i);const url=URL.createObjectURL(new Blob([array],{type:r.data.mime}));window.open(url,"_blank","noopener,noreferrer");window.setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(e){appToast.error(e instanceof Error?e.message:"Unable to preview attachment.")}};
+ const print=(d:Delivery)=>{const w=window.open("","_blank");if(!w)return;w.document.write(`<html><head><title>${d.number}</title><style>body{font:14px Arial;padding:32px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #ccc;text-align:left}</style></head><body><h1>Supplier Delivery Challan</h1><p><b>${d.number}</b> | ${d.supplier?.name??""} | ${d.vehicleNo??""}</p><table><tr><th>Product</th><th>UOM</th><th>Quantity</th><th>Unit price</th><th>Total</th></tr>${d.lines.map(l=>`<tr><td>${l.product?.name??""}</td><td>${l.uom?.code??""}</td><td>${l.declaredQty}</td><td>${l.unitPrice??""}</td><td>${(Number(l.declaredQty)*Number(l.unitPrice||0)).toLocaleString()}</td></tr>`).join("")}</table><script>print()<\/script></body></html>`);w.document.close()};
+ const canEdit=(d:Delivery)=>d.status==="SUBMITTED"&&!d.approvedAt&&d.createdById===user?.id,canApprove=(d:Delivery)=>isManager&&d.status==="SUBMITTED"&&d.assignedManagerId===user?.id;
+ return <PageContainer loading={pageLoading} cap="RM PROCUREMENT" title="Supplier Delivery Challans" description="Submit supplier deliveries for manager approval and automatic RM store receipt." actions={<Button variant="primary" onClick={startNew}><Plus size={16}/> New Challan</Button>}>
+  <Card padding="none">
+   <div className="flex items-center justify-between border-b border-[#e0e5dd] px-4 py-3"><h2 className="m-0 text-sm font-semibold">Challan Register</h2><span className="text-xs text-[#7a9185]">{rows.length} challans</span></div>
+   <div className="[&_tbody_td]:px-3 [&_tbody_td]:py-3 [&_tbody_td]:text-xs [&_tbody_td]:whitespace-nowrap">
+    <DataTable tableClassName="min-w-225" columnWidths={["15%","16%","14%","11%","12%","12%","10%","10%"]} columns={["Challan #","Supplier","Manager","Vehicle","Total Value","Status","Date","Actions"]} empty={rows.length===0?<div className="flex flex-col items-center gap-2"><Truck size={28}/><b>No challans yet</b></div>:undefined}>
+     {rows.map(d=><tr key={d.id}><td><strong className="text-[#0d3b2e]">{d.number}</strong></td><td>{d.supplier?.name??"-"}</td><td>{d.assignedManager?.fullName??"-"}</td><td>{d.vehicleNo??"-"}</td><td>{d.lines.reduce((s,l)=>s+Number(l.declaredQty)*Number(l.unitPrice||0),0).toLocaleString()}</td><td>{statusBadge(d.status==="SUBMITTED"?"PENDING":d.status)}</td><td>{d.deliveredAt?new Date(d.deliveredAt).toLocaleDateString("en-GB"):"-"}</td><td><div className="flex gap-1">{(d.status!=="APPROVED"||isManager)&&<Button size="sm" className="size-8 min-h-8 p-0" title="View" onClick={()=>setSelected(d)}><FileText size={14}/></Button>}{d.hasAttachment&&<Button size="sm" className="size-8 min-h-8 p-0" title="Preview attachment" onClick={()=>void preview(d)}><Eye size={14}/></Button>}<Button size="sm" className="size-8 min-h-8 p-0" title="Print" onClick={()=>print(d)}><Printer size={14}/></Button>{canEdit(d)&&<Button size="sm" className="size-8 min-h-8 p-0" title="Edit" onClick={()=>edit(d)}><Pencil size={14}/></Button>}{canApprove(d)&&<Button size="sm" variant="accent" className="size-8 min-h-8 p-0" disabled={acting===d.id} title="Approve challan" onClick={()=>void approve(d)}><CheckCircle2 size={14}/></Button>}{isManager&&<Button size="sm" variant="danger" className="size-8 min-h-8 p-0" title="Delete" onClick={()=>setDeleting(d)}><Trash2 size={14}/></Button>}</div></td></tr>)}
+    </DataTable>
+   </div>
+  </Card>
+  {deleting&&<ConfirmationModal title="Delete challan?" confirmLabel="Delete Challan" pending={acting===deleting.id} onCancel={()=>setDeleting(null)} onConfirm={()=>void remove()}>Delete {deleting.number}? Posted stock and its audit trail will remain intact.</ConfirmationModal>}
+  {open&&<Modal title={editing?"Edit Supplier Delivery Challan":"New Supplier Delivery Challan"} description="After approval, this challan becomes available from Receive Stock in the RM Store." onClose={()=>!saving&&setOpen(false)} extraWide fixedHeight footer={<><Button disabled={saving} onClick={()=>setOpen(false)}>Cancel</Button><Button variant="primary" disabled={saving} onClick={submit}>{saving?"Saving...":editing?"Save Changes":"Save Pending Challan"}</Button></>}>
+   <div className="grid grid-cols-1 gap-x-3 gap-y-2 md:grid-cols-2 xl:grid-cols-3">
+    <FormField label="Linked Requisition"><Dropdown value={form.requisitionId} onChange={e=>setForm({...form,requisitionId:e.target.value})}><option value="">Select optional requisition</option>{requisitions.map(r=>{const eligible=["APPROVED","PARTIALLY_RECEIVED"].includes(r.status);return <option key={r.id} value={r.id} disabled={!eligible}>{r.number} - {r.status==="SUBMITTED"?"Pending approval":r.status.replaceAll("_"," ")}</option>})}</Dropdown></FormField>
+    <FormField label="Supplier" required><Dropdown value={form.supplierId} onChange={e=>setForm({...form,supplierId:e.target.value})}><option value="">Select supplier</option>{suppliers.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Dropdown></FormField>
+    <FormField label="Assigned Manager" required><Dropdown value={form.assignedManagerId} onChange={e=>setForm({...form,assignedManagerId:e.target.value})}><option value="">Select manager</option>{managers.map(x=><option key={x.id} value={x.id}>{x.fullName}</option>)}</Dropdown></FormField>
+    <FormField label="Invoice Number"><Input value={form.invoiceNo} onChange={e=>setForm({...form,invoiceNo:e.target.value})} placeholder="INV-2026-001"/></FormField>
+    <FormField label="Vehicle Number" required><Input value={form.vehicleNo} onChange={e=>setForm({...form,vehicleNo:e.target.value})} placeholder="DHK-TRK-0001"/></FormField>
+    <FormField label="Gross / Tare Weight (kg)"><div className="grid grid-cols-2 gap-2"><Input type="number" value={form.grossWeight} onChange={e=>setForm({...form,grossWeight:e.target.value})} placeholder="Gross"/><Input type="number" value={form.tareWeight} onChange={e=>setForm({...form,tareWeight:e.target.value})} placeholder="Tare"/></div></FormField>
+    <FormField label="Attachment (PNG, JPG, PDF; max 8 MB)"><label className="flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-[#d7e0d8] px-3 text-sm"><FileImage size={16}/><span className="truncate">{attachment?.name??(editing?.attachmentName||"Choose file")}</span><input className="sr-only" type="file" accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf" onChange={e=>void chooseFile(e.target.files?.[0])}/></label></FormField>
+   </div>
+   <div className="mt-3 border-t border-[#e0e5dd] pt-3"><div className="mb-2 flex items-center justify-between"><strong className="text-sm">Product Lines</strong><Button size="sm" onClick={()=>setLines([...lines,blank()])}><Plus size={14}/> Add Line</Button></div>
+    <div className="overflow-x-auto rounded-xl border border-[#dfe7df]"><div className="min-w-[820px]"><div className="grid grid-cols-[2fr_1.1fr_.8fr_.9fr_.9fr_44px] gap-2 bg-[#f4f6f4] px-3 py-2 text-[11px] font-bold uppercase"><span>Product</span><span>UOM</span><span>Qty</span><span>Unit Price</span><span className="text-right">Total</span><span className="text-center">Action</span></div>{lines.map((l,i)=><div key={i} className="grid grid-cols-[2fr_1.1fr_.8fr_.9fr_.9fr_44px] items-center gap-2 border-t border-[#e4e9e3] p-2"><Dropdown aria-label="Product" value={l.productId} onChange={e=>setLine(i,"productId",e.target.value)}><option value="">Product</option>{products.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</Dropdown><Dropdown aria-label="UOM" value={l.uomId} onChange={e=>setLine(i,"uomId",e.target.value)}><option value="">UOM</option>{uoms.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</Dropdown><Input aria-label="Quantity" type="number" value={l.declaredQty} onChange={e=>setLine(i,"declaredQty",e.target.value)} placeholder="Qty"/><Input aria-label="Unit price" type="number" value={l.unitPrice} onChange={e=>setLine(i,"unitPrice",e.target.value)} placeholder="Price"/><span className="px-2 text-right text-sm font-semibold tabular-nums">{((Number(l.declaredQty)||0)*(Number(l.unitPrice)||0)).toLocaleString()}</span><Button variant="ghost" className="size-11 p-0 text-red-600 hover:bg-red-50" aria-label={`Remove line ${i + 1}`} title="Remove line" disabled={lines.length===1} onClick={()=>setLines(lines.filter((_,n)=>n!==i))}><Trash2 size={16}/></Button></div>)}</div></div>
+    <div className="mt-2 text-right text-sm font-bold">Challan total: {total.toLocaleString()}</div>
+   </div>
+  </Modal>}
+  {selected&&<Modal title={"Challan: "+selected.number} description={(selected.supplier?.name??"-")+" | "+(selected.vehicleNo??"-")} onClose={()=>setSelected(null)} extraWide footer={<><Button onClick={()=>print(selected)}><Printer size={14}/> Print</Button><Button onClick={()=>setSelected(null)}>Close</Button></>}><DataTable pagination={false} scrollAreaClassName="max-h-72 h-auto" columns={["Product","UOM","Quantity","Unit Price","Total"]}>{selected.lines.map((l,i)=><tr key={i}><td>{l.product?.name??"-"}</td><td>{l.uom?.code??"-"}</td><td>{Number(l.declaredQty).toLocaleString()}</td><td>{l.unitPrice?Number(l.unitPrice).toLocaleString():"-"}</td><td>{(Number(l.declaredQty)*Number(l.unitPrice||0)).toLocaleString()}</td></tr>)}</DataTable></Modal>}
+ </PageContainer>
 }
-
-interface Requisition { id: string; number: string; }
-interface Partner { id: string; name: string; type?: string; partnerType?: string; }
-interface Product { id: string; name: string; sku: string; type: string; }
-interface UOM { id: string; name: string; code: string; }
-
-export function SupplierChallansPage() {
-  const [rows, setRows] = useState<Delivery[]>([]);
-  const [requisitions, setRequisitions] = useState<Requisition[]>([]);
-  const [suppliers, setSuppliers] = useState<Partner[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [uoms, setUoms] = useState<UOM[]>([]);
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Delivery | null>(null);
-  const [, setMessage] = useToastMessage();
-  const [form, setForm] = useState({ requisitionId: '', supplierId: '', invoiceNo: '', vehicleNo: '', grossWeight: '', tareWeight: '' });
-  const [lines, setLines] = useState([{ productId: '', uomId: '', declaredQty: '', unitPrice: '' }]);
-
-  const load = async () => {
-    if (!selectedOrg()) return setMessage('Select an organisation first.');
-    try {
-      const [d, r, p, pr, u] = await Promise.all([
-        api<{ data: Delivery[] }>('/deliveries'),
-        api<{ data: Requisition[] }>('/purchase-requisitions'),
-        api<{ data: Partner[] }>('/partners'),
-        api<{ data: Product[] }>('/products'),
-        api<{ data: UOM[] }>('/uoms'),
-      ]);
-      setRows(d.data); setRequisitions(r.data);
-      setSuppliers(p.data.filter((x) => x.type === 'SUPPLIER' || x.partnerType === 'SUPPLIER' || x.type === 'BOTH'));
-      setProducts(pr.data.filter((x) => x.type === 'RAW_MATERIAL'));
-      setUoms(u.data); setMessage('');
-    } catch (e: any) { setMessage(e.message); }
-  };
-
-  useEffect(() => { void load(); }, []);
-
-  const netWeight = form.grossWeight && form.tareWeight
-    ? Number(form.grossWeight) - Number(form.tareWeight) : null;
-
-  const submit = async () => {
-    try {
-      const validLines = lines.filter((l) => l.productId && l.uomId && l.declaredQty);
-      await api('/deliveries', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...form,
-          requisitionId: form.requisitionId || undefined,
-          grossWeight: form.grossWeight ? Number(form.grossWeight) : undefined,
-          tareWeight: form.tareWeight ? Number(form.tareWeight) : undefined,
-          lines: validLines.map((l) => ({ productId: l.productId, uomId: l.uomId, declaredQty: Number(l.declaredQty), unitPrice: l.unitPrice ? Number(l.unitPrice) : undefined })),
-        }),
-      });
-      setOpen(false); setForm({ requisitionId: '', supplierId: '', invoiceNo: '', vehicleNo: '', grossWeight: '', tareWeight: '' });
-      setLines([{ productId: '', uomId: '', declaredQty: '', unitPrice: '' }]); void load();
-    } catch (e: any) { setMessage(e.message); }
-  };
-
-  return (
-    <PageContainer
-      cap="RM PROCUREMENT"
-      title="Supplier Delivery Challans"
-      description="Record supplier delivery challans with vehicle details, declared weights, and product lines."
-      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> New Challan</Button>}
-   >
-
-      <Card className="p-0">
-        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
-          <h2>Challan Register</h2>
-          <span className="text-[12px] text-[#7a9185]">{rows.length} challans total</span>
-        </div>
-        <div className="overflow-x-auto">
-          <DataTable columns={["Challan #","Supplier","Requisition","Vehicle No","Declared Net (kg)","Actual Net (kg)","Variance","Status","Date","Actions"]} empty={rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Truck size={28} /></div><b>No challans yet</b><p>Record your first supplier delivery challan.</p></div>}>
-              {rows.map((d) => {
-                const varPct = d.weightVariancePercent;
-                const isWarn = varPct !== null && varPct !== undefined && Math.abs(varPct) > 0.5;
-                return (
-                  <tr key={d.id}>
-                    <td><strong className="text-[#0d3b2e]">{d.number}</strong></td>
-                    <td>{d.supplier?.name ?? '—'}</td>
-                    <td><span className="text-[11px] font-mono text-[#7a9185]">{d.requisition?.number ?? '—'}</span></td>
-                    <td><span className="font-mono text-[12px]">{d.vehicleNo ?? '—'}</span></td>
-                    <td>{d.netWeight ? Number(d.netWeight).toLocaleString() : '—'}</td>
-                    <td>{d.latestWeighment ? Number(d.latestWeighment.netWeight).toLocaleString() : <span className="text-[#7a9185]">Not weighed</span>}</td>
-                    <td>
-                      {varPct !== null && varPct !== undefined ? (
-                        <span className={twMerge("font-semibold text-[13px]", (isWarn ? "text-[#c03030]" : "text-[#1b8f5a]"))}>
-                          {varPct >= 0 ? '+' : ''}{varPct.toFixed(2)}%
-                        </span>
-                      ) : '—'}
-                    </td>
-                    <td>{statusBadge(d.status)}</td>
-                    <td className="text-[12px] text-[#7a9185]">{d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString('en-GB') : '—'}</td>
-                    <td><Button size="sm" variant="secondary" onClick={() => setSelected(d)}><FileText size={14} /> View</Button></td>
-                  </tr>
-                );
-              })}
-            </DataTable>
-          
-        </div>
-      </Card>
-
-      {open && (
-        <Modal title="New Supplier Delivery Challan" description="Register delivery with vehicle, weights and product lines." onClose={() => setOpen(false)} wide
-          footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit}>Save Challan</Button></>}
-       >
-          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
-            <FormField label="Linked Requisition"><Dropdown value={form.requisitionId} onChange={(e) => setForm({ ...form, requisitionId: e.target.value })}><option value="">— Select (optional) —</option>{requisitions.map((r) => <option key={r.id} value={r.id}>{r.number}</option>)}</Dropdown></FormField>
-            <FormField label="Supplier" required><Dropdown value={form.supplierId} onChange={(e) => setForm({ ...form, supplierId: e.target.value })}><option value="">— Select supplier —</option>{suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</Dropdown></FormField>
-            <FormField label="Invoice Number"><Input placeholder="INV-2026-001" value={form.invoiceNo} onChange={(e) => setForm({ ...form, invoiceNo: e.target.value })} /></FormField>
-            <FormField label="Vehicle Number" required><Input placeholder="DHK-TRK-0001" value={form.vehicleNo} onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })} /></FormField>
-            <FormField label="Gross Weight (kg)"><Input type="number" placeholder="Total with vehicle" value={form.grossWeight} onChange={(e) => setForm({ ...form, grossWeight: e.target.value })} /></FormField>
-            <FormField label="Tare Weight (kg)"><Input type="number" placeholder="Empty vehicle weight" value={form.tareWeight} onChange={(e) => setForm({ ...form, tareWeight: e.target.value })} /></FormField>
-          </div>
-          {netWeight !== null && (
-            <div className="bg-[#eaf8f0] [border:1px_solid_#b0e8cc] rounded-[10px] p-[10px_14px] flex items-center gap-2.5">
-              <Scale size={16} className="text-[#1b8f5a]" />
-              <span className="text-[#1b8f5a] font-bold">Calculated Net: {netWeight.toLocaleString()} kg</span>
-            </div>
-          )}
-          <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
-            <div className="flex justify-between mb-2.5">
-              <strong className="text-[14px]">Product Lines</strong>
-              <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', declaredQty: '', unitPrice: '' }])}><Plus size={14} /> Add</Button>
-            </div>
-            {lines.map((line, i) => (
-              <div key={i} className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr] bg-[#f8faf7] p-3 rounded-[10px] mb-2.5">
-                <FormField label="Product"><Dropdown value={line.productId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, productId: e.target.value } : l))}><option value="">— Select product —</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Dropdown></FormField>
-                <FormField label="UOM"><Dropdown value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">— UOM —</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</Dropdown></FormField>
-                <FormField label="Declared Qty"><Input type="number" value={line.declaredQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, declaredQty: e.target.value } : l))} /></FormField>
-                <FormField label="Unit Price"><Input type="number" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))} /></FormField>
-              </div>
-            ))}
-          </div>
-        </Modal>
-      )}
-
-      {selected && (
-        <Modal title={`Challan: ${selected.number}`} description={`Supplier: ${selected.supplier?.name ?? '—'} · Vehicle: ${selected.vehicleNo ?? '—'}`} onClose={() => setSelected(null)} wide footer={<Button variant="secondary" onClick={() => setSelected(null)}>Close</Button>}>
-          <div className="grid grid-cols-[1fr_1fr_1fr] gap-3 p-[0_0_16px]">
-            {[['Declared Net', `${Number(selected.netWeight || 0).toLocaleString()} kg`], ['Actual Weighment', selected.latestWeighment ? `${Number(selected.latestWeighment.netWeight).toLocaleString()} kg` : 'Not weighed'], ['Variance', selected.weightVariancePercent != null ? `${selected.weightVariancePercent >= 0 ? '+' : ''}${selected.weightVariancePercent.toFixed(2)}%` : '—']].map(([k, v]) => (
-              <div key={k} className="bg-[#f8faf7] rounded-[10px] p-3">
-                <div className="text-[11px] text-[#7a9185] mb-1">{k}</div>
-                <div className="font-bold text-[16px]">{v}</div>
-              </div>
-            ))}
-          </div>
-          <div className="overflow-x-auto">
-            <DataTable columns={["Product","Declared Qty","Accepted Qty","UOM","Unit Price"]}>{selected.lines.map((l, i) => <tr key={i}><td>{l.product?.name ?? '—'}<br /><span className="text-[11px] text-[#7a9185] font-mono">{l.product?.sku}</span></td><td>{Number(l.declaredQty).toLocaleString()}</td><td>{l.acceptedQty != null ? Number(l.acceptedQty).toLocaleString() : '—'}</td><td>{l.uom?.code ?? '—'}</td><td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>)}</DataTable>
-          </div>
-        </Modal>
-      )}
-    </PageContainer>
-  );
-}
-
-

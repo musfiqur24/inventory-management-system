@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { useEffect, useState } from "react";
 import { Building2, Check } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
@@ -9,13 +10,14 @@ import { organizationApi, type Organization } from "./organization.api";
 import { appToast } from "../../../components/ui/Toast";
 
 export function OrganizationPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [items, setItems] = useState<Organization[]>([]);
   const [selected, setSelected] = useState<Organization | null>(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const showMessage = (next: string, kind: "success" | "error") => appToast[kind](next);
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     try {
       const organizations = (await organizationApi.list()).data;
       setItems(organizations);
@@ -23,7 +25,7 @@ export function OrganizationPage() {
     } catch (error) {
       showMessage(error instanceof Error ? error.message : "Unable to load organisations.", "error");
     }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -47,7 +49,7 @@ export function OrganizationPage() {
   };
 
   return (
-    <PageContainer title="Organisations" description="Create an organisation once, then select it as the workspace for all inventory records.">
+    <PageContainer loading={pageLoading} title="Organisations" description="Create an organisation once, then select it as the workspace for all inventory records.">
       <Card padding="none">
         <div className="grid min-h-110 grid-cols-[minmax(320px,_1fr)_minmax(360px,_1.2fr)] max-[860px]:grid-cols-[1fr]">
           <div className="bg-white p-7 [border-right:1px_solid_#e0e5dd] max-[860px]:[border-bottom:1px_solid_#e0e5dd] max-[860px]:[border-right:none]">

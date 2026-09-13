@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import type { CSSProperties } from 'react';
 import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
@@ -26,6 +27,7 @@ interface Recipe {
 interface Product { id: string; name: string; sku: string; type: string; }
 
 export function RecipesPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Recipe[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
@@ -37,13 +39,13 @@ export function RecipesPage() {
     { productId: '', name: '', percentage: 0, wastePct: 0 }
   ]);
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [r, p] = await Promise.all([api<{ data: Recipe[] }>('/recipes'), api<{ data: Product[] }>('/products')]);
       setRows(r.data); setProducts(p.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -85,7 +87,7 @@ export function RecipesPage() {
   };
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="PRODUCTION"
       title="Nutritionist Recipes"
       description="Define 1-ton base formulations. Ingredient percentages must total 100%. Production orders auto-scale quantities."

@@ -51,6 +51,14 @@ export type SupplierDeliveryMinAggregateOutputType = {
   netWeight: runtime.Decimal | null
   status: $Enums.DocumentStatus | null
   deliveredAt: Date | null
+  createdById: string | null
+  assignedManagerId: string | null
+  approvedById: string | null
+  approvedAt: Date | null
+  deletedAt: Date | null
+  attachmentName: string | null
+  attachmentMime: string | null
+  attachmentData: string | null
 }
 
 export type SupplierDeliveryMaxAggregateOutputType = {
@@ -66,6 +74,14 @@ export type SupplierDeliveryMaxAggregateOutputType = {
   netWeight: runtime.Decimal | null
   status: $Enums.DocumentStatus | null
   deliveredAt: Date | null
+  createdById: string | null
+  assignedManagerId: string | null
+  approvedById: string | null
+  approvedAt: Date | null
+  deletedAt: Date | null
+  attachmentName: string | null
+  attachmentMime: string | null
+  attachmentData: string | null
 }
 
 export type SupplierDeliveryCountAggregateOutputType = {
@@ -81,6 +97,14 @@ export type SupplierDeliveryCountAggregateOutputType = {
   netWeight: number
   status: number
   deliveredAt: number
+  createdById: number
+  assignedManagerId: number
+  approvedById: number
+  approvedAt: number
+  deletedAt: number
+  attachmentName: number
+  attachmentMime: number
+  attachmentData: number
   _all: number
 }
 
@@ -110,6 +134,14 @@ export type SupplierDeliveryMinAggregateInputType = {
   netWeight?: true
   status?: true
   deliveredAt?: true
+  createdById?: true
+  assignedManagerId?: true
+  approvedById?: true
+  approvedAt?: true
+  deletedAt?: true
+  attachmentName?: true
+  attachmentMime?: true
+  attachmentData?: true
 }
 
 export type SupplierDeliveryMaxAggregateInputType = {
@@ -125,6 +157,14 @@ export type SupplierDeliveryMaxAggregateInputType = {
   netWeight?: true
   status?: true
   deliveredAt?: true
+  createdById?: true
+  assignedManagerId?: true
+  approvedById?: true
+  approvedAt?: true
+  deletedAt?: true
+  attachmentName?: true
+  attachmentMime?: true
+  attachmentData?: true
 }
 
 export type SupplierDeliveryCountAggregateInputType = {
@@ -140,6 +180,14 @@ export type SupplierDeliveryCountAggregateInputType = {
   netWeight?: true
   status?: true
   deliveredAt?: true
+  createdById?: true
+  assignedManagerId?: true
+  approvedById?: true
+  approvedAt?: true
+  deletedAt?: true
+  attachmentName?: true
+  attachmentMime?: true
+  attachmentData?: true
   _all?: true
 }
 
@@ -242,6 +290,14 @@ export type SupplierDeliveryGroupByOutputType = {
   netWeight: runtime.Decimal | null
   status: $Enums.DocumentStatus
   deliveredAt: Date | null
+  createdById: string | null
+  assignedManagerId: string | null
+  approvedById: string | null
+  approvedAt: Date | null
+  deletedAt: Date | null
+  attachmentName: string | null
+  attachmentMime: string | null
+  attachmentData: string | null
   _count: SupplierDeliveryCountAggregateOutputType | null
   _avg: SupplierDeliveryAvgAggregateOutputType | null
   _sum: SupplierDeliverySumAggregateOutputType | null
@@ -280,6 +336,14 @@ export type SupplierDeliveryWhereInput = {
   netWeight?: Prisma.DecimalNullableFilter<"SupplierDelivery"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFilter<"SupplierDelivery"> | $Enums.DocumentStatus
   deliveredAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  createdById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  attachmentName?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  attachmentMime?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  attachmentData?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   lines?: Prisma.SupplierDeliveryLineListRelationFilter
 }
 
@@ -296,6 +360,14 @@ export type SupplierDeliveryOrderByWithRelationInput = {
   netWeight?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   deliveredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentName?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentMime?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentData?: Prisma.SortOrderInput | Prisma.SortOrder
   lines?: Prisma.SupplierDeliveryLineOrderByRelationAggregateInput
 }
 
@@ -316,6 +388,14 @@ export type SupplierDeliveryWhereUniqueInput = Prisma.AtLeast<{
   netWeight?: Prisma.DecimalNullableFilter<"SupplierDelivery"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFilter<"SupplierDelivery"> | $Enums.DocumentStatus
   deliveredAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  createdById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  attachmentName?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  attachmentMime?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
+  attachmentData?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   lines?: Prisma.SupplierDeliveryLineListRelationFilter
 }, "id" | "organizationId_number">
 
@@ -332,6 +412,14 @@ export type SupplierDeliveryOrderByWithAggregationInput = {
   netWeight?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   deliveredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentName?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentMime?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentData?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SupplierDeliveryCountOrderByAggregateInput
   _avg?: Prisma.SupplierDeliveryAvgOrderByAggregateInput
   _max?: Prisma.SupplierDeliveryMaxOrderByAggregateInput
@@ -355,6 +443,14 @@ export type SupplierDeliveryScalarWhereWithAggregatesInput = {
   netWeight?: Prisma.DecimalNullableWithAggregatesFilter<"SupplierDelivery"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusWithAggregatesFilter<"SupplierDelivery"> | $Enums.DocumentStatus
   deliveredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupplierDelivery"> | Date | string | null
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
+  assignedManagerId?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
+  approvedById?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupplierDelivery"> | Date | string | null
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupplierDelivery"> | Date | string | null
+  attachmentName?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
+  attachmentMime?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
+  attachmentData?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
 }
 
 export type SupplierDeliveryCreateInput = {
@@ -370,6 +466,14 @@ export type SupplierDeliveryCreateInput = {
   netWeight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.DocumentStatus
   deliveredAt?: Date | string | null
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  attachmentName?: string | null
+  attachmentMime?: string | null
+  attachmentData?: string | null
   lines?: Prisma.SupplierDeliveryLineCreateNestedManyWithoutDeliveryInput
 }
 
@@ -386,6 +490,14 @@ export type SupplierDeliveryUncheckedCreateInput = {
   netWeight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.DocumentStatus
   deliveredAt?: Date | string | null
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  attachmentName?: string | null
+  attachmentMime?: string | null
+  attachmentData?: string | null
   lines?: Prisma.SupplierDeliveryLineUncheckedCreateNestedManyWithoutDeliveryInput
 }
 
@@ -402,6 +514,14 @@ export type SupplierDeliveryUpdateInput = {
   netWeight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lines?: Prisma.SupplierDeliveryLineUpdateManyWithoutDeliveryNestedInput
 }
 
@@ -418,6 +538,14 @@ export type SupplierDeliveryUncheckedUpdateInput = {
   netWeight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lines?: Prisma.SupplierDeliveryLineUncheckedUpdateManyWithoutDeliveryNestedInput
 }
 
@@ -434,6 +562,14 @@ export type SupplierDeliveryCreateManyInput = {
   netWeight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.DocumentStatus
   deliveredAt?: Date | string | null
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  attachmentName?: string | null
+  attachmentMime?: string | null
+  attachmentData?: string | null
 }
 
 export type SupplierDeliveryUpdateManyMutationInput = {
@@ -449,6 +585,14 @@ export type SupplierDeliveryUpdateManyMutationInput = {
   netWeight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryUncheckedUpdateManyInput = {
@@ -464,6 +608,14 @@ export type SupplierDeliveryUncheckedUpdateManyInput = {
   netWeight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryOrganizationIdNumberCompoundUniqueInput = {
@@ -484,6 +636,14 @@ export type SupplierDeliveryCountOrderByAggregateInput = {
   netWeight?: Prisma.SortOrder
   status?: Prisma.SortOrder
   deliveredAt?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  attachmentName?: Prisma.SortOrder
+  attachmentMime?: Prisma.SortOrder
+  attachmentData?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryAvgOrderByAggregateInput = {
@@ -505,6 +665,14 @@ export type SupplierDeliveryMaxOrderByAggregateInput = {
   netWeight?: Prisma.SortOrder
   status?: Prisma.SortOrder
   deliveredAt?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  attachmentName?: Prisma.SortOrder
+  attachmentMime?: Prisma.SortOrder
+  attachmentData?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryMinOrderByAggregateInput = {
@@ -520,6 +688,14 @@ export type SupplierDeliveryMinOrderByAggregateInput = {
   netWeight?: Prisma.SortOrder
   status?: Prisma.SortOrder
   deliveredAt?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  attachmentName?: Prisma.SortOrder
+  attachmentMime?: Prisma.SortOrder
+  attachmentData?: Prisma.SortOrder
 }
 
 export type SupplierDeliverySumOrderByAggregateInput = {
@@ -560,6 +736,14 @@ export type SupplierDeliveryCreateWithoutLinesInput = {
   netWeight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.DocumentStatus
   deliveredAt?: Date | string | null
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  attachmentName?: string | null
+  attachmentMime?: string | null
+  attachmentData?: string | null
 }
 
 export type SupplierDeliveryUncheckedCreateWithoutLinesInput = {
@@ -575,6 +759,14 @@ export type SupplierDeliveryUncheckedCreateWithoutLinesInput = {
   netWeight?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.DocumentStatus
   deliveredAt?: Date | string | null
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  attachmentName?: string | null
+  attachmentMime?: string | null
+  attachmentData?: string | null
 }
 
 export type SupplierDeliveryCreateOrConnectWithoutLinesInput = {
@@ -606,6 +798,14 @@ export type SupplierDeliveryUpdateWithoutLinesInput = {
   netWeight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryUncheckedUpdateWithoutLinesInput = {
@@ -621,6 +821,14 @@ export type SupplierDeliveryUncheckedUpdateWithoutLinesInput = {
   netWeight?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -667,6 +875,14 @@ export type SupplierDeliverySelect<ExtArgs extends runtime.Types.Extensions.Inte
   netWeight?: boolean
   status?: boolean
   deliveredAt?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  deletedAt?: boolean
+  attachmentName?: boolean
+  attachmentMime?: boolean
+  attachmentData?: boolean
   lines?: boolean | Prisma.SupplierDelivery$linesArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierDeliveryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDelivery"]>
@@ -684,6 +900,14 @@ export type SupplierDeliverySelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   netWeight?: boolean
   status?: boolean
   deliveredAt?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  deletedAt?: boolean
+  attachmentName?: boolean
+  attachmentMime?: boolean
+  attachmentData?: boolean
 }, ExtArgs["result"]["supplierDelivery"]>
 
 export type SupplierDeliverySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -699,6 +923,14 @@ export type SupplierDeliverySelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   netWeight?: boolean
   status?: boolean
   deliveredAt?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  deletedAt?: boolean
+  attachmentName?: boolean
+  attachmentMime?: boolean
+  attachmentData?: boolean
 }, ExtArgs["result"]["supplierDelivery"]>
 
 export type SupplierDeliverySelectScalar = {
@@ -714,9 +946,17 @@ export type SupplierDeliverySelectScalar = {
   netWeight?: boolean
   status?: boolean
   deliveredAt?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  deletedAt?: boolean
+  attachmentName?: boolean
+  attachmentMime?: boolean
+  attachmentData?: boolean
 }
 
-export type SupplierDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "requisitionId" | "supplierId" | "invoiceNo" | "vehicleNo" | "grossWeight" | "tareWeight" | "netWeight" | "status" | "deliveredAt", ExtArgs["result"]["supplierDelivery"]>
+export type SupplierDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "requisitionId" | "supplierId" | "invoiceNo" | "vehicleNo" | "grossWeight" | "tareWeight" | "netWeight" | "status" | "deliveredAt" | "createdById" | "assignedManagerId" | "approvedById" | "approvedAt" | "deletedAt" | "attachmentName" | "attachmentMime" | "attachmentData", ExtArgs["result"]["supplierDelivery"]>
 export type SupplierDeliveryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lines?: boolean | Prisma.SupplierDelivery$linesArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierDeliveryCountOutputTypeDefaultArgs<ExtArgs>
@@ -742,6 +982,14 @@ export type $SupplierDeliveryPayload<ExtArgs extends runtime.Types.Extensions.In
     netWeight: runtime.Decimal | null
     status: $Enums.DocumentStatus
     deliveredAt: Date | null
+    createdById: string | null
+    assignedManagerId: string | null
+    approvedById: string | null
+    approvedAt: Date | null
+    deletedAt: Date | null
+    attachmentName: string | null
+    attachmentMime: string | null
+    attachmentData: string | null
   }, ExtArgs["result"]["supplierDelivery"]>
   composites: {}
 }
@@ -1178,6 +1426,14 @@ export interface SupplierDeliveryFieldRefs {
   readonly netWeight: Prisma.FieldRef<"SupplierDelivery", 'Decimal'>
   readonly status: Prisma.FieldRef<"SupplierDelivery", 'DocumentStatus'>
   readonly deliveredAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
+  readonly createdById: Prisma.FieldRef<"SupplierDelivery", 'String'>
+  readonly assignedManagerId: Prisma.FieldRef<"SupplierDelivery", 'String'>
+  readonly approvedById: Prisma.FieldRef<"SupplierDelivery", 'String'>
+  readonly approvedAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
+  readonly attachmentName: Prisma.FieldRef<"SupplierDelivery", 'String'>
+  readonly attachmentMime: Prisma.FieldRef<"SupplierDelivery", 'String'>
+  readonly attachmentData: Prisma.FieldRef<"SupplierDelivery", 'String'>
 }
     
 

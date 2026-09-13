@@ -58,6 +58,11 @@ export type SubLayer = Prisma.SubLayerModel
  */
 export type SubSubLayer = Prisma.SubSubLayerModel
 /**
+ * Model Currency
+ * 
+ */
+export type Currency = Prisma.CurrencyModel
+/**
  * Model Product
  * 
  */

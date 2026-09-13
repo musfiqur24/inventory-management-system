@@ -1,3 +1,4 @@
+import { Skeleton, useMinimumLoading } from "./Skeleton";
 import { Children, isValidElement, useState, type ReactNode, type ReactElement } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { twMerge } from "tailwind-merge";
@@ -10,6 +11,7 @@ export type DataTableColumn<T> = {
 };
 
 type Base = {
+  loading?: boolean;
   scrollAreaClassName?: string;
   tableClassName?: string;
   columnWidths?: string[];
@@ -31,7 +33,7 @@ type Legacy = Base & {
 
 type Dynamic<T> = Base & {
   columns: DataTableColumn<T>[];
-  rows: T[];
+  rows: T[] | null;
   rowKey: (row: T) => string;
   children?: never;
 };
@@ -49,6 +51,7 @@ function getPageItems(page: number, pages: number): Array<number | "ellipsis"> {
 }
 
 export function DataTable<T>({
+  loading = false,
   toolbar,
   scrollAreaClassName,
   tableClassName,
@@ -62,9 +65,11 @@ export function DataTable<T>({
   onPageChange,
   ...props
 }: Legacy | Dynamic<T>) {
+  const showSkeleton = useMinimumLoading(loading);
   const dynamic = "rows" in props;
   const dynamicProps = props as Dynamic<T>;
   const legacyProps = props as Legacy;
+  const dataRows = dynamicProps.rows ?? [];
   // Existing controlled tables supply an already-paged result and a total.
   const serverPaged = total !== undefined && onPageChange !== undefined;
   const headers = dynamic ? dynamicProps.columns.map(column => column.header) : legacyProps.columns;
@@ -75,16 +80,16 @@ export function DataTable<T>({
   };
   const records=childRows.filter(row=>!isEmptyRow(row));
   const placeholders=childRows.filter(isEmptyRow);
-  const rowCount=dynamic?dynamicProps.rows.length:records.length;
+  const rowCount=dynamic?dataRows.length:records.length;
   const recordCount=serverPaged?Math.max(0,total):rowCount;
   const size=pagination?Math.max(1,Math.floor(pageSize)||10):Math.max(1,recordCount);
   const pages=Math.max(1,Math.ceil(recordCount/size));
-  const dataKey=dynamic?dynamicProps.rows.map(dynamicProps.rowKey).join('|'):records.map(row=>String(row.key)).join('|');
+  const dataKey=dynamic?dataRows.map(dynamicProps.rowKey).join('|'):records.map(row=>String(row.key)).join('|');
   const [localPage,setLocalPage]=useState({key:dataKey,value:1});
   const requestedPage=page??(localPage.key===dataKey?localPage.value:1);
   const currentPage=pagination?Math.min(Math.max(requestedPage,1),pages):1;
   const offset=(currentPage-1)*size;
-  const visibleRows=serverPaged?dynamicProps.rows:dynamicProps.rows?.slice(offset,offset+size);
+  const visibleRows=serverPaged?dataRows:dataRows.slice(offset,offset+size);
   const visibleChildren=records.length?(serverPaged?records:records.slice(offset,offset+size)):placeholders;
   const start=recordCount===0?0:offset+1;
   const end=recordCount===0?0:Math.min(offset+(serverPaged?rowCount:Math.min(size,rowCount-offset)),recordCount);
@@ -102,7 +107,7 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className={twMerge("overflow-x-auto [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin]", scrollAreaClassName)}>
+      <div className={twMerge("h-88 overflow-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] sm:h-96 print:h-auto print:overflow-visible", scrollAreaClassName)}>
         <table className={twMerge("w-full min-w-180 border-separate border-spacing-0 text-left", tableClassName)}>
           {columnWidths && <colgroup>{columnWidths.map((width,index)=><col key={index} style={{width}}/>)}</colgroup>}
           <thead className="sticky top-0 z-1">
@@ -119,7 +124,7 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody className="[&_tr]:transition-colors [&_tr:nth-child(even)]:bg-[#fafbfc] [&_tr:hover]:bg-[#f5f7f8] [&_td]:border-b [&_td]:border-[#e7ece6] [&_td]:px-4 [&_td]:py-3.5 sm:[&_td]:px-5 sm:[&_td]:py-4 [&_td]:text-sm [&_td]:text-[#263b31] [&_tr:last-child_td]:border-b-0">
-            {dynamic
+            {showSkeleton ? Array.from({length:6},(_,i)=><tr key={i}>{headers.map((_,j)=><td key={j}><Skeleton className="h-5 w-full"/></td>)}</tr>) : dynamic
               ? visibleRows?.map(row => (
                   <tr key={dynamicProps.rowKey(row)}>
                     {dynamicProps.columns.map(column => (
@@ -130,12 +135,13 @@ export function DataTable<T>({
                   </tr>
                 ))
               : visibleChildren}
+            {!showSkeleton && rowCount === 0 && placeholders.length === 0 && <tr><td colSpan={headers.length}><div className="grid min-h-64 place-items-center text-center text-sm text-[#73877c]">{empty ?? 'No records found.'}</div></td></tr>}
           </tbody>
           {summary && <tfoot>{summary}</tfoot>}
         </table>
       </div>
 
-      {empty}
+
 
       {(
         <div className="flex flex-col items-stretch justify-between gap-3 border-t sm:flex-row sm:items-center sm:gap-4 border-[#dbe4da] bg-[#fafbfc] px-4 py-4 sm:px-5">

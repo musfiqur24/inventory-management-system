@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
@@ -19,6 +20,7 @@ interface Partner {
 }
 
 export function PartnersPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Partner[]>([]);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -30,11 +32,11 @@ export function PartnersPage() {
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'SUPPLIER' | 'CUSTOMER'>('ALL');
   const [form, setForm] = useState({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' });
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try { const r = await api<{ data: Partner[] }>('/partners'); setRows(r.data); setMessage(''); }
     catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -66,7 +68,7 @@ export function PartnersPage() {
   const customers = rows.filter((r) => r.partnerType === 'CUSTOMER');
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="MASTER SETUP"
       title="Suppliers & Customers"
       description="Manage your partner directory — suppliers who provide raw materials and customers who receive finished goods."

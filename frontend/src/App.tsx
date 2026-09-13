@@ -1,9 +1,10 @@
+import { SessionSkeleton, useMinimumLoading } from "./components/ui/Skeleton";
 import { NotificationBell } from "./components/layout/NotificationBell";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
   Boxes, Building2, ClipboardList, Factory, FlaskConical,
   PackageCheck, Scale, ShoppingCart, Truck, Warehouse, LayoutDashboard,
-  GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut
+  GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut, BadgeDollarSign
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { selectedOrgName, ensureOrgDetails } from './shared/api/http';
@@ -14,6 +15,7 @@ import { AppToaster } from './components/ui/Toast';
 import { OrganizationPage } from './modules/platform/organizations/OrganizationPage';
 import { UnitsOfMeasurePage } from './modules/set-up/units-of-measure/UnitsOfMeasurePage';
 import { ProductHierarchyPage } from './modules/set-up/product-hierarchy/ProductHierarchyPage';
+import { CurrenciesPage } from './modules/set-up/currencies/CurrenciesPage';
 import { PartnersPage } from './modules/set-up/partners/PartnersPage';
 import { StoresPage } from './modules/inventory/stores/StoresPage';
 import { SalesOrdersPage } from './modules/sales/sales-orders/SalesOrdersPage';
@@ -65,7 +67,8 @@ const NAV_GROUPS = [
     label: 'Master Setup',
     items: [
       { path: '/uoms', label: 'Units of Measure', icon: Scale },
-      { path: '/categories', label: 'Product Set Up', icon: Boxes },
+      { path: '/currencies', label: 'Currency', icon: BadgeDollarSign },
+      { path: '/categories', label: 'Product ', icon: Boxes },
       { path: '/partners', label: 'Suppliers & Customers', icon: Building2 },
       { path: '/stores', label: 'Stores & Bins', icon: Warehouse },
     ],
@@ -96,7 +99,8 @@ function Shell() {
     return () => window.removeEventListener('organizationChanged', handler);
   }, []);
 
-  if (loading) return <div className="grid min-h-dvh place-items-center text-sm text-[#61766a]">Loading session...</div>;
+  const sessionLoading = useMinimumLoading(loading);
+ if (sessionLoading) return <SessionSkeleton/>;
   if (!user) return <Navigate to="/login" replace />;
 
   const visibleGroups = NAV_GROUPS.concat(can('users.manage') ? [{ label: 'Administration', items: [{ path: '/users', label: 'User Management', icon: Users }] }] : []).map(g => ({...g, items: g.items.filter(i => i.path !== '/organizations' || can('organizations.manage'))})).filter(g => g.items.length);
@@ -135,6 +139,7 @@ function Shell() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/organizations" element={can("organizations.manage") ? <OrganizationPage /> : <Navigate to="/" replace />} />
           <Route path="/uoms" element={<UnitsOfMeasurePage />} />
+          <Route path="/currencies" element={<CurrenciesPage />} />
           <Route path="/categories" element={<ProductHierarchyPage />} />
           <Route path="/products" element={<Navigate to="/categories" replace />} />
           <Route path="/partners" element={<PartnersPage />} />

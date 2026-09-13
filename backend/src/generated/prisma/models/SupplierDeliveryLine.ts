@@ -46,6 +46,7 @@ export type SupplierDeliveryLineMinAggregateOutputType = {
   declaredQty: runtime.Decimal | null
   acceptedQty: runtime.Decimal | null
   unitPrice: runtime.Decimal | null
+  destinationBinId: string | null
 }
 
 export type SupplierDeliveryLineMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type SupplierDeliveryLineMaxAggregateOutputType = {
   declaredQty: runtime.Decimal | null
   acceptedQty: runtime.Decimal | null
   unitPrice: runtime.Decimal | null
+  destinationBinId: string | null
 }
 
 export type SupplierDeliveryLineCountAggregateOutputType = {
@@ -66,6 +68,7 @@ export type SupplierDeliveryLineCountAggregateOutputType = {
   declaredQty: number
   acceptedQty: number
   unitPrice: number
+  destinationBinId: number
   _all: number
 }
 
@@ -90,6 +93,7 @@ export type SupplierDeliveryLineMinAggregateInputType = {
   declaredQty?: true
   acceptedQty?: true
   unitPrice?: true
+  destinationBinId?: true
 }
 
 export type SupplierDeliveryLineMaxAggregateInputType = {
@@ -100,6 +104,7 @@ export type SupplierDeliveryLineMaxAggregateInputType = {
   declaredQty?: true
   acceptedQty?: true
   unitPrice?: true
+  destinationBinId?: true
 }
 
 export type SupplierDeliveryLineCountAggregateInputType = {
@@ -110,6 +115,7 @@ export type SupplierDeliveryLineCountAggregateInputType = {
   declaredQty?: true
   acceptedQty?: true
   unitPrice?: true
+  destinationBinId?: true
   _all?: true
 }
 
@@ -207,6 +213,7 @@ export type SupplierDeliveryLineGroupByOutputType = {
   declaredQty: runtime.Decimal
   acceptedQty: runtime.Decimal | null
   unitPrice: runtime.Decimal | null
+  destinationBinId: string | null
   _count: SupplierDeliveryLineCountAggregateOutputType | null
   _avg: SupplierDeliveryLineAvgAggregateOutputType | null
   _sum: SupplierDeliveryLineSumAggregateOutputType | null
@@ -240,6 +247,7 @@ export type SupplierDeliveryLineWhereInput = {
   declaredQty?: Prisma.DecimalFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.DecimalNullableFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.DecimalNullableFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.StringNullableFilter<"SupplierDeliveryLine"> | string | null
   delivery?: Prisma.XOR<Prisma.SupplierDeliveryScalarRelationFilter, Prisma.SupplierDeliveryWhereInput>
 }
 
@@ -251,6 +259,7 @@ export type SupplierDeliveryLineOrderByWithRelationInput = {
   declaredQty?: Prisma.SortOrder
   acceptedQty?: Prisma.SortOrderInput | Prisma.SortOrder
   unitPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  destinationBinId?: Prisma.SortOrderInput | Prisma.SortOrder
   delivery?: Prisma.SupplierDeliveryOrderByWithRelationInput
 }
 
@@ -265,6 +274,7 @@ export type SupplierDeliveryLineWhereUniqueInput = Prisma.AtLeast<{
   declaredQty?: Prisma.DecimalFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.DecimalNullableFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.DecimalNullableFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.StringNullableFilter<"SupplierDeliveryLine"> | string | null
   delivery?: Prisma.XOR<Prisma.SupplierDeliveryScalarRelationFilter, Prisma.SupplierDeliveryWhereInput>
 }, "id">
 
@@ -276,6 +286,7 @@ export type SupplierDeliveryLineOrderByWithAggregationInput = {
   declaredQty?: Prisma.SortOrder
   acceptedQty?: Prisma.SortOrderInput | Prisma.SortOrder
   unitPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  destinationBinId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SupplierDeliveryLineCountOrderByAggregateInput
   _avg?: Prisma.SupplierDeliveryLineAvgOrderByAggregateInput
   _max?: Prisma.SupplierDeliveryLineMaxOrderByAggregateInput
@@ -294,6 +305,7 @@ export type SupplierDeliveryLineScalarWhereWithAggregatesInput = {
   declaredQty?: Prisma.DecimalWithAggregatesFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.DecimalNullableWithAggregatesFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.DecimalNullableWithAggregatesFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.StringNullableWithAggregatesFilter<"SupplierDeliveryLine"> | string | null
 }
 
 export type SupplierDeliveryLineCreateInput = {
@@ -303,6 +315,7 @@ export type SupplierDeliveryLineCreateInput = {
   declaredQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: string | null
   delivery: Prisma.SupplierDeliveryCreateNestedOneWithoutLinesInput
 }
 
@@ -314,6 +327,7 @@ export type SupplierDeliveryLineUncheckedCreateInput = {
   declaredQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: string | null
 }
 
 export type SupplierDeliveryLineUpdateInput = {
@@ -323,6 +337,7 @@ export type SupplierDeliveryLineUpdateInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   delivery?: Prisma.SupplierDeliveryUpdateOneRequiredWithoutLinesNestedInput
 }
 
@@ -334,6 +349,7 @@ export type SupplierDeliveryLineUncheckedUpdateInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryLineCreateManyInput = {
@@ -344,6 +360,7 @@ export type SupplierDeliveryLineCreateManyInput = {
   declaredQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: string | null
 }
 
 export type SupplierDeliveryLineUpdateManyMutationInput = {
@@ -353,6 +370,7 @@ export type SupplierDeliveryLineUpdateManyMutationInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryLineUncheckedUpdateManyInput = {
@@ -363,6 +381,7 @@ export type SupplierDeliveryLineUncheckedUpdateManyInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryLineListRelationFilter = {
@@ -383,6 +402,7 @@ export type SupplierDeliveryLineCountOrderByAggregateInput = {
   declaredQty?: Prisma.SortOrder
   acceptedQty?: Prisma.SortOrder
   unitPrice?: Prisma.SortOrder
+  destinationBinId?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryLineAvgOrderByAggregateInput = {
@@ -399,6 +419,7 @@ export type SupplierDeliveryLineMaxOrderByAggregateInput = {
   declaredQty?: Prisma.SortOrder
   acceptedQty?: Prisma.SortOrder
   unitPrice?: Prisma.SortOrder
+  destinationBinId?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryLineMinOrderByAggregateInput = {
@@ -409,6 +430,7 @@ export type SupplierDeliveryLineMinOrderByAggregateInput = {
   declaredQty?: Prisma.SortOrder
   acceptedQty?: Prisma.SortOrder
   unitPrice?: Prisma.SortOrder
+  destinationBinId?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryLineSumOrderByAggregateInput = {
@@ -466,6 +488,7 @@ export type SupplierDeliveryLineCreateWithoutDeliveryInput = {
   declaredQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: string | null
 }
 
 export type SupplierDeliveryLineUncheckedCreateWithoutDeliveryInput = {
@@ -475,6 +498,7 @@ export type SupplierDeliveryLineUncheckedCreateWithoutDeliveryInput = {
   declaredQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: string | null
 }
 
 export type SupplierDeliveryLineCreateOrConnectWithoutDeliveryInput = {
@@ -514,6 +538,7 @@ export type SupplierDeliveryLineScalarWhereInput = {
   declaredQty?: Prisma.DecimalFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.DecimalNullableFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.DecimalNullableFilter<"SupplierDeliveryLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.StringNullableFilter<"SupplierDeliveryLine"> | string | null
 }
 
 export type SupplierDeliveryLineCreateManyDeliveryInput = {
@@ -523,6 +548,7 @@ export type SupplierDeliveryLineCreateManyDeliveryInput = {
   declaredQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: string | null
 }
 
 export type SupplierDeliveryLineUpdateWithoutDeliveryInput = {
@@ -532,6 +558,7 @@ export type SupplierDeliveryLineUpdateWithoutDeliveryInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryLineUncheckedUpdateWithoutDeliveryInput = {
@@ -541,6 +568,7 @@ export type SupplierDeliveryLineUncheckedUpdateWithoutDeliveryInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type SupplierDeliveryLineUncheckedUpdateManyWithoutDeliveryInput = {
@@ -550,6 +578,7 @@ export type SupplierDeliveryLineUncheckedUpdateManyWithoutDeliveryInput = {
   declaredQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   acceptedQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  destinationBinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -562,6 +591,7 @@ export type SupplierDeliveryLineSelect<ExtArgs extends runtime.Types.Extensions.
   declaredQty?: boolean
   acceptedQty?: boolean
   unitPrice?: boolean
+  destinationBinId?: boolean
   delivery?: boolean | Prisma.SupplierDeliveryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDeliveryLine"]>
 
@@ -573,6 +603,7 @@ export type SupplierDeliveryLineSelectCreateManyAndReturn<ExtArgs extends runtim
   declaredQty?: boolean
   acceptedQty?: boolean
   unitPrice?: boolean
+  destinationBinId?: boolean
   delivery?: boolean | Prisma.SupplierDeliveryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDeliveryLine"]>
 
@@ -584,6 +615,7 @@ export type SupplierDeliveryLineSelectUpdateManyAndReturn<ExtArgs extends runtim
   declaredQty?: boolean
   acceptedQty?: boolean
   unitPrice?: boolean
+  destinationBinId?: boolean
   delivery?: boolean | Prisma.SupplierDeliveryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDeliveryLine"]>
 
@@ -595,9 +627,10 @@ export type SupplierDeliveryLineSelectScalar = {
   declaredQty?: boolean
   acceptedQty?: boolean
   unitPrice?: boolean
+  destinationBinId?: boolean
 }
 
-export type SupplierDeliveryLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "deliveryId" | "productId" | "uomId" | "declaredQty" | "acceptedQty" | "unitPrice", ExtArgs["result"]["supplierDeliveryLine"]>
+export type SupplierDeliveryLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "deliveryId" | "productId" | "uomId" | "declaredQty" | "acceptedQty" | "unitPrice" | "destinationBinId", ExtArgs["result"]["supplierDeliveryLine"]>
 export type SupplierDeliveryLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   delivery?: boolean | Prisma.SupplierDeliveryDefaultArgs<ExtArgs>
 }
@@ -621,6 +654,7 @@ export type $SupplierDeliveryLinePayload<ExtArgs extends runtime.Types.Extension
     declaredQty: runtime.Decimal
     acceptedQty: runtime.Decimal | null
     unitPrice: runtime.Decimal | null
+    destinationBinId: string | null
   }, ExtArgs["result"]["supplierDeliveryLine"]>
   composites: {}
 }
@@ -1052,6 +1086,7 @@ export interface SupplierDeliveryLineFieldRefs {
   readonly declaredQty: Prisma.FieldRef<"SupplierDeliveryLine", 'Decimal'>
   readonly acceptedQty: Prisma.FieldRef<"SupplierDeliveryLine", 'Decimal'>
   readonly unitPrice: Prisma.FieldRef<"SupplierDeliveryLine", 'Decimal'>
+  readonly destinationBinId: Prisma.FieldRef<"SupplierDeliveryLine", 'String'>
 }
     
 

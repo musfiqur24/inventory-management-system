@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../shared/hooks/usePageLoading";
 import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { api } from "../../shared/api/http";
@@ -27,6 +28,7 @@ type Row = {
 type EditForm = { roleId: string; organizationIds: string[] };
 
 export function UserManagementPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const { user } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -40,7 +42,7 @@ export function UserManagementPage() {
 
   const availableRoles = roles.filter(role => user?.isSuperAdmin || !["SUPER_ADMIN", "ADMIN"].includes(role.code));
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     try {
       const [usersResult, rolesResult, orgsResult] = await Promise.all([
         api<{ data: Row[] }>("/users"),
@@ -54,7 +56,7 @@ export function UserManagementPage() {
     } catch (cause) {
       appToast.error(cause instanceof Error ? cause.message : "Could not load users");
     }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -114,7 +116,7 @@ export function UserManagementPage() {
   const shown = filtered.slice((currentPage - 1) * 10, currentPage * 10);
 
   return (
-    <PageContainer cap="ACCESS CONTROL" title="User Management" description="Create users and assign each user to one or more organizations.">
+    <PageContainer loading={pageLoading} cap="ACCESS CONTROL" title="User Management" description="Create users and assign each user to one or more organizations.">
       <Card>
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
           <Input required placeholder="Full name" value={form.fullName} onChange={event => setForm({ ...form, fullName: event.target.value })} />

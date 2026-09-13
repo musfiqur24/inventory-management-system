@@ -1,164 +1,18 @@
-import { StockError } from "../services/stock.js";
-import { Router } from "express";
-import { z } from "zod";
-import { prisma } from "../prisma.js";
-import { Prisma, DocumentStatus } from "../generated/prisma/client.js";
-
-export const deliveriesRouter = Router();
-
-deliveriesRouter.get("/", async (req, res) => {
-  const deliveries = await prisma.supplierDelivery.findMany({
-    where: { organizationId: req.tenantId },
-    include: {
-      lines: true,
-    },
-    orderBy: { deliveredAt: "desc" },
-  });
-
-  const [products, uoms, partners, weighments, requisitions] =
-    await Promise.all([
-      prisma.product.findMany({ where: { organizationId: req.tenantId } }),
-      prisma.unitOfMeasure.findMany({
-        where: { organizationId: req.tenantId },
-      }),
-      prisma.partner.findMany({ where: { organizationId: req.tenantId } }),
-      prisma.weighment.findMany({ where: { organizationId: req.tenantId } }),
-      prisma.purchaseRequisition.findMany({
-        where: { organizationId: req.tenantId },
-      }),
-    ]);
-
-  const prodMap = new Map(products.map((p) => [p.id, p]));
-  const uomMap = new Map(uoms.map((u) => [u.id, u]));
-  const partMap = new Map(partners.map((p) => [p.id, p]));
-  const reqMap = new Map(requisitions.map((r) => [r.id, r]));
-
-  const enriched = deliveries.map((del) => {
-    const supplier = partMap.get(del.supplierId);
-    const requisition = del.requisitionId
-      ? reqMap.get(del.requisitionId)
-      : null;
-    const deliveryWeighments = weighments.filter(
-      (w) => w.deliveryId === del.id,
-    );
-    const latestWeighment = deliveryWeighments[deliveryWeighments.length - 1];
-
-    const lines = del.lines.map((l) => ({
-      ...l,
-      product: prodMap.get(l.productId),
-      uom: uomMap.get(l.uomId),
-    }));
-
-    // Calculate variance if weighment exists
-    let weightVariance: number | null = null;
-    let weightVariancePercent: number | null = null;
-    if (latestWeighment && del.netWeight) {
-      const declaredNet = Number(del.netWeight);
-      const measuredNet = Number(latestWeighment.netWeight);
-      weightVariance = measuredNet - declaredNet;
-      weightVariancePercent =
-        declaredNet > 0 ? (weightVariance / declaredNet) * 100 : 0;
-    }
-
-    return {
-      ...del,
-      supplier,
-      requisition,
-      lines,
-      latestWeighment,
-      weighments: deliveryWeighments,
-      weightVariance,
-      weightVariancePercent,
-    };
-  });
-
-  res.json({ data: enriched });
-});
-
-const createDeliverySchema = z.object({
-  requisitionId: z.string().uuid().optional(),
-  supplierId: z.string().uuid(),
-  invoiceNo: z.string().optional(),
-  vehicleNo: z.string().min(2),
-  grossWeight: z.coerce.number().positive().optional(),
-  tareWeight: z.coerce.number().positive().optional(),
-  netWeight: z.coerce.number().positive().optional(),
-  lines: z
-    .array(
-      z.object({
-        productId: z.string().uuid(),
-        uomId: z.string().uuid(),
-        declaredQty: z.coerce.number().positive(),
-        unitPrice: z.coerce.number().positive().optional(),
-      }),
-    )
-    .min(1, "At least one delivery item is required"),
-});
-
-deliveriesRouter.post("/", async (req, res) => {
-  const parsed = createDeliverySchema.parse(req.body);
-
-  const count = await prisma.supplierDelivery.count({
-    where: { organizationId: req.tenantId },
-  });
-  const year = new Date().getFullYear();
-  const number = `CHAL-${year}-${String(count + 1).padStart(4, "0")}`;
-
-  // If netWeight not directly provided, calculate from gross - tare
-  let netWeight = parsed.netWeight;
-  if (!netWeight && parsed.grossWeight && parsed.tareWeight) {
-    netWeight = parsed.grossWeight - parsed.tareWeight;
-  }
-
-  const delivery = await prisma.$transaction(async (tx) => {
-    if (parsed.requisitionId) {
-      await tx.$queryRaw`SELECT id FROM "PurchaseRequisition" WHERE id=${parsed.requisitionId} AND "organizationId"=${req.tenantId!} FOR UPDATE`;
-      if (
-        !(await tx.purchaseRequisition.findFirst({
-          where: {
-            id: parsed.requisitionId,
-            organizationId: req.tenantId,
-            deletedAt: null,
-          },
-        }))
-      )
-        throw new StockError(
-          "INVALID_REQUISITION",
-          "Requisition not found or deleted.",
-          422,
-        );
-    }
-    return tx.supplierDelivery.create({
-      data: {
-        organizationId: req.tenantId!,
-        number,
-        requisitionId: parsed.requisitionId || null,
-        supplierId: parsed.supplierId,
-        invoiceNo: parsed.invoiceNo?.trim() || null,
-        vehicleNo: parsed.vehicleNo.toUpperCase().trim(),
-        grossWeight: parsed.grossWeight
-          ? new Prisma.Decimal(parsed.grossWeight)
-          : null,
-        tareWeight: parsed.tareWeight
-          ? new Prisma.Decimal(parsed.tareWeight)
-          : null,
-        netWeight: netWeight ? new Prisma.Decimal(netWeight) : null,
-        status: DocumentStatus.SUBMITTED,
-        deliveredAt: new Date(),
-        lines: {
-          create: parsed.lines.map((l) => ({
-            productId: l.productId,
-            uomId: l.uomId,
-            declaredQty: new Prisma.Decimal(l.declaredQty),
-            acceptedQty: new Prisma.Decimal(l.declaredQty),
-            unitPrice: l.unitPrice ? new Prisma.Decimal(l.unitPrice) : null,
-          })),
-        },
-      },
-      include: {
-        lines: true,
-      },
-    });
-  });
-  res.status(201).json({ data: delivery });
-});
+import{randomUUID}from"node:crypto";
+import{Router}from"express";import{z}from"zod";import{prisma}from"../prisma.js";import{Prisma,DocumentStatus}from"../generated/prisma/client.js";import{StockError}from"../services/stock.js";
+export const deliveriesRouter=Router();
+const managerWhere=(organizationId:string,userId?:string)=>({organizationId,...(userId?{userId}:{}),isActive:true,user:{isActive:true},organization:{isActive:true},role:{code:"MANAGER"}}),person={id:true,fullName:true,email:true},include={lines:true}as const;
+async function enriched(data:any[],org:string){const[products,uoms,partners,weights,reqs,users,bins]=await Promise.all([prisma.product.findMany({where:{organizationId:org}}),prisma.unitOfMeasure.findMany({where:{organizationId:org}}),prisma.partner.findMany({where:{organizationId:org}}),prisma.weighment.findMany({where:{organizationId:org}}),prisma.purchaseRequisition.findMany({where:{organizationId:org}}),prisma.user.findMany({where:{memberships:{some:{organizationId:org}}},select:person}),prisma.bin.findMany({where:{organizationId:org},include:{store:true}})]);const map=(a:any[])=>new Map(a.map(x=>[x.id,x])),p=map(products),u=map(uoms),pa=map(partners),rq=map(reqs),us=map(users),bi=map(bins);return data.map(d=>{const ws=weights.filter(w=>w.deliveryId===d.id),latest=ws.at(-1),v=latest&&d.netWeight?Number(latest.netWeight)-Number(d.netWeight):null;return{...d,attachmentData:undefined,hasAttachment:!!d.attachmentName,supplier:pa.get(d.supplierId),requisition:d.requisitionId?rq.get(d.requisitionId):null,assignedManager:d.assignedManagerId?us.get(d.assignedManagerId):null,lines:d.lines.map((l:any)=>({...l,product:p.get(l.productId),uom:u.get(l.uomId),destinationBin:l.destinationBinId?bi.get(l.destinationBinId):null})),latestWeighment:latest,weightVariance:v,weightVariancePercent:v!==null&&Number(d.netWeight)>0?v/Number(d.netWeight)*100:null}})}
+deliveriesRouter.get("/managers",async(req,res)=>{const x=await prisma.organizationMember.findMany({where:managerWhere(req.tenantId!),select:{user:{select:person}},orderBy:{user:{fullName:"asc"}}});res.json({data:x.map(m=>m.user)})});
+deliveriesRouter.get("/",async(req,res)=>{const x=await prisma.supplierDelivery.findMany({where:{organizationId:req.tenantId,deletedAt:null},include,orderBy:{deliveredAt:"desc"}});res.json({data:await enriched(x,req.tenantId!)})});
+deliveriesRouter.get("/:id/attachment",async(req,res)=>{const d=await prisma.supplierDelivery.findFirst({where:{id:String(req.params.id),organizationId:req.tenantId,deletedAt:null},select:{attachmentName:true,attachmentMime:true,attachmentData:true}});if(!d?.attachmentData)return res.status(404).json({error:{code:"NOT_FOUND",message:"Attachment not found."}});res.json({data:{name:d.attachmentName,mime:d.attachmentMime,contentBase64:d.attachmentData}})});
+const line=z.object({productId:z.string().uuid(),uomId:z.string().uuid(),declaredQty:z.coerce.number().positive(),unitPrice:z.coerce.number().positive().optional()});
+const schema=z.object({requisitionId:z.string().uuid().optional(),supplierId:z.string().uuid(),assignedManagerId:z.string().uuid(),invoiceNo:z.string().optional(),vehicleNo:z.string().min(2),grossWeight:z.coerce.number().positive().optional(),tareWeight:z.coerce.number().positive().optional(),attachment:z.object({name:z.string().min(1).max(180),mime:z.enum(["image/png","image/jpeg","application/pdf"]),contentBase64:z.string().min(1)}).optional(),lines:z.array(line).min(1)});
+type Input=z.infer<typeof schema>;
+function checkFile(a:Input["attachment"]){if(!a)return;const b=Buffer.from(a.contentBase64,"base64");if(!b.length||b.length>8*1024*1024)throw new StockError("INVALID_ATTACHMENT","Attachment must be no larger than 8 MB.",422);const ok=a.mime==="image/png"?b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):a.mime==="image/jpeg"?b[0]===255&&b[1]===216:b.subarray(0,5).toString()==="%PDF-";if(!ok)throw new StockError("INVALID_ATTACHMENT","Attachment content does not match its file type.",422)}
+async function validate(tx:Prisma.TransactionClient,org:string,x:Input){if(!await tx.organizationMember.findFirst({where:managerWhere(org,x.assignedManagerId)}))throw new StockError("INVALID_MANAGER","Select an active Manager in this organization.",422);if(!await tx.partner.findFirst({where:{id:x.supplierId,organizationId:org,partnerType:"SUPPLIER"}}))throw new StockError("INVALID_SUPPLIER","Select a supplier in this organization.",422);const ps=[...new Set(x.lines.map(l=>l.productId))],us=[...new Set(x.lines.map(l=>l.uomId))];const[a,b]=await Promise.all([tx.product.count({where:{organizationId:org,isActive:true,type:"RAW_MATERIAL",id:{in:ps}}}),tx.unitOfMeasure.count({where:{organizationId:org,isActive:true,id:{in:us}}})]);if(a!==ps.length||b!==us.length)throw new StockError("INVALID_LINES","Select active raw materials and units from this organization.",422);if(x.requisitionId&&!await tx.purchaseRequisition.findFirst({where:{id:x.requisitionId,organizationId:org,deletedAt:null,status:{in:["APPROVED","PARTIALLY_RECEIVED"]}}}))throw new StockError("INVALID_REQUISITION","Select an approved requisition.",422);checkFile(x.attachment)}
+function values(x:Input){const net=x.grossWeight&&x.tareWeight?x.grossWeight-x.tareWeight:undefined;return{requisitionId:x.requisitionId||null,supplierId:x.supplierId,assignedManagerId:x.assignedManagerId,invoiceNo:x.invoiceNo?.trim()||null,vehicleNo:x.vehicleNo.toUpperCase().trim(),grossWeight:x.grossWeight?new Prisma.Decimal(x.grossWeight):null,tareWeight:x.tareWeight?new Prisma.Decimal(x.tareWeight):null,netWeight:net?new Prisma.Decimal(net):null,...(x.attachment?{attachmentName:x.attachment.name,attachmentMime:x.attachment.mime,attachmentData:x.attachment.contentBase64}:{}),lines:{create:x.lines.map(l=>({productId:l.productId,uomId:l.uomId,declaredQty:new Prisma.Decimal(l.declaredQty),acceptedQty:new Prisma.Decimal(0),unitPrice:l.unitPrice?new Prisma.Decimal(l.unitPrice):null}))}}}
+deliveriesRouter.post("/",async(req,res)=>{const x=schema.parse(req.body),org=req.tenantId!;const d=await prisma.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${org} FOR UPDATE`;await validate(tx,org,x);let n=await tx.supplierDelivery.count({where:{organizationId:org}})+1,p="CHAL-"+new Date().getFullYear()+"-",number=p+String(n).padStart(4,"0");while(await tx.supplierDelivery.findUnique({where:{organizationId_number:{organizationId:org,number}}}))number=p+String(++n).padStart(4,"0");const made=await tx.supplierDelivery.create({data:{organizationId:org,number,createdById:req.auth!.id,status:DocumentStatus.SUBMITTED,deliveredAt:new Date(),...values(x)},include});await tx.notification.create({data:{organizationId:org,recipientId:x.assignedManagerId,deliveryId:made.id,title:"Supplier challan awaiting approval",message:made.number+" is ready for approval and stock receipt."}});return made});res.status(201).json({data:d})});
+deliveriesRouter.put("/:id",async(req,res)=>{const x=schema.parse(req.body),org=req.tenantId!,id=String(req.params.id);const d=await prisma.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "SupplierDelivery" WHERE id=${id} AND "organizationId"=${org} FOR UPDATE`;const old=await tx.supplierDelivery.findFirst({where:{id,organizationId:org,deletedAt:null}});if(!old)throw new StockError("NOT_FOUND","Challan not found.",404);if(old.createdById!==req.auth!.id)throw new StockError("EDIT_FORBIDDEN","Only its creator can edit this challan.",403);if(old.status!=="SUBMITTED"||old.approvedAt)throw new StockError("INVALID_STATUS","Approved challans cannot be edited.");await validate(tx,org,x);const v=values(x),updated=await tx.supplierDelivery.update({where:{id},data:{...v,lines:{deleteMany:{},create:v.lines.create}},include});await tx.notification.deleteMany({where:{organizationId:org,deliveryId:id}});await tx.notification.create({data:{organizationId:org,recipientId:x.assignedManagerId,deliveryId:id,title:"Supplier challan updated",message:updated.number+" requires your approval."}});return updated});res.json({data:d})});
+deliveriesRouter.post("/:id/approve",async(req,res)=>{const org=req.tenantId!,id=String(req.params.id),uid=req.auth!.id;const d=await prisma.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "SupplierDelivery" WHERE id=${id} AND "organizationId"=${org} FOR UPDATE`;const current=await tx.supplierDelivery.findFirst({where:{id,organizationId:org,deletedAt:null}});if(!current)throw new StockError("NOT_FOUND","Challan not found.",404);if(current.assignedManagerId!==uid||!await tx.organizationMember.findFirst({where:managerWhere(org,uid)}))throw new StockError("APPROVAL_FORBIDDEN","Only the assigned manager can approve.",403);if(current.status!=="SUBMITTED"||current.approvedAt)throw new StockError("INVALID_STATUS","Only a pending challan can be approved.");await tx.supplierDelivery.update({where:{id},data:{status:DocumentStatus.APPROVED,approvedAt:new Date(),approvedById:uid}});await tx.notification.updateMany({where:{organizationId:org,recipientId:uid,deliveryId:id,readAt:null},data:{readAt:new Date()}});return tx.supplierDelivery.findUnique({where:{id},include})});res.json({data:d})});
+deliveriesRouter.delete("/:id",async(req,res)=>{const org=req.tenantId!,id=String(req.params.id),uid=req.auth!.id;if(!await prisma.organizationMember.findFirst({where:managerWhere(org,uid)}))throw new StockError("DELETE_FORBIDDEN","Only a Manager can delete challans.",403);if(!await prisma.supplierDelivery.findFirst({where:{id,organizationId:org,deletedAt:null}}))throw new StockError("NOT_FOUND","Challan not found.",404);await prisma.$transaction([prisma.supplierDelivery.update({where:{id},data:{deletedAt:new Date(),status:DocumentStatus.CANCELLED}}),prisma.notification.deleteMany({where:{organizationId:org,deliveryId:id}})]);res.status(204).send()});

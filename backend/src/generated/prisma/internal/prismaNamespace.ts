@@ -405,6 +405,7 @@ export const ModelName = {
   ControlLayer: 'ControlLayer',
   SubLayer: 'SubLayer',
   SubSubLayer: 'SubSubLayer',
+  Currency: 'Currency',
   Product: 'Product',
   Partner: 'Partner',
   Store: 'Store',
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "product" | "partner" | "store" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken" | "notification"
+    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "currency" | "product" | "partner" | "store" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken" | "notification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1043,6 +1044,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SubSubLayerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SubSubLayerCountAggregateOutputType> | number
+        }
+      }
+    }
+    Currency: {
+      payload: Prisma.$CurrencyPayload<ExtArgs>
+      fields: Prisma.CurrencyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CurrencyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CurrencyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>
+        }
+        findFirst: {
+          args: Prisma.CurrencyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CurrencyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>
+        }
+        findMany: {
+          args: Prisma.CurrencyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>[]
+        }
+        create: {
+          args: Prisma.CurrencyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>
+        }
+        createMany: {
+          args: Prisma.CurrencyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CurrencyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>[]
+        }
+        delete: {
+          args: Prisma.CurrencyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>
+        }
+        update: {
+          args: Prisma.CurrencyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>
+        }
+        deleteMany: {
+          args: Prisma.CurrencyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CurrencyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CurrencyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>[]
+        }
+        upsert: {
+          args: Prisma.CurrencyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyPayload>
+        }
+        aggregate: {
+          args: Prisma.CurrencyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCurrency>
+        }
+        groupBy: {
+          args: Prisma.CurrencyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CurrencyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CurrencyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CurrencyCountAggregateOutputType> | number
         }
       }
     }
@@ -3405,6 +3480,19 @@ export const SubSubLayerScalarFieldEnum = {
 export type SubSubLayerScalarFieldEnum = (typeof SubSubLayerScalarFieldEnum)[keyof typeof SubSubLayerScalarFieldEnum]
 
 
+export const CurrencyScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  code: 'code',
+  name: 'name',
+  symbol: 'symbol',
+  decimalPlaces: 'decimalPlaces',
+  isActive: 'isActive'
+} as const
+
+export type CurrencyScalarFieldEnum = (typeof CurrencyScalarFieldEnum)[keyof typeof CurrencyScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -3415,6 +3503,8 @@ export const ProductScalarFieldEnum = {
   type: 'type',
   shelfLifeDays: 'shelfLifeDays',
   reorderLevel: 'reorderLevel',
+  amount: 'amount',
+  currencyId: 'currencyId',
   isActive: 'isActive'
 } as const
 
@@ -3510,7 +3600,15 @@ export const SupplierDeliveryScalarFieldEnum = {
   tareWeight: 'tareWeight',
   netWeight: 'netWeight',
   status: 'status',
-  deliveredAt: 'deliveredAt'
+  deliveredAt: 'deliveredAt',
+  createdById: 'createdById',
+  assignedManagerId: 'assignedManagerId',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  deletedAt: 'deletedAt',
+  attachmentName: 'attachmentName',
+  attachmentMime: 'attachmentMime',
+  attachmentData: 'attachmentData'
 } as const
 
 export type SupplierDeliveryScalarFieldEnum = (typeof SupplierDeliveryScalarFieldEnum)[keyof typeof SupplierDeliveryScalarFieldEnum]
@@ -3523,7 +3621,8 @@ export const SupplierDeliveryLineScalarFieldEnum = {
   uomId: 'uomId',
   declaredQty: 'declaredQty',
   acceptedQty: 'acceptedQty',
-  unitPrice: 'unitPrice'
+  unitPrice: 'unitPrice',
+  destinationBinId: 'destinationBinId'
 } as const
 
 export type SupplierDeliveryLineScalarFieldEnum = (typeof SupplierDeliveryLineScalarFieldEnum)[keyof typeof SupplierDeliveryLineScalarFieldEnum]
@@ -3822,6 +3921,7 @@ export const NotificationScalarFieldEnum = {
   organizationId: 'organizationId',
   recipientId: 'recipientId',
   requisitionId: 'requisitionId',
+  deliveryId: 'deliveryId',
   title: 'title',
   message: 'message',
   createdAt: 'createdAt',
@@ -4180,6 +4280,7 @@ export type GlobalOmitConfig = {
   controlLayer?: Prisma.ControlLayerOmit
   subLayer?: Prisma.SubLayerOmit
   subSubLayer?: Prisma.SubSubLayerOmit
+  currency?: Prisma.CurrencyOmit
   product?: Prisma.ProductOmit
   partner?: Prisma.PartnerOmit
   store?: Prisma.StoreOmit

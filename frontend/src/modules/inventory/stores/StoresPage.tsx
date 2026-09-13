@@ -28,6 +28,8 @@ import {
   type Activity,
 } from "./store.types";
 
+type RequisitionOption={id:string;number:string;status:string};
+
 export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const isSetup = !fixedType;
   const { can } = useAuth();
@@ -36,7 +38,8 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     [storeId, setStoreId] = useState("");
   const [bins, setBins] = useState<Bin[]>([]),
     [balances, setBalances] = useState<StockBalance[]>([]),
-    [activity, setActivity] = useState<Activity[]>([]);
+    [activity, setActivity] = useState<Activity[]>([]),
+    [requisitions,setRequisitions]=useState<RequisitionOption[]>([]);
   const [total, setTotal] = useState(0),
     [page, setPage] = useState(1),
     [revision, setRevision] = useState(0);
@@ -47,6 +50,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const [binId, setBinId] = useState(""),
     [search, setSearch] = useState(""),
     [direction, setDirection] = useState(""),
+    [requisitionFilter,setRequisitionFilter]=useState(""),
     [from, setFrom] = useState(""),
     [to, setTo] = useState("");
   const [loading, setLoading] = useState(false),
@@ -91,6 +95,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       active = false;
     };
   }, [fixedType, revision]);
+  useEffect(()=>{if(fixedType!=="RM_STORE")return;void api<{data:RequisitionOption[]}>("/purchase-requisitions").then(r=>setRequisitions(r.data.filter(x=>!["CANCELLED","REJECTED"].includes(x.status)))).catch(e=>appToast.error(e.message))},[fixedType,revision]);
   useEffect(() => {
     if (!storeId) {
       setBins([]);
@@ -114,13 +119,19 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
         });
         if (binId) params.set("binId", binId);
         if (direction) params.set("direction", direction);
+        if (requisitionFilter) params.set("search", requisitionFilter);
         if (from)
           params.set("from", new Date(from + "T00:00:00").toISOString());
         if (to) params.set("to", new Date(to + "T23:59:59.999").toISOString());
         const [b, stock, history] = await Promise.all([
           api<{ data: Bin[] }>(`/bins?storeId=${storeId}`),
           api<{ data: StockBalance[] }>(
-            `/stores/${storeId}/balances${binId ? "?binId=" + binId : ""}`,
+            `/stores/${storeId}/balances?${new URLSearchParams({
+              ...(binId ? { binId } : {}),
+              ...(fixedType === "RM_STORE" && requisitionFilter
+                ? { requisition: requisitionFilter }
+                : {}),
+            })}`,
           ),
           api<{ data: Activity[]; total: number }>(
             `/stores/${storeId}/activity?${params}`,
@@ -152,12 +163,13 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       window.clearInterval(timer);
       window.removeEventListener("focus", onFocus);
     };
-  }, [storeId, binId, page, direction, from, to, revision, isSetup]);
+  }, [storeId, binId, page, direction, requisitionFilter, from, to, revision, isSetup]);
   const chooseStore = (id: string) => {
     setStoreId(id);
     setBinId("");
     setPage(1);
     setSearch("");
+    setRequisitionFilter("");
     setBalances([]);
     setActivity([]);
   };
@@ -218,7 +230,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     }, {}),
   );
   return (
-    <PageContainer
+    <PageContainer loading={storeLoading}
       cap={fixedType ? "INVENTORY" : "MASTER SETUP"}
       title={fixedType ? storeTypeLabel(fixedType) : "Stores & Bins"}
       description={isSetup ? "Configure RM and FM stores and the bin positions inside each store." : "View products in your store, receive and release stock, and trace store activity."}
@@ -381,7 +393,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-[minmax(0,16rem)_minmax(0,11rem)_minmax(0,11rem)_minmax(0,11rem)]">
+            <div className="grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-[minmax(0,15rem)_repeat(4,minmax(0,11rem))]">
               {tab !== "activity" && (
                 <div className="min-w-0">
                   <label
@@ -428,8 +440,29 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   </Dropdown>
                 </div>
               )}
+              {tab === "stock" && fixedType === "RM_STORE" && (
+                <div className="min-w-0">
+                  <label htmlFor="stock-requisition" className="mb-2 block text-sm font-semibold">
+                    Requisition
+                  </label>
+                  <Dropdown
+                    id="stock-requisition"
+                    value={requisitionFilter}
+                    onChange={(e) => {
+                      setRequisitionFilter(e.target.value);
+                      setPage(1);
+                    }}
+                  >
+                    <option value="">All requisitions</option>
+                    {requisitions.map((r) => (
+                      <option key={r.id} value={r.number}>{r.number}</option>
+                    ))}
+                  </Dropdown>
+                </div>
+              )}
               {tab === "activity" && (
                 <>
+                  {fixedType === "RM_STORE" && <div className="min-w-0"><label htmlFor="activity-requisition" className="mb-2 block text-sm font-semibold">Requisition</label><Dropdown id="activity-requisition" value={requisitionFilter} onChange={e=>{setRequisitionFilter(e.target.value);setPage(1)}}><option value="">All requisitions</option>{requisitions.map(r=><option key={r.id} value={r.number}>{r.number}</option>)}</Dropdown></div>}
                   <div className="min-w-0">
                     <label
                       htmlFor="activity-direction"
@@ -491,7 +524,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               )}
             </div>
             {tab === "bins" && (
-              <DataTable
+              <DataTable loading={loading && bins.length === 0 && balances.length === 0 && activity.length === 0}
                 columns={[
                   "Bin Code",
                   "Bin Name",
@@ -545,7 +578,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               </DataTable>
             )}
             {tab === "stock" && (
-              <DataTable
+              <DataTable loading={loading && bins.length === 0 && balances.length === 0 && activity.length === 0}
                 columns={[
                   "Product",
                   "Bin / Position",
@@ -627,7 +660,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               </DataTable>
             )}
             {tab === "activity" && (
-              <DataTable
+              <DataTable loading={loading && bins.length === 0 && balances.length === 0 && activity.length === 0}
                 columns={[
                   "Date & Time",
                   "In / Out",

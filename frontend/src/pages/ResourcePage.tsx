@@ -1,3 +1,4 @@
+import { usePageLoading } from "../shared/hooks/usePageLoading";
 import { useEffect, useState } from "react";
 import { useToastMessage } from "../components/ui/Toast";
 import { Plus, RefreshCw } from "lucide-react";
@@ -31,11 +32,12 @@ export function ResourcePage({
   report = false,
   readOnly = false,
 }: ResourcePageProps) {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [form, setForm] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
   const [, setMessage] = useToastMessage();
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg())
       return setMessage("Select or create an organisation first.");
     try {
@@ -49,7 +51,7 @@ export function ResourcePage({
         error instanceof Error ? error.message : "Unable to load records",
       );
     }
-  };
+  });};
   useEffect(() => {
     void load();
   }, [resource]);
@@ -85,7 +87,7 @@ export function ResourcePage({
         .slice(0, 7)
     : fields.map((field) => field.name);
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       title={title}
       description={subtitle}
       actions={

@@ -199,6 +199,7 @@ export type OrganizationWhereInput = {
   subLayers?: Prisma.SubLayerListRelationFilter
   subSubLayers?: Prisma.SubSubLayerListRelationFilter
   products?: Prisma.ProductListRelationFilter
+  currencies?: Prisma.CurrencyListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -217,6 +218,7 @@ export type OrganizationOrderByWithRelationInput = {
   subLayers?: Prisma.SubLayerOrderByRelationAggregateInput
   subSubLayers?: Prisma.SubSubLayerOrderByRelationAggregateInput
   products?: Prisma.ProductOrderByRelationAggregateInput
+  currencies?: Prisma.CurrencyOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -238,6 +240,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   subLayers?: Prisma.SubLayerListRelationFilter
   subSubLayers?: Prisma.SubSubLayerListRelationFilter
   products?: Prisma.ProductListRelationFilter
+  currencies?: Prisma.CurrencyListRelationFilter
 }, "id" | "code">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -280,6 +283,7 @@ export type OrganizationCreateInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -298,6 +302,7 @@ export type OrganizationUncheckedCreateInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUpdateInput = {
@@ -316,6 +321,7 @@ export type OrganizationUpdateInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -334,6 +340,7 @@ export type OrganizationUncheckedUpdateInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -491,6 +498,20 @@ export type OrganizationUpdateOneRequiredWithoutSubSubLayersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutSubSubLayersInput, Prisma.OrganizationUpdateWithoutSubSubLayersInput>, Prisma.OrganizationUncheckedUpdateWithoutSubSubLayersInput>
 }
 
+export type OrganizationCreateNestedOneWithoutCurrenciesInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutCurrenciesInput, Prisma.OrganizationUncheckedCreateWithoutCurrenciesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutCurrenciesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutCurrenciesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutCurrenciesInput, Prisma.OrganizationUncheckedCreateWithoutCurrenciesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutCurrenciesInput
+  upsert?: Prisma.OrganizationUpsertWithoutCurrenciesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutCurrenciesInput, Prisma.OrganizationUpdateWithoutCurrenciesInput>, Prisma.OrganizationUncheckedUpdateWithoutCurrenciesInput>
+}
+
 export type OrganizationCreateNestedOneWithoutProductsInput = {
   create?: Prisma.XOR<Prisma.OrganizationCreateWithoutProductsInput, Prisma.OrganizationUncheckedCreateWithoutProductsInput>
   connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutProductsInput
@@ -548,6 +569,7 @@ export type OrganizationCreateWithoutSitesInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutSitesInput = {
@@ -565,6 +587,7 @@ export type OrganizationUncheckedCreateWithoutSitesInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutSitesInput = {
@@ -598,6 +621,7 @@ export type OrganizationUpdateWithoutSitesInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutSitesInput = {
@@ -615,6 +639,7 @@ export type OrganizationUncheckedUpdateWithoutSitesInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutUomsInput = {
@@ -632,6 +657,7 @@ export type OrganizationCreateWithoutUomsInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutUomsInput = {
@@ -649,6 +675,7 @@ export type OrganizationUncheckedCreateWithoutUomsInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutUomsInput = {
@@ -682,6 +709,7 @@ export type OrganizationUpdateWithoutUomsInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutUomsInput = {
@@ -699,6 +727,7 @@ export type OrganizationUncheckedUpdateWithoutUomsInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutGroupLayersInput = {
@@ -716,6 +745,7 @@ export type OrganizationCreateWithoutGroupLayersInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutGroupLayersInput = {
@@ -733,6 +763,7 @@ export type OrganizationUncheckedCreateWithoutGroupLayersInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutGroupLayersInput = {
@@ -766,6 +797,7 @@ export type OrganizationUpdateWithoutGroupLayersInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutGroupLayersInput = {
@@ -783,6 +815,7 @@ export type OrganizationUncheckedUpdateWithoutGroupLayersInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutControlLayersInput = {
@@ -800,6 +833,7 @@ export type OrganizationCreateWithoutControlLayersInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutControlLayersInput = {
@@ -817,6 +851,7 @@ export type OrganizationUncheckedCreateWithoutControlLayersInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutControlLayersInput = {
@@ -850,6 +885,7 @@ export type OrganizationUpdateWithoutControlLayersInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutControlLayersInput = {
@@ -867,6 +903,7 @@ export type OrganizationUncheckedUpdateWithoutControlLayersInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutSubLayersInput = {
@@ -884,6 +921,7 @@ export type OrganizationCreateWithoutSubLayersInput = {
   controlLayers?: Prisma.ControlLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutSubLayersInput = {
@@ -901,6 +939,7 @@ export type OrganizationUncheckedCreateWithoutSubLayersInput = {
   controlLayers?: Prisma.ControlLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutSubLayersInput = {
@@ -934,6 +973,7 @@ export type OrganizationUpdateWithoutSubLayersInput = {
   controlLayers?: Prisma.ControlLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutSubLayersInput = {
@@ -951,6 +991,7 @@ export type OrganizationUncheckedUpdateWithoutSubLayersInput = {
   controlLayers?: Prisma.ControlLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutSubSubLayersInput = {
@@ -968,6 +1009,7 @@ export type OrganizationCreateWithoutSubSubLayersInput = {
   controlLayers?: Prisma.ControlLayerCreateNestedManyWithoutOrganizationInput
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutSubSubLayersInput = {
@@ -985,6 +1027,7 @@ export type OrganizationUncheckedCreateWithoutSubSubLayersInput = {
   controlLayers?: Prisma.ControlLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutSubSubLayersInput = {
@@ -1018,6 +1061,7 @@ export type OrganizationUpdateWithoutSubSubLayersInput = {
   controlLayers?: Prisma.ControlLayerUpdateManyWithoutOrganizationNestedInput
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutSubSubLayersInput = {
@@ -1034,6 +1078,95 @@ export type OrganizationUncheckedUpdateWithoutSubSubLayersInput = {
   groupLayers?: Prisma.GroupLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   controlLayers?: Prisma.ControlLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutCurrenciesInput = {
+  id?: string
+  code: string
+  name: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sites?: Prisma.SiteCreateNestedManyWithoutOrganizationInput
+  members?: Prisma.OrganizationMemberCreateNestedManyWithoutOrganizationInput
+  uoms?: Prisma.UnitOfMeasureCreateNestedManyWithoutOrganizationInput
+  stores?: Prisma.StoreCreateNestedManyWithoutOrganizationInput
+  groupLayers?: Prisma.GroupLayerCreateNestedManyWithoutOrganizationInput
+  controlLayers?: Prisma.ControlLayerCreateNestedManyWithoutOrganizationInput
+  subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
+  subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
+  products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutCurrenciesInput = {
+  id?: string
+  code: string
+  name: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sites?: Prisma.SiteUncheckedCreateNestedManyWithoutOrganizationInput
+  members?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+  uoms?: Prisma.UnitOfMeasureUncheckedCreateNestedManyWithoutOrganizationInput
+  stores?: Prisma.StoreUncheckedCreateNestedManyWithoutOrganizationInput
+  groupLayers?: Prisma.GroupLayerUncheckedCreateNestedManyWithoutOrganizationInput
+  controlLayers?: Prisma.ControlLayerUncheckedCreateNestedManyWithoutOrganizationInput
+  subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
+  subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutCurrenciesInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutCurrenciesInput, Prisma.OrganizationUncheckedCreateWithoutCurrenciesInput>
+}
+
+export type OrganizationUpsertWithoutCurrenciesInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutCurrenciesInput, Prisma.OrganizationUncheckedUpdateWithoutCurrenciesInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutCurrenciesInput, Prisma.OrganizationUncheckedCreateWithoutCurrenciesInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutCurrenciesInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutCurrenciesInput, Prisma.OrganizationUncheckedUpdateWithoutCurrenciesInput>
+}
+
+export type OrganizationUpdateWithoutCurrenciesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sites?: Prisma.SiteUpdateManyWithoutOrganizationNestedInput
+  members?: Prisma.OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+  uoms?: Prisma.UnitOfMeasureUpdateManyWithoutOrganizationNestedInput
+  stores?: Prisma.StoreUpdateManyWithoutOrganizationNestedInput
+  groupLayers?: Prisma.GroupLayerUpdateManyWithoutOrganizationNestedInput
+  controlLayers?: Prisma.ControlLayerUpdateManyWithoutOrganizationNestedInput
+  subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
+  subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
+  products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutCurrenciesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sites?: Prisma.SiteUncheckedUpdateManyWithoutOrganizationNestedInput
+  members?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+  uoms?: Prisma.UnitOfMeasureUncheckedUpdateManyWithoutOrganizationNestedInput
+  stores?: Prisma.StoreUncheckedUpdateManyWithoutOrganizationNestedInput
+  groupLayers?: Prisma.GroupLayerUncheckedUpdateManyWithoutOrganizationNestedInput
+  controlLayers?: Prisma.ControlLayerUncheckedUpdateManyWithoutOrganizationNestedInput
+  subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
+  subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
@@ -1052,6 +1185,7 @@ export type OrganizationCreateWithoutProductsInput = {
   controlLayers?: Prisma.ControlLayerCreateNestedManyWithoutOrganizationInput
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutProductsInput = {
@@ -1069,6 +1203,7 @@ export type OrganizationUncheckedCreateWithoutProductsInput = {
   controlLayers?: Prisma.ControlLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutProductsInput = {
@@ -1102,6 +1237,7 @@ export type OrganizationUpdateWithoutProductsInput = {
   controlLayers?: Prisma.ControlLayerUpdateManyWithoutOrganizationNestedInput
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutProductsInput = {
@@ -1119,6 +1255,7 @@ export type OrganizationUncheckedUpdateWithoutProductsInput = {
   controlLayers?: Prisma.ControlLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutStoresInput = {
@@ -1136,6 +1273,7 @@ export type OrganizationCreateWithoutStoresInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutStoresInput = {
@@ -1153,6 +1291,7 @@ export type OrganizationUncheckedCreateWithoutStoresInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutStoresInput = {
@@ -1186,6 +1325,7 @@ export type OrganizationUpdateWithoutStoresInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutStoresInput = {
@@ -1203,6 +1343,7 @@ export type OrganizationUncheckedUpdateWithoutStoresInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutMembersInput = {
@@ -1220,6 +1361,7 @@ export type OrganizationCreateWithoutMembersInput = {
   subLayers?: Prisma.SubLayerCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutMembersInput = {
@@ -1237,6 +1379,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   subLayers?: Prisma.SubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   subSubLayers?: Prisma.SubSubLayerUncheckedCreateNestedManyWithoutOrganizationInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  currencies?: Prisma.CurrencyUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutMembersInput = {
@@ -1270,6 +1413,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   subLayers?: Prisma.SubLayerUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutMembersInput = {
@@ -1287,6 +1431,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   subLayers?: Prisma.SubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   subSubLayers?: Prisma.SubSubLayerUncheckedUpdateManyWithoutOrganizationNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  currencies?: Prisma.CurrencyUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 
@@ -1304,6 +1449,7 @@ export type OrganizationCountOutputType = {
   subLayers: number
   subSubLayers: number
   products: number
+  currencies: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1316,6 +1462,7 @@ export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   subLayers?: boolean | OrganizationCountOutputTypeCountSubLayersArgs
   subSubLayers?: boolean | OrganizationCountOutputTypeCountSubSubLayersArgs
   products?: boolean | OrganizationCountOutputTypeCountProductsArgs
+  currencies?: boolean | OrganizationCountOutputTypeCountCurrenciesArgs
 }
 
 /**
@@ -1391,6 +1538,13 @@ export type OrganizationCountOutputTypeCountProductsArgs<ExtArgs extends runtime
   where?: Prisma.ProductWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountCurrenciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CurrencyWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1408,6 +1562,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   subLayers?: boolean | Prisma.Organization$subLayersArgs<ExtArgs>
   subSubLayers?: boolean | Prisma.Organization$subSubLayersArgs<ExtArgs>
   products?: boolean | Prisma.Organization$productsArgs<ExtArgs>
+  currencies?: boolean | Prisma.Organization$currenciesArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -1449,6 +1604,7 @@ export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.Interna
   subLayers?: boolean | Prisma.Organization$subLayersArgs<ExtArgs>
   subSubLayers?: boolean | Prisma.Organization$subSubLayersArgs<ExtArgs>
   products?: boolean | Prisma.Organization$productsArgs<ExtArgs>
+  currencies?: boolean | Prisma.Organization$currenciesArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1466,6 +1622,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     subLayers: Prisma.$SubLayerPayload<ExtArgs>[]
     subSubLayers: Prisma.$SubSubLayerPayload<ExtArgs>[]
     products: Prisma.$ProductPayload<ExtArgs>[]
+    currencies: Prisma.$CurrencyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1877,6 +2034,7 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
   subLayers<T extends Prisma.Organization$subLayersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$subLayersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubLayerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   subSubLayers<T extends Prisma.Organization$subSubLayersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$subSubLayersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubSubLayerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.Organization$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  currencies<T extends Prisma.Organization$currenciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$currenciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CurrencyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2518,6 +2676,30 @@ export type Organization$productsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
+}
+
+/**
+ * Organization.currencies
+ */
+export type Organization$currenciesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Currency
+   */
+  select?: Prisma.CurrencySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Currency
+   */
+  omit?: Prisma.CurrencyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CurrencyInclude<ExtArgs> | null
+  where?: Prisma.CurrencyWhereInput
+  orderBy?: Prisma.CurrencyOrderByWithRelationInput | Prisma.CurrencyOrderByWithRelationInput[]
+  cursor?: Prisma.CurrencyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CurrencyScalarFieldEnum | Prisma.CurrencyScalarFieldEnum[]
 }
 
 /**

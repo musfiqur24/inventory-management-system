@@ -29,11 +29,13 @@ export type AggregateProduct = {
 export type ProductAvgAggregateOutputType = {
   shelfLifeDays: number | null
   reorderLevel: runtime.Decimal | null
+  amount: runtime.Decimal | null
 }
 
 export type ProductSumAggregateOutputType = {
   shelfLifeDays: number | null
   reorderLevel: runtime.Decimal | null
+  amount: runtime.Decimal | null
 }
 
 export type ProductMinAggregateOutputType = {
@@ -46,6 +48,8 @@ export type ProductMinAggregateOutputType = {
   type: $Enums.ProductType | null
   shelfLifeDays: number | null
   reorderLevel: runtime.Decimal | null
+  amount: runtime.Decimal | null
+  currencyId: string | null
   isActive: boolean | null
 }
 
@@ -59,6 +63,8 @@ export type ProductMaxAggregateOutputType = {
   type: $Enums.ProductType | null
   shelfLifeDays: number | null
   reorderLevel: runtime.Decimal | null
+  amount: runtime.Decimal | null
+  currencyId: string | null
   isActive: boolean | null
 }
 
@@ -72,6 +78,8 @@ export type ProductCountAggregateOutputType = {
   type: number
   shelfLifeDays: number
   reorderLevel: number
+  amount: number
+  currencyId: number
   isActive: number
   _all: number
 }
@@ -80,11 +88,13 @@ export type ProductCountAggregateOutputType = {
 export type ProductAvgAggregateInputType = {
   shelfLifeDays?: true
   reorderLevel?: true
+  amount?: true
 }
 
 export type ProductSumAggregateInputType = {
   shelfLifeDays?: true
   reorderLevel?: true
+  amount?: true
 }
 
 export type ProductMinAggregateInputType = {
@@ -97,6 +107,8 @@ export type ProductMinAggregateInputType = {
   type?: true
   shelfLifeDays?: true
   reorderLevel?: true
+  amount?: true
+  currencyId?: true
   isActive?: true
 }
 
@@ -110,6 +122,8 @@ export type ProductMaxAggregateInputType = {
   type?: true
   shelfLifeDays?: true
   reorderLevel?: true
+  amount?: true
+  currencyId?: true
   isActive?: true
 }
 
@@ -123,6 +137,8 @@ export type ProductCountAggregateInputType = {
   type?: true
   shelfLifeDays?: true
   reorderLevel?: true
+  amount?: true
+  currencyId?: true
   isActive?: true
   _all?: true
 }
@@ -223,6 +239,8 @@ export type ProductGroupByOutputType = {
   type: $Enums.ProductType
   shelfLifeDays: number | null
   reorderLevel: runtime.Decimal | null
+  amount: runtime.Decimal | null
+  currencyId: string | null
   isActive: boolean
   _count: ProductCountAggregateOutputType | null
   _avg: ProductAvgAggregateOutputType | null
@@ -259,10 +277,13 @@ export type ProductWhereInput = {
   type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   shelfLifeDays?: Prisma.IntNullableFilter<"Product"> | number | null
   reorderLevel?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.StringNullableFilter<"Product"> | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   category?: Prisma.XOR<Prisma.SubSubLayerScalarRelationFilter, Prisma.SubSubLayerWhereInput>
   baseUom?: Prisma.XOR<Prisma.UnitOfMeasureScalarRelationFilter, Prisma.UnitOfMeasureWhereInput>
+  currency?: Prisma.XOR<Prisma.CurrencyNullableScalarRelationFilter, Prisma.CurrencyWhereInput> | null
   balances?: Prisma.InventoryBalanceListRelationFilter
 }
 
@@ -276,10 +297,13 @@ export type ProductOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   shelfLifeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   reorderLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  amount?: Prisma.SortOrderInput | Prisma.SortOrder
+  currencyId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
   category?: Prisma.SubSubLayerOrderByWithRelationInput
   baseUom?: Prisma.UnitOfMeasureOrderByWithRelationInput
+  currency?: Prisma.CurrencyOrderByWithRelationInput
   balances?: Prisma.InventoryBalanceOrderByRelationAggregateInput
 }
 
@@ -297,10 +321,13 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   shelfLifeDays?: Prisma.IntNullableFilter<"Product"> | number | null
   reorderLevel?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.StringNullableFilter<"Product"> | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   category?: Prisma.XOR<Prisma.SubSubLayerScalarRelationFilter, Prisma.SubSubLayerWhereInput>
   baseUom?: Prisma.XOR<Prisma.UnitOfMeasureScalarRelationFilter, Prisma.UnitOfMeasureWhereInput>
+  currency?: Prisma.XOR<Prisma.CurrencyNullableScalarRelationFilter, Prisma.CurrencyWhereInput> | null
   balances?: Prisma.InventoryBalanceListRelationFilter
 }, "id" | "organizationId_sku">
 
@@ -314,6 +341,8 @@ export type ProductOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   shelfLifeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   reorderLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  amount?: Prisma.SortOrderInput | Prisma.SortOrder
+  currencyId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
   _avg?: Prisma.ProductAvgOrderByAggregateInput
@@ -335,6 +364,8 @@ export type ProductScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumProductTypeWithAggregatesFilter<"Product"> | $Enums.ProductType
   shelfLifeDays?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
   reorderLevel?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
 }
 
@@ -345,10 +376,12 @@ export type ProductCreateInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
   category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
+  currency?: Prisma.CurrencyCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
 
@@ -362,6 +395,8 @@ export type ProductUncheckedCreateInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
 }
@@ -373,10 +408,12 @@ export type ProductUpdateInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
+  currency?: Prisma.CurrencyUpdateOneWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
 
@@ -390,6 +427,8 @@ export type ProductUncheckedUpdateInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
@@ -404,6 +443,8 @@ export type ProductCreateManyInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
 }
 
@@ -414,6 +455,7 @@ export type ProductUpdateManyMutationInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -427,6 +469,8 @@ export type ProductUncheckedUpdateManyInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -455,12 +499,15 @@ export type ProductCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   shelfLifeDays?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
 
 export type ProductAvgOrderByAggregateInput = {
   shelfLifeDays?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
 }
 
 export type ProductMaxOrderByAggregateInput = {
@@ -473,6 +520,8 @@ export type ProductMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   shelfLifeDays?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
 
@@ -486,12 +535,15 @@ export type ProductMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   shelfLifeDays?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
 }
 
 export type ProductSumOrderByAggregateInput = {
   shelfLifeDays?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
+  amount?: Prisma.SortOrder
 }
 
 export type ProductScalarRelationFilter = {
@@ -625,6 +677,48 @@ export type ProductUncheckedUpdateManyWithoutCategoryNestedInput = {
   deleteMany?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
 }
 
+export type ProductCreateNestedManyWithoutCurrencyInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCurrencyInput, Prisma.ProductUncheckedCreateWithoutCurrencyInput> | Prisma.ProductCreateWithoutCurrencyInput[] | Prisma.ProductUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCurrencyInput | Prisma.ProductCreateOrConnectWithoutCurrencyInput[]
+  createMany?: Prisma.ProductCreateManyCurrencyInputEnvelope
+  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+}
+
+export type ProductUncheckedCreateNestedManyWithoutCurrencyInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCurrencyInput, Prisma.ProductUncheckedCreateWithoutCurrencyInput> | Prisma.ProductCreateWithoutCurrencyInput[] | Prisma.ProductUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCurrencyInput | Prisma.ProductCreateOrConnectWithoutCurrencyInput[]
+  createMany?: Prisma.ProductCreateManyCurrencyInputEnvelope
+  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+}
+
+export type ProductUpdateManyWithoutCurrencyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCurrencyInput, Prisma.ProductUncheckedCreateWithoutCurrencyInput> | Prisma.ProductCreateWithoutCurrencyInput[] | Prisma.ProductUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCurrencyInput | Prisma.ProductCreateOrConnectWithoutCurrencyInput[]
+  upsert?: Prisma.ProductUpsertWithWhereUniqueWithoutCurrencyInput | Prisma.ProductUpsertWithWhereUniqueWithoutCurrencyInput[]
+  createMany?: Prisma.ProductCreateManyCurrencyInputEnvelope
+  set?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  disconnect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  delete?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  update?: Prisma.ProductUpdateWithWhereUniqueWithoutCurrencyInput | Prisma.ProductUpdateWithWhereUniqueWithoutCurrencyInput[]
+  updateMany?: Prisma.ProductUpdateManyWithWhereWithoutCurrencyInput | Prisma.ProductUpdateManyWithWhereWithoutCurrencyInput[]
+  deleteMany?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
+}
+
+export type ProductUncheckedUpdateManyWithoutCurrencyNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCurrencyInput, Prisma.ProductUncheckedCreateWithoutCurrencyInput> | Prisma.ProductCreateWithoutCurrencyInput[] | Prisma.ProductUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCurrencyInput | Prisma.ProductCreateOrConnectWithoutCurrencyInput[]
+  upsert?: Prisma.ProductUpsertWithWhereUniqueWithoutCurrencyInput | Prisma.ProductUpsertWithWhereUniqueWithoutCurrencyInput[]
+  createMany?: Prisma.ProductCreateManyCurrencyInputEnvelope
+  set?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  disconnect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  delete?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  connect?: Prisma.ProductWhereUniqueInput | Prisma.ProductWhereUniqueInput[]
+  update?: Prisma.ProductUpdateWithWhereUniqueWithoutCurrencyInput | Prisma.ProductUpdateWithWhereUniqueWithoutCurrencyInput[]
+  updateMany?: Prisma.ProductUpdateManyWithWhereWithoutCurrencyInput | Prisma.ProductUpdateManyWithWhereWithoutCurrencyInput[]
+  deleteMany?: Prisma.ProductScalarWhereInput | Prisma.ProductScalarWhereInput[]
+}
+
 export type EnumProductTypeFieldUpdateOperationsInput = {
   set?: $Enums.ProductType
 }
@@ -666,9 +760,11 @@ export type ProductCreateWithoutOrganizationInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
+  currency?: Prisma.CurrencyCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
 
@@ -681,6 +777,8 @@ export type ProductUncheckedCreateWithoutOrganizationInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
 }
@@ -724,6 +822,8 @@ export type ProductScalarWhereInput = {
   type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   shelfLifeDays?: Prisma.IntNullableFilter<"Product"> | number | null
   reorderLevel?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.StringNullableFilter<"Product"> | string | null
   isActive?: Prisma.BoolFilter<"Product"> | boolean
 }
 
@@ -734,9 +834,11 @@ export type ProductCreateWithoutBaseUomInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
   category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
+  currency?: Prisma.CurrencyCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
 
@@ -749,6 +851,8 @@ export type ProductUncheckedCreateWithoutBaseUomInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
 }
@@ -786,9 +890,11 @@ export type ProductCreateWithoutCategoryInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
+  currency?: Prisma.CurrencyCreateNestedOneWithoutProductsInput
   balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
 }
 
@@ -800,6 +906,8 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
   balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
 }
@@ -830,6 +938,62 @@ export type ProductUpdateManyWithWhereWithoutCategoryInput = {
   data: Prisma.XOR<Prisma.ProductUpdateManyMutationInput, Prisma.ProductUncheckedUpdateManyWithoutCategoryInput>
 }
 
+export type ProductCreateWithoutCurrencyInput = {
+  id?: string
+  sku: string
+  name: string
+  type: $Enums.ProductType
+  shelfLifeDays?: number | null
+  reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: boolean
+  organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
+  category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
+  baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
+  balances?: Prisma.InventoryBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutCurrencyInput = {
+  id?: string
+  organizationId: string
+  categoryId: string
+  baseUomId: string
+  sku: string
+  name: string
+  type: $Enums.ProductType
+  shelfLifeDays?: number | null
+  reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: boolean
+  balances?: Prisma.InventoryBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutCurrencyInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCurrencyInput, Prisma.ProductUncheckedCreateWithoutCurrencyInput>
+}
+
+export type ProductCreateManyCurrencyInputEnvelope = {
+  data: Prisma.ProductCreateManyCurrencyInput | Prisma.ProductCreateManyCurrencyInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductUpsertWithWhereUniqueWithoutCurrencyInput = {
+  where: Prisma.ProductWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutCurrencyInput, Prisma.ProductUncheckedUpdateWithoutCurrencyInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCurrencyInput, Prisma.ProductUncheckedCreateWithoutCurrencyInput>
+}
+
+export type ProductUpdateWithWhereUniqueWithoutCurrencyInput = {
+  where: Prisma.ProductWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutCurrencyInput, Prisma.ProductUncheckedUpdateWithoutCurrencyInput>
+}
+
+export type ProductUpdateManyWithWhereWithoutCurrencyInput = {
+  where: Prisma.ProductScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateManyMutationInput, Prisma.ProductUncheckedUpdateManyWithoutCurrencyInput>
+}
+
 export type ProductCreateWithoutBalancesInput = {
   id?: string
   sku: string
@@ -837,10 +1001,12 @@ export type ProductCreateWithoutBalancesInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: boolean
   organization: Prisma.OrganizationCreateNestedOneWithoutProductsInput
   category: Prisma.SubSubLayerCreateNestedOneWithoutProductsInput
   baseUom: Prisma.UnitOfMeasureCreateNestedOneWithoutProductsInput
+  currency?: Prisma.CurrencyCreateNestedOneWithoutProductsInput
 }
 
 export type ProductUncheckedCreateWithoutBalancesInput = {
@@ -853,6 +1019,8 @@ export type ProductUncheckedCreateWithoutBalancesInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
 }
 
@@ -879,10 +1047,12 @@ export type ProductUpdateWithoutBalancesInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
+  currency?: Prisma.CurrencyUpdateOneWithoutProductsNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutBalancesInput = {
@@ -895,6 +1065,8 @@ export type ProductUncheckedUpdateWithoutBalancesInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -907,6 +1079,8 @@ export type ProductCreateManyOrganizationInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
 }
 
@@ -917,9 +1091,11 @@ export type ProductUpdateWithoutOrganizationInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
+  currency?: Prisma.CurrencyUpdateOneWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
 
@@ -932,6 +1108,8 @@ export type ProductUncheckedUpdateWithoutOrganizationInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
@@ -945,6 +1123,8 @@ export type ProductUncheckedUpdateManyWithoutOrganizationInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -957,6 +1137,8 @@ export type ProductCreateManyBaseUomInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
 }
 
@@ -967,9 +1149,11 @@ export type ProductUpdateWithoutBaseUomInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
   category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
+  currency?: Prisma.CurrencyUpdateOneWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
 
@@ -982,6 +1166,8 @@ export type ProductUncheckedUpdateWithoutBaseUomInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
@@ -995,6 +1181,8 @@ export type ProductUncheckedUpdateManyWithoutBaseUomInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -1006,6 +1194,8 @@ export type ProductCreateManyCategoryInput = {
   type: $Enums.ProductType
   shelfLifeDays?: number | null
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: string | null
   isActive?: boolean
 }
 
@@ -1016,9 +1206,11 @@ export type ProductUpdateWithoutCategoryInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
   baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
+  currency?: Prisma.CurrencyUpdateOneWithoutProductsNestedInput
   balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
 }
 
@@ -1030,6 +1222,8 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
@@ -1042,6 +1236,66 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type ProductCreateManyCurrencyInput = {
+  id?: string
+  organizationId: string
+  categoryId: string
+  baseUomId: string
+  sku: string
+  name: string
+  type: $Enums.ProductType
+  shelfLifeDays?: number | null
+  reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: boolean
+}
+
+export type ProductUpdateWithoutCurrencyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutProductsNestedInput
+  category?: Prisma.SubSubLayerUpdateOneRequiredWithoutProductsNestedInput
+  baseUom?: Prisma.UnitOfMeasureUpdateOneRequiredWithoutProductsNestedInput
+  balances?: Prisma.InventoryBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutCurrencyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  baseUomId?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  balances?: Prisma.InventoryBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateManyWithoutCurrencyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  baseUomId?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  shelfLifeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reorderLevel?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -1086,10 +1340,13 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   type?: boolean
   shelfLifeDays?: boolean
   reorderLevel?: boolean
+  amount?: boolean
+  currencyId?: boolean
   isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
+  currency?: boolean | Prisma.Product$currencyArgs<ExtArgs>
   balances?: boolean | Prisma.Product$balancesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
@@ -1104,10 +1361,13 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   shelfLifeDays?: boolean
   reorderLevel?: boolean
+  amount?: boolean
+  currencyId?: boolean
   isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
+  currency?: boolean | Prisma.Product$currencyArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1120,10 +1380,13 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   shelfLifeDays?: boolean
   reorderLevel?: boolean
+  amount?: boolean
+  currencyId?: boolean
   isActive?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
+  currency?: boolean | Prisma.Product$currencyArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectScalar = {
@@ -1136,14 +1399,17 @@ export type ProductSelectScalar = {
   type?: boolean
   shelfLifeDays?: boolean
   reorderLevel?: boolean
+  amount?: boolean
+  currencyId?: boolean
   isActive?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "categoryId" | "baseUomId" | "sku" | "name" | "type" | "shelfLifeDays" | "reorderLevel" | "isActive", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "categoryId" | "baseUomId" | "sku" | "name" | "type" | "shelfLifeDays" | "reorderLevel" | "amount" | "currencyId" | "isActive", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
+  currency?: boolean | Prisma.Product$currencyArgs<ExtArgs>
   balances?: boolean | Prisma.Product$balancesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1151,11 +1417,13 @@ export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
+  currency?: boolean | Prisma.Product$currencyArgs<ExtArgs>
 }
 export type ProductIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   category?: boolean | Prisma.SubSubLayerDefaultArgs<ExtArgs>
   baseUom?: boolean | Prisma.UnitOfMeasureDefaultArgs<ExtArgs>
+  currency?: boolean | Prisma.Product$currencyArgs<ExtArgs>
 }
 
 export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1164,6 +1432,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     organization: Prisma.$OrganizationPayload<ExtArgs>
     category: Prisma.$SubSubLayerPayload<ExtArgs>
     baseUom: Prisma.$UnitOfMeasurePayload<ExtArgs>
+    currency: Prisma.$CurrencyPayload<ExtArgs> | null
     balances: Prisma.$InventoryBalancePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1176,6 +1445,8 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     type: $Enums.ProductType
     shelfLifeDays: number | null
     reorderLevel: runtime.Decimal | null
+    amount: runtime.Decimal | null
+    currencyId: string | null
     isActive: boolean
   }, ExtArgs["result"]["product"]>
   composites: {}
@@ -1574,6 +1845,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   category<T extends Prisma.SubSubLayerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SubSubLayerDefaultArgs<ExtArgs>>): Prisma.Prisma__SubSubLayerClient<runtime.Types.Result.GetResult<Prisma.$SubSubLayerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   baseUom<T extends Prisma.UnitOfMeasureDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UnitOfMeasureDefaultArgs<ExtArgs>>): Prisma.Prisma__UnitOfMeasureClient<runtime.Types.Result.GetResult<Prisma.$UnitOfMeasurePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  currency<T extends Prisma.Product$currencyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$currencyArgs<ExtArgs>>): Prisma.Prisma__CurrencyClient<runtime.Types.Result.GetResult<Prisma.$CurrencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   balances<T extends Prisma.Product$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1613,6 +1885,8 @@ export interface ProductFieldRefs {
   readonly type: Prisma.FieldRef<"Product", 'ProductType'>
   readonly shelfLifeDays: Prisma.FieldRef<"Product", 'Int'>
   readonly reorderLevel: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly amount: Prisma.FieldRef<"Product", 'Decimal'>
+  readonly currencyId: Prisma.FieldRef<"Product", 'String'>
   readonly isActive: Prisma.FieldRef<"Product", 'Boolean'>
 }
     
@@ -2012,6 +2286,25 @@ export type ProductDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Products to delete.
    */
   limit?: number
+}
+
+/**
+ * Product.currency
+ */
+export type Product$currencyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Currency
+   */
+  select?: Prisma.CurrencySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Currency
+   */
+  omit?: Prisma.CurrencyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CurrencyInclude<ExtArgs> | null
+  where?: Prisma.CurrencyWhereInput
 }
 
 /**

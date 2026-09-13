@@ -1,3 +1,4 @@
+import { SessionSkeleton, useMinimumLoading } from "../../components/ui/Skeleton";
 import { useState } from "react";
 import { Navigate,useNavigate } from "react-router-dom";
 import { ArrowRight,CheckCircle2,Eye,EyeOff,LockKeyhole } from "lucide-react";
@@ -9,7 +10,8 @@ import { Button } from "../../components/ui/Button";
 export function LoginPage(){
  const {user,loading,login}=useAuth();const navigate=useNavigate();
  const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [showPassword,setShowPassword]=useState(false);const [submitting,setSubmitting]=useState(false);
- if(loading)return <main className="grid min-h-dvh place-items-center bg-[#f3f5f2] text-sm text-[#6f8579]">Loading...</main>;
+ const sessionLoading = useMinimumLoading(loading);
+ if (sessionLoading) return <SessionSkeleton/>;
  if(user)return <Navigate to="/" replace/>;
  const submit=async(event:React.FormEvent)=>{event.preventDefault();setSubmitting(true);try{await login(email,password);navigate("/");}catch(reason){appToast.error(reason instanceof Error?reason.message:"Unable to sign in.");}finally{setSubmitting(false);}};
  return <main className="grid min-h-dvh place-items-center overflow-hidden bg-[radial-gradient(circle_at_top_left,#e7efe5_0,transparent_38%),#f3f5f2] p-3 sm:p-5">

@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ import { Input } from '../../../components/ui/Input';
 interface UOM { id: string; name: string; code: string; decimalPlaces?: number; isBase?: boolean; dimension: string; factorToBase: string | number; }
 
 export function UnitsOfMeasurePage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [categoryOptions, setCategoryOptions] = useState<{ value: string; label: string }[]>([]);
   const [rows, setRows] = useState<UOM[]>([]);
   const [open, setOpen] = useState(false);
@@ -26,13 +28,13 @@ export function UnitsOfMeasurePage() {
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ name: '', code: '', category: 'WEIGHT', decimalPlaces: '2', conversionFactor: '1' });
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try { const r = await api<{ data: UOM[] }>('/uoms'); setRows(r.data); setMessage(''); }
     catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
-  useEffect(() => { void load(); void api<{ data: { value: string; label: string }[] }>('/uoms/categories').then(result => setCategoryOptions(result.data)).catch(error => setMessage(error.message)); }, []);
+  useEffect(() => { void load(); void runPageLoad(() => api<{ data: { value: string; label: string }[] }>('/uoms/categories').then(result => setCategoryOptions(result.data)).catch(error => setMessage(error.message))); }, []);
 
   const submit = async () => {
     if (saving) return;
@@ -70,7 +72,7 @@ export function UnitsOfMeasurePage() {
   const categories = [...new Set(rows.map((r) => r.dimension).filter(Boolean))];
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="MASTER SETUP"
       title="Units of Measure"
       description="Dynamic UOM management. Create mass, volume, or custom units for products, recipes, and transactions."

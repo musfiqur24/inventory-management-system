@@ -1,3 +1,4 @@
+import { LoadingBoundary } from "../../../components/ui/Skeleton";
 import { useEffect, useState } from 'react';
 import { api } from '../../../shared/api/http';
 import { appToast } from '../../../components/ui/Toast';
@@ -31,6 +32,7 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
   }catch(e){appToast.error(e instanceof Error?e.message:'Unable to receive stock.')}finally{setSaving(false)}
  };
  return <Modal title={`Receive into ${store.name}`} description={fm?'Select completed production output and its destination bin.':'Select a supplier delivery and assign its products to bins in this store.'} wide onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!document||!bins.length} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
+<LoadingBoundary loading={loading}>
   <FormField label={fm?'Production Batch':'Supplier Delivery'} required><Dropdown aria-label="Receipt source" value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':'Choose a document'}</option>{documents.map(d=><option key={d.id} value={d.id}>{d.number}{d.referenceNumber?` — ${d.referenceNumber}`:''}</option>)}</Dropdown></FormField>
   {!loading&&!documents.length&&<p className="py-4 text-sm text-[#73877c]">No outstanding {fm?'completed batches':'supplier deliveries'} are available to receive.</p>}
   {!bins.length&&<p className="text-sm text-amber-700">Create a bin in this store before receiving stock.</p>}
@@ -39,7 +41,7 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
    <FormField label={`Quantity (${line.uomCode})`} required><Input aria-label={`Quantity for ${line.productName}`} type="number" min="0" max={Number(line.remaining)} step="0.001" readOnly={fm} value={allocations[line.id]?.quantity??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],quantity:e.target.value}})} /></FormField>
   </div></div>)}</div>
   <div className="mt-4"><FormField label="Notes"><Input value={notes} onChange={e=>setNotes(e.target.value)} /></FormField></div>
- </Modal>;
+ </LoadingBoundary></Modal>;
 }
 
 export function ReleaseStockModal({store,stock,onClose,onSaved}:{store:Store;stock:StockBalance;onClose:()=>void;onSaved:()=>void}) {
@@ -61,11 +63,12 @@ export function ReleaseStockModal({store,stock,onClose,onSaved}:{store:Store;sto
   try{await api(fm?'/dispatches':'/material-issues',{method:'POST',body:JSON.stringify({requestId,...(fm?{salesOrderId:orderId,vehicleNo:vehicle}:{productionOrderId:orderId}),notes,lines:[{productId:stock.productId,lotId:stock.lotId,fromBinId:stock.binId,uomId:stock.uomId,quantity:Number(quantity)}]})});onSaved();onClose()}catch(e){appToast.error(e instanceof Error?e.message:'Unable to release stock.')}finally{setSaving(false)}
  };
  return <Modal title={fm?'Dispatch Finished Stock':'Issue Raw Material'} description={`${stock.product.name} · ${store.name} / ${stock.bin.code} · Lot ${stock.lot.code}`} onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!orderId} onClick={submit}>{saving?'Releasing...':fm?'Dispatch Stock':'Issue Stock'}</Button></>}>
+<LoadingBoundary loading={loading}>
   <p className="mb-4 text-sm font-semibold">Available: {available.toLocaleString()} {stock.uom.code}</p>
   <FormField label={fm?'Sales Order':'Production Requisition'} required><Dropdown aria-label="Release order" value={orderId} onChange={e=>setOrderId(e.target.value)}><option value="">{loading?'Loading orders...':'Choose an order'}</option>{orders.map(o=><option key={o.id} value={o.id}>{o.number}</option>)}</Dropdown></FormField>
   {!loading&&!orders.length&&<p className="mb-4 text-sm text-[#73877c]">No open order requires this product.</p>}
   <FormField label={`Quantity (${stock.uom.code})`} required><Input type="number" min="0.001" step="0.001" max={available} value={quantity} onChange={e=>setQuantity(e.target.value)} /></FormField>
   {fm&&<FormField label="Vehicle Number" required><Input value={vehicle} onChange={e=>setVehicle(e.target.value)} /></FormField>}
   <FormField label="Notes"><Input value={notes} onChange={e=>setNotes(e.target.value)} /></FormField>
- </Modal>;
+ </LoadingBoundary></Modal>;
 }

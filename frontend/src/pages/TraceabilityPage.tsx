@@ -1,3 +1,4 @@
+import { usePageLoading } from "../shared/hooks/usePageLoading";
 import { DataTable } from "../components/ui/DataTable";
 import { useToastMessage } from "../components/ui/Toast";
 import { Card } from '../components/ui/Card';
@@ -7,23 +8,24 @@ import { api, selectedOrg } from "../shared/api/http";
 import { PageContainer } from "../components/ui/PageContainer";
 
 export function TraceabilityPage() {
+ const [pageLoading, runPageLoad] = usePageLoading();
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [, setMessage] = useToastMessage();
 
-  useEffect(() => {
+  useEffect(() => { void runPageLoad(async () => {
     if (!selectedOrg()) return setMessage("Select an organisation first.");
-    api<{ data: Record<string, unknown>[] }>("/inventory/movements")
+    await api<{ data: Record<string, unknown>[] }>("/inventory/movements")
       .then((result) => { setRows(result.data); setMessage(""); })
       .catch((error) => setMessage(error.message));
-  }, []);
+  }); }, []);
 
   const filtered = rows.filter((row) =>
     JSON.stringify(row).toLowerCase().includes(query.toLowerCase())
   );
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="LOT GENEALOGY"
       title="Traceability"
       description="Follow any lot from requisition and challan through production batch and customer dispatch."

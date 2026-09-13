@@ -16,6 +16,7 @@ import { authenticate, requirePermission, tenant } from "./modules/rbac.js";
 import { uomsRouter } from "./routes/uoms.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { productsRouter } from "./routes/products.js";
+import { currenciesRouter } from "./routes/currencies.js";
 import { partnersRouter } from "./routes/partners.js";
 import { storesRouter } from "./routes/stores.js";
 import { binsRouter } from "./routes/bins.js";
@@ -73,7 +74,7 @@ export function createApp() {
       allowedHeaders: ["Content-Type", "Authorization", "x-organization-id"],
     }),
   );
-  app.use(express.json({ limit: "1mb" }));
+  app.use(express.json({ limit: "12mb" }));
   app.use(
     pinoHttp({
       logger,
@@ -103,6 +104,12 @@ export function createApp() {
 
   app.use("/api/v1/notifications", authenticate, tenant, notificationsRouter);
 
+  app.use("/api/v1/deliveries", authenticate, tenant, (req,res,next)=>{
+    const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
+    if(role==="STAFF" && ((req.method==="POST" && req.path==="/") || req.method==="PUT"))return next();
+    return requirePermission(req.method==="GET"?"departments.read":"departments.write")(req,res,next);
+  }, deliveriesRouter);
+
   app.use("/api/v1/purchase-requisitions", authenticate, tenant, (req,res,next)=>{
     const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
     if(role==='STAFF' && ((req.method==='POST' && req.path==='/') || req.method==='PUT'))return next();
@@ -117,11 +124,12 @@ export function createApp() {
   app.use("/api/v1/uoms", uomsRouter);
   app.use("/api/v1/categories", categoriesRouter);
   app.use("/api/v1/products", productsRouter);
+  app.use("/api/v1/currencies", currenciesRouter);
   app.use("/api/v1/partners", partnersRouter);
   app.use("/api/v1/bins", binsRouter);
   app.use("/api/v1/stores", storesRouter);
 
-  app.use("/api/v1/deliveries", deliveriesRouter);
+
   app.use("/api/v1/weighments", weighmentsRouter);
   app.use("/api/v1/rm-store", rmStoreRouter);
   app.use("/api/v1/recipes", recipesRouter);

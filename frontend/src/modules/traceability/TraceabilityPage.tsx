@@ -1,3 +1,4 @@
+import { PageSkeleton, useMinimumLoading } from "../../components/ui/Skeleton";
 import { twMerge } from 'tailwind-merge';
 import { useToastMessage } from "../../components/ui/Toast";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
@@ -39,6 +40,7 @@ export function TraceabilityPage() {
   const [traceType, setTraceType] = useState<TraceType>('lot');
   const [result, setResult] = useState<TraceResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const showSkeleton = useMinimumLoading(loading);
   const [, setMessage] = useToastMessage();
 
   const trace = async () => {
@@ -84,7 +86,8 @@ export function TraceabilityPage() {
         </div>
       </Card>
 
-      {result && (
+      {showSkeleton && <PageSkeleton/>}
+      {!showSkeleton && result && (
         <div className="grid grid-cols-[1fr_1.2fr] gap-5 max-[900px]:grid-cols-[1fr] items-start">
           {/* Timeline */}
           <div>
@@ -171,7 +174,7 @@ export function TraceabilityPage() {
         </div>
       )}
 
-      {!result && !loading && (
+      {!result && !showSkeleton && (
         <div className="mt-8">
           <Card className="[background:linear-gradient(135deg,_#0d3b2e,_#1a5c45)] [border:none] text-[#fff] text-center p-12">
             <GitBranch size={48} className="text-[#a8d548] mb-4" />

@@ -59,6 +59,7 @@ export const ModelName = {
   ControlLayer: 'ControlLayer',
   SubLayer: 'SubLayer',
   SubSubLayer: 'SubSubLayer',
+  Currency: 'Currency',
   Product: 'Product',
   Partner: 'Partner',
   Store: 'Store',
@@ -207,6 +208,19 @@ export const SubSubLayerScalarFieldEnum = {
 export type SubSubLayerScalarFieldEnum = (typeof SubSubLayerScalarFieldEnum)[keyof typeof SubSubLayerScalarFieldEnum]
 
 
+export const CurrencyScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  code: 'code',
+  name: 'name',
+  symbol: 'symbol',
+  decimalPlaces: 'decimalPlaces',
+  isActive: 'isActive'
+} as const
+
+export type CurrencyScalarFieldEnum = (typeof CurrencyScalarFieldEnum)[keyof typeof CurrencyScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
@@ -217,6 +231,8 @@ export const ProductScalarFieldEnum = {
   type: 'type',
   shelfLifeDays: 'shelfLifeDays',
   reorderLevel: 'reorderLevel',
+  amount: 'amount',
+  currencyId: 'currencyId',
   isActive: 'isActive'
 } as const
 
@@ -312,7 +328,15 @@ export const SupplierDeliveryScalarFieldEnum = {
   tareWeight: 'tareWeight',
   netWeight: 'netWeight',
   status: 'status',
-  deliveredAt: 'deliveredAt'
+  deliveredAt: 'deliveredAt',
+  createdById: 'createdById',
+  assignedManagerId: 'assignedManagerId',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  deletedAt: 'deletedAt',
+  attachmentName: 'attachmentName',
+  attachmentMime: 'attachmentMime',
+  attachmentData: 'attachmentData'
 } as const
 
 export type SupplierDeliveryScalarFieldEnum = (typeof SupplierDeliveryScalarFieldEnum)[keyof typeof SupplierDeliveryScalarFieldEnum]
@@ -325,7 +349,8 @@ export const SupplierDeliveryLineScalarFieldEnum = {
   uomId: 'uomId',
   declaredQty: 'declaredQty',
   acceptedQty: 'acceptedQty',
-  unitPrice: 'unitPrice'
+  unitPrice: 'unitPrice',
+  destinationBinId: 'destinationBinId'
 } as const
 
 export type SupplierDeliveryLineScalarFieldEnum = (typeof SupplierDeliveryLineScalarFieldEnum)[keyof typeof SupplierDeliveryLineScalarFieldEnum]
@@ -624,6 +649,7 @@ export const NotificationScalarFieldEnum = {
   organizationId: 'organizationId',
   recipientId: 'recipientId',
   requisitionId: 'requisitionId',
+  deliveryId: 'deliveryId',
   title: 'title',
   message: 'message',
   createdAt: 'createdAt',

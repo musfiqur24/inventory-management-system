@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from 'react';
@@ -26,6 +27,7 @@ interface Position { id: string; productId: string; lotId: string; binId: string
 interface UOM { id: string; name: string; code: string; }
 
 export function MaterialIssuesPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [positions,setPositions]=useState<Position[]>([]);
   const [saving,setSaving]=useState(false);
   const [requestId,setRequestId]=useState(()=>crypto.randomUUID());
@@ -39,7 +41,7 @@ export function MaterialIssuesPage() {
   const [form, setForm] = useState({ productionOrderId: '' });
   const [lines, setLines] = useState([{ rawMaterialId: '', lotId: '', fromBinId: '', uomId: '', issuedQty: '' }]);
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [mi, po, p, lt, u] = await Promise.all([
@@ -53,7 +55,7 @@ export function MaterialIssuesPage() {
       setProducts(p.data.filter((x) => x.type === 'RAW_MATERIAL'));
       setLots(lt.data); setUoms(u.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
   useEffect(()=>{if(open)void api<{data:Position[]}>('/rm-store/balances').then(r=>setPositions(r.data)).catch(e=>setMessage(e.message));},[open]);
@@ -83,7 +85,7 @@ export function MaterialIssuesPage() {
   };
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="PRODUCTION"
       title="Issue RM to Factory"
       description="Issue raw materials from RM store to the production floor. Deducts from lot balances and links to production orders."

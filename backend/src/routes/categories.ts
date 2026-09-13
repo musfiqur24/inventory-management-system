@@ -53,3 +53,18 @@ categoriesRouter.post("/", async (req, res) => {
     throw error;
   }
 });
+categoriesRouter.put("/:id",async(req,res)=>{
+ const x=createCategorySchema.parse(req.body),organizationId=req.tenantId!,id=String(req.params.id),where={id,organizationId};
+ const old=x.level===1?await prisma.groupLayer.findFirst({where}):x.level===2?await prisma.controlLayer.findFirst({where}):x.level===3?await prisma.subLayer.findFirst({where}):await prisma.subSubLayer.findFirst({where});
+ if(!old)return res.status(404).json({error:{code:"NOT_FOUND",message:names[x.level-1]+" not found."}});
+ if(x.level>1){const pw={id:x.parentId!,organizationId};const parent=x.level===2?await prisma.groupLayer.findFirst({where:pw}):x.level===3?await prisma.controlLayer.findFirst({where:pw}):await prisma.subLayer.findFirst({where:pw});if(!parent)return res.status(422).json({error:{code:"INVALID_PARENT",message:"Select a valid parent layer."}})}
+ const base={code:x.code.toUpperCase(),name:x.name,sortOrder:x.sortOrder};const data=x.level===1?await prisma.groupLayer.update({where:{id},data:base}):x.level===2?await prisma.controlLayer.update({where:{id},data:{...base,parentId:x.parentId!}}):x.level===3?await prisma.subLayer.update({where:{id},data:{...base,parentId:x.parentId!}}):await prisma.subSubLayer.update({where:{id},data:{...base,parentId:x.parentId!}});res.json({data:{...data,level:x.level,parentId:x.parentId??null}});
+});
+categoriesRouter.delete("/:id",async(req,res)=>{
+ const level=z.coerce.number().int().min(1).max(4).parse(req.query.level),id=String(req.params.id),organizationId=req.tenantId!,where={id,organizationId};
+ const old=level===1?await prisma.groupLayer.findFirst({where}):level===2?await prisma.controlLayer.findFirst({where}):level===3?await prisma.subLayer.findFirst({where}):await prisma.subSubLayer.findFirst({where});
+ if(!old)return res.status(404).json({error:{code:"NOT_FOUND",message:names[level-1]+" not found."}});
+ const used=level===1?await prisma.controlLayer.count({where:{organizationId,parentId:id}}):level===2?await prisma.subLayer.count({where:{organizationId,parentId:id}}):level===3?await prisma.subSubLayer.count({where:{organizationId,parentId:id}}):await prisma.product.count({where:{organizationId,categoryId:id,isActive:true}});
+ if(used)return res.status(409).json({error:{code:"IN_USE",message:names[level-1]+" cannot be deleted while it contains "+(level===4?"products.":"child layers.")}});
+ if(level===1)await prisma.groupLayer.delete({where:{id}});else if(level===2)await prisma.controlLayer.delete({where:{id}});else if(level===3)await prisma.subLayer.delete({where:{id}});else await prisma.subSubLayer.delete({where:{id}});res.status(204).send();
+});

@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { printReport } from '../../../shared/printReport';
@@ -28,6 +29,7 @@ interface Position { id: string; productId: string; lotId: string; binId: string
 interface UOM { id: string; name: string; code: string; }
 
 export function DispatchesPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [positions,setPositions]=useState<Position[]>([]);
   const [saving,setSaving]=useState(false);
   const [requestId,setRequestId]=useState(()=>crypto.randomUUID());
@@ -44,7 +46,7 @@ export function DispatchesPage() {
   const [form, setForm] = useState({ salesOrderId: '', customerId: '', vehicleNo: '' });
   const [lines, setLines] = useState([{ fgProductId: '', lotId: '', fromBinId: '', uomId: '', dispatchedQty: '', unitPrice: '' }]);
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [d, so, p, pr, lt, u] = await Promise.all([
@@ -60,7 +62,7 @@ export function DispatchesPage() {
       setProducts(pr.data.filter((x) => x.type === 'FINISHED_GOOD'));
       setLots(lt.data); setUoms(u.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
   useEffect(()=>{if(open)void api<{data:Position[]}>('/fm-store/balances').then(r=>setPositions(r.data)).catch(e=>setMessage(e.message));},[open]);
@@ -107,7 +109,7 @@ export function DispatchesPage() {
   );
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="SALES & DISPATCH"
       title="FM Dispatches"
       description="Record finished goods dispatches to customers with full lot traceability and printable delivery notes."

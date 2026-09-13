@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { twMerge } from 'tailwind-merge';
@@ -20,6 +21,7 @@ interface Weighment {
 interface Delivery { id: string; number: string; vehicleNo?: string; netWeight?: number; }
 
 export function WeighbridgePage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Weighment[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [open, setOpen] = useState(false);
@@ -27,13 +29,13 @@ export function WeighbridgePage() {
   const [form, setForm] = useState({ deliveryId: '', vehicleNo: '', grossWeight: '', tareWeight: '' });
   const [preview, setPreview] = useState<{ net: number; variance: number | null; variancePct: number | null; isWarn: boolean } | null>(null);
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [w, d] = await Promise.all([api<{ data: Weighment[] }>('/weighments'), api<{ data: Delivery[] }>('/deliveries')]);
       setRows(w.data); setDeliveries(d.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -71,7 +73,7 @@ export function WeighbridgePage() {
   };
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="WEIGHBRIDGE STATION"
       title="Weighbridge Scale Records"
       description="Capture gross and tare weights for incoming vehicles. Net weight is calculated automatically and compared against declared challan weights."

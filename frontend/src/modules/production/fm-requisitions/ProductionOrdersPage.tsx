@@ -1,3 +1,4 @@
+import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import type { CSSProperties } from 'react';
@@ -26,6 +27,7 @@ interface Product { id: string; name: string; sku: string; type: string; }
 interface UOM { id: string; name: string; code: string; }
 
 export function ProductionOrdersPage() {
+  const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<ProductionOrder[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -36,7 +38,7 @@ export function ProductionOrdersPage() {
   const [search, setSearch] = useState('');
   const [form, setForm] = useState({ recipeId: '', fgProductId: '', uomId: '', targetQty: '', plannedStartDate: '' });
 
-  const load = async () => {
+  const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [po, r, p, u] = await Promise.all([
@@ -49,7 +51,7 @@ export function ProductionOrdersPage() {
       setProducts(p.data.filter((x) => x.type === 'FINISHED_GOOD'));
       setUoms(u.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  };
+  });};
 
   useEffect(() => { void load(); }, []);
 
@@ -79,7 +81,7 @@ export function ProductionOrdersPage() {
   );
 
   return (
-    <PageContainer
+    <PageContainer loading={pageLoading}
       cap="PRODUCTION"
       title="FM Production Requisitions"
       description="Auto-scale recipe formulations for target production quantities. RM requirement lines are calculated from the recipe."

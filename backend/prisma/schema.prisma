@@ -70,6 +70,7 @@ model Organization {
   subLayers SubLayer[]
   subSubLayers SubSubLayer[]
   products Product[]
+  currencies Currency[]
 }
 model Site {
   id String @id @default(uuid())
@@ -166,6 +167,19 @@ model SubSubLayer {
   @@unique([organizationId,code])
   @@index([organizationId,parentId])
 }
+model Currency {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  symbol String
+  decimalPlaces Int @default(2)
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
+  products Product[]
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
 model Product {
   id String @id @default(uuid())
   organizationId String
@@ -176,10 +190,13 @@ model Product {
   type ProductType
   shelfLifeDays Int?
   reorderLevel Decimal? @db.Decimal(18,3)
+  amount Decimal? @db.Decimal(18,2)
+  currencyId String?
   isActive Boolean @default(true)
   organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
   category SubSubLayer @relation(fields:[organizationId,categoryId],references:[organizationId,id],onDelete:Restrict,onUpdate:Cascade)
   baseUom UnitOfMeasure @relation(fields:[baseUomId],references:[id])
+  currency Currency? @relation(fields:[currencyId],references:[id],onDelete:Restrict)
   balances InventoryBalance[]
   @@unique([organizationId,sku])
   @@index([organizationId,type,categoryId])
@@ -273,6 +290,14 @@ model SupplierDelivery {
   netWeight Decimal? @db.Decimal(18,3)
   status DocumentStatus @default(DRAFT)
   deliveredAt DateTime?
+  createdById String?
+  assignedManagerId String?
+  approvedById String?
+  approvedAt DateTime?
+  deletedAt DateTime?
+  attachmentName String?
+  attachmentMime String?
+  attachmentData String? @db.Text
   lines SupplierDeliveryLine[]
   @@unique([organizationId,number])
   @@index([organizationId,requisitionId,status])
@@ -285,6 +310,7 @@ model SupplierDeliveryLine {
   declaredQty Decimal @db.Decimal(18,3)
   acceptedQty Decimal? @db.Decimal(18,3)
   unitPrice Decimal? @db.Decimal(18,4)
+  destinationBinId String?
   delivery SupplierDelivery @relation(fields:[deliveryId],references:[id],onDelete:Cascade)
   @@index([deliveryId,productId])
 }
@@ -562,7 +588,8 @@ model Notification {
  id String @id @default(uuid())
  organizationId String
  recipientId String
- requisitionId String
+ requisitionId String?
+ deliveryId String?
  title String
  message String
  createdAt DateTime @default(now())

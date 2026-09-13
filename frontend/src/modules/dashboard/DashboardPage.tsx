@@ -73,17 +73,13 @@ export function DashboardPage() {
   };
 
   return (
-    <PageContainer
+    <PageContainer loading={loading}
       cap="OPERATIONS OVERVIEW"
       title="Dashboard"
       description="Live feed production inventory snapshot across the entire workflow."
    >
 
-      {loading && (
-        <div className="text-center p-15 text-[#7a9185]">
-          Loading dashboard...
-        </div>
-      )}
+      
 
       {stats && (
         <>
