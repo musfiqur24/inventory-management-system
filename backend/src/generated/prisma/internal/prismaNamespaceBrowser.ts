@@ -333,6 +333,8 @@ export const SupplierDeliveryScalarFieldEnum = {
   assignedManagerId: 'assignedManagerId',
   approvedById: 'approvedById',
   approvedAt: 'approvedAt',
+  weighedAt: 'weighedAt',
+  weighedById: 'weighedById',
   deletedAt: 'deletedAt',
   attachmentName: 'attachmentName',
   attachmentMime: 'attachmentMime',
@@ -349,6 +351,11 @@ export const SupplierDeliveryLineScalarFieldEnum = {
   uomId: 'uomId',
   declaredQty: 'declaredQty',
   acceptedQty: 'acceptedQty',
+  verifiedQty: 'verifiedQty',
+  measuredQty: 'measuredQty',
+  weighbridgeMatched: 'weighbridgeMatched',
+  weighedAt: 'weighedAt',
+  weighedById: 'weighedById',
   unitPrice: 'unitPrice',
   destinationBinId: 'destinationBinId'
 } as const

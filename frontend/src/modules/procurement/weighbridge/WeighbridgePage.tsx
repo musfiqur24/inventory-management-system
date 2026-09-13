@@ -1,174 +1,469 @@
+import { useEffect, useState } from "react";
+import {
+  Scale,
+  CheckCircle2,
+  AlertTriangle,
+  ClipboardCheck,
+  Search,
+  CircleDashed,
+} from "lucide-react";
+import { api, selectedOrg } from "../../../shared/api/http";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
+import { appToast, useToastMessage } from "../../../components/ui/Toast";
+import { PageContainer } from "../../../components/ui/PageContainer";
+import { Card } from "../../../components/ui/Card";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
-import { twMerge } from 'tailwind-merge';
-import { Card } from '../../../components/ui/Card';
-import { useEffect, useState } from 'react';
-import { Plus, Scale, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { api, selectedOrg } from '../../../shared/api/http';
-import { PageContainer } from '../../../components/ui/PageContainer';
-import { Button } from '../../../components/ui/Button';
-import { Modal } from '../../../components/ui/Modal';
-import { FormField } from '../../../components/ui/FormField';
-import { Input } from '../../../components/ui/Input';
-import { Dropdown } from '../../../components/ui/Dropdown';
+import { Button } from "../../../components/ui/Button";
+import { Modal } from "../../../components/ui/Modal";
+import { FormField } from "../../../components/ui/FormField";
+import { Input } from "../../../components/ui/Input";
+import { Dropdown } from "../../../components/ui/Dropdown";
 
-interface Weighment {
-  id: string; vehicleNo?: string; grossWeight: number; tareWeight: number; netWeight: number;
-  measuredAt: string; variance?: number; variancePercent?: number; isWarning?: boolean;
-  delivery?: { number: string; supplierId: string; } | null;
-}
-interface Delivery { id: string; number: string; vehicleNo?: string; netWeight?: number; }
+type QueueLine = {
+  id: string;
+  declaredQty: number | string;
+  requisitionQty: number;
+  previouslyVerifiedQty: number;
+  remainingQty: number;
+  product?: { name: string; sku: string };
+  uom?: { code: string };
+};
+type QueueItem = {
+  id: string;
+  number: string;
+  vehicleNo?: string;
+  invoiceNo?: string;
+  deliveredAt?: string;
+  supplier?: { name: string };
+  requisition?: { number: string };
+  lines: QueueLine[];
+};
+type Log = {
+  id: string;
+  vehicleNo?: string;
+  grossWeight: number;
+  tareWeight: number;
+  netWeight: number;
+  measuredAt: string;
+  delivery?: {
+    number: string;
+    partialLineCount: number;
+    requisition?: { id: string; number: string } | null;
+    supplier?: { name: string } | null;
+  } | null;
+};
 
 export function WeighbridgePage() {
-  const [pageLoading, runPageLoad] = usePageLoading();
-  const [rows, setRows] = useState<Weighment[]>([]);
-  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [open, setOpen] = useState(false);
-  const [, setMessage] = useToastMessage();
-  const [form, setForm] = useState({ deliveryId: '', vehicleNo: '', grossWeight: '', tareWeight: '' });
-  const [preview, setPreview] = useState<{ net: number; variance: number | null; variancePct: number | null; isWarn: boolean } | null>(null);
-
-  const load = async () => { return runPageLoad(async () => {
-    if (!selectedOrg()) return setMessage('Select an organisation first.');
-    try {
-      const [w, d] = await Promise.all([api<{ data: Weighment[] }>('/weighments'), api<{ data: Delivery[] }>('/deliveries')]);
-      setRows(w.data); setDeliveries(d.data); setMessage('');
-    } catch (e: any) { setMessage(e.message); }
-  });};
-
-  useEffect(() => { void load(); }, []);
-
-  // Live preview of net weight and variance as operator types
+  const [pageLoading, runPageLoad] = usePageLoading(),
+    [, setMessage] = useToastMessage();
+  const [queue, setQueue] = useState<QueueItem[]>([]),
+    [logs, setLogs] = useState<Log[]>([]),
+    [selected, setSelected] = useState<QueueItem | null>(null);
+  const [view, setView] = useState<"pending" | "history">("pending");
+  const [search, setSearch] = useState(""),
+    [requisitionFilter, setRequisitionFilter] = useState(""),
+    [dateFilter, setDateFilter] = useState("");
+  const [gross, setGross] = useState(""),
+    [tare, setTare] = useState(""),
+    [values, setValues] = useState<Record<string, string>>({}),
+    [saving, setSaving] = useState(false);
+  const load = () =>
+    runPageLoad(async () => {
+      if (!selectedOrg()) return setMessage("Select an organisation first.");
+      try {
+        const [q, l] = await Promise.all([
+          api<{ data: QueueItem[] }>("/weighments/queue"),
+          api<{ data: Log[] }>("/weighments"),
+        ]);
+        setQueue(q.data);
+        setLogs(l.data);
+        setMessage("");
+      } catch (e) {
+        setMessage(
+          e instanceof Error ? e.message : "Unable to load weighbridge.",
+        );
+      }
+    });
   useEffect(() => {
-    const gross = Number(form.grossWeight);
-    const tare = Number(form.tareWeight);
-    if (!form.grossWeight || !form.tareWeight || gross <= tare) { setPreview(null); return; }
-    const net = gross - tare;
-    const delivery = deliveries.find((d) => d.id === form.deliveryId);
-    let variance: number | null = null, variancePct: number | null = null, isWarn = false;
-    if (delivery && delivery.netWeight) {
-      const declared = Number(delivery.netWeight);
-      variance = net - declared;
-      variancePct = declared > 0 ? (variance / declared) * 100 : 0;
-      isWarn = Math.abs(variancePct) > 0.5;
-    }
-    setPreview({ net, variance, variancePct, isWarn });
-  }, [form.grossWeight, form.tareWeight, form.deliveryId, deliveries]);
-
+    void load();
+  }, []);
+  const open = (d: QueueItem) => {
+    setSelected(d);
+    setGross("");
+    setTare("");
+    setValues(
+      Object.fromEntries(d.lines.map((l) => [l.id, String(l.declaredQty)])),
+    );
+  };
+  const net = Number(gross) - Number(tare);
+  const ready =
+    !!selected &&
+    Number(gross) > Number(tare) &&
+    selected.lines.every(
+      (l) => values[l.id] !== "" && Number(values[l.id]) >= 0,
+    );
+  const matches = (l: QueueLine) =>
+    Number(values[l.id]) === Number(l.remainingQty);
+  const shortfall = (l: QueueLine) =>
+    Math.max(0, Number(l.remainingQty) - Number(values[l.id] || 0));
+  const historyRequisitions = Array.from(
+    new Map(
+      logs
+        .flatMap((w) =>
+          w.delivery?.requisition ? [w.delivery.requisition] : [],
+        )
+        .map((r) => [r.id, r]),
+    ).values(),
+  );
+  const filteredLogs = logs.filter((w) => {
+    const q = search.trim().toLowerCase(),
+      day = new Date(w.measuredAt).toISOString().slice(0, 10);
+    return (
+      (!q ||
+        [
+          w.delivery?.number,
+          w.delivery?.requisition?.number,
+          w.delivery?.supplier?.name,
+          w.vehicleNo,
+        ].some((v) => v?.toLowerCase().includes(q))) &&
+      (!requisitionFilter ||
+        w.delivery?.requisition?.id === requisitionFilter) &&
+      (!dateFilter || day === dateFilter)
+    );
+  });
   const submit = async () => {
+    if (!selected || !ready) return;
+    setSaving(true);
     try {
-      await api('/weighments', {
-        method: 'POST',
+      await api("/weighments/reports", {
+        method: "POST",
         body: JSON.stringify({
-          deliveryId: form.deliveryId || undefined,
-          vehicleNo: form.vehicleNo,
-          grossWeight: Number(form.grossWeight),
-          tareWeight: Number(form.tareWeight),
+          deliveryId: selected.id,
+          grossWeight: Number(gross),
+          tareWeight: Number(tare),
+          lines: selected.lines.map((l) => ({
+            lineId: l.id,
+            measuredQty: Number(values[l.id]),
+          })),
         }),
       });
-      setOpen(false); setForm({ deliveryId: '', vehicleNo: '', grossWeight: '', tareWeight: '' }); setPreview(null);
-      void load();
-    } catch (e: any) { setMessage(e.message); }
+      setSelected(null);
+      await load();
+      appToast.approval(
+        "Weighbridge report submitted and awaiting manager approval.",
+      );
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Unable to submit report.");
+    } finally {
+      setSaving(false);
+    }
   };
-
   return (
-    <PageContainer loading={pageLoading}
-      cap="WEIGHBRIDGE STATION"
-      title="Weighbridge Scale Records"
-      description="Capture gross and tare weights for incoming vehicles. Net weight is calculated automatically and compared against declared challan weights."
-      actions={<Button variant="primary" onClick={() => setOpen(true)}><Plus size={16} /> Record Weighment</Button>}
-   >
-
-      {/* Live scale display */}
-      <div className="[background:linear-gradient(135deg,_#0d3b2e,_#1a5c45)] rounded-[24px] p-8 text-[#fff] text-center mb-6">
-        <div className="text-[11px] font-bold tracking-[0.12em] uppercase opacity-60">Weighbridge Scale — Last Reading</div>
-        <div className="[font-family:'Outfit',_sans-serif] text-[64px] font-extrabold tracking-[-2px] leading-[1] m-[8px_0_4px] max-[480px]:text-[48px]">
-          {rows.length > 0 ? Number(rows[0].netWeight).toLocaleString() : '0'}
-        </div>
-        <div className="text-[22px] opacity-70 font-medium">kg net weight</div>
-        {rows.length > 0 && rows[0].isWarning && (
-          <div className="flex items-center justify-center gap-2 p-[10px_18px] rounded-[30px] text-[13px] font-bold m-[12px_auto_0] w-fit bg-[rgba(200,125,18,0.25)] text-[#f5d080]">
-            <AlertTriangle size={14} /> Weight variance {rows[0].variancePercent?.toFixed(2)}% — Exceeds 0.5% tolerance
-          </div>
-        )}
-        {rows.length > 0 && !rows[0].isWarning && rows[0].variancePercent !== null && (
-          <div className="flex items-center justify-center gap-2 p-[10px_18px] rounded-[30px] text-[13px] font-bold m-[12px_auto_0] w-fit bg-[rgba(168,213,72,0.2)] text-[#c8e87a]">
-            <CheckCircle2 size={14} /> Within tolerance ({rows[0].variancePercent?.toFixed(2)}% variance)
-          </div>
-        )}
-      </div>
-
+    <PageContainer 
+      loading={pageLoading}
+      cap="Weighbridge Station"
+      title="Weighbridge Station" 
+      description="Measure each challan before manager approval. Submitted reports are locked and sent to the assigned manager."
+      headerContent={
+        <div className="grid grid-cols-3 gap-4 max-[800px]:grid-cols-1">
+                <Card>
+                  <div className="text-2xl font-bold">{queue.length}</div>
+                  <div className="text-sm text-[#71877b]">Awaiting weighbridge</div>
+                </Card>
+                <Card>
+                  <div className="text-2xl font-bold">{logs.length}</div>
+                  <div className="text-sm text-[#71877b]">Reports submitted</div>
+                </Card>
+                <Card>
+                  <div className="text-2xl font-bold">
+                    {logs[0] ? Number(logs[0].netWeight).toLocaleString() : "-"}
+                  </div>
+                  <div className="text-sm text-[#71877b]">Latest net weight (kg)</div>
+                </Card>
+              </div>
+      }
+    >
       <Card className="p-0">
-        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Weighment Log</h2><span className="text-[12px] text-[#7a9185]">{rows.length} records</span></div>
-        <div className="overflow-x-auto">
-          <DataTable columns={["Vehicle No","Challan","Gross (kg)","Tare (kg)","Net (kg)","Variance","Status","Measured At"]} empty={rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Scale size={28} /></div><b>No weighments yet</b><p>Record the first vehicle weighment at the gate.</p></div>}>
-              {rows.map((w) => (
-                <tr key={w.id}>
-                  <td><span className="font-mono font-semibold">{w.vehicleNo ?? '—'}</span></td>
-                  <td><span className="text-[11px] text-[#7a9185]">{w.delivery?.number ?? '—'}</span></td>
-                  <td>{Number(w.grossWeight).toLocaleString()}</td>
-                  <td>{Number(w.tareWeight).toLocaleString()}</td>
-                  <td><strong>{Number(w.netWeight).toLocaleString()}</strong></td>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e0e5dd] p-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant={view === "pending" ? "primary" : "secondary"}
+              onClick={() => setView("pending")}
+            >
+              <Scale size={15} /> Pending Measurements{" "}
+              <span className="opacity-70">({queue.length})</span>
+            </Button>
+            <Button
+              variant={view === "history" ? "primary" : "secondary"}
+              onClick={() => setView("history")}
+            >
+              <ClipboardCheck size={15} /> Weighbridge History{" "}
+              <span className="opacity-70">({logs.length})</span>
+            </Button>
+          </div>
+          {view === "history" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71877b]"
+                  size={15}
+                />
+                <Input
+                  className="w-64 pl-9"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search challan, requisition..."
+                />
+              </div>
+              <Dropdown
+                className="w-56"
+                value={requisitionFilter}
+                onChange={(e) => setRequisitionFilter(e.target.value)}
+              >
+                <option value="">All requisitions</option>
+                {historyRequisitions.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.number}
+                  </option>
+                ))}
+              </Dropdown>
+              <Input
+                className="w-40"
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+        {view === "pending" ? (
+          <>
+            <div className="flex items-center justify-between px-5 py-3">
+            
+            </div>
+            <DataTable
+              columns={[
+                "Challan",
+                "Requisition",
+                "Supplier",
+                "Vehicle",
+                "Products",
+                "Received",
+                "Action",
+              ]}
+              empty={
+                queue.length === 0 && (
+                  <div className="flex flex-col items-center p-10">
+                    <ClipboardCheck size={30} />
+                    <b className="mt-3">No challans awaiting measurement</b>
+                  </div>
+                )
+              }
+            >
+              {queue.map((d) => (
+                <tr key={d.id}>
                   <td>
-                    {w.variancePercent != null ? (
-                      <span className={twMerge("font-semibold", (w.isWarning ? "text-[#c03030]" : "text-[#1b8f5a]"))}>
-                        {w.variancePercent >= 0 ? '+' : ''}{w.variancePercent.toFixed(2)}%
-                        {w.isWarning && <AlertTriangle size={12} className="ml-1 [vertical-align:middle]" />}
-                      </span>
-                    ) : <span className="text-[#7a9185]">—</span>}
+                    <strong>{d.number}</strong>
                   </td>
-                  <td>{w.isWarning ? <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap bg-[#fdf0f0] text-[#c03030]"><span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />Warning</span> : <span className="inline-flex items-center gap-1.25 p-[3px_10px] rounded-[20px] text-[11.5px] font-semibold whitespace-nowrap bg-[#eaf8f0] text-[#1b8f5a]"><span className="w-1.5 h-1.5 rounded-full [background:currentColor] shrink-0" />OK</span>}</td>
-                  <td className="text-[12px] text-[#7a9185]">{new Date(w.measuredAt).toLocaleString('en-GB')}</td>
+                  <td>{d.requisition?.number ?? "-"}</td>
+                  <td>{d.supplier?.name ?? "-"}</td>
+                  <td>{d.vehicleNo ?? "-"}</td>
+                  <td>{d.lines.length}</td>
+                  <td>
+                    {d.deliveredAt
+                      ? new Date(d.deliveredAt).toLocaleDateString("en-GB")
+                      : "-"}
+                  </td>
+                  <td>
+                    <Button size="sm" variant="primary" onClick={() => open(d)}>
+                      <Scale size={14} /> Weigh & Verify
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </DataTable>
-          
-        </div>
+          </>
+        ) : (
+          <DataTable
+            columns={[
+              "Challan",
+              "Requisition",
+              "Supplier",
+              "Vehicle",
+              "Net (kg)",
+              "Result",
+              "Measured At",
+            ]}
+            empty={
+              filteredLogs.length === 0 && (
+                <div className="p-10 text-center">
+                  No weighbridge reports match these filters.
+                </div>
+              )
+            }
+          >
+            {filteredLogs.map((w) => (
+              <tr key={w.id}>
+                <td>
+                  <strong>{w.delivery?.number ?? "-"}</strong>
+                </td>
+                <td>{w.delivery?.requisition?.number ?? "-"}</td>
+                <td>{w.delivery?.supplier?.name ?? "-"}</td>
+                <td>{w.vehicleNo ?? "-"}</td>
+                <td>
+                  <strong>{Number(w.netWeight).toLocaleString()}</strong>
+                </td>
+                <td>
+                  {w.delivery?.partialLineCount ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+                      <CircleDashed size={14} /> Partial (
+                      {w.delivery.partialLineCount})
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-green-700">
+                      <CheckCircle2 size={14} /> Complete
+                    </span>
+                  )}
+                </td>
+                <td>{new Date(w.measuredAt).toLocaleString("en-GB")}</td>
+              </tr>
+            ))}
+          </DataTable>
+        )}
       </Card>
-
-      {open && (
-        <Modal title="Record Vehicle Weighment" description="Enter gross and tare scale readings. Net weight and variance are calculated live." onClose={() => setOpen(false)}
-          footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!form.vehicleNo || !form.grossWeight || !form.tareWeight}>Record Weighment</Button></>}
-       >
-          <FormField label="Linked Supplier Challan">
-            <Dropdown value={form.deliveryId} onChange={(e) => setForm({ ...form, deliveryId: e.target.value })}>
-              <option value="">— Select delivery (optional) —</option>
-              {deliveries.map((d) => <option key={d.id} value={d.id}>{d.number} {d.vehicleNo ? `· ${d.vehicleNo}` : ''}</option>)}
-            </Dropdown>
-          </FormField>
-          <FormField label="Vehicle Number" required>
-            <Input placeholder="e.g. DHK-TRK-12-3456" value={form.vehicleNo} onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })} />
-          </FormField>
-          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-3.5 max-[900px]:grid-cols-[1fr]">
-            <FormField label="Gross Weight (kg) — with vehicle" required>
-              <Input type="number" placeholder="e.g. 42500" value={form.grossWeight} onChange={(e) => setForm({ ...form, grossWeight: e.target.value })} />
+      {selected && (
+        <Modal
+          title={"Weighbridge Report: " + selected.number}
+          description={[
+            selected.requisition?.number &&
+              "Requisition " + selected.requisition.number,
+            selected.supplier?.name,
+            selected.vehicleNo,
+          ]
+            .filter(Boolean)
+            .join(" | ")}
+          onClose={() => setSelected(null)}
+          extraWide
+          fixedHeight
+          footer={
+            <>
+              <Button onClick={() => setSelected(null)}>Cancel</Button>
+              <Button
+                variant="primary"
+                disabled={!ready || saving}
+                onClick={() => void submit()}
+              >
+                <CheckCircle2 size={15} />
+                {saving ? "Submitting..." : "Submit for Approval"}
+              </Button>
+            </>
+          }
+        >
+          <div className="grid grid-cols-3 gap-3 max-[800px]:grid-cols-1">
+            <FormField label="Gross Weight (kg)" required>
+              <Input
+                type="number"
+                min="0"
+                value={gross}
+                onChange={(e) => setGross(e.target.value)}
+                placeholder="Gross"
+              />
             </FormField>
-            <FormField label="Tare Weight (kg) — empty vehicle" required>
-              <Input type="number" placeholder="e.g. 12500" value={form.tareWeight} onChange={(e) => setForm({ ...form, tareWeight: e.target.value })} />
+            <FormField label="Tare Weight (kg)" required>
+              <Input
+                type="number"
+                min="0"
+                value={tare}
+                onChange={(e) => setTare(e.target.value)}
+                placeholder="Tare"
+              />
+            </FormField>
+            <FormField label="Net Weight (kg)">
+              <Input
+                readOnly
+                value={net > 0 ? String(net) : ""}
+                placeholder="Calculated"
+              />
             </FormField>
           </div>
-
-          {/* Live preview */}
-          {preview && (
-            <div className="bg-[#0d3b2e] rounded-[14px] p-5 text-[#fff] text-center">
-              <div className="text-[11px] opacity-60 font-bold tracking-[0.1em] uppercase mb-1.5">Calculated Net Weight</div>
-              <div className="[font-family:'Outfit',_sans-serif] text-[48px] font-extrabold tracking-[-1px]">{preview.net.toLocaleString()}</div>
-              <div className="opacity-70">kg</div>
-              {preview.variancePct !== null && (
-                <div className={twMerge("mt-3 p-[8px_16px] rounded-[20px] inline-flex items-center gap-2", (preview.isWarn ? "bg-[rgba(200,48,48,0.25)]" : "bg-[rgba(168,213,72,0.2)]"))}>
-                  {preview.isWarn ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
-                  <span className="text-[13px] font-bold">
-                    {preview.variance !== null && preview.variance >= 0 ? '+' : ''}{preview.variance?.toLocaleString()} kg ({preview.variancePct.toFixed(2)}% variance)
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="mt-5 overflow-x-auto rounded-xl border border-[#dfe7df]">
+            <table className="w-full min-w-[900px] border-collapse text-sm">
+              <thead className="bg-[#f3f5f6] text-[11px] uppercase tracking-wide">
+                <tr>
+                  <th className="p-3 text-left">Product</th>
+                  <th className="p-3 text-left">UOM</th>
+                  <th className="p-3 text-right">Requisition Qty</th>
+                  <th className="p-3 text-right">Previously Verified</th>
+                  <th className="p-3 text-right">Remaining</th>
+                  <th className="p-3 text-right">Challan Qty</th>
+                  <th className="p-3 text-left">Actual Weight</th>
+                  <th className="p-3 text-center">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selected.lines.map((l) => (
+                  <tr key={l.id} className="border-t border-[#e4e9e3]">
+                    <td className="p-3">
+                      <strong>{l.product?.name ?? "-"}</strong>
+                      <div className="text-xs text-[#71877b]">
+                        {l.product?.sku}
+                      </div>
+                    </td>
+                    <td className="p-3">{l.uom?.code ?? "-"}</td>
+                    <td className="p-3 text-right">
+                      {Number(l.requisitionQty).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-right">
+                      {Number(l.previouslyVerifiedQty).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-right font-semibold">
+                      {Number(l.remainingQty).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-right">
+                      {Number(l.declaredQty).toLocaleString()}
+                    </td>
+                    <td className="p-3">
+                      <Input
+                        className="h-10 w-32"
+                        type="number"
+                        min="0"
+                        max={l.remainingQty}
+                        step="0.001"
+                        value={values[l.id] ?? ""}
+                        onChange={(e) =>
+                          setValues((v) => ({ ...v, [l.id]: e.target.value }))
+                        }
+                      />
+                    </td>
+                    <td className="p-3 text-center">
+                      {values[l.id] === "" ? (
+                        "-"
+                      ) : matches(l) ? (
+                        <span className="inline-flex items-center gap-1 text-green-700">
+                          <CheckCircle2 size={16} /> Match
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-amber-700">
+                          <AlertTriangle size={16} />{" "}
+                          {shortfall(l) > 0
+                            ? `Partial (${shortfall(l).toLocaleString()} remaining)`
+                            : "Mismatch"}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-[#71877b]">
+            Enter the measured quantity for every product, including zero for
+            missing goods. A line matches only when its actual weight fulfills
+            the requisition remaining quantity. Partial quantities are accepted
+            but keep the requisition incomplete.
+          </p>
         </Modal>
       )}
     </PageContainer>
   );
 }
-
-

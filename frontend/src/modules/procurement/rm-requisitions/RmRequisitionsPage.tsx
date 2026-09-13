@@ -6,7 +6,7 @@ import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { printReport } from '../../../shared/printReport';
 import { useEffect, useState } from 'react';
-import { Plus, Printer, Search, FileText, CheckCircle2, Trash2, Pencil } from 'lucide-react';
+import { Plus, Printer, Search, FileText, CheckCircle2, XCircle, Trash2, Pencil } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
 import { Card } from '../../../components/ui/Card';
@@ -28,7 +28,7 @@ interface Requisition {
   createdById?: string | null; approvedAt?: string | null; supplierId?: string | null;
   assignedManagerId?: string | null; assignedManager?: Manager | null;
   supplier?: { name: string } | null;
-  lines: Array<{ id: string; productId: string; uomId: string; product?: Product; uom?: UOM; requestedQty: number; receivedQty: number; unitPrice?: number; }>;
+  lines: Array<{ id: string; productId: string; uomId: string; product?: Product; uom?: UOM; requestedQty: number; receivedQty: number; verifiedQty?: number; unitPrice?: number; }>;
   totalEstimatedCost?: number;
 }
 
@@ -138,12 +138,23 @@ export function RmRequisitionsPage() {
     } catch (e: any) { setMessage(e.message); } finally { setApproving(null); }
   };
 
+  const reject = async (id: string) => {
+    if (approving) return;
+    setApproving(id);
+    try {
+      await api(`/purchase-requisitions/${id}/reject`, { method: 'POST' });
+      closeDetails();
+      window.dispatchEvent(new Event('notificationsChanged'));
+      await load();
+    } catch (e: any) { setMessage(e.message); } finally { setApproving(null); }
+  };
+
   const printReq = (req: Requisition) => {
     printReport(`Requisition ${req.number}`, `
-      <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">RM Purchase Requisition</h1><p>ID: <strong>${req.number}</strong> &nbsp;|&nbsp; Date: ${new Date(req.requestedOn).toLocaleDateString('en-GB')}</p>${req.supplier ? `<p>Supplier: <strong>${req.supplier.name}</strong></p>` : ''}</div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f8ef] text-[#1b8f5a]">${req.status}</span></div>
+      <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">RM Purchase Requisition</h1><p>ID: <strong>${req.number}</strong> &nbsp;|&nbsp; Date: ${new Date(req.requestedOn).toLocaleDateString('en-GB')}</p>${req.supplier ? `<p>Supplier: <strong>${req.supplier.name}</strong></p>` : ''}</div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f8ef] text-[#1b8f5a]">${req.status === "SUBMITTED" ? "PENDING" : req.status}</span></div>
       ${req.salesOrderRef ? `<p>Sales Order Ref: <strong>${req.salesOrderRef}</strong></p>` : ''}
       <table class="mt-5 w-full border-collapse [:where(&_th)]:border [:where(&_th)]:border-[#ccc] [:where(&_th)]:p-2.5 [:where(&_th)]:text-left [:where(&_th)]:bg-[#f5f5f5] [:where(&_td)]:border [:where(&_td)]:border-[#ccc] [:where(&_td)]:p-2.5 [:where(&_td)]:text-left"><thead><tr><th>#</th><th>Product</th><th>Requested Qty</th><th>Received Qty</th><th>UOM</th><th>Unit Price</th><th>Total Price</th></tr></thead>
-      <tbody>${req.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.product?.name ?? ''}<br><small>${l.product?.sku ?? ''}</small></td><td>${Number(l.requestedQty).toLocaleString()}</td><td>${Number(l.receivedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="6" class="text-right font-bold">Total Price</td><td class="font-bold">${req.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr></tfoot></table>
+      <tbody>${req.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.product?.name ?? ''}<br><small>${l.product?.sku ?? ''}</small></td><td>${Number(l.requestedQty).toLocaleString()}</td><td>${Number(l.receivedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td><td>${l.unitPrice ? (Number(l.requestedQty) * Number(l.unitPrice)).toLocaleString() : '-'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="6" class="text-right font-bold">Total Price</td><td class="font-bold">${req.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr></tfoot></table>
       <div class="mt-10 text-[13px] text-[#777] flex justify-between"><span>Prepared by: _______________________</span><span>Approved by: _______________________</span><span>Date: _____________</span></div>
     `);
   };
@@ -162,14 +173,14 @@ export function RmRequisitionsPage() {
           <Plus size={16} /> New Requisition
         </Button>
       }
-   >
-
+      headerContent={<>
       {/* Stats row */}
-      <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
+      <div className="grid grid-cols-[repeat(5,_1fr)] gap-4 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[
           { label: 'Total', value: rows.length, color: 'brand' },
-          { label: 'Submitted', value: rows.filter((r) => r.status === 'SUBMITTED').length, color: 'blue' },
+          { label: 'Pending', value: rows.filter((r) => r.status === 'SUBMITTED').length, color: 'blue' },
           { label: 'Approved', value: rows.filter((r) => r.status === 'APPROVED').length, color: 'green' },
+          { label: 'Incomplete', value: rows.filter((r) => r.status === 'INCOMPLETE').length, color: 'yellow' },
           { label: 'Received', value: rows.filter((r) => r.status === 'RECEIVED' || r.status === 'PARTIALLY_RECEIVED').length, color: 'purple' },
         ].map((s) => (
           <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
@@ -181,12 +192,15 @@ export function RmRequisitionsPage() {
         ))}
       </div>
 
+      </>}
+   >
+
       <Card padding="none">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-[#e0e5dd] px-4 py-3">
           <h2 className="m-0 shrink-0 text-sm font-semibold">Requisition Register</h2>
           <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3">
             <div role="group" aria-label="Filter requisitions by status" className="flex flex-wrap items-center gap-2">
-              {[{value:'ALL',label:'All'},{value:'APPROVED',label:'Approved'},{value:'PENDING',label:'Pending'},{value:'REJECTED',label:'Rejected'}].map(filter=><Button key={filter.value} size="sm" className="h-9" variant={statusFilter===filter.value?'primary':'secondary'} aria-pressed={statusFilter===filter.value} onClick={()=>setStatusFilter(filter.value)}>{filter.label}<span className="text-xs opacity-75">({rows.filter(r=>matchesStatus(r,filter.value)).length})</span></Button>)}
+              {[{value:'ALL',label:'All'},{value:'APPROVED',label:'Approved'},{value:'PENDING',label:'Pending'},{value:'INCOMPLETE',label:'Incomplete'},{value:'REJECTED',label:'Rejected'}].map(filter=><Button key={filter.value} size="sm" className="h-9" variant={statusFilter===filter.value?'primary':'secondary'} aria-pressed={statusFilter===filter.value} onClick={()=>setStatusFilter(filter.value)}>{filter.label}<span className="text-xs opacity-75">({rows.filter(r=>matchesStatus(r,filter.value)).length})</span></Button>)}
             </div>
             <div className="flex h-9 w-full items-center gap-2 rounded-lg border border-[#e0e5dd] bg-[#f8faf7] px-3 focus-within:border-[#1a5c45] focus-within:ring-2 focus-within:ring-[#1a5c45]/10 sm:w-72">
               <Search size={15} className="shrink-0 text-[#7a9185]"/>
@@ -204,14 +218,14 @@ export function RmRequisitionsPage() {
                   <td><span className="text-[12px] text-[#7a9185]">{req.salesOrderRef ?? '—'}</span></td>
                   <td>{req.lines.length} items</td>
                   <td>{req.totalEstimatedCost ? req.totalEstimatedCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—'}</td>
-                  <td>{statusBadge(req.status)}</td>
+                  <td>{statusBadge(req.status === "SUBMITTED" ? "PENDING" : req.status)}</td>
                   <td className="text-[12px] text-[#7a9185]">{new Date(req.requestedOn).toLocaleDateString('en-GB')}</td>
                   <td>
                     <div className="flex items-center gap-1">
                       <Button size="sm" className="size-8 min-h-8 p-0" title="View requisition" aria-label="View requisition" onClick={()=>setSelected(req)}><FileText size={15}/></Button>
                       <Button size="sm" className="size-8 min-h-8 p-0" title="Print requisition" aria-label="Print requisition" onClick={()=>printReq(req)}><Printer size={15}/></Button>
                       {canEdit(req)&&<Button size="sm" className="size-8 min-h-8 p-0" title="Edit requisition" aria-label="Edit requisition" onClick={()=>edit(req)}><Pencil size={15}/></Button>}
-                      {canApprove(req)&&<Button size="sm" variant="accent" className="size-8 min-h-8 p-0" title="Approve requisition" aria-label="Approve requisition" disabled={!!approving} onClick={()=>void approve(req.id)}><CheckCircle2 size={15}/></Button>}
+                      {canApprove(req)&&<Button size="sm" variant="accent" className="size-8 min-h-8 p-0" title="Review and approve requisition" aria-label="Review and approve requisition" disabled={!!approving} onClick={()=>setSelected(req)}><CheckCircle2 size={15}/></Button>}
                       {canDelete()&&<Button size="sm" variant="danger" className="size-8 min-h-8 p-0" title="Delete requisition" aria-label="Delete requisition" onClick={()=>setDeleting(req)}><Trash2 size={15}/></Button>}
                     </div>
                   </td>
@@ -301,12 +315,12 @@ export function RmRequisitionsPage() {
       {selected && (
         <Modal
           title={`Requisition ${selected.number}`}
-          description={`Status: ${selected.status} · Supplier: ${selected.supplier?.name ?? 'Not assigned'}`}
+          description={`Status: ${selected.status === "SUBMITTED" ? "PENDING" : selected.status} | Supplier: ${selected.supplier?.name ?? 'Not assigned'}`}
           onClose={closeDetails}
           wide
           footer={
             <>
-              {canApprove(selected) && <Button variant="primary" disabled={!!approving} onClick={()=>void approve(selected.id)}>{approving ? "Approving..." : "Approve Requisition"}</Button>}
+              {canApprove(selected) && <><Button variant="primary" disabled={!!approving} onClick={()=>void approve(selected.id)}>{approving ? "Working..." : "Approve"}</Button><Button variant="danger" disabled={!!approving} onClick={()=>void reject(selected.id)}><XCircle size={15}/> Reject</Button></>}
               <Button variant="secondary" onClick={() => { printReq(selected); }}>
                 <Printer size={14} /> Print Report
               </Button>
@@ -316,15 +330,19 @@ export function RmRequisitionsPage() {
        >
           <p className="mb-4 text-sm"><strong>Assigned Manager:</strong> {selected.assignedManager?.fullName ?? "Not assigned"}</p>
           <div className="overflow-x-auto">
-            <DataTable columns={["Product","SKU","Requested","Received","UOM","Unit Price","Total Price"]} summary={<tr className="border-t-2 border-[#cfd8d1] bg-[#f3f7f1]"><th colSpan={6} className="px-5 py-4 text-right text-sm font-bold text-[#263b31]">Total Price</th><td className="px-5 py-4 font-bold tabular-nums text-[#0d3b2e]">{selected.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr>}>
+            <DataTable columns={["Product","SKU","Requested","Fulfilled","Remaining","Status","Received","UOM","Unit Price","Total Price"]} summary={<tr className="border-t-2 border-[#cfd8d1] bg-[#f3f7f1]"><th colSpan={9} className="px-5 py-4 text-right text-sm font-bold text-[#263b31]">Total Price</th><td className="px-5 py-4 font-bold tabular-nums text-[#0d3b2e]">{selected.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr>}>
                 {selected.lines.map((l, i) => (
                   <tr key={i}>
                     <td>{l.product?.name ?? '—'}</td>
                     <td><span className="text-[11px] text-[#7a9185] font-mono">{l.product?.sku ?? '—'}</span></td>
                     <td><strong>{Number(l.requestedQty).toLocaleString()}</strong></td>
+                    <td>{Number(l.verifiedQty??0).toLocaleString()}</td>
+                    <td><strong>{Math.max(0,Number(l.requestedQty)-Number(l.verifiedQty??0)).toLocaleString()}</strong></td>
+                    <td>{Number(l.verifiedQty??0)>=Number(l.requestedQty)?<span className="text-green-700">Complete</span>:selected.status==="SUBMITTED"?<span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">Pending</span>:selected.status==="APPROVED"?<span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">Awaiting Delivery</span>:<span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">Incomplete</span>}</td>
                     <td>{Number(l.receivedQty).toLocaleString()}</td>
                     <td>{l.uom?.code ?? '—'}</td>
                     <td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td>
+                    <td className="font-semibold tabular-nums">{l.unitPrice ? (Number(l.requestedQty) * Number(l.unitPrice)).toLocaleString() : '-'}</td>
                   </tr>
                 ))}
               </DataTable>

@@ -31,9 +31,11 @@ enum ProductType {
 enum DocumentStatus {
   DRAFT
   SUBMITTED
+  WEIGHED
   APPROVED
   REJECTED
   PARTIALLY_RECEIVED
+  INCOMPLETE
   RECEIVED
   CLOSED
   CANCELLED
@@ -294,6 +296,8 @@ model SupplierDelivery {
   assignedManagerId String?
   approvedById String?
   approvedAt DateTime?
+  weighedAt DateTime?
+  weighedById String?
   deletedAt DateTime?
   attachmentName String?
   attachmentMime String?
@@ -309,6 +313,11 @@ model SupplierDeliveryLine {
   uomId String
   declaredQty Decimal @db.Decimal(18,3)
   acceptedQty Decimal? @db.Decimal(18,3)
+  verifiedQty Decimal? @db.Decimal(18,3)
+  measuredQty Decimal? @db.Decimal(18,3)
+  weighbridgeMatched Boolean?
+  weighedAt DateTime?
+  weighedById String?
   unitPrice Decimal? @db.Decimal(18,4)
   destinationBinId String?
   delivery SupplierDelivery @relation(fields:[deliveryId],references:[id],onDelete:Cascade)

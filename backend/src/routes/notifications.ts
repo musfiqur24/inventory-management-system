@@ -13,6 +13,11 @@ notificationsRouter.get("/", async (req, res) => {
   ]);
   res.json({ data, unreadCount });
 });
+notificationsRouter.patch("/read-all", async (req, res) => {
+  const where = { organizationId: req.tenantId!, recipientId: req.auth!.id, readAt: null };
+  const result = await prisma.notification.updateMany({ where, data: { readAt: new Date() } });
+  res.json({ data: { updated: result.count } });
+});
 notificationsRouter.patch("/:id/read", async (req, res) => {
   const where = {
     id: String(req.params.id),

@@ -19,9 +19,11 @@ export function statusBadge(status: string) {
   const map: Record<string, { variant: BadgeProps['variant']; label: string }> = {
     DRAFT: { variant: 'gray', label: 'Draft' },
     SUBMITTED: { variant: 'blue', label: 'Submitted' },
+    WEIGHED: { variant: 'blue', label: 'Awaiting Approval' },
     APPROVED: { variant: 'green', label: 'Approved' },
     REJECTED: { variant: 'red', label: 'Rejected' },
     PARTIALLY_RECEIVED: { variant: 'yellow', label: 'Partial' },
+    INCOMPLETE: { variant: 'yellow', label: 'Incomplete' },
     RECEIVED: { variant: 'green', label: 'Received' },
     CLOSED: { variant: 'purple', label: 'Closed' },
     CANCELLED: { variant: 'red', label: 'Cancelled' },

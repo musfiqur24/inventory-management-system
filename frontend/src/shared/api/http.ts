@@ -70,7 +70,7 @@ export async function api<T=unknown>(path:string,init:RequestInit={},retried=fal
   if(!response.ok)throw new ApiError(payload.error?.message??"Request failed",response.status,payload.error?.code??"REQUEST_FAILED",payload.error?.details);
 
   const method=(init.method??"GET").toUpperCase();
-  if(["POST","PUT","PATCH","DELETE"].includes(method)&&!path.startsWith("/auth/")&&!path.startsWith("/users")&&path!=="/organizations"){
+  if(["POST","PUT","PATCH","DELETE"].includes(method)&&!path.startsWith("/auth/")&&!path.startsWith("/users")&&!path.startsWith("/notifications")&&path!=="/organizations"){
     const message=method==="DELETE"?"Removed successfully.":path.endsWith("/approve")?"Approved successfully.":method==="POST"?"Saved successfully.":"Updated successfully.";
     window.dispatchEvent(new CustomEvent("apiMutationSuccess",{detail:{message}}));
   }

@@ -260,7 +260,7 @@ storesRouter.get("/:id/receiving-options", async (req, res) => {
       prisma.supplierDelivery.findMany({
         where: {
           organizationId: req.tenantId,
-          status: { in: ["APPROVED", "PARTIALLY_RECEIVED"] },
+          status: { in: ["APPROVED", "INCOMPLETE", "PARTIALLY_RECEIVED"] },
         },
         include: { lines: true },
         orderBy: { number: "desc" },
@@ -277,7 +277,7 @@ storesRouter.get("/:id/receiving-options", async (req, res) => {
           referenceNumber: requisitions.find((r) => r.id === d.requisitionId)
             ?.number,
           lines: d.lines
-            .filter((l) => l.declaredQty.gt(l.acceptedQty ?? 0))
+            .filter((l) => l.verifiedQty != null && l.verifiedQty.gt(l.acceptedQty ?? 0))
             .map((l) => ({
               id: l.id,
               productId: l.productId,
@@ -285,7 +285,7 @@ storesRouter.get("/:id/receiving-options", async (req, res) => {
                 products.find((p) => p.id === l.productId)?.name ?? l.productId,
               uomId: l.uomId,
               uomCode: uoms.find((u) => u.id === l.uomId)?.code,
-              remaining: l.declaredQty.minus(l.acceptedQty ?? 0),
+              remaining: l.verifiedQty!.minus(l.acceptedQty ?? 0),
             })),
         }))
         .filter((d) => d.lines.length),

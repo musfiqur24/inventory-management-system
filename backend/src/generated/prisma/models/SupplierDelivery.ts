@@ -55,6 +55,8 @@ export type SupplierDeliveryMinAggregateOutputType = {
   assignedManagerId: string | null
   approvedById: string | null
   approvedAt: Date | null
+  weighedAt: Date | null
+  weighedById: string | null
   deletedAt: Date | null
   attachmentName: string | null
   attachmentMime: string | null
@@ -78,6 +80,8 @@ export type SupplierDeliveryMaxAggregateOutputType = {
   assignedManagerId: string | null
   approvedById: string | null
   approvedAt: Date | null
+  weighedAt: Date | null
+  weighedById: string | null
   deletedAt: Date | null
   attachmentName: string | null
   attachmentMime: string | null
@@ -101,6 +105,8 @@ export type SupplierDeliveryCountAggregateOutputType = {
   assignedManagerId: number
   approvedById: number
   approvedAt: number
+  weighedAt: number
+  weighedById: number
   deletedAt: number
   attachmentName: number
   attachmentMime: number
@@ -138,6 +144,8 @@ export type SupplierDeliveryMinAggregateInputType = {
   assignedManagerId?: true
   approvedById?: true
   approvedAt?: true
+  weighedAt?: true
+  weighedById?: true
   deletedAt?: true
   attachmentName?: true
   attachmentMime?: true
@@ -161,6 +169,8 @@ export type SupplierDeliveryMaxAggregateInputType = {
   assignedManagerId?: true
   approvedById?: true
   approvedAt?: true
+  weighedAt?: true
+  weighedById?: true
   deletedAt?: true
   attachmentName?: true
   attachmentMime?: true
@@ -184,6 +194,8 @@ export type SupplierDeliveryCountAggregateInputType = {
   assignedManagerId?: true
   approvedById?: true
   approvedAt?: true
+  weighedAt?: true
+  weighedById?: true
   deletedAt?: true
   attachmentName?: true
   attachmentMime?: true
@@ -294,6 +306,8 @@ export type SupplierDeliveryGroupByOutputType = {
   assignedManagerId: string | null
   approvedById: string | null
   approvedAt: Date | null
+  weighedAt: Date | null
+  weighedById: string | null
   deletedAt: Date | null
   attachmentName: string | null
   attachmentMime: string | null
@@ -340,6 +354,8 @@ export type SupplierDeliveryWhereInput = {
   assignedManagerId?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   approvedById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  weighedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  weighedById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
   attachmentName?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   attachmentMime?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
@@ -364,6 +380,8 @@ export type SupplierDeliveryOrderByWithRelationInput = {
   assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  weighedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  weighedById?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   attachmentName?: Prisma.SortOrderInput | Prisma.SortOrder
   attachmentMime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -392,6 +410,8 @@ export type SupplierDeliveryWhereUniqueInput = Prisma.AtLeast<{
   assignedManagerId?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   approvedById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   approvedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  weighedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
+  weighedById?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"SupplierDelivery"> | Date | string | null
   attachmentName?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
   attachmentMime?: Prisma.StringNullableFilter<"SupplierDelivery"> | string | null
@@ -416,6 +436,8 @@ export type SupplierDeliveryOrderByWithAggregationInput = {
   assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  weighedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  weighedById?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   attachmentName?: Prisma.SortOrderInput | Prisma.SortOrder
   attachmentMime?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -447,6 +469,8 @@ export type SupplierDeliveryScalarWhereWithAggregatesInput = {
   assignedManagerId?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
   approvedById?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupplierDelivery"> | Date | string | null
+  weighedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupplierDelivery"> | Date | string | null
+  weighedById?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SupplierDelivery"> | Date | string | null
   attachmentName?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
   attachmentMime?: Prisma.StringNullableWithAggregatesFilter<"SupplierDelivery"> | string | null
@@ -470,6 +494,8 @@ export type SupplierDeliveryCreateInput = {
   assignedManagerId?: string | null
   approvedById?: string | null
   approvedAt?: Date | string | null
+  weighedAt?: Date | string | null
+  weighedById?: string | null
   deletedAt?: Date | string | null
   attachmentName?: string | null
   attachmentMime?: string | null
@@ -494,6 +520,8 @@ export type SupplierDeliveryUncheckedCreateInput = {
   assignedManagerId?: string | null
   approvedById?: string | null
   approvedAt?: Date | string | null
+  weighedAt?: Date | string | null
+  weighedById?: string | null
   deletedAt?: Date | string | null
   attachmentName?: string | null
   attachmentMime?: string | null
@@ -518,6 +546,8 @@ export type SupplierDeliveryUpdateInput = {
   assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -542,6 +572,8 @@ export type SupplierDeliveryUncheckedUpdateInput = {
   assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -566,6 +598,8 @@ export type SupplierDeliveryCreateManyInput = {
   assignedManagerId?: string | null
   approvedById?: string | null
   approvedAt?: Date | string | null
+  weighedAt?: Date | string | null
+  weighedById?: string | null
   deletedAt?: Date | string | null
   attachmentName?: string | null
   attachmentMime?: string | null
@@ -589,6 +623,8 @@ export type SupplierDeliveryUpdateManyMutationInput = {
   assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -612,6 +648,8 @@ export type SupplierDeliveryUncheckedUpdateManyInput = {
   assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -640,6 +678,8 @@ export type SupplierDeliveryCountOrderByAggregateInput = {
   assignedManagerId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
+  weighedAt?: Prisma.SortOrder
+  weighedById?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   attachmentName?: Prisma.SortOrder
   attachmentMime?: Prisma.SortOrder
@@ -669,6 +709,8 @@ export type SupplierDeliveryMaxOrderByAggregateInput = {
   assignedManagerId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
+  weighedAt?: Prisma.SortOrder
+  weighedById?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   attachmentName?: Prisma.SortOrder
   attachmentMime?: Prisma.SortOrder
@@ -692,6 +734,8 @@ export type SupplierDeliveryMinOrderByAggregateInput = {
   assignedManagerId?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
+  weighedAt?: Prisma.SortOrder
+  weighedById?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   attachmentName?: Prisma.SortOrder
   attachmentMime?: Prisma.SortOrder
@@ -740,6 +784,8 @@ export type SupplierDeliveryCreateWithoutLinesInput = {
   assignedManagerId?: string | null
   approvedById?: string | null
   approvedAt?: Date | string | null
+  weighedAt?: Date | string | null
+  weighedById?: string | null
   deletedAt?: Date | string | null
   attachmentName?: string | null
   attachmentMime?: string | null
@@ -763,6 +809,8 @@ export type SupplierDeliveryUncheckedCreateWithoutLinesInput = {
   assignedManagerId?: string | null
   approvedById?: string | null
   approvedAt?: Date | string | null
+  weighedAt?: Date | string | null
+  weighedById?: string | null
   deletedAt?: Date | string | null
   attachmentName?: string | null
   attachmentMime?: string | null
@@ -802,6 +850,8 @@ export type SupplierDeliveryUpdateWithoutLinesInput = {
   assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -825,6 +875,8 @@ export type SupplierDeliveryUncheckedUpdateWithoutLinesInput = {
   assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  weighedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   attachmentName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attachmentMime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -879,6 +931,8 @@ export type SupplierDeliverySelect<ExtArgs extends runtime.Types.Extensions.Inte
   assignedManagerId?: boolean
   approvedById?: boolean
   approvedAt?: boolean
+  weighedAt?: boolean
+  weighedById?: boolean
   deletedAt?: boolean
   attachmentName?: boolean
   attachmentMime?: boolean
@@ -904,6 +958,8 @@ export type SupplierDeliverySelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   assignedManagerId?: boolean
   approvedById?: boolean
   approvedAt?: boolean
+  weighedAt?: boolean
+  weighedById?: boolean
   deletedAt?: boolean
   attachmentName?: boolean
   attachmentMime?: boolean
@@ -927,6 +983,8 @@ export type SupplierDeliverySelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   assignedManagerId?: boolean
   approvedById?: boolean
   approvedAt?: boolean
+  weighedAt?: boolean
+  weighedById?: boolean
   deletedAt?: boolean
   attachmentName?: boolean
   attachmentMime?: boolean
@@ -950,13 +1008,15 @@ export type SupplierDeliverySelectScalar = {
   assignedManagerId?: boolean
   approvedById?: boolean
   approvedAt?: boolean
+  weighedAt?: boolean
+  weighedById?: boolean
   deletedAt?: boolean
   attachmentName?: boolean
   attachmentMime?: boolean
   attachmentData?: boolean
 }
 
-export type SupplierDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "requisitionId" | "supplierId" | "invoiceNo" | "vehicleNo" | "grossWeight" | "tareWeight" | "netWeight" | "status" | "deliveredAt" | "createdById" | "assignedManagerId" | "approvedById" | "approvedAt" | "deletedAt" | "attachmentName" | "attachmentMime" | "attachmentData", ExtArgs["result"]["supplierDelivery"]>
+export type SupplierDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "requisitionId" | "supplierId" | "invoiceNo" | "vehicleNo" | "grossWeight" | "tareWeight" | "netWeight" | "status" | "deliveredAt" | "createdById" | "assignedManagerId" | "approvedById" | "approvedAt" | "weighedAt" | "weighedById" | "deletedAt" | "attachmentName" | "attachmentMime" | "attachmentData", ExtArgs["result"]["supplierDelivery"]>
 export type SupplierDeliveryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lines?: boolean | Prisma.SupplierDelivery$linesArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierDeliveryCountOutputTypeDefaultArgs<ExtArgs>
@@ -986,6 +1046,8 @@ export type $SupplierDeliveryPayload<ExtArgs extends runtime.Types.Extensions.In
     assignedManagerId: string | null
     approvedById: string | null
     approvedAt: Date | null
+    weighedAt: Date | null
+    weighedById: string | null
     deletedAt: Date | null
     attachmentName: string | null
     attachmentMime: string | null
@@ -1430,6 +1492,8 @@ export interface SupplierDeliveryFieldRefs {
   readonly assignedManagerId: Prisma.FieldRef<"SupplierDelivery", 'String'>
   readonly approvedById: Prisma.FieldRef<"SupplierDelivery", 'String'>
   readonly approvedAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
+  readonly weighedAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
+  readonly weighedById: Prisma.FieldRef<"SupplierDelivery", 'String'>
   readonly deletedAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
   readonly attachmentName: Prisma.FieldRef<"SupplierDelivery", 'String'>
   readonly attachmentMime: Prisma.FieldRef<"SupplierDelivery", 'String'>

@@ -27,10 +27,11 @@ purchaseRequisitionsRouter.get("/", async (req, res) => {
   });
 
   // Enrich with product, uom, supplier details
-  const [products, uoms, partners] = await Promise.all([
+  const [products, uoms, partners, verifiedDeliveryLines] = await Promise.all([
     prisma.product.findMany({ where: { organizationId: req.tenantId } }),
     prisma.unitOfMeasure.findMany({ where: { organizationId: req.tenantId } }),
     prisma.partner.findMany({ where: { organizationId: req.tenantId } }),
+    prisma.supplierDeliveryLine.findMany({ where: { delivery: { organizationId: req.tenantId, deletedAt: null, approvedAt: { not: null } } }, include: { delivery: { select: { requisitionId: true } } } }),
   ]);
 
   const prodMap = new Map(products.map((p) => [p.id, p]));
@@ -43,6 +44,7 @@ purchaseRequisitionsRouter.get("/", async (req, res) => {
       ...l,
       product: prodMap.get(l.productId),
       uom: uomMap.get(l.uomId),
+      verifiedQty: verifiedDeliveryLines.filter((d) => d.delivery.requisitionId === reqItem.id && d.productId === l.productId && d.uomId === l.uomId).reduce((sum, d) => sum + Number(d.verifiedQty ?? 0), 0),
     }));
 
     const totalEstimatedCost = lines.reduce(
@@ -74,13 +76,14 @@ const getRequisitionDetails = async (req: any, res: any) => {
     return res.status(404).json({ error: { message: "Requisition not found" } });
   }
 
-  const [products, uoms, supplier, organization] = await Promise.all([
+  const [products, uoms, supplier, organization, verifiedDeliveryLines] = await Promise.all([
     prisma.product.findMany({ where: { organizationId: req.tenantId } }),
     prisma.unitOfMeasure.findMany({ where: { organizationId: req.tenantId } }),
     requisition.supplierId
       ? prisma.partner.findFirst({ where: { id: requisition.supplierId } })
       : null,
     prisma.organization.findUnique({ where: { id: req.tenantId } }),
+    prisma.supplierDeliveryLine.findMany({ where: { delivery: { organizationId: req.tenantId, requisitionId: requisition.id, deletedAt: null, approvedAt: { not: null } } } }),
   ]);
 
   const prodMap = new Map(products.map((p) => [p.id, p]));
@@ -90,6 +93,7 @@ const getRequisitionDetails = async (req: any, res: any) => {
     ...l,
     product: prodMap.get(l.productId),
     uom: uomMap.get(l.uomId),
+    verifiedQty: verifiedDeliveryLines.filter((d) => d.productId === l.productId && d.uomId === l.uomId).reduce((sum, d) => sum + Number(d.verifiedQty ?? 0), 0),
   }));
 
   res.json({
@@ -160,6 +164,10 @@ purchaseRequisitionsRouter.post('/:id/approve',async(req,res)=>{
   return tx.purchaseRequisition.findUnique({where:{id},include:{assignedManager:{select:managerSelect}}});
  });
  res.json({data});
+});
+
+purchaseRequisitionsRouter.post('/:id/reject',async(req,res)=>{
+ const data=await prisma.$transaction(async tx=>{const organizationId=req.tenantId!,id=String(req.params.id),userId=req.auth!.id;await tx.$queryRaw`SELECT id FROM "PurchaseRequisition" WHERE id=${id} AND "organizationId"=${organizationId} FOR UPDATE`;const requisition=await tx.purchaseRequisition.findFirst({where:{id,organizationId,deletedAt:null}});if(!requisition)throw new StockError('NOT_FOUND','Requisition not found.',404);if(requisition.assignedManagerId!==userId||!await tx.organizationMember.findFirst({where:managerWhere(organizationId,userId)}))throw new StockError('REJECTION_FORBIDDEN','Only the assigned manager can reject this requisition.',403);if(requisition.status!=='SUBMITTED')throw new StockError('INVALID_STATUS','Only a pending requisition can be rejected.',409);const updated=await tx.purchaseRequisition.update({where:{id},data:{status:DocumentStatus.REJECTED}});await tx.notification.updateMany({where:{organizationId,recipientId:userId,requisitionId:id,readAt:null},data:{readAt:new Date()}});return updated});res.json({data});
 });
 
 purchaseRequisitionsRouter.put('/:id',async(req,res)=>{

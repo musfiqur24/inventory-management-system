@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Info } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 
 export type ToastKind = "success" | "error" | "validation" | "info";
@@ -11,6 +11,7 @@ export const appToast = {
   error: (message: string) => toast.error(message, { className: toastClass, duration: 5000 }),
   validation: (message: string) => toast(message, { className: toastClass, duration: 4500, icon: <AlertTriangle className="text-amber-600" size={19} /> }),
   info: (message: string) => toast(message, { className: toastClass, duration: 4000, icon: <Info className="text-blue-600" size={19} /> }),
+  approval: (message: string) => toast(message, { className: toastClass, duration: 4500, icon: <ClipboardCheck className="text-amber-600" size={20} /> }),
   dismiss: toast.dismiss,
 };
 
