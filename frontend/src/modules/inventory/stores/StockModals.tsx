@@ -1,5 +1,6 @@
 import { LoadingBoundary } from "../../../components/ui/Skeleton";
 import { useEffect, useState } from 'react';
+import { CircleCheck } from 'lucide-react';
 import { api } from '../../../shared/api/http';
 import { appToast } from '../../../components/ui/Toast';
 import { Modal } from '../../../components/ui/Modal';
@@ -13,32 +14,41 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
  const [documents,setDocuments]=useState<ReceiptDocument[]>([]);
  const [loading,setLoading]=useState(true);
  const [documentId,setDocumentId]=useState('');
- const [allocations,setAllocations]=useState<Record<string,{binId:string;quantity:string}>>({});
+ const [requisitionNumber,setRequisitionNumber]=useState('');
+ const [allocations,setAllocations]=useState<Record<string,{binId:string;quantity:string;expiryDays:string}>>({});
  const [notes,setNotes]=useState('');
  const [saving,setSaving]=useState(false);
  const [requestId]=useState(()=>crypto.randomUUID());
  const document=documents.find(d=>d.id===documentId);
  const fm=store.storeType==='FM_STORE';
+ const requisitionNumbers=[...new Set(documents.map(d=>d.referenceNumber).filter((number):number is string=>Boolean(number)))];
+ const linkedDocuments=fm?documents:documents.filter(d=>d.referenceNumber===requisitionNumber);
+ const lineComplete=(line:ReceiptDocument['lines'][number])=>{const allocation=allocations[line.id],quantity=Number(allocation?.quantity),expiryDays=Number(allocation?.expiryDays);return Boolean(allocation?.binId)&&Number.isFinite(quantity)&&quantity>0&&quantity<=Number(line.remaining)&&(fm||(Number.isInteger(expiryDays)&&expiryDays>0));};
+ const formComplete=Boolean(document&&document.lines.length&&document.lines.every(lineComplete)&&bins.length);
  useEffect(()=>{let active=true;void api<{data:ReceiptDocument[]}>(`/stores/${store.id}/receiving-options`).then(r=>{if(active)setDocuments(r.data)}).catch(e=>appToast.error(e.message)).finally(()=>{if(active)setLoading(false)});return()=>{active=false};},[store.id]);
- const selectDocument=(id:string)=>{setDocumentId(id);setAllocations(Object.fromEntries((documents.find(d=>d.id===id)?.lines??[]).map(l=>[l.id,{binId:bins[0]?.id??'',quantity:String(l.remaining)}])));};
+ const selectDocument=(id:string)=>{setDocumentId(id);setAllocations(Object.fromEntries((documents.find(d=>d.id===id)?.lines??[]).map(l=>[l.id,{binId:bins[0]?.id??'',quantity:String(l.remaining),expiryDays:''}])));};
  const submit=async()=>{
   if(saving||!document)return;
   const lines=document.lines.filter(l=>Number(allocations[l.id]?.quantity)>0);
-  if(!lines.length||lines.some(l=>!allocations[l.id]?.binId||!Number.isFinite(Number(allocations[l.id].quantity))))return appToast.validation('Choose a bin and positive quantity for at least one line.');
+  if(!lines.length||lines.some(l=>!allocations[l.id]?.binId||!Number.isFinite(Number(allocations[l.id].quantity))||(!fm&&(!Number.isInteger(Number(allocations[l.id].expiryDays))||Number(allocations[l.id].expiryDays)<=0))))return appToast.validation('Choose a bin, positive quantity, and positive whole-number expiry days for every received product.');
   setSaving(true);
   try {
-   await api(fm?'/fm-store/receive':'/rm-store/receive',{method:'POST',body:JSON.stringify(fm?{batchId:document.id,binId:allocations[document.lines[0].id].binId,notes}:{requestId,deliveryId:document.id,notes,lineAllocations:lines.map(l=>({lineId:l.id,productId:l.productId,uomId:l.uomId,binId:allocations[l.id].binId,acceptedQty:Number(allocations[l.id].quantity)}))})});
+   await api(fm?'/fm-store/receive':'/rm-store/receive',{method:'POST',body:JSON.stringify(fm?{batchId:document.id,binId:allocations[document.lines[0].id].binId,notes}:{requestId,deliveryId:document.id,notes,lineAllocations:lines.map(l=>({lineId:l.id,productId:l.productId,uomId:l.uomId,binId:allocations[l.id].binId,acceptedQty:Number(allocations[l.id].quantity),expiryDays:Number(allocations[l.id].expiryDays)}))})});
    onSaved();onClose();
   }catch(e){appToast.error(e instanceof Error?e.message:'Unable to receive stock.')}finally{setSaving(false)}
  };
- return <Modal title={`Receive into ${store.name}`} description={fm?'Select completed production output and its destination bin.':'Select a supplier delivery and assign its products to bins in this store.'} wide onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!document||!bins.length} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
+ return <Modal title={`Receive into ${store.name}`} description={fm?'Select completed production output and its destination bin.':'Select a requisition, then choose one of its linked challans and assign the received products to bins.'} wide fixedHeight onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!formComplete} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
 <LoadingBoundary loading={loading}>
-  <FormField label={fm?'Production Batch':'Supplier Delivery'} required><Dropdown aria-label="Receipt source" value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':'Choose a document'}</option>{documents.map(d=><option key={d.id} value={d.id}>{d.number}{d.referenceNumber?` — ${d.referenceNumber}`:''}</option>)}</Dropdown></FormField>
+  {!fm ? <div className="mb-5 grid gap-3 sm:grid-cols-2 [&>div]:mb-0">
+    <FormField label="Requisition ID" required><Dropdown aria-label="Requisition ID" value={requisitionNumber} onChange={e=>{setRequisitionNumber(e.target.value);setDocumentId('');setAllocations({})}}><option value="">{loading?'Loading requisitions...':'Select a requisition'}</option>{requisitionNumbers.map(number=><option key={number} value={number}>{number}</option>)}</Dropdown></FormField>
+    <FormField label="Linked Challan" required><Dropdown aria-label="Receipt source" disabled={!requisitionNumber} value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':!requisitionNumber?'Select a requisition first':'Choose a linked challan'}</option>{linkedDocuments.map(d=><option key={d.id} value={d.id}>{d.number}</option>)}</Dropdown></FormField>
+  </div> : <FormField label="Production Batch" required><Dropdown aria-label="Receipt source" value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':'Choose a batch'}</option>{linkedDocuments.map(d=><option key={d.id} value={d.id}>{d.number}</option>)}</Dropdown></FormField>}
   {!loading&&!documents.length&&<p className="py-4 text-sm text-[#73877c]">No outstanding {fm?'completed batches':'supplier deliveries'} are available to receive.</p>}
   {!bins.length&&<p className="text-sm text-amber-700">Create a bin in this store before receiving stock.</p>}
-  <div className="space-y-3">{document?.lines.map(line=><div key={line.id} className="rounded-lg border border-[#e0e5dd] p-4"><p className="mb-3 text-sm font-semibold">{line.productName} <span className="font-normal text-[#73877c]">— {Number(line.remaining).toLocaleString()} {line.uomCode} remaining</span></p><div className="grid gap-3 sm:grid-cols-2 [&>div]:mb-0">
-   <FormField label="Destination Bin" required><Dropdown aria-label={`Bin for ${line.productName}`} value={allocations[line.id]?.binId??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],binId:e.target.value}})}><option value="">Choose a bin</option>{bins.map(b=><option key={b.id} value={b.id}>{b.code} — {b.name}</option>)}</Dropdown></FormField>
+  <div className="space-y-3">{document?.lines.map(line=><div key={line.id} className="rounded-lg border border-[#e0e5dd] p-4"><div className="mb-3 flex items-center gap-2 text-sm font-semibold"><span>{line.productName}</span>{lineComplete(line)&&<CircleCheck size={18} className="text-emerald-600" aria-label="Line complete" />}</div><div className="grid gap-3 sm:grid-cols-3 [&>div]:mb-0">
+   <FormField label="Destination Bin" required><Dropdown aria-label={`Bin for ${line.productName}`} value={allocations[line.id]?.binId??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],binId:e.target.value}})}><option value="">Choose a bin</option>{bins.map(b=><option key={b.id} value={b.id}>{b.code} - {b.name}</option>)}</Dropdown></FormField>
    <FormField label={`Quantity (${line.uomCode})`} required><Input aria-label={`Quantity for ${line.productName}`} type="number" min="0" max={Number(line.remaining)} step="0.001" readOnly={fm} value={allocations[line.id]?.quantity??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],quantity:e.target.value}})} /></FormField>
+   {!fm&&<FormField label="Expiry in Days" required><Input aria-label={`Expiry days for ${line.productName}`} type="number" min="1" step="1" placeholder="e.g. 70" value={allocations[line.id]?.expiryDays??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],expiryDays:e.target.value}})} /></FormField>}
   </div></div>)}</div>
   <div className="mt-4"><FormField label="Notes"><Input value={notes} onChange={e=>setNotes(e.target.value)} /></FormField></div>
  </LoadingBoundary></Modal>;
@@ -62,7 +72,7 @@ export function ReleaseStockModal({store,stock,onClose,onSaved}:{store:Store;sto
   setSaving(true);
   try{await api(fm?'/dispatches':'/material-issues',{method:'POST',body:JSON.stringify({requestId,...(fm?{salesOrderId:orderId,vehicleNo:vehicle}:{productionOrderId:orderId}),notes,lines:[{productId:stock.productId,lotId:stock.lotId,fromBinId:stock.binId,uomId:stock.uomId,quantity:Number(quantity)}]})});onSaved();onClose()}catch(e){appToast.error(e instanceof Error?e.message:'Unable to release stock.')}finally{setSaving(false)}
  };
- return <Modal title={fm?'Dispatch Finished Stock':'Issue Raw Material'} description={`${stock.product.name} · ${store.name} / ${stock.bin.code} · Lot ${stock.lot.code}`} onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!orderId} onClick={submit}>{saving?'Releasing...':fm?'Dispatch Stock':'Issue Stock'}</Button></>}>
+ return <Modal title={fm?'Dispatch Finished Stock':'Issue Raw Material'} description={`${stock.product.name} - ${store.name} / ${stock.bin.code} - Lot ${stock.lot.code}`} onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!orderId} onClick={submit}>{saving?'Releasing...':fm?'Dispatch Stock':'Issue Stock'}</Button></>}>
 <LoadingBoundary loading={loading}>
   <p className="mb-4 text-sm font-semibold">Available: {available.toLocaleString()} {stock.uom.code}</p>
   <FormField label={fm?'Sales Order':'Production Requisition'} required><Dropdown aria-label="Release order" value={orderId} onChange={e=>setOrderId(e.target.value)}><option value="">{loading?'Loading orders...':'Choose an order'}</option>{orders.map(o=><option key={o.id} value={o.id}>{o.number}</option>)}</Dropdown></FormField>

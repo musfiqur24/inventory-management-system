@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   Plus,
   Pencil,
-  RefreshCw,
   ArrowDownToLine,
   ArrowUpFromLine,
   Warehouse,
@@ -234,6 +233,24 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       cap={fixedType ? "INVENTORY" : "MASTER SETUP"}
       title={fixedType ? storeTypeLabel(fixedType) : "Stores & Bins"}
       description={isSetup ? "Configure RM and FM stores and the bin positions inside each store." : "View products in your store, receive and release stock, and trace store activity."}
+      headerContent={!isSetup && store ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card>
+            <p className="text-2xl font-bold">{bins.length}</p>
+            <p className="text-sm text-[#73877c]">Bins in this store</p>
+          </Card>
+          <Card>
+            <p className="text-2xl font-bold">{new Set(balances.map((b) => b.productId)).size}</p>
+            <p className="text-sm text-[#73877c]">Products in stock</p>
+          </Card>
+          <Card>
+            <p className="font-semibold">
+              {totals.length ? totals.map(([uom, qty]) => qty.toLocaleString() + " " + uom).join(" - ") : "No stock"}
+            </p>
+            <p className="mt-1 text-sm text-[#73877c]">On hand by unit{binId ? " - selected bin" : ""}</p>
+          </Card>
+        </div>
+      ) : undefined}
       actions={
         !fixedType && writable ? (
           <Button
@@ -247,76 +264,22 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               })
             }
           >
+      {isSetup && (
+        <Card>
+          <div className="w-full min-w-0 sm:w-96">
+            <label htmlFor="active-store-setup" className="mb-2 block text-sm font-semibold">Store</label>
+            <Dropdown id="active-store-setup" value={storeId} onChange={(e) => chooseStore(e.target.value)}>
+              <option value="">{storeLoading ? "Loading stores..." : "Select a store"}</option>
+              {stores.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name} ({storeTypeLabel(s.storeType)})</option>)}
+            </Dropdown>
+          </div>
+        </Card>
+      )}
             <Plus size={16} /> New Store
           </Button>
         ) : undefined
       }
     >
-      <Card>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="w-full min-w-0 sm:w-96">
-            <label
-              htmlFor="active-store"
-              className="mb-2 block text-sm font-semibold"
-            >
-              Store
-            </label>
-            <Dropdown
-              id="active-store"
-              value={storeId}
-              onChange={(e) => chooseStore(e.target.value)}
-            >
-              <option value="">
-                {storeLoading ? "Loading stores..." : "Select a store"}
-              </option>
-              {stores.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.code} — {s.name} ({storeTypeLabel(s.storeType)})
-                </option>
-              ))}
-            </Dropdown>
-          </div>
-          {store && (
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex h-11 items-center rounded-lg bg-[#eaf3e7] px-3 text-sm font-semibold text-[#0d3b2e]">
-                {storeTypeLabel(store.storeType)}
-              </span>
-              {isSetup && writable && (
-                <Button
-                  aria-label="Edit store"
-                  onClick={() =>
-                    setStoreForm({
-                      id: store.id,
-                      code: store.code,
-                      name: store.name,
-                      storeType: store.storeType,
-                      address: store.address ?? "",
-                    })
-                  }
-                >
-                  <Pencil size={16} /> Edit Store
-                </Button>
-              )}
-              <Button
-                className="size-11 shrink-0 p-0"
-                aria-label="Refresh store"
-                disabled={loading}
-                onClick={refresh}
-              >
-                <RefreshCw
-                  size={16}
-                  className={
-                    loading ? "animate-spin motion-reduce:animate-none" : ""
-                  }
-                />
-              </Button>
-            </div>
-          )}
-        </div>
-        {store?.address && (
-          <p className="mt-3 text-sm text-[#73877c]">{store.address}</p>
-        )}
-      </Card>
       {!store && !storeLoading && (
         <Card>
           <div className="py-10 text-center">
@@ -330,30 +293,6 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       )}
       {store && (
         <>
-          {!isSetup && <div className="grid gap-4 sm:grid-cols-3">
-            <Card>
-              <p className="text-2xl font-bold">{bins.length}</p>
-              <p className="text-sm text-[#73877c]">Bins in this store</p>
-            </Card>
-            <Card>
-              <p className="text-2xl font-bold">
-                {new Set(balances.map((b) => b.productId)).size}
-              </p>
-              <p className="text-sm text-[#73877c]">Products in stock</p>
-            </Card>
-            <Card>
-              <p className="font-semibold">
-                {totals.length
-                  ? totals
-                      .map(([uom, qty]) => `${qty.toLocaleString()} ${uom}`)
-                      .join(" · ")
-                  : "No stock"}
-              </p>
-              <p className="mt-1 text-sm text-[#73877c]">
-                On hand by unit{binId ? " · selected bin" : ""}
-              </p>
-            </Card>
-          </div>}
           <Card padding="none">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e0e5dd] p-4 sm:p-5">
               <div className="flex flex-wrap gap-2">
@@ -367,7 +306,21 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   </Button>
                 ))}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-1 flex-wrap items-end justify-end gap-2">
+                {!isSetup && (
+                  <>
+                    <div className="w-full min-w-64 sm:w-96">
+                      <label htmlFor="active-store" className="sr-only">Store</label>
+                      <Dropdown id="active-store" value={storeId} onChange={(e) => chooseStore(e.target.value)}>
+                        <option value="">{storeLoading ? "Loading stores..." : "Select a store"}</option>
+                        {stores.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name} ({storeTypeLabel(s.storeType)})</option>)}
+                      </Dropdown>
+                    </div>
+                    <span className="inline-flex h-11 items-center rounded-lg bg-[#eaf3e7] px-3 text-sm font-semibold text-[#0d3b2e]">
+                      {storeTypeLabel(store.storeType)}
+                    </span>
+                  </>
+                )}
                 {writable && (
                   <>
                     {isSetup && <Button
@@ -393,7 +346,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 items-end gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-[minmax(0,15rem)_repeat(4,minmax(0,11rem))]">
+            <div className="grid grid-cols-1 items-end gap-3 border-b border-[#e0e5dd] bg-[#fbfcfa] p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-[minmax(0,15rem)_repeat(4,minmax(0,11rem))]">
               {tab !== "activity" && (
                 <div className="min-w-0">
                   <label
@@ -441,7 +394,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 </div>
               )}
               {tab === "stock" && fixedType === "RM_STORE" && (
-                <div className="min-w-0">
+                <div className="min-w-0 sm:col-span-2 xl:col-span-2">
                   <label htmlFor="stock-requisition" className="mb-2 block text-sm font-semibold">
                     Requisition
                   </label>
@@ -462,7 +415,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               )}
               {tab === "activity" && (
                 <>
-                  {fixedType === "RM_STORE" && <div className="min-w-0"><label htmlFor="activity-requisition" className="mb-2 block text-sm font-semibold">Requisition</label><Dropdown id="activity-requisition" value={requisitionFilter} onChange={e=>{setRequisitionFilter(e.target.value);setPage(1)}}><option value="">All requisitions</option>{requisitions.map(r=><option key={r.id} value={r.number}>{r.number}</option>)}</Dropdown></div>}
+                  {fixedType === "RM_STORE" && <div className="min-w-0 sm:col-span-2 xl:col-span-2"><label htmlFor="activity-requisition" className="mb-2 block text-sm font-semibold">Requisition</label><Dropdown id="activity-requisition" value={requisitionFilter} onChange={e=>{setRequisitionFilter(e.target.value);setPage(1)}}><option value="">All requisitions</option>{requisitions.map(r=><option key={r.id} value={r.number}>{r.number}</option>)}</Dropdown></div>}
                   <div className="min-w-0">
                     <label
                       htmlFor="activity-direction"
@@ -582,9 +535,9 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 columns={[
                   "Product",
                   "Bin / Position",
-                  "Lot",
+                  ...(fixedType === "RM_STORE" ? [] : ["Lot"]),
                   "Quality / Expiry",
-                  "On Hand",
+                  ...(fixedType === "RM_STORE" ? [] : ["On Hand"]),
                   "Reserved",
                   "Available",
                   "Updated",
@@ -603,7 +556,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                       {b.bin.code}
                       <div className="text-xs text-[#73877c]">{b.bin.zone}</div>
                     </td>
-                    <td className="text-xs">{b.lot.code}</td>
+                    {fixedType !== "RM_STORE" && <td className="text-xs">{b.lot.code}</td>}
                     <td className="text-xs">
                       {b.lot.qualityStatus}
                       <div>
@@ -612,9 +565,9 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                           : "No expiry"}
                       </div>
                     </td>
-                    <td>
+                    {fixedType !== "RM_STORE" && <td>
                       {Number(b.quantity).toLocaleString()} {b.uom.code}
-                    </td>
+                    </td>}
                     <td>{Number(b.reservedQty).toLocaleString()}</td>
                     <td className="font-semibold">
                       {(
@@ -650,7 +603,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 ))}
                 {!stock.length && (
                   <tr>
-                    <td colSpan={9} className="py-8 text-center">
+                    <td colSpan={fixedType === "RM_STORE" ? 7 : 9} className="py-8 text-center">
                       {loading
                         ? "Loading..."
                         : "No stock in this selection. Receive a delivery or production batch to add stock."}
@@ -885,3 +838,4 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     </PageContainer>
   );
 }
+

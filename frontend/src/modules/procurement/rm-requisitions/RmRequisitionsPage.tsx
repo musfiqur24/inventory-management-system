@@ -209,7 +209,7 @@ export function RmRequisitionsPage() {
           </div>
         </div>
         <div className="overflow-x-auto [&_tbody_td]:text-xs [&_tbody_td]:py-3 [&_tbody_td]:px-3 [&_tbody_td]:whitespace-nowrap">
-          <DataTable scrollAreaClassName="h-88 overflow-auto overscroll-contain [scrollbar-gutter:stable] sm:h-96" columns={["Requisition #","Supplier","Assigned Manager","Sales Ref","Lines","Est. Value","Status","Date","Actions"]}>
+          <DataTable scrollAreaClassName="[scrollbar-gutter:stable]" columns={["Requisition #","Supplier","Assigned Manager","Sales Ref","Lines","Est. Value","Status","Date","Actions"]}>
               {filtered.map((req) => (
                 <tr key={req.id}>
                   <td><strong className="text-[#0d3b2e]">{req.number}</strong></td>

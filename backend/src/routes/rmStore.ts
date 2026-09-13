@@ -28,7 +28,7 @@ rmStoreRouter.get("/balances", async (req, res) => {
 
 const receiveRmSchema = z.object({
   requestId: z.string().uuid().optional(), deliveryId: z.string().uuid(),
-  lineAllocations: z.array(z.object({ lineId: z.string().uuid(), productId: z.string().uuid(), binId: z.string().uuid(), acceptedQty: z.coerce.number().positive(), uomId: z.string().uuid(), expiryDate: z.string().date().optional(), manufactureDate: z.string().date().optional() })).min(1),
+  lineAllocations: z.array(z.object({ lineId: z.string().uuid(), productId: z.string().uuid(), binId: z.string().uuid(), acceptedQty: z.coerce.number().positive(), uomId: z.string().uuid(), expiryDays: z.coerce.number().int().positive().max(36500) })).min(1),
   notes: z.string().optional(),
 });
 rmStoreRouter.post('/receive', async (req, res) => {
@@ -53,7 +53,7 @@ rmStoreRouter.post('/receive', async (req, res) => {
       const product = await tx.product.findFirst({ where: { id: alloc.productId, organizationId } });
       if (!product) throw new StockError('INVALID_PRODUCT','Product not found.',422);
       const lot = await tx.lot.create({ data: { organizationId, productId: product.id, code: 'RM-' + randomUUID(), supplierDeliveryId: delivery.id,
-        manufactureDate: alloc.manufactureDate ? new Date(alloc.manufactureDate) : new Date(), expiryDate: alloc.expiryDate ? new Date(alloc.expiryDate) : new Date(Date.now()+(product.shelfLifeDays??180)*86400000), qualityStatus: QualityStatus.RELEASED } });
+        manufactureDate: new Date(), expiryDate: new Date(Date.now() + alloc.expiryDays * 86400000), qualityStatus: QualityStatus.RELEASED } });
       await postStock(tx, { organizationId, productId: product.id, lotId: lot.id, binId: alloc.binId, uomId: alloc.uomId, quantity: qty, direction: 'IN', storeType: 'RM_STORE', movementType: MovementType.RECEIPT,
         documentType: 'SUPPLIER_DELIVERY', documentId: delivery.number, sourceDocumentId: delivery.id, sourceLineId: line.id,
         referenceType: requisition ? 'PURCHASE_REQUISITION' : undefined, referenceId: requisition?.id, referenceNumber: requisition?.number, postingKey: 'RM:'+receiptKey+':'+alloc.index, performedById: req.auth?.id, note: parsed.notes });
