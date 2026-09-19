@@ -53,6 +53,9 @@ export const logger = pino({
     "req.body.password",
     "password",
     "*.password",
+    "req.body.token",
+    "token",
+    "*.token",
   ],
 });
 

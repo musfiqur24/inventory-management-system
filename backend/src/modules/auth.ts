@@ -5,10 +5,53 @@ import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { env } from "../config.js";
 import { authenticate, getAppUser, signAccessToken } from "./rbac.js";
+import { sendPasswordResetEmail } from "../services/passwordResetEmail.js";
 
 export const authRouter=Router();
 const hash=(value:string)=>crypto.createHash("sha256").update(value).digest("hex");
 const refreshExpiry=()=>new Date(Date.now()+86400000*env.REFRESH_TOKEN_DAYS);
+const resetMessage="If an active account matches that email, a password reset link will be sent.";
+const resetRequests=new Map<string,number>();
+
+authRouter.post("/forgot-password",async(req,res)=>{
+  const started=Date.now();
+  const email=z.object({email:z.string().trim().email().max(254)}).parse(req.body).email.toLowerCase();
+  const key=(req.ip??"unknown")+":"+hash(email);
+  const last=resetRequests.get(key)??0;
+  if(Date.now()-last>=60_000){
+    resetRequests.set(key,Date.now());
+    const user=await prisma.user.findUnique({where:{email},select:{id:true,email:true,isActive:true}});
+    if(user?.isActive){
+      const token=crypto.randomBytes(32).toString("base64url");
+      await prisma.$transaction([
+        prisma.passwordResetToken.deleteMany({where:{userId:user.id}}),
+        prisma.passwordResetToken.create({data:{userId:user.id,tokenHash:hash(token),expiresAt:new Date(Date.now()+env.PASSWORD_RESET_TTL_MINUTES*60_000)}}),
+      ]);
+      void sendPasswordResetEmail(user.email,token).catch(error=>req.log.error({err:error,userId:user.id},"Password reset email failed"));
+    }
+  }
+  const wait=250-(Date.now()-started);
+  if(wait>0)await new Promise(resolve=>setTimeout(resolve,wait));
+  return res.status(202).json({data:{message:resetMessage}});
+});
+
+authRouter.post("/reset-password",async(req,res)=>{
+  const body=z.object({token:z.string().min(40).max(200),password:z.string().min(12).max(128).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/)}).parse(req.body);
+  const token=await prisma.passwordResetToken.findUnique({where:{tokenHash:hash(body.token)}});
+  if(!token||token.consumedAt||token.expiresAt<=new Date())return res.status(400).json({error:{code:"INVALID_RESET_TOKEN",message:"This password reset link is invalid or has expired"}});
+  const passwordHash=await bcrypt.hash(body.password,12);
+  let succeeded=true;
+  await prisma.$transaction(async tx=>{
+    const claim=await tx.passwordResetToken.updateMany({where:{id:token.id,consumedAt:null,expiresAt:{gt:new Date()}},data:{consumedAt:new Date()}});
+    if(!claim.count)throw new ResetClaimError();
+    await tx.user.update({where:{id:token.userId},data:{passwordHash}});
+    await tx.refreshToken.deleteMany({where:{userId:token.userId}});
+    await tx.passwordResetToken.deleteMany({where:{userId:token.userId,id:{not:token.id}}});
+  }).catch(error=>{if(error instanceof ResetClaimError){succeeded=false;return;}throw error;});
+  if(!succeeded)return res.status(400).json({error:{code:"INVALID_RESET_TOKEN",message:"This password reset link is invalid or has expired"}});
+  return res.json({data:{message:"Password reset successfully. Please sign in with your new password."}});
+});
+class ResetClaimError extends Error{}
 
 authRouter.post("/login",async(req,res)=>{
   const body=z.object({email:z.string().trim().email(),password:z.string().min(1)}).parse(req.body);

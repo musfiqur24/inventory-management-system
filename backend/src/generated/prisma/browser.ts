@@ -213,6 +213,11 @@ export type UserPermissionOverride = Prisma.UserPermissionOverrideModel
  */
 export type RefreshToken = Prisma.RefreshTokenModel
 /**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
  * Model Notification
  * 
  */

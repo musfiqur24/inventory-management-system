@@ -98,6 +98,7 @@ model Site {
     updatedAt DateTime @updatedAt
     memberships OrganizationMember[]
     refreshTokens RefreshToken[]
+    passwordResetTokens PasswordResetToken[]
     assignedRequisitions PurchaseRequisition[] @relation("RequisitionManager")
     notifications Notification[]
   }
@@ -604,6 +605,18 @@ model RefreshToken {
   expiresAt DateTime
   user User @relation(fields:[userId], references:[id], onDelete:Cascade)
   @@index([userId, expiresAt])
+}
+
+model PasswordResetToken {
+  id String @id @default(uuid())
+  tokenHash String @unique
+  userId String
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@index([userId, createdAt])
+  @@index([expiresAt])
 }
 
 model Notification {
