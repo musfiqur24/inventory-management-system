@@ -235,16 +235,16 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       description={isSetup ? "Configure RM and FM stores and the bin positions inside each store." : "View products in your store, receive and release stock, and trace store activity."}
       headerContent={!isSetup && store ? (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
+          <Card tone="sand" className="flex min-h-28 flex-col items-center justify-center text-center">
             <p className="text-2xl font-bold">{bins.length}</p>
             <p className="text-sm text-[#73877c]">Bins in this store</p>
           </Card>
-          <Card>
+          <Card tone="sage" className="flex min-h-28 flex-col items-center justify-center text-center">
             <p className="text-2xl font-bold">{new Set(balances.map((b) => b.productId)).size}</p>
             <p className="text-sm text-[#73877c]">Products in stock</p>
           </Card>
-          <Card>
-            <p className="font-semibold">
+          <Card tone="blue" className="flex min-h-28 flex-col items-center justify-center text-center">
+            <p className="text-xl font-bold">
               {totals.length ? totals.map(([uom, qty]) => qty.toLocaleString() + " " + uom).join(" - ") : "No stock"}
             </p>
             <p className="mt-1 text-sm text-[#73877c]">On hand by unit{binId ? " - selected bin" : ""}</p>
@@ -252,31 +252,32 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
         </div>
       ) : undefined}
       actions={
-        !fixedType && writable ? (
-          <Button
-            variant="primary"
-            onClick={() =>
-              setStoreForm({
-                code: "",
-                name: "",
-                storeType: "RM_STORE",
-                address: "",
-              })
-            }
-          >
-      {isSetup && (
-        <Card>
-          <div className="w-full min-w-0 sm:w-96">
-            <label htmlFor="active-store-setup" className="mb-2 block text-sm font-semibold">Store</label>
-            <Dropdown id="active-store-setup" value={storeId} onChange={(e) => chooseStore(e.target.value)}>
-              <option value="">{storeLoading ? "Loading stores..." : "Select a store"}</option>
-              {stores.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name} ({storeTypeLabel(s.storeType)})</option>)}
-            </Dropdown>
+        !fixedType ? (
+          <div className="flex w-full flex-wrap items-end gap-2 sm:w-auto sm:flex-nowrap">
+            <div className="w-full min-w-64 sm:w-80">
+              <label htmlFor="active-store-setup" className="sr-only">Store</label>
+              <Dropdown id="active-store-setup" value={storeId} onChange={(e) => chooseStore(e.target.value)}>
+                <option value="">{storeLoading ? "Loading stores..." : "Select a store"}</option>
+                {stores.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name} ({storeTypeLabel(s.storeType)})</option>)}
+              </Dropdown>
+            </div>
+            {writable && (
+              <Button
+                className="shrink-0"
+                variant="primary"
+                onClick={() =>
+                  setStoreForm({
+                    code: "",
+                    name: "",
+                    storeType: "RM_STORE",
+                    address: "",
+                  })
+                }
+              >
+                <Plus size={16} /> New Store
+              </Button>
+            )}
           </div>
-        </Card>
-      )}
-            <Plus size={16} /> New Store
-          </Button>
         ) : undefined
       }
     >
@@ -387,7 +388,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                     <option value="">All bins</option>
                     {bins.map((b) => (
                       <option key={b.id} value={b.id}>
-                        {b.code} ? {b.name}
+                        {b.code} - {b.name}
                       </option>
                     ))}
                   </Dropdown>

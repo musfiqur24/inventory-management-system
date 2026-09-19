@@ -99,7 +99,7 @@ export function DataTable<T>({
   const navigationButton = "grid size-9 place-items-center rounded-lg border border-[#d9e2d8] bg-white text-[#526b5e] shadow-sm transition hover:border-[#9caf9f] hover:bg-[#f1f6ef] hover:text-[#164c39] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#d9e2d8] disabled:hover:bg-white";
 
   return (
-    <div className="relative overflow-hidden border border-[#d8dee4] bg-white shadow-[0_6px_20px_rgba(15,23,42,0.06)]">
+    <div className="relative overflow-hidden rounded-xl border border-[#cfd9d2] bg-white shadow-[0_5px_16px_rgba(15,23,42,0.055)]">
 
       {toolbar && (
         <div className="border-b border-[#e2e8e1] bg-[#fafbfc] px-4 py-4 sm:px-5">
@@ -107,7 +107,7 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className={twMerge("overflow-x-auto [scrollbar-gutter:stable] [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] print:overflow-visible", scrollAreaClassName)}>
+      <div className={twMerge("overflow-x-auto [scrollbar-gutter:auto] [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] print:overflow-visible", scrollAreaClassName)}>
         <table className={twMerge("w-full min-w-180 border-separate border-spacing-0 text-left", tableClassName)}>
           {columnWidths && <colgroup>{columnWidths.map((width,index)=><col key={index} style={{width}}/>)}</colgroup>}
           <thead className="sticky top-0 z-1">

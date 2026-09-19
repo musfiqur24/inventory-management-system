@@ -85,7 +85,7 @@ export function DashboardPage() {
         <>
           <div className="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] gap-4 mb-7 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
             {statCards.map((card) => (
-              <Card className="flex items-start gap-3.5 p-5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md" key={card.label}>
+              <Card tone={card.color} className="relative flex min-h-38 flex-col items-center justify-center gap-2.5 overflow-hidden p-5 text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-32 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(67,58,40,0.12)]" key={card.label}>
                 <div className={twMerge(`w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 ${iconVariants[card.color] ?? ""}`)}>
                   <card.icon />
                 </div>

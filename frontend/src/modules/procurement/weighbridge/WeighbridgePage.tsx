@@ -166,15 +166,15 @@ export function WeighbridgePage() {
       description="Measure each challan before manager approval. Submitted reports are locked and sent to the assigned manager."
       headerContent={
         <div className="grid grid-cols-3 gap-4 max-[800px]:grid-cols-1">
-                <Card>
+                <Card tone="yellow" className="flex min-h-28 flex-col items-center justify-center text-center">
                   <div className="text-2xl font-bold">{queue.length}</div>
                   <div className="text-sm text-[#71877b]">Awaiting weighbridge</div>
                 </Card>
-                <Card>
+                <Card tone="sage" className="flex min-h-28 flex-col items-center justify-center text-center">
                   <div className="text-2xl font-bold">{logs.length}</div>
                   <div className="text-sm text-[#71877b]">Reports submitted</div>
                 </Card>
-                <Card>
+                <Card tone="blue" className="flex min-h-28 flex-col items-center justify-center text-center">
                   <div className="text-2xl font-bold">
                     {logs[0] ? Number(logs[0].netWeight).toLocaleString() : "-"}
                   </div>

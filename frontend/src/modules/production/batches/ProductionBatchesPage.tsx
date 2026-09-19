@@ -71,7 +71,7 @@ export function ProductionBatchesPage() {
           { label: 'Completed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' },
           { label: 'Waste Issues', v: rows.filter((r) => r.variancePct != null && Math.abs(r.variancePct) > 1).length, c: 'red' },
         ].map((s) => (
-          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
+          <Card tone={s.c} className="relative flex min-h-27 flex-col items-center justify-center gap-2 overflow-hidden p-[18px_20px] text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-28 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(67,58,40,0.12)]" key={s.label}>
             <div className="min-w-0"><div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.v}</div><div className="text-[12px] text-[#7a9185] font-medium">{s.label} Batches</div></div>
           </Card>
         ))}

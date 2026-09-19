@@ -52,7 +52,7 @@ export function OrganizationPage() {
     <PageContainer loading={pageLoading} title="Organisations" description="Create an organisation once, then select it as the workspace for all inventory records.">
       <Card padding="none">
         <div className="grid min-h-110 grid-cols-[minmax(320px,_1fr)_minmax(360px,_1.2fr)] max-[860px]:grid-cols-[1fr]">
-          <div className="bg-white p-7 [border-right:1px_solid_#e0e5dd] max-[860px]:[border-bottom:1px_solid_#e0e5dd] max-[860px]:[border-right:none]">
+          <div className="bg-[#fffaf2] p-7 [border-right:1px_solid_#e5ddcf] max-[860px]:[border-bottom:1px_solid_#e0e5dd] max-[860px]:[border-right:none]">
             <div className="mb-6 flex min-h-10.5 items-center gap-3">
               <div className="grid size-9.5 shrink-0 place-items-center rounded-[8px] bg-[rgba(168,213,72,0.18)] text-[#0d3b2e]"><Building2 size={18} /></div>
               <div><h2 className="text-[16px] font-bold">Create organisation</h2><p className="mt-0.5 text-[12.5px] text-[#7a9185]">Register a new company workspace</p></div>
@@ -63,7 +63,7 @@ export function OrganizationPage() {
               <Button type="submit" variant="primary">Create and select</Button>
             </form>
           </div>
-          <div className="flex flex-col bg-white p-7">
+          <div className="flex flex-col bg-[#f5f8f0] p-7">
             <div className="mb-6 flex min-h-10.5 items-center justify-between gap-3">
               <div className="flex items-center gap-3"><div className="grid size-9.5 shrink-0 place-items-center rounded-[8px] bg-[rgba(27,143,90,0.1)] text-[#1b8f5a]"><Building2 size={18} /></div><div><h2 className="text-[16px] font-bold">Available organisations</h2><p className="mt-0.5 text-[12.5px] text-[#7a9185]">Select a workspace to view its details</p></div></div>
               <span className="whitespace-nowrap rounded-[20px] bg-[#e8f2ff] px-[10px] py-[3px] text-[11.5px] font-semibold text-[#1864ab]">{items.length} total</span>

@@ -36,7 +36,7 @@ export function ProductionOrdersPage() {
   const [selected, setSelected] = useState<ProductionOrder | null>(null);
   const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
-  const [form, setForm] = useState({ recipeId: '', fgProductId: '', uomId: '', targetQty: '', plannedStartDate: '' });
+  const [form, setForm] = useState({ recipeId: '', fgProductId: '', uomId: '', targetQty: '', expectedWastePercent: '0', plannedStartDate: '' });
 
   const load = async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
@@ -68,10 +68,11 @@ export function ProductionOrdersPage() {
           fgProductId: form.fgProductId || undefined,
           uomId: form.uomId || undefined,
           targetQty: Number(form.targetQty),
+          expectedWastePercent: Number(form.expectedWastePercent),
           plannedStartDate: form.plannedStartDate || undefined,
         }),
       });
-      setOpen(false); setForm({ recipeId: '', fgProductId: '', uomId: '', targetQty: '', plannedStartDate: '' }); void load();
+      setOpen(false); setForm({ recipeId: '', fgProductId: '', uomId: '', targetQty: '', expectedWastePercent: '0', plannedStartDate: '' }); void load();
     } catch (e: any) { setMessage(e.message); }
   };
 
@@ -90,7 +91,7 @@ export function ProductionOrdersPage() {
 
       <div className="grid grid-cols-[repeat(4,_1fr)] gap-4 mb-5 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[{ label: 'Total Orders', v: rows.length, c: 'brand' }, { label: 'Draft', v: rows.filter((r) => r.status === 'DRAFT').length, c: 'gray' }, { label: 'Submitted', v: rows.filter((r) => r.status === 'SUBMITTED').length, c: 'blue' }, { label: 'Closed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' }].map((s) => (
-          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
+          <Card tone={s.c} className="relative flex min-h-27 flex-col items-center justify-center gap-2 overflow-hidden p-[18px_20px] text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-28 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(67,58,40,0.12)]" key={s.label}>
             <div className="min-w-0"><div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.v}</div><div className="text-[12px] text-[#7a9185] font-medium">{s.label}</div></div>
           </Card>
         ))}
@@ -146,6 +147,9 @@ export function ProductionOrdersPage() {
                 {uoms.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.code})</option>)}
               </Dropdown>
             </FormField>
+            <FormField label="Expected Waste %" hint="Applied when calculating raw-material requirements for this requisition.">
+              <Input type="number" min="0" max="50" step="0.01" placeholder="e.g. 2.5" value={form.expectedWastePercent} onChange={(e) => setForm({ ...form, expectedWastePercent: e.target.value })} />
+            </FormField>
             <FormField label="Planned Start Date" required>
               <Input type="date" value={form.plannedStartDate} onChange={(e) => setForm({ ...form, plannedStartDate: e.target.value })} />
             </FormField>
@@ -157,7 +161,7 @@ export function ProductionOrdersPage() {
                 Scaled from {selectedRecipe.targetTonnage ?? 1}T base recipe → {form.targetQty}T target (×{scaleFactor.toFixed(2)})
               </div>
               <p className="text-[12px] text-[#445e50] m-0">
-                RM requirement lines will be auto-generated with waste percentages applied. You can edit them after creation.
+                RM requirement lines will include the {Number(form.expectedWastePercent || 0).toFixed(2)}% expected waste allowance for this requisition.
               </p>
             </div>
           )}

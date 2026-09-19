@@ -6,7 +6,7 @@ import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { printReport } from '../../../shared/printReport';
 import { useEffect, useState } from 'react';
-import { Plus, Printer, Search, FileText, CheckCircle2, XCircle, Trash2, Pencil } from 'lucide-react';
+import { Plus, Printer, Search, FileText, CheckCircle2, XCircle, Trash2, Pencil, Layers3, Clock3, CircleAlert, PackageCheck } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
 import { Card } from '../../../components/ui/Card';
@@ -177,19 +177,25 @@ export function RmRequisitionsPage() {
       {/* Stats row */}
       <div className="grid grid-cols-[repeat(5,_1fr)] gap-4 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
         {[
-          { label: 'Total', value: rows.length, color: 'brand' },
-          { label: 'Pending', value: rows.filter((r) => r.status === 'SUBMITTED').length, color: 'blue' },
-          { label: 'Approved', value: rows.filter((r) => r.status === 'APPROVED').length, color: 'green' },
-          { label: 'Incomplete', value: rows.filter((r) => r.status === 'INCOMPLETE').length, color: 'yellow' },
-          { label: 'Received', value: rows.filter((r) => r.status === 'RECEIVED' || r.status === 'PARTIALLY_RECEIVED').length, color: 'purple' },
-        ].map((s) => (
-          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
-            <div className="min-w-0">
-              <div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.value}</div>
-              <div className="text-[12px] text-[#7a9185] font-medium">{s.label} Requisitions</div>
+          { label: 'Total', value: rows.length, icon: Layers3, card: 'border-[#e6ddca] bg-linear-to-br from-[#fffdf8] to-[#f8f2e7]', iconStyle: 'border-[#e8dcc3] bg-[#f2e8d5] text-[#8a6737]' },
+          { label: 'Pending', value: rows.filter((r) => r.status === 'SUBMITTED').length, icon: Clock3, card: 'border-[#e7ddc8] bg-linear-to-br from-[#fffdf7] to-[#faf0dc]', iconStyle: 'border-[#ead8b6] bg-[#f6e7c9] text-[#956919]' },
+          { label: 'Approved', value: rows.filter((r) => r.status === 'APPROVED').length, icon: CheckCircle2, card: 'border-[#d9e4d5] bg-linear-to-br from-[#fcfdf8] to-[#edf4e8]', iconStyle: 'border-[#d2e2cd] bg-[#e2eedc] text-[#477342]' },
+          { label: 'Incomplete', value: rows.filter((r) => r.status === 'INCOMPLETE').length, icon: CircleAlert, card: 'border-[#eadbce] bg-linear-to-br from-[#fffaf6] to-[#f8eadf]', iconStyle: 'border-[#ecd5c5] bg-[#f5dfd0] text-[#a05f3b]' },
+          { label: 'Received', value: rows.filter((r) => r.status === 'RECEIVED' || r.status === 'PARTIALLY_RECEIVED').length, icon: PackageCheck, card: 'border-[#d5e4dd] bg-linear-to-br from-[#fbfdf9] to-[#e7f2eb]', iconStyle: 'border-[#cde0d6] bg-[#dcece3] text-[#2f7054]' },
+        ].map((s) => {
+          const StatIcon = s.icon;
+          return (
+          <Card className={`group relative flex min-h-32 flex-col items-center justify-center gap-2.5 overflow-hidden p-[18px_16px] text-center shadow-[0_3px_10px_rgba(67,58,40,0.055)] transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_7px_18px_rgba(67,58,40,0.1)] ${s.card}`} key={s.label}>
+            <div className={`grid size-10 shrink-0 place-items-center rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] ${s.iconStyle}`}>
+              <StatIcon size={18} strokeWidth={1.8} aria-hidden="true" />
             </div>
+            <div className="relative min-w-0">
+              <div className="mb-1 [font-family:'Outfit',_sans-serif] text-[24px] font-bold leading-none tracking-[-0.02em] text-[#17231d]">{s.value}</div>
+              <div className="text-[12px] font-semibold leading-snug text-[#65766d]">{s.label} Requisitions</div>
+            </div>
+            <div aria-hidden="true" className="absolute -right-5 -top-6 size-16 rounded-full bg-white/35 transition-transform duration-300 group-hover:scale-125" />
           </Card>
-        ))}
+        )})}
       </div>
 
       </>}
@@ -209,7 +215,7 @@ export function RmRequisitionsPage() {
           </div>
         </div>
         <div className="overflow-x-auto [&_tbody_td]:text-xs [&_tbody_td]:py-3 [&_tbody_td]:px-3 [&_tbody_td]:whitespace-nowrap">
-          <DataTable scrollAreaClassName="[scrollbar-gutter:stable]" columns={["Requisition #","Supplier","Assigned Manager","Sales Ref","Lines","Est. Value","Status","Date","Actions"]}>
+          <DataTable columns={["Requisition #","Supplier","Assigned Manager","Sales Ref","Lines","Est. Value","Status","Date","Actions"]}>
               {filtered.map((req) => (
                 <tr key={req.id}>
                   <td><strong className="text-[#0d3b2e]">{req.number}</strong></td>
@@ -280,12 +286,7 @@ export function RmRequisitionsPage() {
           </FormField>
           </div>
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
-            <div className="flex justify-between items-center mb-3">
-              <strong className="text-[14px]">Raw Material Lines</strong>
-              <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', requestedQty: '', unitPrice: '' }])}>
-                <Plus size={14} /> Add Line
-              </Button>
-            </div>
+            <div className="mb-3"><strong className="text-[14px]">Raw Material Lines</strong></div>
             <div className="overflow-x-auto rounded-lg border border-[#e0e5dd] pb-1 [&_thead_th:nth-child(5)]:text-right [&_thead_th:last-child]:text-center">
               <DataTable
                 columns={['Raw Material Product','UOM','Qty','Unit Price (optional)','Total Price','Actions']}
@@ -307,6 +308,7 @@ export function RmRequisitionsPage() {
                   ))}
               </DataTable>
             </div>
+            <Button className="mt-3 w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', requestedQty: '', unitPrice: '' }])}><Plus size={14} /> Add Raw Material Line</Button>
           </div>
         </Modal>
       )}

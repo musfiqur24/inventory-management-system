@@ -124,12 +124,7 @@ export function MaterialIssuesPage() {
           <Notice variant="warn">Stock will be deducted from the selected lot immediately. Ensure lot availability before issuing.</Notice>
 
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
-            <div className="flex justify-between mb-2.5">
-              <strong className="text-[14px]">Material Lines</strong>
-              <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { rawMaterialId: '', lotId: '', fromBinId: '', uomId: '', issuedQty: '' }])}>
-                <Plus size={14} /> Add Line
-              </Button>
-            </div>
+            <div className="mb-2.5"><strong className="text-[14px]">Material Lines</strong></div>
             {lines.map((line, i) => {
               const availableLots = lots.filter((l) => l.productId === line.rawMaterialId && l.currentQty > 0);
               return (
@@ -161,6 +156,7 @@ export function MaterialIssuesPage() {
                 </div>
               );
             })}
+            <Button className="mt-1 w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { rawMaterialId: '', lotId: '', fromBinId: '', uomId: '', issuedQty: '' }])}><Plus size={14} /> Add Material Line</Button>
           </div>
         </Modal>
       )}

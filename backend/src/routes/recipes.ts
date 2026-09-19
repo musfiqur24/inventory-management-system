@@ -50,8 +50,21 @@ recipesRouter.get("/", async (req, res) => {
     return {
       ...rec,
       finishedProduct,
+      name: finishedProduct?.name ?? `Recipe v${rec.version}`,
+      code: `${finishedProduct?.sku ?? "RECIPE"}-V${rec.version}`,
+      targetTonnage: Number(rec.outputQty) / 1000,
+      isActive: rec.status === DocumentStatus.APPROVED,
+      fgProduct: finishedProduct,
       outputUom,
       lines,
+      ingredients: lines.map((line) => ({
+        ...line,
+        rawMaterial: line.rawProduct,
+        quantityPerTon:
+          Number(rec.outputQty) > 0
+            ? Number(line.quantityPerOutput) * (1000 / Number(rec.outputQty))
+            : 0,
+      })),
       totalIngredientsQty,
     };
   });
@@ -64,7 +77,7 @@ const createRecipeSchema = z.object({
   version: z.coerce.number().int().positive().default(1),
   outputQty: z.coerce.number().positive().default(1000), // Default 1 Ton = 1000 kg
   outputUomId: z.string().uuid(),
-  wastePercent: z.coerce.number().min(0).max(50).default(2.5),
+  wastePercent: z.coerce.number().min(0).max(50).default(0),
   lines: z.array(
     z.object({
       rawProductId: z.string().uuid(),
@@ -112,4 +125,54 @@ recipesRouter.post("/", async (req, res) => {
   });
 
   res.status(201).json({ data: recipe });
+});
+
+
+recipesRouter.put("/:id", async (req, res) => {
+  const parsed = createRecipeSchema.parse(req.body);
+  const existing = await prisma.recipe.findFirst({
+    where: { id: req.params.id, organizationId: req.tenantId },
+  });
+  if (!existing) return res.status(404).json({ error: { message: "Recipe not found" } });
+
+  const recipe = await prisma.$transaction(async (tx) => {
+    await tx.recipeLine.deleteMany({ where: { recipeId: existing.id } });
+    return tx.recipe.update({
+      where: { id: existing.id },
+      data: {
+        finishedProductId: parsed.finishedProductId,
+        outputQty: new Prisma.Decimal(parsed.outputQty),
+        outputUomId: parsed.outputUomId,
+        wastePercent: new Prisma.Decimal(0),
+        lines: {
+          create: parsed.lines.map((line) => ({
+            rawProductId: line.rawProductId,
+            uomId: line.uomId,
+            quantityPerOutput: new Prisma.Decimal(line.quantityPerOutput),
+          })),
+        },
+      },
+      include: { lines: true },
+    });
+  });
+  res.json({ data: recipe });
+});
+
+recipesRouter.delete("/:id", async (req, res) => {
+  const existing = await prisma.recipe.findFirst({
+    where: { id: req.params.id, organizationId: req.tenantId },
+  });
+  if (!existing) return res.status(404).json({ error: { message: "Recipe not found" } });
+
+  const linkedOrders = await prisma.productionOrder.count({
+    where: { organizationId: req.tenantId, recipeId: existing.id },
+  });
+  if (linkedOrders > 0) {
+    return res.status(409).json({
+      error: { message: "This recipe is used by production requisitions and cannot be deleted." },
+    });
+  }
+
+  await prisma.recipe.delete({ where: { id: existing.id } });
+  res.status(204).send();
 });

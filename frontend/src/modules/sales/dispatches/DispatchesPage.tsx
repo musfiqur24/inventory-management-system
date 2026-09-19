@@ -123,7 +123,7 @@ export function DispatchesPage() {
           { label: 'Completed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' },
           { label: 'Cancelled', v: rows.filter((r) => r.status === 'CANCELLED').length, c: 'red' },
         ].map((s) => (
-          <Card className="flex items-start gap-3.5 transition-[box-shadow,transform] duration-150 hover:-translate-y-px hover:shadow-md p-[14px_16px]" key={s.label}>
+          <Card tone={s.c} className="relative flex min-h-27 flex-col items-center justify-center gap-2 overflow-hidden p-[18px_20px] text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-28 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(67,58,40,0.12)]" key={s.label}>
             <div className="min-w-0"><div className="[font-family:'Outfit',_sans-serif] text-[22px] font-bold text-[#0f1c16] leading-[1] mb-1">{s.v}</div><div className="text-[12px] text-[#7a9185] font-medium">{s.label} Dispatches</div></div>
           </Card>
         ))}
@@ -169,10 +169,7 @@ export function DispatchesPage() {
             <FormField label="Vehicle Number"><Input placeholder="DHK-TRK-0001" value={form.vehicleNo} onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })} /></FormField>
           </div>
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
-            <div className="flex justify-between mb-2.5">
-              <strong className="text-[14px]">Dispatch Lines</strong>
-              <Button size="sm" variant="secondary" onClick={() => setLines([...lines, { fgProductId: '', lotId: '', fromBinId: '', uomId: '', dispatchedQty: '', unitPrice: '' }])}><Plus size={14} /> Add</Button>
-            </div>
+            <div className="mb-2.5"><strong className="text-[14px]">Dispatch Lines</strong></div>
             {lines.map((line, i) => {
               const avlLots = lots.filter((l) => l.productId === line.fgProductId && l.currentQty > 0);
               return (
@@ -185,6 +182,7 @@ export function DispatchesPage() {
                 </div>
               );
             })}
+            <Button className="mt-1 w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { fgProductId: '', lotId: '', fromBinId: '', uomId: '', dispatchedQty: '', unitPrice: '' }])}><Plus size={14} /> Add Dispatch Line</Button>
           </div>
         </Modal>
       )}
