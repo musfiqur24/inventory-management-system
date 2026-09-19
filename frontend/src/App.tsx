@@ -118,7 +118,7 @@ function Shell() {
         onClose={() => setMobileOpen(false)}
       />
       <main id="main-content" tabIndex={-1} className="min-h-dvh min-w-0 bg-[#f4f6f3] print:min-w-full">
-        <header className="flex h-16 items-center gap-3 sm:h-17 sm:gap-4 px-4 sm:px-6 lg:px-10 xl:px-12 bg-[#fff] [border-bottom:1px_solid_#e0e5dd] sticky top-0 z-10 print:hidden! max-[900px]:p-[0_16px]">
+        <header className="flex h-16 items-center gap-3 sm:h-17 sm:gap-4 px-4 sm:px-6 lg:px-10 xl:px-12 sticky top-0 z-50 isolate bg-[#faf6ee]! shadow-[0_1px_0_#e5dccd,0_3px_12px_rgba(91,67,31,0.055)] print:hidden! max-[900px]:p-[0_16px]">
           <div className="flex items-center gap-3 flex-1">
             <MobileMenuButton onClick={() => setMobileOpen(true)} />
             <div className="flex items-center gap-2 text-[13.5px] text-[#7a9185] [:where(&_strong)]:text-[#0f1c16] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-semibold">

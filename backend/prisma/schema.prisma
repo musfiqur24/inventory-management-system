@@ -422,9 +422,20 @@ model RecipeLine {
   recipe Recipe @relation(fields:[recipeId],references:[id],onDelete:Cascade)
   @@index([recipeId,rawProductId])
 }
+model ProductionRequisition {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  status DocumentStatus @default(SUBMITTED)
+  requestedOn DateTime @default(now())
+  orders ProductionOrder[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,requestedOn])
+}
 model ProductionOrder {
   id String @id @default(uuid())
   organizationId String
+  requisitionId String?
   number String
   finishedProductId String
   recipeId String
@@ -433,9 +444,11 @@ model ProductionOrder {
   expectedWastePercent Decimal @db.Decimal(5,2)
   status DocumentStatus @default(DRAFT)
   scheduledFor DateTime?
+  requisition ProductionRequisition? @relation(fields:[requisitionId],references:[id],onDelete:Restrict)
   lines ProductionOrderLine[]
   @@unique([organizationId,number])
   @@index([organizationId,status,scheduledFor])
+  @@index([requisitionId])
 }
 model ProductionOrderLine {
   id String @id @default(uuid())

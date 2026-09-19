@@ -5,6 +5,13 @@ import { Prisma, DocumentStatus } from "../generated/prisma/client.js";
 
 export const recipesRouter = Router();
 
+const requireRecipeManager = (req: any, res: any) => {
+  const role = req.auth?.organizations.find((organization: any) => organization.id === req.tenantId)?.role.code;
+  if (role === "MANAGER" || req.auth?.isSuperAdmin) return true;
+  res.status(403).json({ error: { code: "FORBIDDEN", message: "Only a manager can create, edit, or delete recipes." } });
+  return false;
+};
+
 recipesRouter.get("/", async (req, res) => {
   const recipes = await prisma.recipe.findMany({
     where: { organizationId: req.tenantId },
@@ -88,6 +95,7 @@ const createRecipeSchema = z.object({
 });
 
 recipesRouter.post("/", async (req, res) => {
+  if (!requireRecipeManager(req, res)) return;
   const parsed = createRecipeSchema.parse(req.body);
 
   // Auto-increment version if existing recipe exists
@@ -129,6 +137,7 @@ recipesRouter.post("/", async (req, res) => {
 
 
 recipesRouter.put("/:id", async (req, res) => {
+  if (!requireRecipeManager(req, res)) return;
   const parsed = createRecipeSchema.parse(req.body);
   const existing = await prisma.recipe.findFirst({
     where: { id: req.params.id, organizationId: req.tenantId },
@@ -159,6 +168,7 @@ recipesRouter.put("/:id", async (req, res) => {
 });
 
 recipesRouter.delete("/:id", async (req, res) => {
+  if (!requireRecipeManager(req, res)) return;
   const existing = await prisma.recipe.findFirst({
     where: { id: req.params.id, organizationId: req.tenantId },
   });

@@ -14,6 +14,7 @@ import { Input } from '../../../components/ui/Input';
 import { Dropdown } from '../../../components/ui/Dropdown';
 import { ConfirmationModal } from '../../../components/ui/ConfirmationModal';
 import { printReport } from '../../../shared/printReport';
+import { useAuth } from '../../auth/AuthContext';
 
 interface RecipeLine { productId: string; name: string; percentage: number; }
 interface Recipe {
@@ -30,6 +31,8 @@ interface Recipe {
 interface Product { id: string; name: string; sku: string; type: string; baseUomId: string; }
 
 export function RecipesPage() {
+  const { user } = useAuth();
+  const isRecipeManager = Boolean(user?.isSuperAdmin || user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code === 'MANAGER');
   const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Recipe[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -177,7 +180,7 @@ export function RecipesPage() {
       cap="PRODUCTION"
       title="Nutritionist Recipes"
       description="Define 1-ton base formulations. Ingredient percentages must total 100%. Production orders auto-scale quantities."
-      actions={<Button variant="primary" onClick={openCreate}><Plus size={16} /> New Recipe</Button>}
+      actions={isRecipeManager ? <Button variant="primary" onClick={openCreate}><Plus size={16} /> New Recipe</Button> : undefined}
    >
 
       <div className="grid grid-cols-[1fr_1.2fr] items-stretch gap-5 max-[900px]:grid-cols-[1fr]">
@@ -228,8 +231,8 @@ export function RecipesPage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Button size="sm" variant="secondary" title="Print recipe" aria-label="Print recipe" onClick={() => printRecipe(selected)}><Printer size={15} /></Button>
-                  <Button size="sm" variant="secondary" title="Edit recipe" aria-label="Edit recipe" onClick={() => openEdit(selected)}><Pencil size={15} /></Button>
-                  <Button size="sm" variant="danger" title="Delete recipe" aria-label="Delete recipe" onClick={() => setDeleteTarget(selected)}><Trash2 size={15} /></Button>
+                  {isRecipeManager && <Button size="sm" variant="secondary" title="Edit recipe" aria-label="Edit recipe" onClick={() => openEdit(selected)}><Pencil size={15} /></Button>}
+                  {isRecipeManager && <Button size="sm" variant="danger" title="Delete recipe" aria-label="Delete recipe" onClick={() => setDeleteTarget(selected)}><Trash2 size={15} /></Button>}
                 </div>
               </div>
 
@@ -317,7 +320,7 @@ export function RecipesPage() {
         </Modal>
       )}
 
-      {deleteTarget && (
+      {isRecipeManager && deleteTarget && (
         <ConfirmationModal title="Delete recipe?" confirmLabel="Delete Recipe" pendingLabel="Deleting..." pending={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={() => void removeRecipe()}>
           Delete <strong>{deleteTarget.name}</strong>? Recipes already used by production requisitions cannot be deleted.
         </ConfirmationModal>

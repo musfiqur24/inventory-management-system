@@ -10,6 +10,7 @@ productionOrdersRouter.get("/", async (req, res) => {
     where: { organizationId: req.tenantId },
     include: {
       lines: true,
+      requisition: true,
     },
     orderBy: { scheduledFor: "desc" },
   });
@@ -48,10 +49,25 @@ productionOrdersRouter.get("/", async (req, res) => {
 
     return {
       ...ord,
+      requisitionNumber: ord.requisition?.number ?? ord.number,
       finishedProduct,
+      fgProduct: finishedProduct,
       plannedUom,
-      recipe,
-      lines,
+      uom: plannedUom,
+      targetQty: Number(ord.plannedQty) / 1000,
+      plannedStartDate: ord.scheduledFor,
+      recipe: recipe ? {
+        ...recipe,
+        name: finishedProduct?.name ?? `Recipe v${recipe.version}`,
+        code: `${finishedProduct?.sku ?? "RECIPE"}-V${recipe.version}`,
+        targetTonnage: Number(recipe.outputQty) / 1000,
+      } : null,
+      lines: lines.map((line) => ({
+        ...line,
+        rawMaterial: line.product,
+        requiredQty: Number(line.wasteAdjustedQty),
+        issuedQty: Number(line.issuedQty),
+      })),
       batches: orderBatches,
       issues: orderIssues,
       totalRawMaterialRequired,
@@ -81,7 +97,7 @@ productionOrdersRouter.post("/preview-scale", async (req, res) => {
 
   const lines = recipe.lines.map((l) => {
     const recipeQty = Number(l.quantityPerOutput) * scaleRatio;
-    const wasteAdjustedQty = recipeQty * (1 + wastePct / 100);
+    const wasteAdjustedQty = recipeQty;
     return {
       productId: l.rawProductId,
       uomId: l.uomId,
@@ -96,76 +112,82 @@ productionOrdersRouter.post("/preview-scale", async (req, res) => {
       plannedQty: Number(plannedQty),
       expectedWastePercent: wastePct,
       scaleRatio,
+      expectedOutputQty: Number(plannedQty) * (1 - wastePct / 100),
+      expectedWasteQty: Number(plannedQty) * (wastePct / 100),
       lines,
     },
   });
 });
 
-const createProductionOrderSchema = z.object({
-  finishedProductId: z.string().uuid(),
+const productionItemSchema = z.object({
   recipeId: z.string().uuid(),
   plannedQty: z.coerce.number().positive(),
-  plannedUomId: z.string().uuid(),
   expectedWastePercent: z.coerce.number().min(0).max(50).optional(),
-  scheduledFor: z.string().optional(),
+  scheduledFor: z.string().min(1),
+});
+
+const createProductionRequisitionSchema = z.object({
+  items: z.array(productionItemSchema).min(1).max(20),
+}).superRefine((value, context) => {
+  const recipes = new Set<string>();
+  value.items.forEach((item, index) => {
+    if (recipes.has(item.recipeId)) context.addIssue({ code: "custom", path: ["items", index, "recipeId"], message: "The same finished-good recipe cannot be added twice." });
+    recipes.add(item.recipeId);
+  });
 });
 
 productionOrdersRouter.post("/", async (req, res) => {
-  const parsed = createProductionOrderSchema.parse(req.body);
-
-  const recipe = await prisma.recipe.findFirst({
-    where: { id: parsed.recipeId, organizationId: req.tenantId },
+  const parsed = createProductionRequisitionSchema.parse(req.body);
+  const organizationId = req.tenantId!;
+  const recipeIds = parsed.items.map((item) => item.recipeId);
+  const recipes = await prisma.recipe.findMany({
+    where: { id: { in: recipeIds }, organizationId, status: { notIn: [DocumentStatus.CANCELLED, DocumentStatus.REJECTED] } },
     include: { lines: true },
   });
+  if (recipes.length !== recipeIds.length) return res.status(422).json({ error: { message: "One or more recipes are unavailable." } });
+  if (new Set(recipes.map((recipe) => recipe.finishedProductId)).size !== recipes.length) return res.status(422).json({ error: { message: "The same finished good cannot be included more than once." } });
+  const recipeMap = new Map(recipes.map((recipe) => [recipe.id, recipe]));
 
-  if (!recipe) {
-    return res.status(404).json({ error: { message: "Recipe not found" } });
-  }
+  const result = await prisma.$transaction(async (tx) => {
+    const count = await tx.productionRequisition.count({ where: { organizationId } });
+    const year = new Date().getFullYear();
+    const requisitionNumber = `FM-REQ-${year}-${String(count + 1).padStart(4, "0")}`;
+    const requisition = await tx.productionRequisition.create({
+      data: { organizationId, number: requisitionNumber, status: DocumentStatus.SUBMITTED },
+    });
+    const orders = [];
+    for (const [index, item] of parsed.items.entries()) {
+      const recipe = recipeMap.get(item.recipeId)!;
+      const wastePercent = item.expectedWastePercent ?? Number(recipe.wastePercent);
+      const scaleRatio = item.plannedQty / Number(recipe.outputQty);
+      orders.push(await tx.productionOrder.create({
+        data: {
+          organizationId,
+          requisitionId: requisition.id,
+          number: `${requisitionNumber}-${String(index + 1).padStart(2, "0")}`,
+          finishedProductId: recipe.finishedProductId,
+          recipeId: recipe.id,
+          plannedQty: new Prisma.Decimal(item.plannedQty),
+          plannedUomId: recipe.outputUomId,
+          expectedWastePercent: new Prisma.Decimal(wastePercent),
+          status: DocumentStatus.SUBMITTED,
+          scheduledFor: new Date(item.scheduledFor),
+          lines: {
+            create: recipe.lines.map((line) => {
+              const recipeQty = Number(line.quantityPerOutput) * scaleRatio;
+              return { productId: line.rawProductId, uomId: line.uomId, recipeQty: new Prisma.Decimal(recipeQty), wasteAdjustedQty: new Prisma.Decimal(recipeQty), issuedQty: new Prisma.Decimal(0) };
+            }),
+          },
+        },
+        include: { lines: true },
+      }));
+    }
+    const recipients = await tx.organizationMember.findMany({ where: { organizationId, isActive: true, user: { isActive: true } }, select: { userId: true } });
+    if (recipients.length) await tx.notification.createMany({
+      data: recipients.map(({ userId }) => ({ organizationId, recipientId: userId, title: "New production requisition", message: `${requisition.number} contains ${orders.length} finished good${orders.length === 1 ? "" : "s"} and is ready for production planning.` })),
+    });
+    return { ...requisition, orders };
+  }, { timeout: 20000 });
 
-  const wastePercent =
-    parsed.expectedWastePercent !== undefined
-      ? parsed.expectedWastePercent
-      : Number(recipe.wastePercent);
-
-  const count = await prisma.productionOrder.count({
-    where: { organizationId: req.tenantId },
-  });
-  const year = new Date().getFullYear();
-  const number = `FM-REQ-${year}-${String(count + 1).padStart(4, "0")}`;
-
-  const scaleRatio = parsed.plannedQty / Number(recipe.outputQty);
-
-  const order = await prisma.productionOrder.create({
-    data: {
-      organizationId: req.tenantId!,
-      number,
-      finishedProductId: parsed.finishedProductId,
-      recipeId: parsed.recipeId,
-      plannedQty: new Prisma.Decimal(parsed.plannedQty),
-      plannedUomId: parsed.plannedUomId,
-      expectedWastePercent: new Prisma.Decimal(wastePercent),
-      status: DocumentStatus.SUBMITTED,
-      scheduledFor: parsed.scheduledFor
-        ? new Date(parsed.scheduledFor)
-        : new Date(),
-      lines: {
-        create: recipe.lines.map((l) => {
-          const recipeQty = Number(l.quantityPerOutput) * scaleRatio;
-          const wasteAdjustedQty = recipeQty * (1 + wastePercent / 100);
-          return {
-            productId: l.rawProductId,
-            uomId: l.uomId,
-            recipeQty: new Prisma.Decimal(recipeQty),
-            wasteAdjustedQty: new Prisma.Decimal(wasteAdjustedQty),
-            issuedQty: new Prisma.Decimal(0),
-          };
-        }),
-      },
-    },
-    include: {
-      lines: true,
-    },
-  });
-
-  res.status(201).json({ data: order });
+  res.status(201).json({ data: result });
 });

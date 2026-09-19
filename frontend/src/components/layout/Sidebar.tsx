@@ -36,9 +36,9 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
     <>
       <aside className={twMerge(`sticky top-0 h-dvh overflow-hidden bg-[#0d3b2e] flex flex-col print:hidden! max-[900px]:fixed max-[900px]:z-30 max-[900px]:h-dvh max-[900px]:w-[min(85vw,_280px)] max-[900px]:[transform:translateX(-110%)] max-[900px]:[transition:transform_0.22s_ease] ${(mobileOpen ? "max-[900px]:[transform:translateX(0)]" : "")}`)}>
         {/* Brand */}
-        <div className="flex items-center justify-between p-[20px_18px_0] shrink-0 [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:text-[#fff] [&_a]:no-underline">
+        <div className="flex items-center justify-between p-[18px_18px_0] shrink-0 [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:text-[#fff] [&_a]:no-underline">
           <Link to="/" onClick={onClose}>
-            <div className="w-10 h-10 overflow-hidden rounded-[11px] bg-white p-1 shrink-0"><img src="/Inventory_Logo.png" alt="Feed Track" className="size-full object-contain" /></div>
+            <div className="size-14 shrink-0"><img src="/Inventory_Logo.png" alt="Feed Track" className="size-full object-contain" /></div>
             <div className="[:where(&_strong)]:block [:where(&_strong)]:[font-family:'Outfit',_sans-serif] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-bold [:where(&_strong)]:text-[#fff] [:where(&_strong)]:leading-[1.2] [:where(&_small)]:block [:where(&_small)]:text-[10.5px] [:where(&_small)]:text-[rgba(255,255,255,0.45)] [:where(&_small)]:mt-0.25">
               <strong>FeedTrack</strong>
               <small>Production Inventory</small>

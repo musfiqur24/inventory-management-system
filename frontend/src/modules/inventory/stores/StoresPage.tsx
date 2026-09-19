@@ -5,6 +5,7 @@ import {
   ArrowDownToLine,
   ArrowUpFromLine,
   Warehouse,
+  Trash2,
 } from "lucide-react";
 import { api } from "../../../shared/api/http";
 import { useAuth } from "../../auth/AuthContext";
@@ -17,6 +18,7 @@ import { Dropdown } from "../../../components/ui/Dropdown";
 import { Input } from "../../../components/ui/Input";
 import { Modal } from "../../../components/ui/Modal";
 import { FormField } from "../../../components/ui/FormField";
+import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
 import { ReceiveStockModal, ReleaseStockModal } from "./StockModals";
 import {
   storeTypeLabel,
@@ -69,6 +71,8 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     capacity: string;
   } | null>(null);
   const [saving, setSaving] = useState(false),
+    [deleteTarget, setDeleteTarget] = useState<{ type: "store"; item: Store } | { type: "bin"; item: Bin } | null>(null),
+    [deleting, setDeleting] = useState(false),
     [receive, setReceive] = useState(false),
     [release, setRelease] = useState<StockBalance | null>(null);
   const store = stores.find((s) => s.id === storeId);
@@ -213,6 +217,20 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       setSaving(false);
     }
   };
+  const removeTarget = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    try {
+      await api(deleteTarget.type === "store" ? `/stores/${deleteTarget.item.id}` : `/bins/${deleteTarget.item.id}`, { method: "DELETE" });
+      if (deleteTarget.type === "store") chooseStore("");
+      setDeleteTarget(null);
+      refresh();
+    } catch (error) {
+      appToast.error(error instanceof Error ? error.message : "Unable to delete the selected location.");
+    } finally {
+      setDeleting(false);
+    }
+  };
   const term = search.toLowerCase();
   const filteredBins = bins.filter((b) =>
     [b.code, b.name, b.zone ?? ""].some((v) => v.toLowerCase().includes(term)),
@@ -261,6 +279,8 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 {stores.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name} ({storeTypeLabel(s.storeType)})</option>)}
               </Dropdown>
             </div>
+            {writable && store && <Button className="size-11 shrink-0 p-0" title="Edit store" aria-label="Edit store" onClick={() => setStoreForm({ id: store.id, code: store.code, name: store.name, storeType: store.storeType, address: store.address ?? "" })}><Pencil size={16} /></Button>}
+            {writable && store && <Button variant="danger" className="size-11 shrink-0 p-0" title="Delete store" aria-label="Delete store" onClick={() => setDeleteTarget({ type: "store", item: store })}><Trash2 size={16} /></Button>}
             {writable && (
               <Button
                 className="shrink-0"
@@ -516,6 +536,11 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                             <Pencil size={16} />
                           </Button>
                         )}
+                        {writable && (
+                          <Button size="sm" variant="danger" aria-label={`Delete ${b.code}`} title={`Delete ${b.code}`} onClick={() => setDeleteTarget({ type: "bin", item: b })}>
+                            <Trash2 size={16} />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -535,6 +560,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               <DataTable loading={loading && bins.length === 0 && balances.length === 0 && activity.length === 0}
                 columns={[
                   "Product",
+                  ...(fixedType === "RM_STORE" ? ["Requisition #"] : []),
                   "Bin / Position",
                   ...(fixedType === "RM_STORE" ? [] : ["Lot"]),
                   "Quality / Expiry",
@@ -553,6 +579,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                         {b.product.sku}
                       </div>
                     </td>
+                    {fixedType === "RM_STORE" && <td><span className="font-mono text-xs font-semibold text-[#0d3b2e]">{b.requisitionNumber ?? ""}</span></td>}
                     <td>
                       {b.bin.code}
                       <div className="text-xs text-[#73877c]">{b.bin.zone}</div>
@@ -591,12 +618,12 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                               new Date(b.lot.expiryDate) < new Date()
                             )
                           }
+                          className="size-9 min-h-9 p-0"
+                          title={store.storeType === "RM_STORE" ? "Issue raw material" : "Dispatch finished good"}
+                          aria-label={store.storeType === "RM_STORE" ? `Issue ${b.product.name}` : `Dispatch ${b.product.name}`}
                           onClick={() => setRelease(b)}
                         >
-                          <ArrowUpFromLine size={14} />{" "}
-                          {store.storeType === "RM_STORE"
-                            ? "Issue"
-                            : "Dispatch"}
+                          <ArrowUpFromLine size={15} />
                         </Button>
                       )}
                     </td>
@@ -690,6 +717,19 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
           </Card>
         </>
       )}
+      {isSetup && deleteTarget && (
+        <ConfirmationModal
+          title={deleteTarget.type === "store" ? "Delete store?" : "Delete bin?"}
+          confirmLabel={deleteTarget.type === "store" ? "Delete Store" : "Delete Bin"}
+          pendingLabel="Deleting..."
+          pending={deleting}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => void removeTarget()}
+        >
+          Delete <strong>{deleteTarget.item.name}</strong>? Locations containing stock cannot be deleted.
+        </ConfirmationModal>
+      )}
+
       {isSetup && storeForm && (
         <Modal
           title={storeForm.id ? "Edit Store" : "New Store"}

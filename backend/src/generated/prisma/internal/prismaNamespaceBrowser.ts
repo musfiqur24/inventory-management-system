@@ -74,6 +74,7 @@ export const ModelName = {
   StockMovement: 'StockMovement',
   Recipe: 'Recipe',
   RecipeLine: 'RecipeLine',
+  ProductionRequisition: 'ProductionRequisition',
   ProductionOrder: 'ProductionOrder',
   ProductionOrderLine: 'ProductionOrderLine',
   MaterialIssue: 'MaterialIssue',
@@ -464,9 +465,21 @@ export const RecipeLineScalarFieldEnum = {
 export type RecipeLineScalarFieldEnum = (typeof RecipeLineScalarFieldEnum)[keyof typeof RecipeLineScalarFieldEnum]
 
 
+export const ProductionRequisitionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  number: 'number',
+  status: 'status',
+  requestedOn: 'requestedOn'
+} as const
+
+export type ProductionRequisitionScalarFieldEnum = (typeof ProductionRequisitionScalarFieldEnum)[keyof typeof ProductionRequisitionScalarFieldEnum]
+
+
 export const ProductionOrderScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
+  requisitionId: 'requisitionId',
   number: 'number',
   finishedProductId: 'finishedProductId',
   recipeId: 'recipeId',

@@ -420,6 +420,7 @@ export const ModelName = {
   StockMovement: 'StockMovement',
   Recipe: 'Recipe',
   RecipeLine: 'RecipeLine',
+  ProductionRequisition: 'ProductionRequisition',
   ProductionOrder: 'ProductionOrder',
   ProductionOrderLine: 'ProductionOrderLine',
   MaterialIssue: 'MaterialIssue',
@@ -451,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "currency" | "product" | "partner" | "store" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken" | "notification"
+    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "currency" | "product" | "partner" | "store" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionRequisition" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken" | "notification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2157,6 +2158,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProductionRequisition: {
+      payload: Prisma.$ProductionRequisitionPayload<ExtArgs>
+      fields: Prisma.ProductionRequisitionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductionRequisitionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductionRequisitionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductionRequisitionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductionRequisitionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>
+        }
+        findMany: {
+          args: Prisma.ProductionRequisitionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>[]
+        }
+        create: {
+          args: Prisma.ProductionRequisitionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>
+        }
+        createMany: {
+          args: Prisma.ProductionRequisitionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductionRequisitionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductionRequisitionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>
+        }
+        update: {
+          args: Prisma.ProductionRequisitionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductionRequisitionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductionRequisitionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductionRequisitionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductionRequisitionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionRequisitionPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductionRequisitionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductionRequisition>
+        }
+        groupBy: {
+          args: Prisma.ProductionRequisitionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionRequisitionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductionRequisitionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionRequisitionCountAggregateOutputType> | number
+        }
+      }
+    }
     ProductionOrder: {
       payload: Prisma.$ProductionOrderPayload<ExtArgs>
       fields: Prisma.ProductionOrderFieldRefs
@@ -3736,9 +3811,21 @@ export const RecipeLineScalarFieldEnum = {
 export type RecipeLineScalarFieldEnum = (typeof RecipeLineScalarFieldEnum)[keyof typeof RecipeLineScalarFieldEnum]
 
 
+export const ProductionRequisitionScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  number: 'number',
+  status: 'status',
+  requestedOn: 'requestedOn'
+} as const
+
+export type ProductionRequisitionScalarFieldEnum = (typeof ProductionRequisitionScalarFieldEnum)[keyof typeof ProductionRequisitionScalarFieldEnum]
+
+
 export const ProductionOrderScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
+  requisitionId: 'requisitionId',
   number: 'number',
   finishedProductId: 'finishedProductId',
   recipeId: 'recipeId',
@@ -4302,6 +4389,7 @@ export type GlobalOmitConfig = {
   stockMovement?: Prisma.StockMovementOmit
   recipe?: Prisma.RecipeOmit
   recipeLine?: Prisma.RecipeLineOmit
+  productionRequisition?: Prisma.ProductionRequisitionOmit
   productionOrder?: Prisma.ProductionOrderOmit
   productionOrderLine?: Prisma.ProductionOrderLineOmit
   materialIssue?: Prisma.MaterialIssueOmit

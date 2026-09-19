@@ -101,3 +101,24 @@ binsRouter.put("/:id", async (req, res) => {
   });
   return res.json({ data: bin });
 });
+
+binsRouter.delete("/:id", async (req, res) => {
+  const where = { id: String(req.params.id), organizationId: req.tenantId! };
+  const result = await prisma.$transaction(async (tx) => {
+    const bin = await tx.bin.findFirst({ where });
+    if (!bin) return "not-found";
+    const stockCount = await tx.inventoryBalance.count({
+      where: {
+        organizationId: where.organizationId,
+        binId: where.id,
+        OR: [{ quantity: { gt: 0 } }, { reservedQty: { gt: 0 } }],
+      },
+    });
+    if (stockCount) return "in-use";
+    await tx.bin.update({ where, data: { isActive: false } });
+    return "deleted";
+  });
+  if (result === "not-found") return res.status(404).json({ error: { code: "NOT_FOUND", message: "Bin not found." } });
+  if (result === "in-use") return res.status(409).json({ error: { code: "BIN_HAS_STOCK", message: "This bin contains stock and cannot be deleted." } });
+  res.status(204).send();
+});

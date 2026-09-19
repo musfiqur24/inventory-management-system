@@ -39,6 +39,7 @@ export type ProductionOrderSumAggregateOutputType = {
 export type ProductionOrderMinAggregateOutputType = {
   id: string | null
   organizationId: string | null
+  requisitionId: string | null
   number: string | null
   finishedProductId: string | null
   recipeId: string | null
@@ -52,6 +53,7 @@ export type ProductionOrderMinAggregateOutputType = {
 export type ProductionOrderMaxAggregateOutputType = {
   id: string | null
   organizationId: string | null
+  requisitionId: string | null
   number: string | null
   finishedProductId: string | null
   recipeId: string | null
@@ -65,6 +67,7 @@ export type ProductionOrderMaxAggregateOutputType = {
 export type ProductionOrderCountAggregateOutputType = {
   id: number
   organizationId: number
+  requisitionId: number
   number: number
   finishedProductId: number
   recipeId: number
@@ -90,6 +93,7 @@ export type ProductionOrderSumAggregateInputType = {
 export type ProductionOrderMinAggregateInputType = {
   id?: true
   organizationId?: true
+  requisitionId?: true
   number?: true
   finishedProductId?: true
   recipeId?: true
@@ -103,6 +107,7 @@ export type ProductionOrderMinAggregateInputType = {
 export type ProductionOrderMaxAggregateInputType = {
   id?: true
   organizationId?: true
+  requisitionId?: true
   number?: true
   finishedProductId?: true
   recipeId?: true
@@ -116,6 +121,7 @@ export type ProductionOrderMaxAggregateInputType = {
 export type ProductionOrderCountAggregateInputType = {
   id?: true
   organizationId?: true
+  requisitionId?: true
   number?: true
   finishedProductId?: true
   recipeId?: true
@@ -216,6 +222,7 @@ export type ProductionOrderGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type ProductionOrderGroupByOutputType = {
   id: string
   organizationId: string
+  requisitionId: string | null
   number: string
   finishedProductId: string
   recipeId: string
@@ -252,6 +259,7 @@ export type ProductionOrderWhereInput = {
   NOT?: Prisma.ProductionOrderWhereInput | Prisma.ProductionOrderWhereInput[]
   id?: Prisma.StringFilter<"ProductionOrder"> | string
   organizationId?: Prisma.StringFilter<"ProductionOrder"> | string
+  requisitionId?: Prisma.StringNullableFilter<"ProductionOrder"> | string | null
   number?: Prisma.StringFilter<"ProductionOrder"> | string
   finishedProductId?: Prisma.StringFilter<"ProductionOrder"> | string
   recipeId?: Prisma.StringFilter<"ProductionOrder"> | string
@@ -260,12 +268,14 @@ export type ProductionOrderWhereInput = {
   expectedWastePercent?: Prisma.DecimalFilter<"ProductionOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumDocumentStatusFilter<"ProductionOrder"> | $Enums.DocumentStatus
   scheduledFor?: Prisma.DateTimeNullableFilter<"ProductionOrder"> | Date | string | null
+  requisition?: Prisma.XOR<Prisma.ProductionRequisitionNullableScalarRelationFilter, Prisma.ProductionRequisitionWhereInput> | null
   lines?: Prisma.ProductionOrderLineListRelationFilter
 }
 
 export type ProductionOrderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  requisitionId?: Prisma.SortOrderInput | Prisma.SortOrder
   number?: Prisma.SortOrder
   finishedProductId?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
@@ -274,6 +284,7 @@ export type ProductionOrderOrderByWithRelationInput = {
   expectedWastePercent?: Prisma.SortOrder
   status?: Prisma.SortOrder
   scheduledFor?: Prisma.SortOrderInput | Prisma.SortOrder
+  requisition?: Prisma.ProductionRequisitionOrderByWithRelationInput
   lines?: Prisma.ProductionOrderLineOrderByRelationAggregateInput
 }
 
@@ -284,6 +295,7 @@ export type ProductionOrderWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProductionOrderWhereInput[]
   NOT?: Prisma.ProductionOrderWhereInput | Prisma.ProductionOrderWhereInput[]
   organizationId?: Prisma.StringFilter<"ProductionOrder"> | string
+  requisitionId?: Prisma.StringNullableFilter<"ProductionOrder"> | string | null
   number?: Prisma.StringFilter<"ProductionOrder"> | string
   finishedProductId?: Prisma.StringFilter<"ProductionOrder"> | string
   recipeId?: Prisma.StringFilter<"ProductionOrder"> | string
@@ -292,12 +304,14 @@ export type ProductionOrderWhereUniqueInput = Prisma.AtLeast<{
   expectedWastePercent?: Prisma.DecimalFilter<"ProductionOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumDocumentStatusFilter<"ProductionOrder"> | $Enums.DocumentStatus
   scheduledFor?: Prisma.DateTimeNullableFilter<"ProductionOrder"> | Date | string | null
+  requisition?: Prisma.XOR<Prisma.ProductionRequisitionNullableScalarRelationFilter, Prisma.ProductionRequisitionWhereInput> | null
   lines?: Prisma.ProductionOrderLineListRelationFilter
 }, "id" | "organizationId_number">
 
 export type ProductionOrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  requisitionId?: Prisma.SortOrderInput | Prisma.SortOrder
   number?: Prisma.SortOrder
   finishedProductId?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
@@ -319,6 +333,7 @@ export type ProductionOrderScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ProductionOrderScalarWhereWithAggregatesInput | Prisma.ProductionOrderScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ProductionOrder"> | string
   organizationId?: Prisma.StringWithAggregatesFilter<"ProductionOrder"> | string
+  requisitionId?: Prisma.StringNullableWithAggregatesFilter<"ProductionOrder"> | string | null
   number?: Prisma.StringWithAggregatesFilter<"ProductionOrder"> | string
   finishedProductId?: Prisma.StringWithAggregatesFilter<"ProductionOrder"> | string
   recipeId?: Prisma.StringWithAggregatesFilter<"ProductionOrder"> | string
@@ -340,12 +355,14 @@ export type ProductionOrderCreateInput = {
   expectedWastePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.DocumentStatus
   scheduledFor?: Date | string | null
+  requisition?: Prisma.ProductionRequisitionCreateNestedOneWithoutOrdersInput
   lines?: Prisma.ProductionOrderLineCreateNestedManyWithoutProductionOrderInput
 }
 
 export type ProductionOrderUncheckedCreateInput = {
   id?: string
   organizationId: string
+  requisitionId?: string | null
   number: string
   finishedProductId: string
   recipeId: string
@@ -368,12 +385,14 @@ export type ProductionOrderUpdateInput = {
   expectedWastePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requisition?: Prisma.ProductionRequisitionUpdateOneWithoutOrdersNestedInput
   lines?: Prisma.ProductionOrderLineUpdateManyWithoutProductionOrderNestedInput
 }
 
 export type ProductionOrderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  requisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   number?: Prisma.StringFieldUpdateOperationsInput | string
   finishedProductId?: Prisma.StringFieldUpdateOperationsInput | string
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -388,6 +407,7 @@ export type ProductionOrderUncheckedUpdateInput = {
 export type ProductionOrderCreateManyInput = {
   id?: string
   organizationId: string
+  requisitionId?: string | null
   number: string
   finishedProductId: string
   recipeId: string
@@ -414,6 +434,7 @@ export type ProductionOrderUpdateManyMutationInput = {
 export type ProductionOrderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  requisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   number?: Prisma.StringFieldUpdateOperationsInput | string
   finishedProductId?: Prisma.StringFieldUpdateOperationsInput | string
   recipeId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -424,6 +445,16 @@ export type ProductionOrderUncheckedUpdateManyInput = {
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type ProductionOrderListRelationFilter = {
+  every?: Prisma.ProductionOrderWhereInput
+  some?: Prisma.ProductionOrderWhereInput
+  none?: Prisma.ProductionOrderWhereInput
+}
+
+export type ProductionOrderOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type ProductionOrderOrganizationIdNumberCompoundUniqueInput = {
   organizationId: string
   number: string
@@ -432,6 +463,7 @@ export type ProductionOrderOrganizationIdNumberCompoundUniqueInput = {
 export type ProductionOrderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  requisitionId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   finishedProductId?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
@@ -450,6 +482,7 @@ export type ProductionOrderAvgOrderByAggregateInput = {
 export type ProductionOrderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  requisitionId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   finishedProductId?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
@@ -463,6 +496,7 @@ export type ProductionOrderMaxOrderByAggregateInput = {
 export type ProductionOrderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  requisitionId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   finishedProductId?: Prisma.SortOrder
   recipeId?: Prisma.SortOrder
@@ -483,6 +517,48 @@ export type ProductionOrderScalarRelationFilter = {
   isNot?: Prisma.ProductionOrderWhereInput
 }
 
+export type ProductionOrderCreateNestedManyWithoutRequisitionInput = {
+  create?: Prisma.XOR<Prisma.ProductionOrderCreateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput> | Prisma.ProductionOrderCreateWithoutRequisitionInput[] | Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput[]
+  connectOrCreate?: Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput | Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput[]
+  createMany?: Prisma.ProductionOrderCreateManyRequisitionInputEnvelope
+  connect?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+}
+
+export type ProductionOrderUncheckedCreateNestedManyWithoutRequisitionInput = {
+  create?: Prisma.XOR<Prisma.ProductionOrderCreateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput> | Prisma.ProductionOrderCreateWithoutRequisitionInput[] | Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput[]
+  connectOrCreate?: Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput | Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput[]
+  createMany?: Prisma.ProductionOrderCreateManyRequisitionInputEnvelope
+  connect?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+}
+
+export type ProductionOrderUpdateManyWithoutRequisitionNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionOrderCreateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput> | Prisma.ProductionOrderCreateWithoutRequisitionInput[] | Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput[]
+  connectOrCreate?: Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput | Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput[]
+  upsert?: Prisma.ProductionOrderUpsertWithWhereUniqueWithoutRequisitionInput | Prisma.ProductionOrderUpsertWithWhereUniqueWithoutRequisitionInput[]
+  createMany?: Prisma.ProductionOrderCreateManyRequisitionInputEnvelope
+  set?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  disconnect?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  delete?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  connect?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  update?: Prisma.ProductionOrderUpdateWithWhereUniqueWithoutRequisitionInput | Prisma.ProductionOrderUpdateWithWhereUniqueWithoutRequisitionInput[]
+  updateMany?: Prisma.ProductionOrderUpdateManyWithWhereWithoutRequisitionInput | Prisma.ProductionOrderUpdateManyWithWhereWithoutRequisitionInput[]
+  deleteMany?: Prisma.ProductionOrderScalarWhereInput | Prisma.ProductionOrderScalarWhereInput[]
+}
+
+export type ProductionOrderUncheckedUpdateManyWithoutRequisitionNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionOrderCreateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput> | Prisma.ProductionOrderCreateWithoutRequisitionInput[] | Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput[]
+  connectOrCreate?: Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput | Prisma.ProductionOrderCreateOrConnectWithoutRequisitionInput[]
+  upsert?: Prisma.ProductionOrderUpsertWithWhereUniqueWithoutRequisitionInput | Prisma.ProductionOrderUpsertWithWhereUniqueWithoutRequisitionInput[]
+  createMany?: Prisma.ProductionOrderCreateManyRequisitionInputEnvelope
+  set?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  disconnect?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  delete?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  connect?: Prisma.ProductionOrderWhereUniqueInput | Prisma.ProductionOrderWhereUniqueInput[]
+  update?: Prisma.ProductionOrderUpdateWithWhereUniqueWithoutRequisitionInput | Prisma.ProductionOrderUpdateWithWhereUniqueWithoutRequisitionInput[]
+  updateMany?: Prisma.ProductionOrderUpdateManyWithWhereWithoutRequisitionInput | Prisma.ProductionOrderUpdateManyWithWhereWithoutRequisitionInput[]
+  deleteMany?: Prisma.ProductionOrderScalarWhereInput | Prisma.ProductionOrderScalarWhereInput[]
+}
+
 export type ProductionOrderCreateNestedOneWithoutLinesInput = {
   create?: Prisma.XOR<Prisma.ProductionOrderCreateWithoutLinesInput, Prisma.ProductionOrderUncheckedCreateWithoutLinesInput>
   connectOrCreate?: Prisma.ProductionOrderCreateOrConnectWithoutLinesInput
@@ -497,6 +573,77 @@ export type ProductionOrderUpdateOneRequiredWithoutLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionOrderUpdateToOneWithWhereWithoutLinesInput, Prisma.ProductionOrderUpdateWithoutLinesInput>, Prisma.ProductionOrderUncheckedUpdateWithoutLinesInput>
 }
 
+export type ProductionOrderCreateWithoutRequisitionInput = {
+  id?: string
+  organizationId: string
+  number: string
+  finishedProductId: string
+  recipeId: string
+  plannedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId: string
+  expectedWastePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.DocumentStatus
+  scheduledFor?: Date | string | null
+  lines?: Prisma.ProductionOrderLineCreateNestedManyWithoutProductionOrderInput
+}
+
+export type ProductionOrderUncheckedCreateWithoutRequisitionInput = {
+  id?: string
+  organizationId: string
+  number: string
+  finishedProductId: string
+  recipeId: string
+  plannedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId: string
+  expectedWastePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.DocumentStatus
+  scheduledFor?: Date | string | null
+  lines?: Prisma.ProductionOrderLineUncheckedCreateNestedManyWithoutProductionOrderInput
+}
+
+export type ProductionOrderCreateOrConnectWithoutRequisitionInput = {
+  where: Prisma.ProductionOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionOrderCreateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput>
+}
+
+export type ProductionOrderCreateManyRequisitionInputEnvelope = {
+  data: Prisma.ProductionOrderCreateManyRequisitionInput | Prisma.ProductionOrderCreateManyRequisitionInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionOrderUpsertWithWhereUniqueWithoutRequisitionInput = {
+  where: Prisma.ProductionOrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionOrderUpdateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedUpdateWithoutRequisitionInput>
+  create: Prisma.XOR<Prisma.ProductionOrderCreateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedCreateWithoutRequisitionInput>
+}
+
+export type ProductionOrderUpdateWithWhereUniqueWithoutRequisitionInput = {
+  where: Prisma.ProductionOrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionOrderUpdateWithoutRequisitionInput, Prisma.ProductionOrderUncheckedUpdateWithoutRequisitionInput>
+}
+
+export type ProductionOrderUpdateManyWithWhereWithoutRequisitionInput = {
+  where: Prisma.ProductionOrderScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionOrderUpdateManyMutationInput, Prisma.ProductionOrderUncheckedUpdateManyWithoutRequisitionInput>
+}
+
+export type ProductionOrderScalarWhereInput = {
+  AND?: Prisma.ProductionOrderScalarWhereInput | Prisma.ProductionOrderScalarWhereInput[]
+  OR?: Prisma.ProductionOrderScalarWhereInput[]
+  NOT?: Prisma.ProductionOrderScalarWhereInput | Prisma.ProductionOrderScalarWhereInput[]
+  id?: Prisma.StringFilter<"ProductionOrder"> | string
+  organizationId?: Prisma.StringFilter<"ProductionOrder"> | string
+  requisitionId?: Prisma.StringNullableFilter<"ProductionOrder"> | string | null
+  number?: Prisma.StringFilter<"ProductionOrder"> | string
+  finishedProductId?: Prisma.StringFilter<"ProductionOrder"> | string
+  recipeId?: Prisma.StringFilter<"ProductionOrder"> | string
+  plannedQty?: Prisma.DecimalFilter<"ProductionOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId?: Prisma.StringFilter<"ProductionOrder"> | string
+  expectedWastePercent?: Prisma.DecimalFilter<"ProductionOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumDocumentStatusFilter<"ProductionOrder"> | $Enums.DocumentStatus
+  scheduledFor?: Prisma.DateTimeNullableFilter<"ProductionOrder"> | Date | string | null
+}
+
 export type ProductionOrderCreateWithoutLinesInput = {
   id?: string
   organizationId: string
@@ -508,11 +655,13 @@ export type ProductionOrderCreateWithoutLinesInput = {
   expectedWastePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.DocumentStatus
   scheduledFor?: Date | string | null
+  requisition?: Prisma.ProductionRequisitionCreateNestedOneWithoutOrdersInput
 }
 
 export type ProductionOrderUncheckedCreateWithoutLinesInput = {
   id?: string
   organizationId: string
+  requisitionId?: string | null
   number: string
   finishedProductId: string
   recipeId: string
@@ -550,9 +699,65 @@ export type ProductionOrderUpdateWithoutLinesInput = {
   expectedWastePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  requisition?: Prisma.ProductionRequisitionUpdateOneWithoutOrdersNestedInput
 }
 
 export type ProductionOrderUncheckedUpdateWithoutLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  requisitionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  finishedProductId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipeId?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedWastePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type ProductionOrderCreateManyRequisitionInput = {
+  id?: string
+  organizationId: string
+  number: string
+  finishedProductId: string
+  recipeId: string
+  plannedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId: string
+  expectedWastePercent: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.DocumentStatus
+  scheduledFor?: Date | string | null
+}
+
+export type ProductionOrderUpdateWithoutRequisitionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  finishedProductId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipeId?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedWastePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ProductionOrderLineUpdateManyWithoutProductionOrderNestedInput
+}
+
+export type ProductionOrderUncheckedUpdateWithoutRequisitionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  finishedProductId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipeId?: Prisma.StringFieldUpdateOperationsInput | string
+  plannedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  plannedUomId?: Prisma.StringFieldUpdateOperationsInput | string
+  expectedWastePercent?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  scheduledFor?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lines?: Prisma.ProductionOrderLineUncheckedUpdateManyWithoutProductionOrderNestedInput
+}
+
+export type ProductionOrderUncheckedUpdateManyWithoutRequisitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.StringFieldUpdateOperationsInput | string
@@ -599,6 +804,7 @@ export type ProductionOrderCountOutputTypeCountLinesArgs<ExtArgs extends runtime
 export type ProductionOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
+  requisitionId?: boolean
   number?: boolean
   finishedProductId?: boolean
   recipeId?: boolean
@@ -607,6 +813,7 @@ export type ProductionOrderSelect<ExtArgs extends runtime.Types.Extensions.Inter
   expectedWastePercent?: boolean
   status?: boolean
   scheduledFor?: boolean
+  requisition?: boolean | Prisma.ProductionOrder$requisitionArgs<ExtArgs>
   lines?: boolean | Prisma.ProductionOrder$linesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionOrder"]>
@@ -614,6 +821,7 @@ export type ProductionOrderSelect<ExtArgs extends runtime.Types.Extensions.Inter
 export type ProductionOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
+  requisitionId?: boolean
   number?: boolean
   finishedProductId?: boolean
   recipeId?: boolean
@@ -622,11 +830,13 @@ export type ProductionOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   expectedWastePercent?: boolean
   status?: boolean
   scheduledFor?: boolean
+  requisition?: boolean | Prisma.ProductionOrder$requisitionArgs<ExtArgs>
 }, ExtArgs["result"]["productionOrder"]>
 
 export type ProductionOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
+  requisitionId?: boolean
   number?: boolean
   finishedProductId?: boolean
   recipeId?: boolean
@@ -635,11 +845,13 @@ export type ProductionOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   expectedWastePercent?: boolean
   status?: boolean
   scheduledFor?: boolean
+  requisition?: boolean | Prisma.ProductionOrder$requisitionArgs<ExtArgs>
 }, ExtArgs["result"]["productionOrder"]>
 
 export type ProductionOrderSelectScalar = {
   id?: boolean
   organizationId?: boolean
+  requisitionId?: boolean
   number?: boolean
   finishedProductId?: boolean
   recipeId?: boolean
@@ -650,22 +862,29 @@ export type ProductionOrderSelectScalar = {
   scheduledFor?: boolean
 }
 
-export type ProductionOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "finishedProductId" | "recipeId" | "plannedQty" | "plannedUomId" | "expectedWastePercent" | "status" | "scheduledFor", ExtArgs["result"]["productionOrder"]>
+export type ProductionOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "requisitionId" | "number" | "finishedProductId" | "recipeId" | "plannedQty" | "plannedUomId" | "expectedWastePercent" | "status" | "scheduledFor", ExtArgs["result"]["productionOrder"]>
 export type ProductionOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  requisition?: boolean | Prisma.ProductionOrder$requisitionArgs<ExtArgs>
   lines?: boolean | Prisma.ProductionOrder$linesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type ProductionOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type ProductionOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ProductionOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  requisition?: boolean | Prisma.ProductionOrder$requisitionArgs<ExtArgs>
+}
+export type ProductionOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  requisition?: boolean | Prisma.ProductionOrder$requisitionArgs<ExtArgs>
+}
 
 export type $ProductionOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionOrder"
   objects: {
+    requisition: Prisma.$ProductionRequisitionPayload<ExtArgs> | null
     lines: Prisma.$ProductionOrderLinePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     organizationId: string
+    requisitionId: string | null
     number: string
     finishedProductId: string
     recipeId: string
@@ -1068,6 +1287,7 @@ readonly fields: ProductionOrderFieldRefs;
  */
 export interface Prisma__ProductionOrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  requisition<T extends Prisma.ProductionOrder$requisitionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionOrder$requisitionArgs<ExtArgs>>): Prisma.Prisma__ProductionRequisitionClient<runtime.Types.Result.GetResult<Prisma.$ProductionRequisitionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.ProductionOrder$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionOrder$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionOrderLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1100,6 +1320,7 @@ export interface Prisma__ProductionOrderClient<T, Null = never, ExtArgs extends 
 export interface ProductionOrderFieldRefs {
   readonly id: Prisma.FieldRef<"ProductionOrder", 'String'>
   readonly organizationId: Prisma.FieldRef<"ProductionOrder", 'String'>
+  readonly requisitionId: Prisma.FieldRef<"ProductionOrder", 'String'>
   readonly number: Prisma.FieldRef<"ProductionOrder", 'String'>
   readonly finishedProductId: Prisma.FieldRef<"ProductionOrder", 'String'>
   readonly recipeId: Prisma.FieldRef<"ProductionOrder", 'String'>
@@ -1362,6 +1583,10 @@ export type ProductionOrderCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    */
   data: Prisma.ProductionOrderCreateManyInput | Prisma.ProductionOrderCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionOrderIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1432,6 +1657,10 @@ export type ProductionOrderUpdateManyAndReturnArgs<ExtArgs extends runtime.Types
    * Limit how many ProductionOrders to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionOrderIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1498,6 +1727,25 @@ export type ProductionOrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many ProductionOrders to delete.
    */
   limit?: number
+}
+
+/**
+ * ProductionOrder.requisition
+ */
+export type ProductionOrder$requisitionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionRequisition
+   */
+  select?: Prisma.ProductionRequisitionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionRequisition
+   */
+  omit?: Prisma.ProductionRequisitionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionRequisitionInclude<ExtArgs> | null
+  where?: Prisma.ProductionRequisitionWhereInput
 }
 
 /**

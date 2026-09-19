@@ -17,6 +17,7 @@ type Base = {
   columnWidths?: string[];
   summary?: ReactNode;
   pagination?: boolean;
+  minRows?: number;
   toolbar?: ReactNode;
   empty?: ReactNode;
   total?: number;
@@ -58,6 +59,7 @@ export function DataTable<T>({
   columnWidths,
   summary,
   pagination = true,
+  minRows = 0,
   empty,
   total,
   page,
@@ -136,6 +138,9 @@ export function DataTable<T>({
                 ))
               : visibleChildren}
             {!showSkeleton && rowCount === 0 && placeholders.length === 0 && <tr><td colSpan={headers.length}><div className="grid min-h-64 place-items-center text-center text-sm text-[#73877c]">{empty ?? 'No records found.'}</div></td></tr>}
+            {!showSkeleton && rowCount > 0 && Array.from({ length: Math.max(0, minRows - visibleChildren.length) }, (_, index) => (
+              <tr key={`reserved-row-${index}`} aria-hidden="true"><td colSpan={headers.length} className="h-[65px]">&nbsp;</td></tr>
+            ))}
           </tbody>
           {summary && <tfoot>{summary}</tfoot>}
         </table>

@@ -133,6 +133,11 @@ export type Recipe = Prisma.RecipeModel
  */
 export type RecipeLine = Prisma.RecipeLineModel
 /**
+ * Model ProductionRequisition
+ * 
+ */
+export type ProductionRequisition = Prisma.ProductionRequisitionModel
+/**
  * Model ProductionOrder
  * 
  */

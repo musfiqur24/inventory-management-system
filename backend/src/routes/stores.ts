@@ -70,6 +70,30 @@ storesRouter.put("/:id", async (req, res) => {
       });
   return res.json({ data: result });
 });
+
+storesRouter.delete("/:id", async (req, res) => {
+  const where = { id: String(req.params.id), organizationId: req.tenantId! };
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Store" WHERE id=${where.id} AND "organizationId"=${where.organizationId} FOR UPDATE`;
+    const store = await tx.store.findFirst({ where });
+    if (!store) return "not-found";
+    const stockCount = await tx.inventoryBalance.count({
+      where: {
+        organizationId: where.organizationId,
+        bin: { storeId: where.id },
+        OR: [{ quantity: { gt: 0 } }, { reservedQty: { gt: 0 } }],
+      },
+    });
+    if (stockCount) return "in-use";
+    await tx.bin.updateMany({ where: { organizationId: where.organizationId, storeId: where.id }, data: { isActive: false } });
+    await tx.store.update({ where, data: { isActive: false } });
+    return "deleted";
+  });
+  if (result === "not-found") return res.status(404).json({ error: { code: "NOT_FOUND", message: "Store not found." } });
+  if (result === "in-use") return res.status(409).json({ error: { code: "STORE_HAS_STOCK", message: "This store contains stock and cannot be deleted." } });
+  res.status(204).send();
+});
+
 storesRouter.get("/:id/balances", async (req, res) => {
   const storeId = String(req.params.id);
   const filters = z.object({
@@ -113,7 +137,22 @@ storesRouter.get("/:id/balances", async (req, res) => {
     },
     orderBy: { updatedAt: "desc" },
   });
-  res.json({ data });
+  const deliveryIds = [...new Set(data.map((balance) => balance.lot.supplierDeliveryId).filter((id): id is string => Boolean(id)))];
+  const deliveries = deliveryIds.length
+    ? await prisma.supplierDelivery.findMany({ where: { organizationId: req.tenantId, id: { in: deliveryIds } }, select: { id: true, requisitionId: true } })
+    : [];
+  const requisitionIds = [...new Set(deliveries.map((delivery) => delivery.requisitionId).filter((id): id is string => Boolean(id)))];
+  const requisitions = requisitionIds.length
+    ? await prisma.purchaseRequisition.findMany({ where: { organizationId: req.tenantId, id: { in: requisitionIds } }, select: { id: true, number: true } })
+    : [];
+  const deliveryMap = new Map(deliveries.map((delivery) => [delivery.id, delivery]));
+  const requisitionMap = new Map(requisitions.map((requisition) => [requisition.id, requisition.number]));
+  res.json({
+    data: data.map((balance) => {
+      const delivery = balance.lot.supplierDeliveryId ? deliveryMap.get(balance.lot.supplierDeliveryId) : undefined;
+      return { ...balance, requisitionNumber: delivery?.requisitionId ? requisitionMap.get(delivery.requisitionId) ?? null : null };
+    }),
+  });
 });
 storesRouter.get("/:id/activity", async (req, res) => {
   const filters = z
