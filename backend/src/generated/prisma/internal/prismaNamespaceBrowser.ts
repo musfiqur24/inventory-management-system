@@ -80,6 +80,9 @@ export const ModelName = {
   MaterialIssue: 'MaterialIssue',
   MaterialIssueLine: 'MaterialIssueLine',
   ProductionBatch: 'ProductionBatch',
+  ProductionBatchInput: 'ProductionBatchInput',
+  ProductionBatchOutput: 'ProductionBatchOutput',
+  ProductionBatchCost: 'ProductionBatchCost',
   SalesOrder: 'SalesOrder',
   SalesOrderLine: 'SalesOrderLine',
   Dispatch: 'Dispatch',
@@ -501,7 +504,8 @@ export const ProductionOrderLineScalarFieldEnum = {
   uomId: 'uomId',
   recipeQty: 'recipeQty',
   wasteAdjustedQty: 'wasteAdjustedQty',
-  issuedQty: 'issuedQty'
+  issuedQty: 'issuedQty',
+  unitPrice: 'unitPrice'
 } as const
 
 export type ProductionOrderLineScalarFieldEnum = (typeof ProductionOrderLineScalarFieldEnum)[keyof typeof ProductionOrderLineScalarFieldEnum]
@@ -552,6 +556,43 @@ export const ProductionBatchScalarFieldEnum = {
 } as const
 
 export type ProductionBatchScalarFieldEnum = (typeof ProductionBatchScalarFieldEnum)[keyof typeof ProductionBatchScalarFieldEnum]
+
+
+export const ProductionBatchInputScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  productId: 'productId',
+  description: 'description',
+  category: 'category',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice'
+} as const
+
+export type ProductionBatchInputScalarFieldEnum = (typeof ProductionBatchInputScalarFieldEnum)[keyof typeof ProductionBatchInputScalarFieldEnum]
+
+
+export const ProductionBatchOutputScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  productId: 'productId',
+  description: 'description',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  lotCode: 'lotCode'
+} as const
+
+export type ProductionBatchOutputScalarFieldEnum = (typeof ProductionBatchOutputScalarFieldEnum)[keyof typeof ProductionBatchOutputScalarFieldEnum]
+
+
+export const ProductionBatchCostScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  description: 'description',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice'
+} as const
+
+export type ProductionBatchCostScalarFieldEnum = (typeof ProductionBatchCostScalarFieldEnum)[keyof typeof ProductionBatchCostScalarFieldEnum]
 
 
 export const SalesOrderScalarFieldEnum = {

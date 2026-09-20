@@ -30,12 +30,14 @@ export type ProductionOrderLineAvgAggregateOutputType = {
   recipeQty: runtime.Decimal | null
   wasteAdjustedQty: runtime.Decimal | null
   issuedQty: runtime.Decimal | null
+  unitPrice: runtime.Decimal | null
 }
 
 export type ProductionOrderLineSumAggregateOutputType = {
   recipeQty: runtime.Decimal | null
   wasteAdjustedQty: runtime.Decimal | null
   issuedQty: runtime.Decimal | null
+  unitPrice: runtime.Decimal | null
 }
 
 export type ProductionOrderLineMinAggregateOutputType = {
@@ -46,6 +48,7 @@ export type ProductionOrderLineMinAggregateOutputType = {
   recipeQty: runtime.Decimal | null
   wasteAdjustedQty: runtime.Decimal | null
   issuedQty: runtime.Decimal | null
+  unitPrice: runtime.Decimal | null
 }
 
 export type ProductionOrderLineMaxAggregateOutputType = {
@@ -56,6 +59,7 @@ export type ProductionOrderLineMaxAggregateOutputType = {
   recipeQty: runtime.Decimal | null
   wasteAdjustedQty: runtime.Decimal | null
   issuedQty: runtime.Decimal | null
+  unitPrice: runtime.Decimal | null
 }
 
 export type ProductionOrderLineCountAggregateOutputType = {
@@ -66,6 +70,7 @@ export type ProductionOrderLineCountAggregateOutputType = {
   recipeQty: number
   wasteAdjustedQty: number
   issuedQty: number
+  unitPrice: number
   _all: number
 }
 
@@ -74,12 +79,14 @@ export type ProductionOrderLineAvgAggregateInputType = {
   recipeQty?: true
   wasteAdjustedQty?: true
   issuedQty?: true
+  unitPrice?: true
 }
 
 export type ProductionOrderLineSumAggregateInputType = {
   recipeQty?: true
   wasteAdjustedQty?: true
   issuedQty?: true
+  unitPrice?: true
 }
 
 export type ProductionOrderLineMinAggregateInputType = {
@@ -90,6 +97,7 @@ export type ProductionOrderLineMinAggregateInputType = {
   recipeQty?: true
   wasteAdjustedQty?: true
   issuedQty?: true
+  unitPrice?: true
 }
 
 export type ProductionOrderLineMaxAggregateInputType = {
@@ -100,6 +108,7 @@ export type ProductionOrderLineMaxAggregateInputType = {
   recipeQty?: true
   wasteAdjustedQty?: true
   issuedQty?: true
+  unitPrice?: true
 }
 
 export type ProductionOrderLineCountAggregateInputType = {
@@ -110,6 +119,7 @@ export type ProductionOrderLineCountAggregateInputType = {
   recipeQty?: true
   wasteAdjustedQty?: true
   issuedQty?: true
+  unitPrice?: true
   _all?: true
 }
 
@@ -207,6 +217,7 @@ export type ProductionOrderLineGroupByOutputType = {
   recipeQty: runtime.Decimal
   wasteAdjustedQty: runtime.Decimal
   issuedQty: runtime.Decimal
+  unitPrice: runtime.Decimal | null
   _count: ProductionOrderLineCountAggregateOutputType | null
   _avg: ProductionOrderLineAvgAggregateOutputType | null
   _sum: ProductionOrderLineSumAggregateOutputType | null
@@ -240,6 +251,7 @@ export type ProductionOrderLineWhereInput = {
   recipeQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.DecimalNullableFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   productionOrder?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
 }
 
@@ -251,6 +263,7 @@ export type ProductionOrderLineOrderByWithRelationInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   productionOrder?: Prisma.ProductionOrderOrderByWithRelationInput
 }
 
@@ -265,6 +278,7 @@ export type ProductionOrderLineWhereUniqueInput = Prisma.AtLeast<{
   recipeQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.DecimalNullableFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   productionOrder?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
 }, "id">
 
@@ -276,6 +290,7 @@ export type ProductionOrderLineOrderByWithAggregationInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ProductionOrderLineCountOrderByAggregateInput
   _avg?: Prisma.ProductionOrderLineAvgOrderByAggregateInput
   _max?: Prisma.ProductionOrderLineMaxOrderByAggregateInput
@@ -294,6 +309,7 @@ export type ProductionOrderLineScalarWhereWithAggregatesInput = {
   recipeQty?: Prisma.DecimalWithAggregatesFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalWithAggregatesFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalWithAggregatesFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.DecimalNullableWithAggregatesFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineCreateInput = {
@@ -303,6 +319,7 @@ export type ProductionOrderLineCreateInput = {
   recipeQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   productionOrder: Prisma.ProductionOrderCreateNestedOneWithoutLinesInput
 }
 
@@ -314,6 +331,7 @@ export type ProductionOrderLineUncheckedCreateInput = {
   recipeQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUpdateInput = {
@@ -323,6 +341,7 @@ export type ProductionOrderLineUpdateInput = {
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   productionOrder?: Prisma.ProductionOrderUpdateOneRequiredWithoutLinesNestedInput
 }
 
@@ -334,6 +353,7 @@ export type ProductionOrderLineUncheckedUpdateInput = {
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineCreateManyInput = {
@@ -344,6 +364,7 @@ export type ProductionOrderLineCreateManyInput = {
   recipeQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUpdateManyMutationInput = {
@@ -353,6 +374,7 @@ export type ProductionOrderLineUpdateManyMutationInput = {
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUncheckedUpdateManyInput = {
@@ -363,6 +385,7 @@ export type ProductionOrderLineUncheckedUpdateManyInput = {
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineListRelationFilter = {
@@ -383,12 +406,14 @@ export type ProductionOrderLineCountOrderByAggregateInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
 }
 
 export type ProductionOrderLineAvgOrderByAggregateInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
 }
 
 export type ProductionOrderLineMaxOrderByAggregateInput = {
@@ -399,6 +424,7 @@ export type ProductionOrderLineMaxOrderByAggregateInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
 }
 
 export type ProductionOrderLineMinOrderByAggregateInput = {
@@ -409,12 +435,14 @@ export type ProductionOrderLineMinOrderByAggregateInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
 }
 
 export type ProductionOrderLineSumOrderByAggregateInput = {
   recipeQty?: Prisma.SortOrder
   wasteAdjustedQty?: Prisma.SortOrder
   issuedQty?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
 }
 
 export type ProductionOrderLineCreateNestedManyWithoutProductionOrderInput = {
@@ -466,6 +494,7 @@ export type ProductionOrderLineCreateWithoutProductionOrderInput = {
   recipeQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUncheckedCreateWithoutProductionOrderInput = {
@@ -475,6 +504,7 @@ export type ProductionOrderLineUncheckedCreateWithoutProductionOrderInput = {
   recipeQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineCreateOrConnectWithoutProductionOrderInput = {
@@ -514,6 +544,7 @@ export type ProductionOrderLineScalarWhereInput = {
   recipeQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.DecimalNullableFilter<"ProductionOrderLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineCreateManyProductionOrderInput = {
@@ -523,6 +554,7 @@ export type ProductionOrderLineCreateManyProductionOrderInput = {
   recipeQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty: runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUpdateWithoutProductionOrderInput = {
@@ -532,6 +564,7 @@ export type ProductionOrderLineUpdateWithoutProductionOrderInput = {
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUncheckedUpdateWithoutProductionOrderInput = {
@@ -541,6 +574,7 @@ export type ProductionOrderLineUncheckedUpdateWithoutProductionOrderInput = {
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type ProductionOrderLineUncheckedUpdateManyWithoutProductionOrderInput = {
@@ -550,6 +584,7 @@ export type ProductionOrderLineUncheckedUpdateManyWithoutProductionOrderInput = 
   recipeQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   wasteAdjustedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   issuedQty?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 
@@ -562,6 +597,7 @@ export type ProductionOrderLineSelect<ExtArgs extends runtime.Types.Extensions.I
   recipeQty?: boolean
   wasteAdjustedQty?: boolean
   issuedQty?: boolean
+  unitPrice?: boolean
   productionOrder?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionOrderLine"]>
 
@@ -573,6 +609,7 @@ export type ProductionOrderLineSelectCreateManyAndReturn<ExtArgs extends runtime
   recipeQty?: boolean
   wasteAdjustedQty?: boolean
   issuedQty?: boolean
+  unitPrice?: boolean
   productionOrder?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionOrderLine"]>
 
@@ -584,6 +621,7 @@ export type ProductionOrderLineSelectUpdateManyAndReturn<ExtArgs extends runtime
   recipeQty?: boolean
   wasteAdjustedQty?: boolean
   issuedQty?: boolean
+  unitPrice?: boolean
   productionOrder?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionOrderLine"]>
 
@@ -595,9 +633,10 @@ export type ProductionOrderLineSelectScalar = {
   recipeQty?: boolean
   wasteAdjustedQty?: boolean
   issuedQty?: boolean
+  unitPrice?: boolean
 }
 
-export type ProductionOrderLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productionOrderId" | "productId" | "uomId" | "recipeQty" | "wasteAdjustedQty" | "issuedQty", ExtArgs["result"]["productionOrderLine"]>
+export type ProductionOrderLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productionOrderId" | "productId" | "uomId" | "recipeQty" | "wasteAdjustedQty" | "issuedQty" | "unitPrice", ExtArgs["result"]["productionOrderLine"]>
 export type ProductionOrderLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productionOrder?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }
@@ -621,6 +660,7 @@ export type $ProductionOrderLinePayload<ExtArgs extends runtime.Types.Extensions
     recipeQty: runtime.Decimal
     wasteAdjustedQty: runtime.Decimal
     issuedQty: runtime.Decimal
+    unitPrice: runtime.Decimal | null
   }, ExtArgs["result"]["productionOrderLine"]>
   composites: {}
 }
@@ -1052,6 +1092,7 @@ export interface ProductionOrderLineFieldRefs {
   readonly recipeQty: Prisma.FieldRef<"ProductionOrderLine", 'Decimal'>
   readonly wasteAdjustedQty: Prisma.FieldRef<"ProductionOrderLine", 'Decimal'>
   readonly issuedQty: Prisma.FieldRef<"ProductionOrderLine", 'Decimal'>
+  readonly unitPrice: Prisma.FieldRef<"ProductionOrderLine", 'Decimal'>
 }
     
 

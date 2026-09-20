@@ -128,6 +128,7 @@ const productionItemSchema = z.object({
 
 const createProductionRequisitionSchema = z.object({
   items: z.array(productionItemSchema).min(1).max(20),
+  utilities: z.array(z.object({ productId: z.string().uuid(), quantity: z.coerce.number().positive(), unitPrice: z.coerce.number().nonnegative() })).default([]),
 }).superRefine((value, context) => {
   const recipes = new Set<string>();
   value.items.forEach((item, index) => {
@@ -140,11 +141,12 @@ productionOrdersRouter.post("/", async (req, res) => {
   const parsed = createProductionRequisitionSchema.parse(req.body);
   const organizationId = req.tenantId!;
   const recipeIds = parsed.items.map((item) => item.recipeId);
-  const recipes = await prisma.recipe.findMany({
+  const [recipes, utilityProducts] = await Promise.all([prisma.recipe.findMany({
     where: { id: { in: recipeIds }, organizationId, status: { notIn: [DocumentStatus.CANCELLED, DocumentStatus.REJECTED] } },
     include: { lines: true },
-  });
+  }), prisma.product.findMany({ where: { organizationId, id: { in: parsed.utilities.map(line => line.productId) }, type: { in: ["PACKAGING", "RAW_MATERIAL"] } } })]);
   if (recipes.length !== recipeIds.length) return res.status(422).json({ error: { message: "One or more recipes are unavailable." } });
+  if (utilityProducts.length !== new Set(parsed.utilities.map(line => line.productId)).size) return res.status(422).json({ error: { message: "One or more utility products are unavailable." } });
   if (new Set(recipes.map((recipe) => recipe.finishedProductId)).size !== recipes.length) return res.status(422).json({ error: { message: "The same finished good cannot be included more than once." } });
   const recipeMap = new Map(recipes.map((recipe) => [recipe.id, recipe]));
 
@@ -176,7 +178,7 @@ productionOrdersRouter.post("/", async (req, res) => {
             create: recipe.lines.map((line) => {
               const recipeQty = Number(line.quantityPerOutput) * scaleRatio;
               return { productId: line.rawProductId, uomId: line.uomId, recipeQty: new Prisma.Decimal(recipeQty), wasteAdjustedQty: new Prisma.Decimal(recipeQty), issuedQty: new Prisma.Decimal(0) };
-            }),
+            }).concat(index === 0 ? parsed.utilities.map(line => { const product = utilityProducts.find(value => value.id === line.productId)!; return { productId: line.productId, uomId: product.baseUomId, recipeQty: new Prisma.Decimal(line.quantity), wasteAdjustedQty: new Prisma.Decimal(line.quantity), issuedQty: new Prisma.Decimal(0), unitPrice: new Prisma.Decimal(line.unitPrice) }; }) : []),
           },
         },
         include: { lines: true },

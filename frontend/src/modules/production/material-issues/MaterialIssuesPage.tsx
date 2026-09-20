@@ -21,7 +21,7 @@ interface MaterialIssue {
 interface ProductionOrder { id: string; number: string; status: string; lines: Array<{ productId: string; uomId: string; requiredQty: number; issuedQty: number; rawMaterial?: { name: string; sku: string } }>; }
 interface Product { id: string; name: string; sku: string; type: string; }
 interface Lot { id: string; lotNumber: string; productId: string; currentQty: number; }
-interface Position { id: string; productId: string; lotId: string; binId: string; uomId: string; quantity: number; reservedQty: number; lot?: { code?: string; qualityStatus?: string; expiryDate?: string | null }; bin: {code:string;storeId?:string;store?:{id:string;name:string}}; }
+interface Position { id: string; productId: string; lotId: string; binId: string; uomId: string; quantity: number; reservedQty: number; lot?: { code?: string; qualityStatus?: string; expiryDate?: string | null }; bin: {code:string;name:string;storeId?:string;store?:{id:string;name:string}}; }
 interface UOM { id: string; name: string; code: string; }
 interface Store { id: string; code: string; name: string; }
 interface IssueLine { rawMaterialId: string; lotId: string; fromBinId: string; uomId: string; issuedQty: string; }
@@ -192,7 +192,7 @@ export function MaterialIssuesPage() {
       </Card>
 
       {open && (
-        <Modal title="Issue RM Materials to Factory" description="Select a production order and RM store, then review the automatically allocated stock." onClose={() => setOpen(false)} extraWide
+        <Modal title="Issue RM Materials to Factory" description="Select a production order and RM store, then review the automatically allocated stock." onClose={() => setOpen(false)} extraWide fixedHeight
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={saving || !lines.length || allocationShortfalls.length > 0}>Confirm Issue</Button></>}
        >
           <div className="grid grid-cols-2 gap-3.5 max-[700px]:grid-cols-1">
@@ -211,7 +211,7 @@ export function MaterialIssuesPage() {
               <div className="overflow-x-auto rounded-md border border-[#d7dfd6]">
                 <div className="min-w-[920px]">
                   <div className="grid grid-cols-[minmax(190px,1.35fr)_110px_110px_125px_minmax(250px,1.8fr)_105px] items-center gap-3 bg-[#f2f5f3] px-4 py-3 text-[11px] font-bold uppercase tracking-[.06em] text-[#405047]">
-                    <span>Raw material</span><span>Required</span><span>Allocated</span><span>Insufficient</span><span>Lot / bin allocation</span><span>Status</span>
+                    <span>Raw material</span><span>Required</span><span>Allocated</span><span>Insufficient</span><span>Bin Allocation</span><span>Status</span>
                   </div>
                   {allocationReview.map((item) => {
                     const shortage = item.insufficient > 0.000001;
@@ -228,7 +228,7 @@ export function MaterialIssuesPage() {
                       <strong>{item.required.toLocaleString()} {item.uom}</strong>
                       <span className={item.allocated > 0 ? 'font-semibold text-[#176b4b]' : 'font-semibold text-[#9a3b32]'}>{item.allocated.toLocaleString()} {item.uom}</span>
                       <strong className={shortage ? 'text-[#c34838]' : 'text-[#176b4b]'}>{shortage ? item.insufficient.toLocaleString() + ' ' + item.uom : '0 ' + item.uom}</strong>
-                      <div className="min-w-0"><Dropdown aria-label={"Allocation bin for " + item.name} value={preferredPositions[item.productId + ":" + item.uomId] ?? selectedPosition?.id ?? ""} disabled={!eligiblePositions.length} onChange={(event) => { const next = { ...preferredPositions, [item.productId + ":" + item.uomId]: event.target.value }; setPreferredPositions(next); allocateOrder(form.productionOrderId, form.storeId, next); }}><option value="">{eligiblePositions.length ? "Select allocation bin" : "Not available in selected store"}</option>{eligiblePositions.map((position) => { const available = Number(position.quantity) - Number(position.reservedQty); return <option key={position.id} value={position.id}>{position.bin.store?.name ?? "RM Store"} / {position.bin.code} - {available.toLocaleString()} {item.uom} available</option>; })}</Dropdown>{item.sources.length > 1 && <span className="mt-1 block text-[10.5px] text-[#7a9185]">Allocation continues across {item.sources.length} bins/lots when required.</span>}</div>
+                      <div className="min-w-0"><Dropdown aria-label={"Allocation bin for " + item.name} value={preferredPositions[item.productId + ":" + item.uomId] ?? selectedPosition?.id ?? ""} disabled={!eligiblePositions.length} onChange={(event) => { const next = { ...preferredPositions, [item.productId + ":" + item.uomId]: event.target.value }; setPreferredPositions(next); allocateOrder(form.productionOrderId, form.storeId, next); }}><option value="">{eligiblePositions.length ? "Select allocation bin" : "Not available in selected store"}</option>{eligiblePositions.map((position) => <option key={position.id} value={position.id}>{position.bin.name || position.bin.code}</option>)}</Dropdown>{item.sources.length > 1 && <span className="mt-1 block text-[10.5px] text-[#7a9185]">Allocation continues across {item.sources.length} bins when required.</span>}</div>
                       <span className={shortage ? 'w-fit rounded-full bg-[#fde8e5] px-2.5 py-1 text-[11px] font-semibold text-[#b23b31]' : 'w-fit rounded-full bg-[#e5f5eb] px-2.5 py-1 text-[11px] font-semibold text-[#16734f]'}>{shortage ? (item.allocated > 0 ? 'Insufficient' : 'No stock') : 'Ready'}</span>
                     </div>;
                   })}

@@ -459,6 +459,7 @@ model ProductionOrderLine {
   recipeQty Decimal @db.Decimal(18,3)
   wasteAdjustedQty Decimal @db.Decimal(18,3)
   issuedQty Decimal @default(0) @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
   productionOrder ProductionOrder @relation(fields:[productionOrderId],references:[id],onDelete:Cascade)
   @@index([productionOrderId,productId])
 }
@@ -501,8 +502,43 @@ model ProductionBatch {
   startedAt DateTime?
   completedAt DateTime?
   notes String?
+  inputLines ProductionBatchInput[]
+  outputLines ProductionBatchOutput[]
+  costLines ProductionBatchCost[]
   @@unique([organizationId,number])
   @@index([organizationId,productionOrderId,status])
+}
+
+model ProductionBatchInput {
+  id String @id @default(uuid())
+  batchId String
+  productId String?
+  description String
+  category String @default("RAW_MATERIAL")
+  quantity Decimal @db.Decimal(18,3)
+  unitPrice Decimal @db.Decimal(18,4)
+  batch ProductionBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  @@index([batchId,category])
+}
+model ProductionBatchOutput {
+  id String @id @default(uuid())
+  batchId String
+  productId String?
+  description String
+  quantity Decimal @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  lotCode String?
+  batch ProductionBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  @@index([batchId,productId])
+}
+model ProductionBatchCost {
+  id String @id @default(uuid())
+  batchId String
+  description String
+  quantity Decimal @default(1) @db.Decimal(18,3)
+  unitPrice Decimal @db.Decimal(18,4)
+  batch ProductionBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  @@index([batchId])
 }
 model SalesOrder {
   id String @id @default(uuid())

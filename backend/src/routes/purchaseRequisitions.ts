@@ -139,10 +139,12 @@ purchaseRequisitionsRouter.post("/", async (req, res) => {
     const organizationId=req.tenantId!;
     await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${organizationId} FOR UPDATE`;
     await validateRequisition(tx,organizationId,parsed);
-    let sequence=await tx.purchaseRequisition.count({where:{organizationId}})+1;
-    const prefix='RM-REQ-'+new Date().getFullYear()+'-';
-    let number=prefix+String(sequence).padStart(4,'0');
-    while(await tx.purchaseRequisition.findUnique({where:{organizationId_number:{organizationId,number}}}))number=prefix+String(++sequence).padStart(4,'0');
+    const dateParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dhaka',year:'2-digit',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+    const part=(type:Intl.DateTimeFormatPartTypes)=>dateParts.find(item=>item.type===type)!.value;
+    const prefix='RM_'+part('year')+part('month')+part('day')+'_';
+    let sequence=await tx.purchaseRequisition.count({where:{organizationId,number:{startsWith:prefix}}})+1;
+    let number=prefix+String(sequence).padStart(2,'0');
+    while(await tx.purchaseRequisition.findUnique({where:{organizationId_number:{organizationId,number}}}))number=prefix+String(++sequence).padStart(2,'0');
     const created=await tx.purchaseRequisition.create({data:{organizationId,number,createdById:req.auth!.id,assignedManagerId:parsed.assignedManagerId,salesOrderRef:parsed.salesOrderRef?.trim()||null,supplierId:parsed.supplierId||null,status:DocumentStatus.SUBMITTED,lines:{create:parsed.lines.map(l=>({productId:l.productId,uomId:l.uomId,requestedQty:new Prisma.Decimal(l.requestedQty),unitPrice:l.unitPrice?new Prisma.Decimal(l.unitPrice):null}))}},include:{lines:true,assignedManager:{select:managerSelect}}});
     await tx.notification.create({data:{organizationId,recipientId:parsed.assignedManagerId,requisitionId:created.id,title:'RM requisition awaiting your approval',message:created.number+' has been assigned to you for review and approval.'}});
     return created;

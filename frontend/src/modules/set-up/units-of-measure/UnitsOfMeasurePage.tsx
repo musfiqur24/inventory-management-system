@@ -26,6 +26,7 @@ export function UnitsOfMeasurePage() {
   const [saving, setSaving] = useState(false);
   const [, setMessage] = useToastMessage();
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [form, setForm] = useState({ name: '', code: '', category: 'WEIGHT', decimalPlaces: '2', conversionFactor: '1' });
 
   const load = async () => { return runPageLoad(async () => {
@@ -65,8 +66,9 @@ export function UnitsOfMeasurePage() {
   };
 
   const filtered = rows.filter((r) =>
-    r.name.toLowerCase().includes(search.toLowerCase()) ||
-    r.code.toLowerCase().includes(search.toLowerCase())
+    (categoryFilter === 'ALL' || r.dimension === categoryFilter) &&
+    (r.name.toLowerCase().includes(search.toLowerCase()) ||
+    r.code.toLowerCase().includes(search.toLowerCase()))
   );
 
   const categories = [...new Set(rows.map((r) => r.dimension).filter(Boolean))];
@@ -79,21 +81,9 @@ export function UnitsOfMeasurePage() {
       actions={<Button variant="primary" onClick={() => { setEditingId(null); setForm({ name: '', code: '', category: '', decimalPlaces: '2', conversionFactor: '1' }); setOpen(true); }}><Plus size={16} /> New UOM</Button>}
    >
 
-      {/* Category quick filters */}
-      {categories.length > 0 && (
-        <div className="flex gap-2 flex-wrap mb-4">
-          <span className="text-[12px] text-[#7a9185] [align-self:center]">Filter:</span>
-          {['All', ...categories].map((cat) => (
-            <button key={cat} className="p-[4px_12px] rounded-[20px] [border:1px_solid_#e0e5dd] bg-[#ffffff] text-[12px] cursor-pointer text-[#445e50] font-semibold">
-              {cat}
-            </button>
-          ))}
-        </div>
-      )}
-
       <Card padding="none">
         <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
-          <h2>UOM Registry</h2>
+          <div className="flex flex-wrap items-center gap-3"><h2>UOM Registry</h2>{categories.length > 0 && <div className="flex flex-wrap items-center gap-1.5"><span className="text-[12px] text-[#7a9185]">Filter:</span>{[{ value: 'ALL', label: 'All' }, ...categories.map(value => ({ value, label: categoryOptions.find(option => option.value === value)?.label ?? value }))].map(category => <button type="button" key={category.value} onClick={() => setCategoryFilter(category.value)} className={`rounded-full border px-3 py-1 text-[12px] font-semibold transition ${categoryFilter === category.value ? 'border-[#1a5c45] bg-[#1a5c45] text-white' : 'border-[#e0e5dd] bg-white text-[#445e50] hover:border-[#9aafa2]'}`}>{category.label}</button>)}</div>}</div>
           <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] flex-1 max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]"><Search size={14} /><input placeholder="Search units…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         </div>
         <div className="overflow-x-auto">

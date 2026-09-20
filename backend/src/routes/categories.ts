@@ -21,7 +21,7 @@ categoriesRouter.get("/", async (req, res) => {
 const createCategorySchema = z.object({
   parentId: z.string().uuid().nullable().optional(),
   level: z.coerce.number().int().min(1).max(4),
-  code: z.string().trim().min(1),
+  code: z.string().trim().regex(/^\d{1,4}$/, "Code must contain 1 to 4 digits only"),
   name: z.string().trim().min(1),
   sortOrder: z.coerce.number().int().default(0),
 }).superRefine((value, ctx) => {
@@ -39,7 +39,7 @@ categoriesRouter.post("/", async (req, res) => {
       : await prisma.subLayer.findFirst({ where });
     if (!parent) return res.status(422).json({ error: { code: 'INVALID_PARENT', message: `Select a valid ${names[parsed.level - 2]} in this organization.` } });
   }
-  const data = { organizationId, code: parsed.code.toUpperCase(), name: parsed.name, sortOrder: parsed.sortOrder };
+  const data = { organizationId, code: parsed.code, name: parsed.name, sortOrder: parsed.sortOrder };
   try {
     const category = parsed.level === 1 ? await prisma.groupLayer.create({ data })
       : parsed.level === 2 ? await prisma.controlLayer.create({ data: { ...data, parentId: parsed.parentId! } })
@@ -58,7 +58,7 @@ categoriesRouter.put("/:id",async(req,res)=>{
  const old=x.level===1?await prisma.groupLayer.findFirst({where}):x.level===2?await prisma.controlLayer.findFirst({where}):x.level===3?await prisma.subLayer.findFirst({where}):await prisma.subSubLayer.findFirst({where});
  if(!old)return res.status(404).json({error:{code:"NOT_FOUND",message:names[x.level-1]+" not found."}});
  if(x.level>1){const pw={id:x.parentId!,organizationId};const parent=x.level===2?await prisma.groupLayer.findFirst({where:pw}):x.level===3?await prisma.controlLayer.findFirst({where:pw}):await prisma.subLayer.findFirst({where:pw});if(!parent)return res.status(422).json({error:{code:"INVALID_PARENT",message:"Select a valid parent layer."}})}
- const base={code:x.code.toUpperCase(),name:x.name,sortOrder:x.sortOrder};const data=x.level===1?await prisma.groupLayer.update({where:{id},data:base}):x.level===2?await prisma.controlLayer.update({where:{id},data:{...base,parentId:x.parentId!}}):x.level===3?await prisma.subLayer.update({where:{id},data:{...base,parentId:x.parentId!}}):await prisma.subSubLayer.update({where:{id},data:{...base,parentId:x.parentId!}});res.json({data:{...data,level:x.level,parentId:x.parentId??null}});
+ const base={code:x.code,name:x.name,sortOrder:x.sortOrder};const data=x.level===1?await prisma.groupLayer.update({where:{id},data:base}):x.level===2?await prisma.controlLayer.update({where:{id},data:{...base,parentId:x.parentId!}}):x.level===3?await prisma.subLayer.update({where:{id},data:{...base,parentId:x.parentId!}}):await prisma.subSubLayer.update({where:{id},data:{...base,parentId:x.parentId!}});res.json({data:{...data,level:x.level,parentId:x.parentId??null}});
 });
 categoriesRouter.delete("/:id",async(req,res)=>{
  const level=z.coerce.number().int().min(1).max(4).parse(req.query.level),id=String(req.params.id),organizationId=req.tenantId!,where={id,organizationId};

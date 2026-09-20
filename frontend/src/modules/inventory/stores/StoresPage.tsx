@@ -27,6 +27,7 @@ import {
   type Bin,
   type StockBalance,
   type Activity,
+  type ReceiptDocument,
 } from "./store.types";
 
 type RequisitionOption={id:string;number:string;status:string};
@@ -40,7 +41,8 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const [bins, setBins] = useState<Bin[]>([]),
     [balances, setBalances] = useState<StockBalance[]>([]),
     [activity, setActivity] = useState<Activity[]>([]),
-    [requisitions,setRequisitions]=useState<RequisitionOption[]>([]);
+    [requisitions,setRequisitions]=useState<RequisitionOption[]>([]),
+    [pendingReceipts,setPendingReceipts]=useState(0);
   const [total, setTotal] = useState(0),
     [page, setPage] = useState(1),
     [revision, setRevision] = useState(0);
@@ -105,6 +107,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       setBalances([]);
       setActivity([]);
       setTotal(0);
+      setPendingReceipts(0);
       return;
     }
     let active = true;
@@ -126,7 +129,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
         if (from)
           params.set("from", new Date(from + "T00:00:00").toISOString());
         if (to) params.set("to", new Date(to + "T23:59:59.999").toISOString());
-        const [b, stock, history] = await Promise.all([
+        const [b, stock, history, pending] = await Promise.all([
           api<{ data: Bin[] }>(`/bins?storeId=${storeId}`),
           api<{ data: StockBalance[] }>(
             `/stores/${storeId}/balances?${new URLSearchParams({
@@ -139,12 +142,16 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
           api<{ data: Activity[]; total: number }>(
             `/stores/${storeId}/activity?${params}`,
           ),
+          fixedType === "RM_STORE"
+            ? api<{ data: ReceiptDocument[] }>(`/stores/${storeId}/receiving-options`)
+            : Promise.resolve({ data: [] as ReceiptDocument[] }),
         ]);
         if (active) {
           setBins(b.data);
           setBalances(stock.data);
           setActivity(history.data);
           setTotal(history.total);
+          setPendingReceipts(pending.data.length);
         }
       } catch (e) {
         if (active)
@@ -337,9 +344,6 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                         {stores.map((s) => <option key={s.id} value={s.id}>{s.code} - {s.name} ({storeTypeLabel(s.storeType)})</option>)}
                       </Dropdown>
                     </div>
-                    <span className="inline-flex h-11 items-center rounded-lg bg-[#eaf3e7] px-3 text-sm font-semibold text-[#0d3b2e]">
-                      {storeTypeLabel(store.storeType)}
-                    </span>
                   </>
                 )}
                 {writable && (
@@ -356,13 +360,12 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                     >
                       <Plus size={16} /> Add Bin
                     </Button>}
-                    {!isSetup && <Button
-                      variant="primary"
-                      disabled={!bins.length}
-                      onClick={() => setReceive(true)}
-                    >
-                      <ArrowDownToLine size={16} /> Receive Stock
-                    </Button>}
+                    {!isSetup && <div className="relative">
+                      {fixedType === "RM_STORE" && pendingReceipts > 0 && <span className="absolute -right-2 -top-2 z-10 grid min-w-5.5 place-items-center rounded-full bg-[#d94a3d] px-1.5 py-0.5 text-[11px] font-bold leading-4 text-white shadow-sm" aria-label={`${pendingReceipts} pending receipts`}>{pendingReceipts}</span>}
+                      <Button variant="primary" disabled={!bins.length} onClick={() => setReceive(true)}>
+                        <ArrowDownToLine size={16} /> Receive Stock
+                      </Button>
+                    </div>}
                   </>
                 )}
               </div>

@@ -55,7 +55,7 @@ productsRouter.get("/", async (req, res) => {
 });
 
 const createProductSchema = z.object({
-  sku: z.string().min(2),
+  sku: z.string().trim().regex(/^\d{1,4}$/, "Product code must contain 1 to 4 digits only"),
   name: z.string().min(2),
   type: z.enum(["RAW_MATERIAL", "FINISHED_GOOD", "PACKAGING", "BY_PRODUCT"]),
   categoryId: z.string().uuid(),
@@ -77,7 +77,7 @@ productsRouter.post("/", async (req, res) => {
   const product = await prisma.product.create({
     data: {
       organizationId: req.tenantId!,
-      sku: parsed.sku.toUpperCase().trim(),
+      sku: parsed.sku,
       name: parsed.name.trim(),
       type: parsed.type,
       categoryId: parsed.categoryId,
@@ -101,7 +101,7 @@ productsRouter.put("/:id", async (req, res) => {
   if(!old)return res.status(404).json({error:{code:"NOT_FOUND",message:"Product not found."}});
   const [category,uom,currency]=await Promise.all([prisma.subSubLayer.findFirst({where:{id:x.categoryId,organizationId}}),prisma.unitOfMeasure.findFirst({where:{id:x.baseUomId,organizationId,isActive:true}}),x.currencyId?prisma.currency.findFirst({where:{id:x.currencyId,organizationId,isActive:true}}):null]);
   if(!category||!uom||(x.currencyId&&!currency))return res.status(422).json({error:{code:"INVALID_REFERENCE",message:"Select a Sub- Sub Layer and UOM in this organization."}});
-  const data=await prisma.product.update({where:{id:old.id},data:{sku:x.sku.toUpperCase().trim(),name:x.name.trim(),type:x.type,categoryId:x.categoryId,baseUomId:x.baseUomId,shelfLifeDays:x.shelfLifeDays,reorderLevel:x.reorderLevel?new Prisma.Decimal(x.reorderLevel):null,amount:x.amount!==undefined?new Prisma.Decimal(x.amount):null,currencyId:x.currencyId??null},include:{category:true,baseUom:true,currency:true}});
+  const data=await prisma.product.update({where:{id:old.id},data:{sku:x.sku,name:x.name.trim(),type:x.type,categoryId:x.categoryId,baseUomId:x.baseUomId,shelfLifeDays:x.shelfLifeDays,reorderLevel:x.reorderLevel?new Prisma.Decimal(x.reorderLevel):null,amount:x.amount!==undefined?new Prisma.Decimal(x.amount):null,currencyId:x.currencyId??null},include:{category:true,baseUom:true,currency:true}});
   res.json({data});
 });
 productsRouter.delete("/:id",async(req,res)=>{

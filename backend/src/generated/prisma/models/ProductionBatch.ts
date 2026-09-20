@@ -304,6 +304,9 @@ export type ProductionBatchWhereInput = {
   startedAt?: Prisma.DateTimeNullableFilter<"ProductionBatch"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"ProductionBatch"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"ProductionBatch"> | string | null
+  inputLines?: Prisma.ProductionBatchInputListRelationFilter
+  outputLines?: Prisma.ProductionBatchOutputListRelationFilter
+  costLines?: Prisma.ProductionBatchCostListRelationFilter
 }
 
 export type ProductionBatchOrderByWithRelationInput = {
@@ -321,6 +324,9 @@ export type ProductionBatchOrderByWithRelationInput = {
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  inputLines?: Prisma.ProductionBatchInputOrderByRelationAggregateInput
+  outputLines?: Prisma.ProductionBatchOutputOrderByRelationAggregateInput
+  costLines?: Prisma.ProductionBatchCostOrderByRelationAggregateInput
 }
 
 export type ProductionBatchWhereUniqueInput = Prisma.AtLeast<{
@@ -342,6 +348,9 @@ export type ProductionBatchWhereUniqueInput = Prisma.AtLeast<{
   startedAt?: Prisma.DateTimeNullableFilter<"ProductionBatch"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"ProductionBatch"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"ProductionBatch"> | string | null
+  inputLines?: Prisma.ProductionBatchInputListRelationFilter
+  outputLines?: Prisma.ProductionBatchOutputListRelationFilter
+  costLines?: Prisma.ProductionBatchCostListRelationFilter
 }, "id" | "organizationId_number">
 
 export type ProductionBatchOrderByWithAggregationInput = {
@@ -401,6 +410,9 @@ export type ProductionBatchCreateInput = {
   startedAt?: Date | string | null
   completedAt?: Date | string | null
   notes?: string | null
+  inputLines?: Prisma.ProductionBatchInputCreateNestedManyWithoutBatchInput
+  outputLines?: Prisma.ProductionBatchOutputCreateNestedManyWithoutBatchInput
+  costLines?: Prisma.ProductionBatchCostCreateNestedManyWithoutBatchInput
 }
 
 export type ProductionBatchUncheckedCreateInput = {
@@ -418,6 +430,9 @@ export type ProductionBatchUncheckedCreateInput = {
   startedAt?: Date | string | null
   completedAt?: Date | string | null
   notes?: string | null
+  inputLines?: Prisma.ProductionBatchInputUncheckedCreateNestedManyWithoutBatchInput
+  outputLines?: Prisma.ProductionBatchOutputUncheckedCreateNestedManyWithoutBatchInput
+  costLines?: Prisma.ProductionBatchCostUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type ProductionBatchUpdateInput = {
@@ -435,6 +450,9 @@ export type ProductionBatchUpdateInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputLines?: Prisma.ProductionBatchInputUpdateManyWithoutBatchNestedInput
+  outputLines?: Prisma.ProductionBatchOutputUpdateManyWithoutBatchNestedInput
+  costLines?: Prisma.ProductionBatchCostUpdateManyWithoutBatchNestedInput
 }
 
 export type ProductionBatchUncheckedUpdateInput = {
@@ -452,6 +470,9 @@ export type ProductionBatchUncheckedUpdateInput = {
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputLines?: Prisma.ProductionBatchInputUncheckedUpdateManyWithoutBatchNestedInput
+  outputLines?: Prisma.ProductionBatchOutputUncheckedUpdateManyWithoutBatchNestedInput
+  costLines?: Prisma.ProductionBatchCostUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type ProductionBatchCreateManyInput = {
@@ -577,6 +598,376 @@ export type ProductionBatchSumOrderByAggregateInput = {
   wasteVariancePercent?: Prisma.SortOrder
 }
 
+export type ProductionBatchScalarRelationFilter = {
+  is?: Prisma.ProductionBatchWhereInput
+  isNot?: Prisma.ProductionBatchWhereInput
+}
+
+export type ProductionBatchCreateNestedOneWithoutInputLinesInput = {
+  create?: Prisma.XOR<Prisma.ProductionBatchCreateWithoutInputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutInputLinesInput>
+  connectOrCreate?: Prisma.ProductionBatchCreateOrConnectWithoutInputLinesInput
+  connect?: Prisma.ProductionBatchWhereUniqueInput
+}
+
+export type ProductionBatchUpdateOneRequiredWithoutInputLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBatchCreateWithoutInputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutInputLinesInput>
+  connectOrCreate?: Prisma.ProductionBatchCreateOrConnectWithoutInputLinesInput
+  upsert?: Prisma.ProductionBatchUpsertWithoutInputLinesInput
+  connect?: Prisma.ProductionBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBatchUpdateToOneWithWhereWithoutInputLinesInput, Prisma.ProductionBatchUpdateWithoutInputLinesInput>, Prisma.ProductionBatchUncheckedUpdateWithoutInputLinesInput>
+}
+
+export type ProductionBatchCreateNestedOneWithoutOutputLinesInput = {
+  create?: Prisma.XOR<Prisma.ProductionBatchCreateWithoutOutputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutOutputLinesInput>
+  connectOrCreate?: Prisma.ProductionBatchCreateOrConnectWithoutOutputLinesInput
+  connect?: Prisma.ProductionBatchWhereUniqueInput
+}
+
+export type ProductionBatchUpdateOneRequiredWithoutOutputLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBatchCreateWithoutOutputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutOutputLinesInput>
+  connectOrCreate?: Prisma.ProductionBatchCreateOrConnectWithoutOutputLinesInput
+  upsert?: Prisma.ProductionBatchUpsertWithoutOutputLinesInput
+  connect?: Prisma.ProductionBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBatchUpdateToOneWithWhereWithoutOutputLinesInput, Prisma.ProductionBatchUpdateWithoutOutputLinesInput>, Prisma.ProductionBatchUncheckedUpdateWithoutOutputLinesInput>
+}
+
+export type ProductionBatchCreateNestedOneWithoutCostLinesInput = {
+  create?: Prisma.XOR<Prisma.ProductionBatchCreateWithoutCostLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutCostLinesInput>
+  connectOrCreate?: Prisma.ProductionBatchCreateOrConnectWithoutCostLinesInput
+  connect?: Prisma.ProductionBatchWhereUniqueInput
+}
+
+export type ProductionBatchUpdateOneRequiredWithoutCostLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBatchCreateWithoutCostLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutCostLinesInput>
+  connectOrCreate?: Prisma.ProductionBatchCreateOrConnectWithoutCostLinesInput
+  upsert?: Prisma.ProductionBatchUpsertWithoutCostLinesInput
+  connect?: Prisma.ProductionBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBatchUpdateToOneWithWhereWithoutCostLinesInput, Prisma.ProductionBatchUpdateWithoutCostLinesInput>, Prisma.ProductionBatchUncheckedUpdateWithoutCostLinesInput>
+}
+
+export type ProductionBatchCreateWithoutInputLinesInput = {
+  id?: string
+  organizationId: string
+  number: string
+  productionOrderId: string
+  actualRMConsumed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: string | null
+  status?: $Enums.DocumentStatus
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  notes?: string | null
+  outputLines?: Prisma.ProductionBatchOutputCreateNestedManyWithoutBatchInput
+  costLines?: Prisma.ProductionBatchCostCreateNestedManyWithoutBatchInput
+}
+
+export type ProductionBatchUncheckedCreateWithoutInputLinesInput = {
+  id?: string
+  organizationId: string
+  number: string
+  productionOrderId: string
+  actualRMConsumed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: string | null
+  status?: $Enums.DocumentStatus
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  notes?: string | null
+  outputLines?: Prisma.ProductionBatchOutputUncheckedCreateNestedManyWithoutBatchInput
+  costLines?: Prisma.ProductionBatchCostUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type ProductionBatchCreateOrConnectWithoutInputLinesInput = {
+  where: Prisma.ProductionBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionBatchCreateWithoutInputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutInputLinesInput>
+}
+
+export type ProductionBatchUpsertWithoutInputLinesInput = {
+  update: Prisma.XOR<Prisma.ProductionBatchUpdateWithoutInputLinesInput, Prisma.ProductionBatchUncheckedUpdateWithoutInputLinesInput>
+  create: Prisma.XOR<Prisma.ProductionBatchCreateWithoutInputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutInputLinesInput>
+  where?: Prisma.ProductionBatchWhereInput
+}
+
+export type ProductionBatchUpdateToOneWithWhereWithoutInputLinesInput = {
+  where?: Prisma.ProductionBatchWhereInput
+  data: Prisma.XOR<Prisma.ProductionBatchUpdateWithoutInputLinesInput, Prisma.ProductionBatchUncheckedUpdateWithoutInputLinesInput>
+}
+
+export type ProductionBatchUpdateWithoutInputLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  productionOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  actualRMConsumed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outputLines?: Prisma.ProductionBatchOutputUpdateManyWithoutBatchNestedInput
+  costLines?: Prisma.ProductionBatchCostUpdateManyWithoutBatchNestedInput
+}
+
+export type ProductionBatchUncheckedUpdateWithoutInputLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  productionOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  actualRMConsumed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outputLines?: Prisma.ProductionBatchOutputUncheckedUpdateManyWithoutBatchNestedInput
+  costLines?: Prisma.ProductionBatchCostUncheckedUpdateManyWithoutBatchNestedInput
+}
+
+export type ProductionBatchCreateWithoutOutputLinesInput = {
+  id?: string
+  organizationId: string
+  number: string
+  productionOrderId: string
+  actualRMConsumed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: string | null
+  status?: $Enums.DocumentStatus
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  notes?: string | null
+  inputLines?: Prisma.ProductionBatchInputCreateNestedManyWithoutBatchInput
+  costLines?: Prisma.ProductionBatchCostCreateNestedManyWithoutBatchInput
+}
+
+export type ProductionBatchUncheckedCreateWithoutOutputLinesInput = {
+  id?: string
+  organizationId: string
+  number: string
+  productionOrderId: string
+  actualRMConsumed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: string | null
+  status?: $Enums.DocumentStatus
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  notes?: string | null
+  inputLines?: Prisma.ProductionBatchInputUncheckedCreateNestedManyWithoutBatchInput
+  costLines?: Prisma.ProductionBatchCostUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type ProductionBatchCreateOrConnectWithoutOutputLinesInput = {
+  where: Prisma.ProductionBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionBatchCreateWithoutOutputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutOutputLinesInput>
+}
+
+export type ProductionBatchUpsertWithoutOutputLinesInput = {
+  update: Prisma.XOR<Prisma.ProductionBatchUpdateWithoutOutputLinesInput, Prisma.ProductionBatchUncheckedUpdateWithoutOutputLinesInput>
+  create: Prisma.XOR<Prisma.ProductionBatchCreateWithoutOutputLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutOutputLinesInput>
+  where?: Prisma.ProductionBatchWhereInput
+}
+
+export type ProductionBatchUpdateToOneWithWhereWithoutOutputLinesInput = {
+  where?: Prisma.ProductionBatchWhereInput
+  data: Prisma.XOR<Prisma.ProductionBatchUpdateWithoutOutputLinesInput, Prisma.ProductionBatchUncheckedUpdateWithoutOutputLinesInput>
+}
+
+export type ProductionBatchUpdateWithoutOutputLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  productionOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  actualRMConsumed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputLines?: Prisma.ProductionBatchInputUpdateManyWithoutBatchNestedInput
+  costLines?: Prisma.ProductionBatchCostUpdateManyWithoutBatchNestedInput
+}
+
+export type ProductionBatchUncheckedUpdateWithoutOutputLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  productionOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  actualRMConsumed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputLines?: Prisma.ProductionBatchInputUncheckedUpdateManyWithoutBatchNestedInput
+  costLines?: Prisma.ProductionBatchCostUncheckedUpdateManyWithoutBatchNestedInput
+}
+
+export type ProductionBatchCreateWithoutCostLinesInput = {
+  id?: string
+  organizationId: string
+  number: string
+  productionOrderId: string
+  actualRMConsumed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: string | null
+  status?: $Enums.DocumentStatus
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  notes?: string | null
+  inputLines?: Prisma.ProductionBatchInputCreateNestedManyWithoutBatchInput
+  outputLines?: Prisma.ProductionBatchOutputCreateNestedManyWithoutBatchInput
+}
+
+export type ProductionBatchUncheckedCreateWithoutCostLinesInput = {
+  id?: string
+  organizationId: string
+  number: string
+  productionOrderId: string
+  actualRMConsumed?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: string | null
+  status?: $Enums.DocumentStatus
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  notes?: string | null
+  inputLines?: Prisma.ProductionBatchInputUncheckedCreateNestedManyWithoutBatchInput
+  outputLines?: Prisma.ProductionBatchOutputUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type ProductionBatchCreateOrConnectWithoutCostLinesInput = {
+  where: Prisma.ProductionBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionBatchCreateWithoutCostLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutCostLinesInput>
+}
+
+export type ProductionBatchUpsertWithoutCostLinesInput = {
+  update: Prisma.XOR<Prisma.ProductionBatchUpdateWithoutCostLinesInput, Prisma.ProductionBatchUncheckedUpdateWithoutCostLinesInput>
+  create: Prisma.XOR<Prisma.ProductionBatchCreateWithoutCostLinesInput, Prisma.ProductionBatchUncheckedCreateWithoutCostLinesInput>
+  where?: Prisma.ProductionBatchWhereInput
+}
+
+export type ProductionBatchUpdateToOneWithWhereWithoutCostLinesInput = {
+  where?: Prisma.ProductionBatchWhereInput
+  data: Prisma.XOR<Prisma.ProductionBatchUpdateWithoutCostLinesInput, Prisma.ProductionBatchUncheckedUpdateWithoutCostLinesInput>
+}
+
+export type ProductionBatchUpdateWithoutCostLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  productionOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  actualRMConsumed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputLines?: Prisma.ProductionBatchInputUpdateManyWithoutBatchNestedInput
+  outputLines?: Prisma.ProductionBatchOutputUpdateManyWithoutBatchNestedInput
+}
+
+export type ProductionBatchUncheckedUpdateWithoutCostLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  productionOrderId?: Prisma.StringFieldUpdateOperationsInput | string
+  actualRMConsumed?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualOutputQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWasteQty?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  actualWastePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  wasteVariancePercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  fgLotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inputLines?: Prisma.ProductionBatchInputUncheckedUpdateManyWithoutBatchNestedInput
+  outputLines?: Prisma.ProductionBatchOutputUncheckedUpdateManyWithoutBatchNestedInput
+}
+
+
+/**
+ * Count Type ProductionBatchCountOutputType
+ */
+
+export type ProductionBatchCountOutputType = {
+  inputLines: number
+  outputLines: number
+  costLines: number
+}
+
+export type ProductionBatchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  inputLines?: boolean | ProductionBatchCountOutputTypeCountInputLinesArgs
+  outputLines?: boolean | ProductionBatchCountOutputTypeCountOutputLinesArgs
+  costLines?: boolean | ProductionBatchCountOutputTypeCountCostLinesArgs
+}
+
+/**
+ * ProductionBatchCountOutputType without action
+ */
+export type ProductionBatchCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionBatchCountOutputType
+   */
+  select?: Prisma.ProductionBatchCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProductionBatchCountOutputType without action
+ */
+export type ProductionBatchCountOutputTypeCountInputLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionBatchInputWhereInput
+}
+
+/**
+ * ProductionBatchCountOutputType without action
+ */
+export type ProductionBatchCountOutputTypeCountOutputLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionBatchOutputWhereInput
+}
+
+/**
+ * ProductionBatchCountOutputType without action
+ */
+export type ProductionBatchCountOutputTypeCountCostLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionBatchCostWhereInput
+}
 
 
 export type ProductionBatchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -594,6 +985,10 @@ export type ProductionBatchSelect<ExtArgs extends runtime.Types.Extensions.Inter
   startedAt?: boolean
   completedAt?: boolean
   notes?: boolean
+  inputLines?: boolean | Prisma.ProductionBatch$inputLinesArgs<ExtArgs>
+  outputLines?: boolean | Prisma.ProductionBatch$outputLinesArgs<ExtArgs>
+  costLines?: boolean | Prisma.ProductionBatch$costLinesArgs<ExtArgs>
+  _count?: boolean | Prisma.ProductionBatchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionBatch"]>
 
 export type ProductionBatchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -648,10 +1043,22 @@ export type ProductionBatchSelectScalar = {
 }
 
 export type ProductionBatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "productionOrderId" | "actualRMConsumed" | "actualOutputQty" | "actualWasteQty" | "actualWastePercent" | "wasteVariancePercent" | "fgLotId" | "status" | "startedAt" | "completedAt" | "notes", ExtArgs["result"]["productionBatch"]>
+export type ProductionBatchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  inputLines?: boolean | Prisma.ProductionBatch$inputLinesArgs<ExtArgs>
+  outputLines?: boolean | Prisma.ProductionBatch$outputLinesArgs<ExtArgs>
+  costLines?: boolean | Prisma.ProductionBatch$costLinesArgs<ExtArgs>
+  _count?: boolean | Prisma.ProductionBatchCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type ProductionBatchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ProductionBatchIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $ProductionBatchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionBatch"
-  objects: {}
+  objects: {
+    inputLines: Prisma.$ProductionBatchInputPayload<ExtArgs>[]
+    outputLines: Prisma.$ProductionBatchOutputPayload<ExtArgs>[]
+    costLines: Prisma.$ProductionBatchCostPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     organizationId: string
@@ -1061,6 +1468,9 @@ readonly fields: ProductionBatchFieldRefs;
  */
 export interface Prisma__ProductionBatchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  inputLines<T extends Prisma.ProductionBatch$inputLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBatch$inputLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBatchInputPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outputLines<T extends Prisma.ProductionBatch$outputLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBatch$outputLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBatchOutputPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  costLines<T extends Prisma.ProductionBatch$costLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBatch$costLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBatchCostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1121,6 +1531,10 @@ export type ProductionBatchFindUniqueArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
+  /**
    * Filter, which ProductionBatch to fetch.
    */
   where: Prisma.ProductionBatchWhereUniqueInput
@@ -1139,6 +1553,10 @@ export type ProductionBatchFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
+  /**
    * Filter, which ProductionBatch to fetch.
    */
   where: Prisma.ProductionBatchWhereUniqueInput
@@ -1156,6 +1574,10 @@ export type ProductionBatchFindFirstArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the ProductionBatch
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
   /**
    * Filter, which ProductionBatch to fetch.
    */
@@ -1205,6 +1627,10 @@ export type ProductionBatchFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
+  /**
    * Filter, which ProductionBatch to fetch.
    */
   where?: Prisma.ProductionBatchWhereInput
@@ -1252,6 +1678,10 @@ export type ProductionBatchFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the ProductionBatch
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
   /**
    * Filter, which ProductionBatches to fetch.
    */
@@ -1301,6 +1731,10 @@ export type ProductionBatchCreateArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
+  /**
    * The data needed to create a ProductionBatch.
    */
   data: Prisma.XOR<Prisma.ProductionBatchCreateInput, Prisma.ProductionBatchUncheckedCreateInput>
@@ -1348,6 +1782,10 @@ export type ProductionBatchUpdateArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the ProductionBatch
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
   /**
    * The data needed to update a ProductionBatch.
    */
@@ -1415,6 +1853,10 @@ export type ProductionBatchUpsertArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
+  /**
    * The filter to search for the ProductionBatch to update in case it exists.
    */
   where: Prisma.ProductionBatchWhereUniqueInput
@@ -1441,6 +1883,10 @@ export type ProductionBatchDeleteArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
+  /**
    * Filter which ProductionBatch to delete.
    */
   where: Prisma.ProductionBatchWhereUniqueInput
@@ -1461,6 +1907,78 @@ export type ProductionBatchDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
+ * ProductionBatch.inputLines
+ */
+export type ProductionBatch$inputLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionBatchInput
+   */
+  select?: Prisma.ProductionBatchInputSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionBatchInput
+   */
+  omit?: Prisma.ProductionBatchInputOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInputInclude<ExtArgs> | null
+  where?: Prisma.ProductionBatchInputWhereInput
+  orderBy?: Prisma.ProductionBatchInputOrderByWithRelationInput | Prisma.ProductionBatchInputOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionBatchInputWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionBatchInputScalarFieldEnum | Prisma.ProductionBatchInputScalarFieldEnum[]
+}
+
+/**
+ * ProductionBatch.outputLines
+ */
+export type ProductionBatch$outputLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionBatchOutput
+   */
+  select?: Prisma.ProductionBatchOutputSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionBatchOutput
+   */
+  omit?: Prisma.ProductionBatchOutputOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchOutputInclude<ExtArgs> | null
+  where?: Prisma.ProductionBatchOutputWhereInput
+  orderBy?: Prisma.ProductionBatchOutputOrderByWithRelationInput | Prisma.ProductionBatchOutputOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionBatchOutputWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionBatchOutputScalarFieldEnum | Prisma.ProductionBatchOutputScalarFieldEnum[]
+}
+
+/**
+ * ProductionBatch.costLines
+ */
+export type ProductionBatch$costLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionBatchCost
+   */
+  select?: Prisma.ProductionBatchCostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionBatchCost
+   */
+  omit?: Prisma.ProductionBatchCostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchCostInclude<ExtArgs> | null
+  where?: Prisma.ProductionBatchCostWhereInput
+  orderBy?: Prisma.ProductionBatchCostOrderByWithRelationInput | Prisma.ProductionBatchCostOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionBatchCostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionBatchCostScalarFieldEnum | Prisma.ProductionBatchCostScalarFieldEnum[]
+}
+
+/**
  * ProductionBatch without action
  */
 export type ProductionBatchDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1472,4 +1990,8 @@ export type ProductionBatchDefaultArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the ProductionBatch
    */
   omit?: Prisma.ProductionBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBatchInclude<ExtArgs> | null
 }

@@ -35,6 +35,7 @@ import { AuthProvider, useAuth } from './modules/auth/AuthContext';
 import { LoginPage } from './modules/auth/LoginPage';
 import { UserManagementPage } from './modules/users/UserManagementPage';
 import { ProfilePage } from './modules/auth/ProfilePage';
+import { ProfitLossPage } from './modules/reports/ProfitLossPage';
 
 const NAV_GROUPS = [
   {
@@ -59,7 +60,7 @@ const NAV_GROUPS = [
       { path: '/recipes', label: 'Nutritionist Recipes', icon: FlaskConical },
       { path: '/production-orders', label: 'FM Requisitions', icon: Factory },
       { path: '/material-issues', label: 'Issue RM to Factory', icon: ArrowLeftRight },
-      { path: '/batches', label: 'Factory Batches', icon: Factory },
+      { path: '/batches', label: 'Register FM', icon: Factory },
       { path: '/fm-store', label: 'FM Store', icon: PackageCheck },
     ],
   },
@@ -77,6 +78,7 @@ const NAV_GROUPS = [
     label: 'Sales & Reports',
     items: [
       { path: '/dispatches', label: 'FM Dispatches', icon: Truck },
+      { path: '/profit-loss', label: 'Profit & Loss', icon: BadgeDollarSign },
       { path: '/traceability', label: 'Traceability', icon: GitBranch },
     ],
   },
@@ -157,6 +159,7 @@ function Shell() {
           <Route path="/fm-store" element={<FmStorePage />} />
           <Route path="/dispatches" element={<DispatchesPage />} />
           <Route path="/traceability" element={<TraceabilityPage />} />
+          <Route path="/profit-loss" element={<ProfitLossPage />} />
           <Route path="/users" element={can("users.manage") ? <UserManagementPage /> : <Navigate to="/" replace />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>

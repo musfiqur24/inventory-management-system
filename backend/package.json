@@ -8,10 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "db:seed-products": "node --experimental-strip-types prisma/seed-feed-products.ts"
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^13.0.0",

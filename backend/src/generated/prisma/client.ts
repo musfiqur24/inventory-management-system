@@ -187,6 +187,21 @@ export type MaterialIssueLine = Prisma.MaterialIssueLineModel
  */
 export type ProductionBatch = Prisma.ProductionBatchModel
 /**
+ * Model ProductionBatchInput
+ * 
+ */
+export type ProductionBatchInput = Prisma.ProductionBatchInputModel
+/**
+ * Model ProductionBatchOutput
+ * 
+ */
+export type ProductionBatchOutput = Prisma.ProductionBatchOutputModel
+/**
+ * Model ProductionBatchCost
+ * 
+ */
+export type ProductionBatchCost = Prisma.ProductionBatchCostModel
+/**
  * Model SalesOrder
  * 
  */

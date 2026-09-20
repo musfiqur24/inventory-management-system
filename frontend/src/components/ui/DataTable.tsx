@@ -82,6 +82,9 @@ export function DataTable<T>({
   };
   const records=childRows.filter(row=>!isEmptyRow(row));
   const placeholders=childRows.filter(isEmptyRow);
+  const placeholderContent=placeholders.length
+    ? (Children.toArray(placeholders[0].props.children)[0] as ReactElement<{children?:ReactNode}>).props.children
+    : undefined;
   const rowCount=dynamic?dataRows.length:records.length;
   const recordCount=serverPaged?Math.max(0,total):rowCount;
   const size=pagination?Math.max(1,Math.floor(pageSize)||10):Math.max(1,recordCount);
@@ -92,7 +95,7 @@ export function DataTable<T>({
   const currentPage=pagination?Math.min(Math.max(requestedPage,1),pages):1;
   const offset=(currentPage-1)*size;
   const visibleRows=serverPaged?dataRows:dataRows.slice(offset,offset+size);
-  const visibleChildren=records.length?(serverPaged?records:records.slice(offset,offset+size)):placeholders;
+  const visibleChildren=serverPaged?records:records.slice(offset,offset+size);
   const start=recordCount===0?0:offset+1;
   const end=recordCount===0?0:Math.min(offset+(serverPaged?rowCount:Math.min(size,rowCount-offset)),recordCount);
   const changePage=(value:number)=>{const next=Math.min(Math.max(value,1),pages);setLocalPage({key:dataKey,value:next});onPageChange?.(next);};
@@ -137,7 +140,15 @@ export function DataTable<T>({
                   </tr>
                 ))
               : visibleChildren}
-            {!showSkeleton && rowCount === 0 && placeholders.length === 0 && <tr><td colSpan={headers.length}><div className="grid min-h-64 place-items-center text-center text-sm text-[#73877c]">{empty ?? 'No records found.'}</div></td></tr>}
+            {!showSkeleton && rowCount === 0 && (
+              <tr>
+                <td colSpan={headers.length}>
+                  <div className="grid min-h-14 place-items-center overflow-hidden px-4 py-3 text-center text-sm text-[#73877c] [&_div]:!m-0 [&_div]:!h-auto [&_div]:!min-h-0 [&_div]:!w-auto [&_div]:!p-0 [&_p]:!m-0 [&_svg]:hidden">
+                    {empty ?? placeholderContent ?? 'No records found.'}
+                  </div>
+                </td>
+              </tr>
+            )}
             {!showSkeleton && rowCount > 0 && Array.from({ length: Math.max(0, minRows - visibleChildren.length) }, (_, index) => (
               <tr key={`reserved-row-${index}`} aria-hidden="true"><td colSpan={headers.length} className="h-[65px]">&nbsp;</td></tr>
             ))}

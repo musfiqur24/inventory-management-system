@@ -37,7 +37,7 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
    onSaved();onClose();
   }catch(e){appToast.error(e instanceof Error?e.message:'Unable to receive stock.')}finally{setSaving(false)}
  };
- return <Modal title={`Receive into ${store.name}`} description={fm?'Select completed production output and its destination bin.':'Select a requisition, then choose one of its linked challans and assign the received products to bins.'} wide fixedHeight onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!formComplete} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
+ return <Modal title={`Receive into ${store.name}`} description={fm?'Select completed production output and its destination bin.':'Select a requisition, then choose one of its linked challans and assign the received products to bins.'} extraWide fixedHeight onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!formComplete} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
 <LoadingBoundary loading={loading}>
   {!fm ? <div className="mb-5 grid gap-3 sm:grid-cols-2 [&>div]:mb-0">
     <FormField label="Requisition ID" required><Dropdown aria-label="Requisition ID" value={requisitionNumber} onChange={e=>{setRequisitionNumber(e.target.value);setDocumentId('');setAllocations({})}}><option value="">{loading?'Loading requisitions...':'Select a requisition'}</option>{requisitionNumbers.map(number=><option key={number} value={number}>{number}</option>)}</Dropdown></FormField>
@@ -45,11 +45,21 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
   </div> : <FormField label="Production Batch" required><Dropdown aria-label="Receipt source" value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':'Choose a batch'}</option>{linkedDocuments.map(d=><option key={d.id} value={d.id}>{d.number}</option>)}</Dropdown></FormField>}
   {!loading&&!documents.length&&<p className="py-4 text-sm text-[#73877c]">No outstanding {fm?'completed batches':'supplier deliveries'} are available to receive.</p>}
   {!bins.length&&<p className="text-sm text-amber-700">Create a bin in this store before receiving stock.</p>}
-  <div className="space-y-3">{document?.lines.map(line=><div key={line.id} className="rounded-lg border border-[#e0e5dd] p-4"><div className="mb-3 flex items-center gap-2 text-sm font-semibold"><span>{line.productName}</span>{lineComplete(line)&&<CircleCheck size={18} className="text-emerald-600" aria-label="Line complete" />}</div><div className="grid gap-3 sm:grid-cols-3 [&>div]:mb-0">
-   <FormField label="Destination Bin" required><Dropdown aria-label={`Bin for ${line.productName}`} value={allocations[line.id]?.binId??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],binId:e.target.value}})}><option value="">Choose a bin</option>{bins.map(b=><option key={b.id} value={b.id}>{b.code} - {b.name}</option>)}</Dropdown></FormField>
-   <FormField label={`Quantity (${line.uomCode})`} required><Input aria-label={`Quantity for ${line.productName}`} type="number" min="0" max={Number(line.remaining)} step="0.001" readOnly={fm} value={allocations[line.id]?.quantity??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],quantity:e.target.value}})} /></FormField>
-   {!fm&&<FormField label="Expiry in Days" required><Input aria-label={`Expiry days for ${line.productName}`} type="number" min="1" step="1" placeholder="e.g. 70" value={allocations[line.id]?.expiryDays??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],expiryDays:e.target.value}})} /></FormField>}
-  </div></div>)}</div>
+  {document?.lines.length ? <div className="overflow-x-auto rounded-lg border border-[#d9e1d8]">
+    <div className="min-w-[760px]">
+      <div className={fm?"grid grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px] gap-3 bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]":"grid grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px_150px] gap-3 bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]"}>
+        <span>Product</span><span>Destination Bin</span><span>Quantity</span>{!fm&&<span>Expiry Days</span>}
+      </div>
+      <div className="max-h-72 overflow-y-auto">
+        {document.lines.map(line=><div key={line.id} className={fm?"grid grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px] items-center gap-3 border-t border-[#e0e5dd] bg-white px-4 py-3":"grid grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px_150px] items-center gap-3 border-t border-[#e0e5dd] bg-white px-4 py-3"}>
+          <div className="flex min-w-0 items-center gap-2"><strong className="truncate text-sm text-[#243b30]">{line.productName}</strong>{lineComplete(line)&&<CircleCheck size={17} className="shrink-0 text-emerald-600" aria-label="Line complete" />}</div>
+          <Dropdown aria-label={`Bin for ${line.productName}`} value={allocations[line.id]?.binId??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],binId:e.target.value}})}><option value="">Choose a bin</option>{bins.map(b=><option key={b.id} value={b.id}>{b.code} - {b.name}</option>)}</Dropdown>
+          <div className="relative"><Input aria-label={`Quantity for ${line.productName}`} className="pr-12" type="number" min="0" max={Number(line.remaining)} step="0.001" readOnly={fm} value={allocations[line.id]?.quantity??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],quantity:e.target.value}})} /><span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#73877c]">{line.uomCode}</span></div>
+          {!fm&&<Input aria-label={`Expiry days for ${line.productName}`} type="number" min="1" step="1" placeholder="e.g. 70" value={allocations[line.id]?.expiryDays??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],expiryDays:e.target.value}})} />}
+        </div>)}
+      </div>
+    </div>
+  </div> : null}
   <div className="mt-4"><FormField label="Notes"><Input value={notes} onChange={e=>setNotes(e.target.value)} /></FormField></div>
  </LoadingBoundary></Modal>;
 }

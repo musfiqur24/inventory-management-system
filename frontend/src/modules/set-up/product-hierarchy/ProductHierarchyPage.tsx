@@ -38,12 +38,6 @@ interface UOM {
   code: string;
   name: string;
 }
-interface Currency {
-  id: string;
-  code: string;
-  name: string;
-  symbol: string;
-}
 type Row = {
   id: string;
   name: string;
@@ -76,8 +70,7 @@ export function ProductHierarchyPage() {
   const [pageLoading, runPageLoad] = usePageLoading(),
     [categories, setCategories] = useState<Category[]>([]),
     [products, setProducts] = useState<Product[]>([]),
-    [uoms, setUoms] = useState<UOM[]>([]),
-    [currencies, setCurrencies] = useState<Currency[]>([]);
+    [uoms, setUoms] = useState<UOM[]>([]);
   const [activeLayer, setActiveLayer] = useState(5),
     [search, setSearch] = useState(""),
     [groupFilter, setGroupFilter] = useState("ALL"),
@@ -101,16 +94,14 @@ export function ProductHierarchyPage() {
         return setMessage("Please select an organisation first.");
       setLoading(true);
       try {
-        const [c, p, u, cu] = await Promise.all([
+        const [c, p, u] = await Promise.all([
           api<{ data: Category[] }>("/categories"),
           api<{ data: Product[] }>("/products"),
           api<{ data: UOM[] }>("/uoms"),
-          api<{ data: Currency[] }>("/currencies"),
         ]);
         setCategories(c.data);
         setProducts(p.data);
         setUoms(u.data);
-        setCurrencies(cu.data);
       } catch (e: any) {
         setMessage(e.message);
       } finally {
@@ -216,6 +207,8 @@ export function ProductHierarchyPage() {
   };
   const submit = async () => {
     if (saving) return;
+    if (!/^\d{1,4}$/.test(form.code))
+      return setMessage("Code must contain 1 to 4 digits only.");
     setSaving(true);
     try {
       const parentId = [null, parentL1, parentL2, parentL3, parentL4][
@@ -239,8 +232,6 @@ export function ProductHierarchyPage() {
                 reorderLevel: form.reorderLevel
                   ? Number(form.reorderLevel)
                   : undefined,
-                amount: form.amount ? Number(form.amount) : undefined,
-                currencyId: form.currencyId || null,
               }
             : {
                 name: form.name.trim(),
@@ -287,7 +278,7 @@ export function ProductHierarchyPage() {
       .map((n) => n.replace(" Layer", "") + " Code"),
     layerName.replace(" Layer", "") + " Code",
     layerName + " Name",
-    ...(activeLayer === 5 ? ["Base UOM", "Amount", "Currency"] : []),
+    ...(activeLayer === 5 ? ["Base UOM"] : []),
     "Actions",
   ];
   const option = (c: Category) => (
@@ -403,11 +394,7 @@ export function ProductHierarchyPage() {
                   {row.name}
                 </td>
                 {activeLayer === 5 && (
-                  <>
-                    <td>{row.uom}</td>
-                    <td>{row.amount}</td>
-                    <td>{row.currency}</td>
-                  </>
+                  <td>{row.uom}</td>
                 )}
                 <td>
                   <div className="flex items-center justify-center gap-1">
@@ -500,12 +487,20 @@ export function ProductHierarchyPage() {
             </FormField>
             <FormField label="Code" required>
               <Input
-                placeholder="Enter unique code"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{1,4}"
+                maxLength={4}
+                placeholder="14 digits"
                 value={form.code}
                 onChange={(e) =>
-                  setForm({ ...form, code: e.target.value.toUpperCase() })
+                  setForm({
+                    ...form,
+                    code: e.target.value.replace(/\D/g, "").slice(0, 4),
+                  })
                 }
               />
+              <p className="mt-1 text-xs text-[#73877c]">Numbers only, maximum 4 digits.</p>
             </FormField>
             {targetLevel >= 2 && (
               <FormField label="Group Layer" required>
@@ -589,31 +584,6 @@ export function ProductHierarchyPage() {
                     {uoms.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.name} ({u.code})
-                      </option>
-                    ))}
-                  </Dropdown>
-                </FormField>
-                <FormField label="Amount">
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.amount}
-                    onChange={(e) =>
-                      setForm({ ...form, amount: e.target.value })
-                    }
-                  />
-                </FormField>
-                <FormField label="Currency">
-                  <Dropdown
-                    value={form.currencyId}
-                    onChange={(e) =>
-                      setForm({ ...form, currencyId: e.target.value })
-                    }
-                  >
-                    {currencies.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.code} - {c.name} ({c.symbol})
                       </option>
                     ))}
                   </Dropdown>

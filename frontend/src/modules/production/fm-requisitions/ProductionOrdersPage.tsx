@@ -36,6 +36,8 @@ export function ProductionOrdersPage() {
   const [rows, setRows] = useState<ProductionOrder[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [finishedGoods, setFinishedGoods] = useState<Product[]>([]);
+  const [utilityProducts, setUtilityProducts] = useState<Product[]>([]);
+  const [utilities, setUtilities] = useState([{ productId: '', quantity: '', unitPrice: '' }]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<ProductionOrder | null>(null);
   const [, setMessage] = useToastMessage();
@@ -50,7 +52,7 @@ export function ProductionOrdersPage() {
         api<{ data: Recipe[] }>('/recipes'),
         api<{ data: Product[] }>('/products'),
       ]);
-      setRows(po.data); setRecipes(r.data); setFinishedGoods(p.data.filter((product) => product.type === 'FINISHED_GOOD')); setMessage('');
+      setRows(po.data); setRecipes(r.data); setFinishedGoods(p.data.filter((product) => product.type === 'FINISHED_GOOD')); setUtilityProducts(p.data.filter((product) => product.type === 'PACKAGING' || product.type === 'RAW_MATERIAL')); setMessage('');
     } catch (e: any) { setMessage(e.message); }
   });};
 
@@ -99,10 +101,12 @@ export function ProductionOrdersPage() {
             expectedWastePercent: item.wastePercent,
             scheduledFor: item.plannedStartDate,
           })),
+          utilities: utilities.filter(line => line.productId && Number(line.quantity) > 0).map(line => ({ productId: line.productId, quantity: Number(line.quantity), unitPrice: Number(line.unitPrice) })),
         }),
       });
       setOpen(false);
       setItems([emptyItem()]);
+      setUtilities([{ productId: '', quantity: '', unitPrice: '' }]);
       void load();
     } catch (e: any) { setMessage(e.message); }
   };
@@ -168,17 +172,18 @@ export function ProductionOrdersPage() {
         >
           <div className="overflow-x-auto rounded-md border border-[#d8e0d7]">
             <div className="min-w-[1210px]">
-              <div className="grid grid-cols-[220px_205px_110px_100px_150px_105px_92px_40px] items-center gap-3 bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
+              <div className="grid grid-cols-[220px_205px_145px_135px_150px_105px_92px_40px] items-center gap-3 bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
                 <span>Finished good</span><span>Linked recipe</span><span>Target (T)</span><span>Waste %</span><span>Planned start</span><span>Expected</span><span>RM details</span><span />
               </div>
+              <div className="min-h-64">
               {itemPreview.map((item, index) => {
                 const duplicate = item.finishedProductId && items.some((other, otherIndex) => otherIndex !== index && other.finishedProductId === item.finishedProductId);
-                return <div key={index} className="grid grid-cols-[220px_205px_110px_100px_150px_105px_92px_40px] items-center gap-3 border-t border-[#e0e5dd] bg-white px-4 py-3">
+                return <div key={index} className="grid grid-cols-[220px_205px_145px_135px_150px_105px_92px_40px] items-center gap-3 border-t border-[#e0e5dd] bg-white px-4 py-3">
                   <Dropdown aria-label="Finished good" value={item.finishedProductId} onChange={(event) => { const linkedRecipe = recipes.find((recipe) => recipe.finishedProductId === event.target.value); setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, finishedProductId: event.target.value, recipeId: linkedRecipe?.id ?? "" } : line)); }}>
                     <option value="">Select finished good</option>
                     {finishedGoods.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
                   </Dropdown>
-                  <Input aria-label="Linked recipe" readOnly value={item.recipe?.code ?? (item.finishedProductId ? "No linked recipe" : "")} placeholder="Selected automatically" className={item.finishedProductId && !item.recipe ? "border-red-200! bg-red-50! text-red-700!" : "bg-[#f4f6f2]! text-[#52675d]!"} />
+                  <Input aria-label="Linked recipe" readOnly value={item.recipe?.code ?? (item.finishedProductId ? "No linked recipe" : "")} className={item.finishedProductId && !item.recipe ? "border-red-200! bg-red-50! text-red-700!" : "bg-[#f4f6f2]! text-[#52675d]!"} />
                   <Input aria-label="Target quantity in tons" type="number" min="0.001" step="0.001" placeholder="Tons" value={item.targetQty} onChange={(event) => setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, targetQty: event.target.value } : line))} />
                   <Input aria-label="Expected waste percentage" type="number" min="0" max="50" step="0.01" placeholder="Waste %" value={item.expectedWastePercent} onChange={(event) => setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, expectedWastePercent: event.target.value } : line))} />
                   <Input aria-label="Planned start date" type="date" value={item.plannedStartDate} onChange={(event) => setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, plannedStartDate: event.target.value } : line))} />
@@ -188,9 +193,16 @@ export function ProductionOrdersPage() {
                   {duplicate && <div className="col-span-8 -mt-1 text-[11px] font-medium text-[#c34838]">This finished good is already included.</div>}
                 </div>;
               })}
+              </div>
+              <div className="border-t border-[#e0e5dd] bg-[#fafbf8] p-3">
+                <Button type="button" className="w-full justify-center" variant="secondary" onClick={() => setItems([...items, emptyItem()])}><Plus size={15} /> Add Finished Good</Button>
+              </div>
             </div>
           </div>
-          <Button type="button" className="mt-3 w-full justify-center" variant="secondary" onClick={() => setItems([...items, emptyItem()])}><Plus size={15} /> Add Finished Good</Button>
+          <div className="mt-4 rounded-md border border-[#d8e0d7] bg-white p-4">
+            <div className="mb-3 flex items-center justify-between"><div><strong className="text-[13px] text-[#173b30]">Utilities and packaging</strong><p className="text-[11px] text-[#75887e]">Enter quantity and requisition rate for each utility.</p></div><Button type="button" variant="secondary" onClick={() => setUtilities([...utilities, { productId: '', quantity: '', unitPrice: '' }])}><Plus size={14}/> Add utility</Button></div>
+            <div className="space-y-2">{utilities.map((line, index) => <div key={index} className="grid grid-cols-[1fr_180px_180px_42px] gap-2 max-[650px]:grid-cols-1"><Dropdown value={line.productId} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, productId: event.target.value } : value))}><option value="">Select utility product</option>{utilityProducts.map(product => <option key={product.id} value={product.id}>{product.sku} · {product.name}</option>)}</Dropdown><Input type="number" min="0" step="0.001" placeholder="Quantity" value={line.quantity} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, quantity: event.target.value } : value))}/><Input type="number" min="0" step="0.01" placeholder="Rate / unit" value={line.unitPrice} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, unitPrice: event.target.value } : value))}/><Button type="button" variant="danger" className="size-10 p-0" disabled={utilities.length === 1} onClick={() => setUtilities(utilities.filter((_, lineIndex) => lineIndex !== index))}><Trash2 size={14}/></Button></div>)}</div>
+          </div>
           <div className="mt-4 grid grid-cols-4 gap-3 max-[850px]:grid-cols-2 max-[500px]:grid-cols-1">
             <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#7a9185]">Finished goods</span><strong className="mt-1 block text-lg">{items.length}</strong></div>
             <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#7a9185]">Total production input</span><strong className="mt-1 block text-lg">{itemPreview.reduce((sum, item) => sum + item.targetTons, 0).toLocaleString()} T</strong></div>
@@ -279,5 +291,3 @@ export function ProductionOrdersPage() {
     </PageContainer>
   );
 }
-
-
