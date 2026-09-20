@@ -169,14 +169,14 @@ export function MaterialIssuesPage() {
     <PageContainer loading={pageLoading}
       cap="PRODUCTION"
       title="Issue RM to Factory"
-      description="Issue raw materials from RM store to the production floor. Deducts from lot balances and links to production orders."
+      description="Issue raw materials from RM store to the production floor."
       actions={<Button variant="primary" onClick={() => {setRequestId(crypto.randomUUID());setForm({ productionOrderId: '', storeId: '' });setLines([]);setAllocationShortfalls([]);setPreferredPositions({});setOpen(true);}}><Plus size={16} /> Issue Materials</Button>}
    >
 
       <Card className="p-0">
-        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Material Issue Register</h2><span className="text-[12px] text-[#7a9185]">{rows.length} issues</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0"><h2>Material Issue Register</h2><span className="text-[12px] text-[#7a9185]">{rows.length} issues</span></div>
         <div className="overflow-x-auto">
-          <DataTable columns={["Issue #","Production Order","Lines","Status","Issued At"]} empty={rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><ArrowLeftRight size={28} /></div><b>No issues yet</b><p>Issue raw materials to the factory floor to start production.</p></div>}>
+          <DataTable columns={["Issue #","Production Order","Lines","Status","Issued At"]} empty={rows.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><ArrowLeftRight size={28} /></div><b>No issues yet</b></div>}>
               {rows.map((mi) => (
                 <tr key={mi.id}>
                   <td><strong className="text-[#0d3b2e] font-mono">{mi.issueNumber}</strong></td>

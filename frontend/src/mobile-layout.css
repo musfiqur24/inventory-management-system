@@ -1,0 +1,8 @@
+/* Summary tiles share a compact two-column layout on phones. */
+@media (max-width: 639px) {
+  .summary-grid > * { min-width: 0; min-height: 104px; padding: 12px; gap: 8px; overflow-wrap: anywhere; }
+  .summary-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .summary-grid > * > svg { width: 20px; height: 20px; margin-bottom: 8px; }
+  .summary-grid > * > div.shrink-0 { width: 32px; height: 32px; }
+  .summary-grid b { font-size: 18px; line-height: 1.3; }
+}

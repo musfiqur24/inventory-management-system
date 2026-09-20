@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 interface Props{title:string;description?:string;actions?:ReactNode;cap?:string;content?:ReactNode;}
 export function PageHeader({title,description,actions,cap,content}:Props){
-  return <header className="mb-4 rounded-xl border border-[#e3ded2] bg-linear-to-br from-[#fffdf9] via-[#fbf8f1] to-[#f3f6ee] px-5 py-5 shadow-[0_3px_14px_rgba(65,55,38,0.05)] sm:mb-5 sm:px-6">
+  return <header className="mb-4 rounded-xl border border-[#e3ded2] bg-linear-to-br from-[#fffdf9] via-[#fbf8f1] to-[#f3f6ee] px-4 py-4 shadow-[0_3px_14px_rgba(65,55,38,0.05)] sm:mb-5 sm:px-6 sm:py-5">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0">
       {cap&&<p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#1a5c45]">{cap}</p>}
       <h1 className="font-['Outfit',sans-serif] text-[22px] font-bold leading-tight tracking-[-0.025em] text-[#0f1c16] sm:text-2xl">{title}</h1>

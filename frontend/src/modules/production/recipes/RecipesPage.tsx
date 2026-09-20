@@ -186,9 +186,9 @@ export function RecipesPage() {
       <div className="grid grid-cols-[1fr_1.2fr] items-stretch gap-5 max-[900px]:grid-cols-[1fr]">
         {/* Recipe list */}
         <Card className="flex h-[520px] flex-col overflow-hidden p-0 max-[900px]:h-auto max-[900px]:max-h-[520px]">
-          <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
+          <div className="flex flex-col items-stretch gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
             <h2>Recipe Library</h2>
-            <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] flex-1 max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]">
+            <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] w-full sm:max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]">
               <Search size={14} /><input placeholder="Search recipes…" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </div>
@@ -215,7 +215,7 @@ export function RecipesPage() {
               </button>
             ))}
             {rows.length === 0 && (
-              <div className="flex flex-1 flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><FlaskConical size={28} /></div><b>No recipes yet</b><p>Create your first formulation recipe.</p></div>
+              <div className="flex flex-1 flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><FlaskConical size={28} /></div><b>No recipes yet</b></div>
             )}
           </div>
         </Card>
@@ -236,7 +236,7 @@ export function RecipesPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5 mb-5">
+              <div className="mb-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {[['Base Tonnage', `${selected.targetTonnage}T`], ['Ingredients', `${selected.ingredients.length}`]].map(([k, v]) => (
                   <div key={k} className="bg-[#f8faf7] rounded-[10px] p-3">
                     <div className="text-[10.5px] text-[#7a9185] font-bold tracking-[0.08em] uppercase">{k}</div>
@@ -294,12 +294,12 @@ export function RecipesPage() {
                 </span>
               </div>
             </div>
-            <div className="mb-1.5 grid grid-cols-[minmax(0,_1fr)_120px_44px] gap-2 px-0.5 text-[12px] font-semibold text-[#31483d]">
+            <div className="mb-1.5 grid grid-cols-[minmax(0,_1fr)_90px_44px] gap-2 sm:grid-cols-[minmax(0,_1fr)_120px_44px] px-0.5 text-[12px] font-semibold text-[#31483d]">
               <span>Raw Material</span><span>% Share</span><span className="sr-only">Action</span>
             </div>
             <div className="h-[216px] overflow-y-auto overscroll-contain pr-1 [scrollbar-color:#9bad9f_transparent] [scrollbar-width:thin]">
               {ingredients.map((ing, i) => (
-                <div key={i} className="mb-2 grid grid-cols-[minmax(0,_1fr)_120px_44px] items-center gap-2 last:mb-0">
+                <div key={i} className="mb-2 grid grid-cols-[minmax(0,_1fr)_90px_44px] items-center gap-2 sm:grid-cols-[minmax(0,_1fr)_120px_44px] last:mb-0">
                   <Dropdown aria-label={`Raw material ${i + 1}`} value={ing.productId} onChange={(e) => updateIngredient(i, 'productId', e.target.value)}>
                     <option value="">— Select RM —</option>
                     {rmProducts.map((p) => (
@@ -328,5 +328,4 @@ export function RecipesPage() {
     </PageContainer>
   );
 }
-
 

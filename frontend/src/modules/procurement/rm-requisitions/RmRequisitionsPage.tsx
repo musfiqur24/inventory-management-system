@@ -175,7 +175,7 @@ export function RmRequisitionsPage() {
       }
       headerContent={<>
       {/* Stats row */}
-      <div className="grid grid-cols-[repeat(5,_1fr)] gap-4 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
+      <div className="summary-grid grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-4">
         {[
           { label: 'Total', value: rows.length, icon: Layers3, card: 'border-[#e6ddca] bg-linear-to-br from-[#fffdf8] to-[#f8f2e7]', iconStyle: 'border-[#e8dcc3] bg-[#f2e8d5] text-[#8a6737]' },
           { label: 'Pending', value: rows.filter((r) => r.status === 'SUBMITTED').length, icon: Clock3, card: 'border-[#e7ddc8] bg-linear-to-br from-[#fffdf7] to-[#faf0dc]', iconStyle: 'border-[#ead8b6] bg-[#f6e7c9] text-[#956919]' },
@@ -202,10 +202,10 @@ export function RmRequisitionsPage() {
    >
 
       <Card padding="none">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-[#e0e5dd] px-4 py-3">
+        <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center lg:gap-x-5 border-b border-[#e0e5dd] px-4 py-3">
           <h2 className="m-0 shrink-0 text-sm font-semibold">Requisition Register</h2>
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-3">
-            <div role="group" aria-label="Filter requisitions by status" className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full min-w-0 flex-1 flex-col items-stretch gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
+            <div role="group" aria-label="Filter requisitions by status" className="flex max-w-full items-center gap-2 overflow-x-auto pb-1 [&>button]:shrink-0">
               {[{value:'ALL',label:'All'},{value:'APPROVED',label:'Approved'},{value:'PENDING',label:'Pending'},{value:'INCOMPLETE',label:'Incomplete'},{value:'REJECTED',label:'Rejected'}].map(filter=><Button key={filter.value} size="sm" className="h-9" variant={statusFilter===filter.value?'primary':'secondary'} aria-pressed={statusFilter===filter.value} onClick={()=>setStatusFilter(filter.value)}>{filter.label}<span className="text-xs opacity-75">({rows.filter(r=>matchesStatus(r,filter.value)).length})</span></Button>)}
             </div>
             <div className="flex h-9 w-full items-center gap-2 rounded-lg border border-[#e0e5dd] bg-[#f8faf7] px-3 focus-within:border-[#1a5c45] focus-within:ring-2 focus-within:ring-[#1a5c45]/10 sm:w-72">
@@ -242,7 +242,6 @@ export function RmRequisitionsPage() {
             <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
               <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><FileText size={28} /></div>
               <b>No requisitions found</b>
-              <p>{statusFilter!=="ALL" || search ? "No requisitions match these filters. Try another status or clear the search." : "Create a new RM requisition from sales demand to get started."}</p>
             </div>
             </div></td></tr>
           )}
@@ -292,23 +291,30 @@ export function RmRequisitionsPage() {
                 columns={['Raw Material Product','UOM','Qty','Unit Price (optional)','Total Price','Actions']}
                 columnWidths={['27%','18%','15%','21%','12%','7%']}
                 scrollAreaClassName="h-[360px]"
-                tableClassName="min-w-[800px] table-fixed [&_th]:px-2 [&_th]:py-3.5 [&_th]:text-[10px] [&_td]:text-xs"
+                tableClassName="min-w-[800px] table-fixed [&_th]:!px-3 [&_th]:py-3.5 [&_th]:text-[10px] [&_td]:!px-3 [&_td]:text-xs"
                 pagination={false}
-                summary={<tr className="border-t border-[#e0e5dd] bg-[#f8faf7]"><th colSpan={4} className="px-3 py-3 text-right text-sm">Estimated Total</th><td className="px-2 py-3 text-right font-semibold tabular-nums">{price(lines.reduce((sum,line)=>sum+lineTotal(line),0))}</td><td/></tr>}
+                summary={<>
+                  <tr className="border-t border-[#e0e5dd] bg-white">
+                    <td colSpan={4} className="p-2">
+                      <Button className="w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', requestedQty: '', unitPrice: '' }])}><Plus size={14} /> Add Raw Material Line</Button>
+                    </td>
+                    <td colSpan={2} />
+                  </tr>
+                  <tr className="border-t border-[#e0e5dd] bg-[#f8faf7]"><th colSpan={4} className="px-3 py-3 text-right text-sm">Estimated Total</th><td className="px-3 py-3 text-right font-semibold tabular-nums">{price(lines.reduce((sum,line)=>sum+lineTotal(line),0))}</td><td/></tr>
+                </>}
               >
                   {lines.map((line, i) => (
                     <tr key={i} className="border-t border-[#e0e5dd] align-middle">
-                      <td className="px-3 py-2"><Dropdown controlClassName="text-xs px-3 pr-14" aria-label={`Product for line ${i + 1}`} value={line.productId} onChange={(e) => { const product=products.find(p=>p.id===e.target.value); setLines(lines.map((l,li)=>li===i?{...l,productId:e.target.value,uomId:product?.baseUomId??""}:l)); }}><option value="">Select product</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Dropdown></td>
-                      <td className="px-2 py-2"><Dropdown controlClassName="text-xs px-2.5 pr-9" aria-label={`UOM for line ${i + 1}`} value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">UOM</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.code}</option>)}</Dropdown></td>
-                      <td className="px-2 py-2"><Input aria-label={`Requested quantity for line ${i + 1}`} className="h-11 px-2 text-xs" type="number" min="0.001" step="0.001" placeholder="Qty" value={line.requestedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, requestedQty: e.target.value } : l))}/></td>
-                      <td className="px-2 py-2"><Input aria-label={`Unit price for line ${i + 1}`} className="h-11 px-3 text-xs" type="number" min="0" step="0.0001" placeholder="Price" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))}/></td>
-                      <td className="px-2 py-2 text-right tabular-nums font-semibold">{line.unitPrice!=="" && line.requestedQty!=="" ? price(lineTotal(line)) : "-"}</td>
-                      <td className="px-2 py-2 text-center"><Button variant="ghost" className="size-9 min-h-9 p-0 text-red-600 hover:bg-red-50" aria-label={`Remove line ${i + 1}`} title="Remove line" disabled={lines.length === 1} onClick={() => setLines(lines.filter((_, li) => li !== i))}><Trash2 size={16}/></Button></td>
+                      <td className="py-2"><Dropdown controlClassName="text-xs px-3 pr-14" aria-label={`Product for line ${i + 1}`} value={line.productId} onChange={(e) => { const product=products.find(p=>p.id===e.target.value); setLines(lines.map((l,li)=>li===i?{...l,productId:e.target.value,uomId:product?.baseUomId??""}:l)); }}><option value="">Select product</option>{products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</Dropdown></td>
+                      <td className="py-2"><Dropdown controlClassName="text-xs px-2.5 pr-9" aria-label={`UOM for line ${i + 1}`} value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">UOM</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.code}</option>)}</Dropdown></td>
+                      <td className="py-2"><Input aria-label={`Requested quantity for line ${i + 1}`} className="h-11 px-2 text-xs" type="number" min="0.001" step="0.001" placeholder="Qty" value={line.requestedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, requestedQty: e.target.value } : l))}/></td>
+                      <td className="py-2"><Input aria-label={`Unit price for line ${i + 1}`} className="h-11 px-3 text-xs" type="number" min="0" step="0.0001" placeholder="Price" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))}/></td>
+                      <td className="py-2 text-right tabular-nums font-semibold">{line.unitPrice!=="" && line.requestedQty!=="" ? price(lineTotal(line)) : "-"}</td>
+                      <td className="py-2 text-center"><Button variant="ghost" className="size-9 min-h-9 p-0 text-red-600 hover:bg-red-50" aria-label={`Remove line ${i + 1}`} title="Remove line" disabled={lines.length === 1} onClick={() => setLines(lines.filter((_, li) => li !== i))}><Trash2 size={16}/></Button></td>
                     </tr>
                   ))}
               </DataTable>
             </div>
-            <Button className="mt-3 w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', requestedQty: '', unitPrice: '' }])}><Plus size={14} /> Add Raw Material Line</Button>
           </div>
         </Modal>
       )}
@@ -354,5 +360,3 @@ export function RmRequisitionsPage() {
     </PageContainer>
   );
 }
-
-

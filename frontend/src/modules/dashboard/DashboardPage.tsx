@@ -3,13 +3,11 @@ import { useToastMessage } from "../../components/ui/Toast";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
 import { Card } from '../../components/ui/Card';
 import { useEffect, useState } from 'react';
-import { Package, ShoppingCart, Truck, Factory, CheckCircle2, AlertTriangle, TrendingUp, Layers } from 'lucide-react';
+import { ShoppingCart, Truck, Factory, CheckCircle2, AlertTriangle, TrendingUp } from 'lucide-react';
 import { api, selectedOrg } from '../../shared/api/http';
 import { PageContainer } from '../../components/ui/PageContainer';
 
 interface DashboardStats {
-  totalRMProducts: number;
-  totalFGProducts: number;
   pendingRequisitions: number;
   pendingDeliveries: number;
   activeBatches: number;
@@ -38,12 +36,8 @@ export function DashboardPage() {
       api<{ data: any[] }>('/inventory/movements'),
     ])
       .then(([products, reqs, deliveries, batches, dispatches, movements]) => {
-        const rmProds = products.data.filter((p) => p.type === 'RAW_MATERIAL');
-        const fgProds = products.data.filter((p) => p.type === 'FINISHED_GOOD');
         const lowStock = products.data.filter((p) => p.isBelowReorder);
         setStats({
-          totalRMProducts: rmProds.length,
-          totalFGProducts: fgProds.length,
           pendingRequisitions: reqs.data.filter((r) => r.status === 'SUBMITTED' || r.status === 'APPROVED').length,
           pendingDeliveries: deliveries.data.filter((d) => d.status === 'SUBMITTED').length,
           activeBatches: batches.data.filter((b) => b.status === 'DRAFT' || b.status === 'SUBMITTED').length,
@@ -58,8 +52,6 @@ export function DashboardPage() {
 
   const statCards = stats
     ? [
-        { label: 'Raw Materials', value: stats.totalRMProducts, icon: Package, color: 'green', sub: 'Active SKUs' },
-        { label: 'Finished Goods', value: stats.totalFGProducts, icon: Layers, color: 'blue', sub: 'Product lines' },
         { label: 'Open Requisitions', value: stats.pendingRequisitions, icon: ShoppingCart, color: 'yellow', sub: 'Awaiting supply' },
         { label: 'Pending Challans', value: stats.pendingDeliveries, icon: Truck, color: 'purple', sub: 'In transit' },
         { label: 'Active Batches', value: stats.activeBatches, icon: Factory, color: 'brand', sub: 'Production running' },
@@ -77,27 +69,26 @@ export function DashboardPage() {
       cap="OPERATIONS OVERVIEW"
       title="Dashboard"
       description="Live feed production inventory snapshot across the entire workflow."
+      headerContent={stats && (
+        <div className="summary-grid grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+          {statCards.map((card) => (
+            <Card tone={card.color} className="relative flex min-h-30 flex-col items-center justify-center gap-2 overflow-hidden p-4 text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-32 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(67,58,40,0.12)]" key={card.label}>
+              <div className={twMerge(`grid size-10 shrink-0 place-items-center rounded-lg [:where(&_svg)]:size-5 ${iconVariants[card.color] ?? ""}`)}>
+                <card.icon />
+              </div>
+              <div className="min-w-0">
+                <div className="mb-1 [font-family:'Outfit',_sans-serif] text-2xl font-bold leading-none text-[#0f1c16]">{card.value}</div>
+                <div className="text-xs font-medium text-[#7a9185]">{card.label}</div>
+                <div className="mt-1 text-[11.5px] text-[#7a9185]">{card.sub}</div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
    >
-
-      
 
       {stats && (
         <>
-          <div className="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] gap-4 mb-7 max-[900px]:grid-cols-[repeat(2,_1fr)] max-[480px]:grid-cols-[1fr]">
-            {statCards.map((card) => (
-              <Card tone={card.color} className="relative flex min-h-38 flex-col items-center justify-center gap-2.5 overflow-hidden p-5 text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-32 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl transition-[box-shadow,transform] duration-200 hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(67,58,40,0.12)]" key={card.label}>
-                <div className={twMerge(`w-11 h-11 rounded-[8px] grid place-items-center shrink-0 [:where(&_svg)]:w-5 [:where(&_svg)]:h-5 ${iconVariants[card.color] ?? ""}`)}>
-                  <card.icon />
-                </div>
-                <div className="min-w-0">
-                  <div className="[font-family:'Outfit',_sans-serif] text-[26px] font-bold text-[#0f1c16] leading-[1] mb-1">{card.value}</div>
-                  <div className="text-[12px] text-[#7a9185] font-medium">{card.label}</div>
-                  <div className="text-[11.5px] text-[#7a9185] mt-1">{card.sub}</div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
           <div className="grid grid-cols-[1fr_1.2fr] gap-5 max-[900px]:grid-cols-[1fr] mt-0">
             <Card>
               <div className="flex items-center justify-between gap-3 mb-5 [:where(&_h2)]:text-[16px] [:where(&_h2)]:font-bold [:where(&_h2)]:text-[#0f1c16] [:where(&_h2)]:m-0 [:where(&_p)]:text-[12.5px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-0">
@@ -111,7 +102,6 @@ export function DashboardPage() {
                 <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
                   <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><CheckCircle2 size={28} /></div>
                   <b>No movements yet</b>
-                  <p>Stock movements will appear once workflow transactions begin.</p>
                 </div>
               ) : (
                 <div className="grid gap-2">
@@ -169,5 +159,3 @@ export function DashboardPage() {
     </PageContainer>
   );
 }
-
-

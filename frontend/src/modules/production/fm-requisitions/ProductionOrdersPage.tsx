@@ -124,7 +124,7 @@ export function ProductionOrdersPage() {
   const requisitionCount = new Set(rows.map((row) => row.requisitionNumber ?? row.number)).size;
 
   const summaryCards = (
-    <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1">
+    <div className="summary-grid grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {[{ label: 'Total Requisitions', v: requisitionCount, c: 'brand' }, { label: 'Draft', v: rows.filter((r) => r.status === 'DRAFT').length, c: 'gray' }, { label: 'Submitted', v: rows.filter((r) => r.status === 'SUBMITTED').length, c: 'blue' }, { label: 'Closed', v: rows.filter((r) => r.status === 'CLOSED').length, c: 'green' }].map((item) => (
         <Card tone={item.c} className="relative flex min-h-24 flex-col items-center justify-center gap-2 overflow-hidden p-4 text-center [&>*]:relative [&>*]:z-10 after:pointer-events-none after:absolute after:-top-12 after:left-1/2 after:size-28 after:-translate-x-1/2 after:rounded-full after:bg-white/55 after:blur-xl" key={item.label}>
           <div><div className="font-['Outfit',sans-serif] text-[22px] font-bold leading-none text-[#0f1c16]">{item.v}</div><div className="mt-1 text-[12px] font-medium text-[#7a9185]">{item.label}</div></div>
@@ -143,12 +143,12 @@ export function ProductionOrdersPage() {
    >
 
       <Card className="p-0">
-        <div className="flex items-center justify-between gap-3 p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
+        <div className="flex flex-col items-stretch gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
           <h2>Production Requisition Register</h2>
-          <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] flex-1 max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]"><Search size={14} /><input placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+          <div className="flex items-center gap-2 p-[8px_12px] bg-[#f8faf7] [border:1.5px_solid_#e0e5dd] rounded-[8px] [transition:border-color_0.15s,_box-shadow_0.15s] w-full sm:max-w-90 [&:focus-within]:[border-color:#1a5c45] [&:focus-within]:shadow-[0_0_0_3px_rgba(26,92,69,0.1)] [&:focus-within]:bg-[#fff] [:where(&_svg)]:w-4 [:where(&_svg)]:h-4 [:where(&_svg)]:text-[#7a9185] [:where(&_svg)]:shrink-0 [:where(&_input)]:[border:0] [:where(&_input)]:[background:none] [:where(&_input)]:outline-none [:where(&_input)]:[font:13.5px_'Inter',_sans-serif] [:where(&_input)]:text-[#0f1c16] [:where(&_input)]:w-full [&_input::placeholder]:text-[#7a9185]"><Search size={14} /><input placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         </div>
         <div className="overflow-x-auto">
-          <DataTable minRows={5} columns={["Requisition #","Recipe","FG Product","Target Qty","RM Lines","Status","Planned Start","Actions"]} empty={filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Factory size={28} /></div><b>No production orders yet</b><p>Create an order to auto-scale a recipe to your target quantity.</p></div>}>
+          <DataTable minRows={5} columns={["Requisition #","Recipe","FG Product","Target Qty","RM Lines","Status","Planned Start","Actions"]} empty={filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Factory size={28} /></div><b>No production orders yet</b></div>}>
               {filtered.map((po) => (
                 <tr key={po.id}>
                   <td><div><strong className="text-[#0d3b2e] font-mono">{po.requisitionNumber ?? po.number}</strong>{po.requisitionNumber && po.requisitionNumber !== po.number && <span className="mt-1 block text-[10px] text-[#7a9185]">FG line {po.number.slice(-2)}</span>}</div></td>
@@ -171,14 +171,14 @@ export function ProductionOrdersPage() {
           footer={<><Button variant="secondary" onClick={() => { setOpen(false); setPreviewIndex(null); }}>Cancel</Button><Button variant="primary" onClick={submit} disabled={!canCreate}>Submit Requisition</Button></>}
         >
           <div className="overflow-x-auto rounded-md border border-[#d8e0d7]">
-            <div className="min-w-[1210px]">
-              <div className="grid grid-cols-[220px_205px_145px_135px_150px_105px_92px_40px] items-center gap-3 bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
+            <div className="min-w-0 lg:min-w-[1210px]">
+              <div className="hidden grid-cols-[220px_205px_145px_135px_150px_105px_92px_40px] items-center gap-3 bg-[#f2f5f3] lg:grid px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
                 <span>Finished good</span><span>Linked recipe</span><span>Target (T)</span><span>Waste %</span><span>Planned start</span><span>Expected</span><span>RM details</span><span />
               </div>
               <div className="min-h-64">
               {itemPreview.map((item, index) => {
                 const duplicate = item.finishedProductId && items.some((other, otherIndex) => otherIndex !== index && other.finishedProductId === item.finishedProductId);
-                return <div key={index} className="grid grid-cols-[220px_205px_145px_135px_150px_105px_92px_40px] items-center gap-3 border-t border-[#e0e5dd] bg-white px-4 py-3">
+                return <div key={index} className="grid grid-cols-1 items-center gap-3 border-t lg:grid-cols-[220px_205px_145px_135px_150px_105px_92px_40px] border-[#e0e5dd] bg-white px-4 py-3">
                   <Dropdown aria-label="Finished good" value={item.finishedProductId} onChange={(event) => { const linkedRecipe = recipes.find((recipe) => recipe.finishedProductId === event.target.value); setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, finishedProductId: event.target.value, recipeId: linkedRecipe?.id ?? "" } : line)); }}>
                     <option value="">Select finished good</option>
                     {finishedGoods.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
@@ -190,7 +190,7 @@ export function ProductionOrdersPage() {
                   <div className="rounded-md border border-[#d5e6d7] bg-[#edf8ef] px-3 py-2.5 text-center"><strong className="text-[14px] text-[#176b4b]">{item.predictedOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })} T</strong></div>
                   <Button type="button" size="sm" variant="secondary" disabled={!item.recipe} onClick={() => setPreviewIndex(index)}><Eye size={14} /> View</Button>
                   <Button type="button" size="sm" variant="danger" className="size-10 p-0" disabled={items.length === 1} onClick={() => setItems(items.filter((_, lineIndex) => lineIndex !== index))} title="Remove finished good"><Trash2 size={15} /></Button>
-                  {duplicate && <div className="col-span-8 -mt-1 text-[11px] font-medium text-[#c34838]">This finished good is already included.</div>}
+                  {duplicate && <div className="-mt-1 lg:col-span-8 text-[11px] font-medium text-[#c34838]">This finished good is already included.</div>}
                 </div>;
               })}
               </div>
@@ -200,20 +200,20 @@ export function ProductionOrdersPage() {
             </div>
           </div>
           <div className="mt-4 rounded-md border border-[#d8e0d7] bg-white p-4">
-            <div className="mb-3 flex items-center justify-between"><div><strong className="text-[13px] text-[#173b30]">Utilities and packaging</strong><p className="text-[11px] text-[#75887e]">Enter quantity and requisition rate for each utility.</p></div><Button type="button" variant="secondary" onClick={() => setUtilities([...utilities, { productId: '', quantity: '', unitPrice: '' }])}><Plus size={14}/> Add utility</Button></div>
+            <div className="mb-3 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"><div><strong className="text-[13px] text-[#173b30]">Utilities and packaging</strong><p className="text-[11px] text-[#75887e]">Enter quantity and requisition rate for each utility.</p></div><Button type="button" variant="secondary" onClick={() => setUtilities([...utilities, { productId: '', quantity: '', unitPrice: '' }])}><Plus size={14}/> Add utility</Button></div>
             <div className="space-y-2">{utilities.map((line, index) => <div key={index} className="grid grid-cols-[1fr_180px_180px_42px] gap-2 max-[650px]:grid-cols-1"><Dropdown value={line.productId} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, productId: event.target.value } : value))}><option value="">Select utility product</option>{utilityProducts.map(product => <option key={product.id} value={product.id}>{product.sku} · {product.name}</option>)}</Dropdown><Input type="number" min="0" step="0.001" placeholder="Quantity" value={line.quantity} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, quantity: event.target.value } : value))}/><Input type="number" min="0" step="0.01" placeholder="Rate / unit" value={line.unitPrice} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, unitPrice: event.target.value } : value))}/><Button type="button" variant="danger" className="size-10 p-0" disabled={utilities.length === 1} onClick={() => setUtilities(utilities.filter((_, lineIndex) => lineIndex !== index))}><Trash2 size={14}/></Button></div>)}</div>
           </div>
-          <div className="mt-4 grid grid-cols-4 gap-3 max-[850px]:grid-cols-2 max-[500px]:grid-cols-1">
+          <div className="summary-grid mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#7a9185]">Finished goods</span><strong className="mt-1 block text-lg">{items.length}</strong></div>
             <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#7a9185]">Total production input</span><strong className="mt-1 block text-lg">{itemPreview.reduce((sum, item) => sum + item.targetTons, 0).toLocaleString()} T</strong></div>
             <div className="rounded-md border border-[#cfe4d5] bg-[#edf8ef] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#39704f]">Expected FG output</span><strong className="mt-1 block text-lg text-[#176b4b]">{itemPreview.reduce((sum, item) => sum + item.predictedOutput, 0).toLocaleString(undefined, { maximumFractionDigits: 4 })} T</strong></div>
             <div className="rounded-md border border-[#dfd4b9] bg-[#fff8e9] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#916719]">Total RM needed</span><strong className="mt-1 block text-lg text-[#9a650d]">{totalRmNeeded.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong></div>
           </div>
-          {combinedRmBreakdown.length > 0 && <div className="mt-4 overflow-hidden rounded-md border border-[#d8e0d7] bg-white">
+          {combinedRmBreakdown.length > 0 && <div className="mt-4 overflow-x-auto rounded-md border border-[#d8e0d7] bg-white">
             <div className="flex items-center justify-between gap-3 border-b border-[#dfe5dd] bg-[#f5f7f2] px-4 py-3"><div><strong className="text-[13px] text-[#173b30]">Combined Raw Material Breakdown</strong><p className="mt-0.5 text-[11px] text-[#75887e]">Aggregated requirement for every finished good in this requisition.</p></div><strong className="text-[14px] text-[#9a650d]">{totalRmNeeded.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg total</strong></div>
-            <div className="grid grid-cols-[minmax(220px,1.2fr)_minmax(260px,1.5fr)_120px_100px] gap-3 border-b border-[#e0e5dd] bg-[#fafbf8] px-4 py-2.5 text-[10px] font-bold uppercase tracking-[.07em] text-[#66796f]"><span>Raw material</span><span>Used by finished goods</span><span className="text-right">Required</span><span className="text-right">Share</span></div>
+            <div className="grid min-w-[720px] grid-cols-[minmax(220px,1.2fr)_minmax(260px,1.5fr)_120px_100px] gap-3 border-b border-[#e0e5dd] bg-[#fafbf8] px-4 py-2.5 text-[10px] font-bold uppercase tracking-[.07em] text-[#66796f]"><span>Raw material</span><span>Used by finished goods</span><span className="text-right">Required</span><span className="text-right">Share</span></div>
             <div className="max-h-52 overflow-y-auto">
-              {combinedRmBreakdown.map((material) => <div key={material.id} className="grid grid-cols-[minmax(220px,1.2fr)_minmax(260px,1.5fr)_120px_100px] items-center gap-3 border-b border-[#edf0eb] px-4 py-2.5 text-[12px] last:border-b-0">
+              {combinedRmBreakdown.map((material) => <div key={material.id} className="grid min-w-[720px] grid-cols-[minmax(220px,1.2fr)_minmax(260px,1.5fr)_120px_100px] items-center gap-3 border-b border-[#edf0eb] px-4 py-2.5 text-[12px] last:border-b-0">
                 <div className="min-w-0"><strong className="block truncate text-[#243b30]">{material.name}</strong>{material.sku && <span className="block truncate text-[10px] text-[#829087]">{material.sku}</span>}</div>
                 <span className="truncate text-[#5f7468]" title={[...material.finishedGoods].join(', ')}>{[...material.finishedGoods].join(', ')}</span>
                 <strong className="text-right text-[#0d3b2e]">{material.quantity.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong>
@@ -236,7 +236,7 @@ export function ProductionOrdersPage() {
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto p-4">
                   <div className="grid gap-2">
-                    {materialLines.map((line) => <div key={line.id} className="grid grid-cols-[minmax(0,1fr)_85px_125px] items-center gap-3 rounded-md border border-[#dfe6dc] bg-white px-4 py-3">
+                    {materialLines.map((line) => <div key={line.id} className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_85px_125px] sm:gap-3 rounded-md border border-[#dfe6dc] bg-white px-4 py-3">
                       <div className="min-w-0"><strong className="block truncate text-[13px]">{line.rawMaterial?.name ?? 'Raw material'}</strong><span className="block truncate text-[10.5px] text-[#7a9185]">{line.rawMaterial?.sku ?? ''}</span></div>
                       <span className="text-right text-xs font-semibold text-[#52675d]">{Number(line.percentage).toFixed(2)}%</span>
                       <strong className="text-right text-[13px] text-[#0d3b2e]">{line.quantity.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong>

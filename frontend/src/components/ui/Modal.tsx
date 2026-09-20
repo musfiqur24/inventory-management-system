@@ -12,7 +12,7 @@ export function Modal({title,description,children,footer,extraWide,fixedHeight,o
     <button type="button" onClick={onClose} aria-label="Close dialog" className="grid size-10 shrink-0 place-items-center rounded-xl border border-[#d9e1d8] bg-[#f8faf6] text-[#64796e] transition duration-150 hover:border-[#d7aaa5] hover:bg-[#fff2f0] hover:text-[#a9362f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#1a5c45]/12"><X size={18} strokeWidth={2}/></button>
    </header>
    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-linear-to-b from-white to-[#fdfcf8] px-5 py-6 [scrollbar-color:#9bad9f_transparent] [scrollbar-width:thin] sm:px-8 sm:py-7">{children}</div>
-   {footer&&<footer className="flex shrink-0 flex-col-reverse gap-2.5 border-t border-[#e1e5dd] bg-linear-to-r from-[#f6f8f3] to-[#fbf8ef] px-5 py-4 shadow-[0_-6px_18px_rgba(20,45,33,0.035)] sm:flex-row sm:justify-end sm:px-8 sm:py-5 [&>button]:max-sm:w-full">{footer}</footer>}
+   {footer&&<footer className="flex shrink-0 flex-col-reverse gap-2.5 border-t border-[#e1e5dd] bg-linear-to-r from-[#f6f8f3] to-[#fbf8ef] px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-6px_18px_rgba(20,45,33,0.035)] sm:flex-row sm:justify-end sm:px-8 sm:py-5 [&>button]:max-sm:w-full">{footer}</footer>}
   </div>
  </div>;
 }

@@ -34,7 +34,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      <aside className={twMerge(`sticky top-0 h-dvh overflow-hidden bg-[#0d3b2e] flex flex-col print:hidden! max-[900px]:fixed max-[900px]:z-30 max-[900px]:h-dvh max-[900px]:w-[min(85vw,_280px)] max-[900px]:[transform:translateX(-110%)] max-[900px]:[transition:transform_0.22s_ease] ${(mobileOpen ? "max-[900px]:[transform:translateX(0)]" : "")}`)}>
+      <aside className={twMerge(`sticky top-0 h-dvh overflow-hidden bg-[#0d3b2e] flex flex-col print:hidden! max-[900px]:fixed max-[900px]:z-70 max-[900px]:h-dvh max-[900px]:w-[min(85vw,_280px)] max-[900px]:[transform:translateX(-110%)] max-[900px]:[transition:transform_0.22s_ease] ${(mobileOpen ? "max-[900px]:[transform:translateX(0)]" : "")}`)}>
         {/* Brand */}
         <div className="flex items-center justify-between p-[18px_18px_0] shrink-0 [&_a]:flex [&_a]:items-center [&_a]:gap-3 [&_a]:text-[#fff] [&_a]:no-underline">
           <Link to="/" onClick={onClose}>
@@ -102,7 +102,7 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
 
       {mobileOpen && (
         <button
-          className="hidden max-[900px]:block max-[900px]:fixed max-[900px]:inset-0 max-[900px]:z-20 max-[900px]:bg-[rgba(0,0,0,0.45)] max-[900px]:[border:0] max-[900px]:cursor-pointer"
+          className="hidden max-[900px]:block max-[900px]:fixed max-[900px]:inset-0 max-[900px]:z-60 max-[900px]:bg-[rgba(0,0,0,0.45)] max-[900px]:[border:0] max-[900px]:cursor-pointer"
           aria-label="Close menu"
           onClick={onClose}
         />

@@ -7,6 +7,7 @@ import {
   GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut, BadgeDollarSign
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { selectedOrgName, ensureOrgDetails } from './shared/api/http';
 import { MobileMenuButton, Sidebar } from './components/layout/Sidebar';
 import { AppToaster } from './components/ui/Toast';
@@ -84,6 +85,23 @@ const NAV_GROUPS = [
   },
 ];
 
+function focusNextField(event: ReactKeyboardEvent<HTMLElement>) {
+  if (event.key !== 'Enter' || event.defaultPrevented || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return;
+  const current = event.target as HTMLElement;
+  if (!(current instanceof HTMLInputElement || current instanceof HTMLSelectElement)) return;
+  if (current instanceof HTMLInputElement && ['button', 'submit', 'reset', 'checkbox', 'radio', 'file'].includes(current.type)) return;
+  if (current.getAttribute('role') === 'combobox' && current.getAttribute('aria-expanded') === 'true') return;
+
+  const scope = current.closest<HTMLElement>('[role="dialog"], form, main') ?? event.currentTarget;
+  const fields = Array.from(scope.querySelectorAll<HTMLElement>('input, select'))
+    .filter((field) => !field.matches(':disabled, [readonly], [type="hidden"], [tabindex="-1"], [aria-hidden="true"]') && field.offsetParent !== null);
+  const index = fields.indexOf(current);
+  if (index < 0 || index >= fields.length - 1) return;
+
+  event.preventDefault();
+  fields[index + 1].focus();
+}
+
 function Shell() {
   const { user, loading, can, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -119,17 +137,17 @@ function Shell() {
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />
-      <main id="main-content" tabIndex={-1} className="min-h-dvh min-w-0 bg-[#f4f6f3] print:min-w-full">
-        <header className="flex h-16 items-center gap-3 sm:h-17 sm:gap-4 px-4 sm:px-6 lg:px-10 xl:px-12 sticky top-0 z-50 isolate bg-[#faf6ee]! shadow-[0_1px_0_#e5dccd,0_3px_12px_rgba(91,67,31,0.055)] print:hidden! max-[900px]:p-[0_16px]">
+      <main id="main-content" tabIndex={-1} onKeyDown={focusNextField} className="min-h-dvh min-w-0 bg-[#f4f6f3] print:min-w-full">
+        <header className="sticky top-0 z-50 isolate flex h-16 min-w-0 items-center gap-2 bg-[#faf6ee]! px-3 shadow-[0_1px_0_#e5dccd,0_3px_12px_rgba(91,67,31,0.055)] sm:h-17 sm:gap-4 sm:px-6 lg:px-10 xl:px-12 print:hidden!">
           <div className="flex items-center gap-3 flex-1">
             <MobileMenuButton onClick={() => setMobileOpen(true)} />
-            <div className="flex items-center gap-2 text-[13.5px] text-[#7a9185] [:where(&_strong)]:text-[#0f1c16] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-semibold">
-              <span>FeedTrack</span>
-              <span aria-hidden="true">/</span>
-              <strong>{pageTitle}</strong>
+            <div className="flex min-w-0 items-center gap-2 text-[13.5px] text-[#7a9185] [:where(&_strong)]:text-[#0f1c16] [:where(&_strong)]:text-[15px] [:where(&_strong)]:font-semibold">
+              <span className="max-[480px]:hidden">FeedTrack</span>
+              <span className="max-[480px]:hidden" aria-hidden="true">/</span>
+              <strong className="truncate">{pageTitle}</strong>
             </div>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
             <NotificationBell key={orgRevision} />
             {can("organizations.manage") ? <Link to="/organizations"><div className="hidden rounded-full border border-[#e0e5dd] bg-[#f8faf7] px-3 py-1.5 text-xs font-medium text-[#445e50] sm:block">{orgDisplay || "Workspace"}</div></Link> : null}
             <Link to="/profile" className="flex items-center gap-2 rounded-xl border border-[#e0e5dd] bg-white px-2.5 py-1.5 text-sm font-semibold text-[#31483d] hover:bg-[#f8faf7]"><span className="grid size-7 place-items-center rounded-lg bg-[#edf6df] text-[#1a5c45]"><CircleUserRound size={16}/></span><span className="hidden max-w-40 truncate text-sm sm:block">{user.fullName}</span></Link>

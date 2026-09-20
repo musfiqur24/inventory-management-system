@@ -39,7 +39,7 @@ export function Card({ children, variant = 'default', tone = 'cream', padding = 
       {...props}
       onClick={onClick}
       className={twMerge(
-        'overflow-hidden border shadow-[0_3px_12px_rgba(65,55,38,0.055),0_1px_2px_rgba(65,55,38,0.035)] transition-[box-shadow,transform] duration-180 [&>div:has(table)]:m-4 sm:[&>div:has(table)]:m-5 print:break-inside-avoid print:border-[#ccc] print:bg-white print:shadow-none print:[&>div:has(table)]:m-0',
+        'min-w-0 overflow-hidden border shadow-[0_3px_12px_rgba(65,55,38,0.055),0_1px_2px_rgba(65,55,38,0.035)] transition-[box-shadow,transform] duration-180 [&>div:has(table)]:m-2 sm:[&>div:has(table)]:m-5 print:break-inside-avoid print:border-[#ccc] print:bg-white print:shadow-none print:[&>div:has(table)]:m-0',
         tones[tone] ?? tones.cream, variants[variant], paddings[padding], radii[rounded],
         onClick && 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md',
         className,
@@ -65,7 +65,7 @@ export function CardHeader({ title, description, icon, actions }: CardHeaderProp
         <h2 className="mb-0.75 text-[15px] font-bold text-[#0f1c16]">{title}</h2>
         {description && <p className="text-[12.5px] leading-[1.4] text-[#7a9185]">{description}</p>}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0 [&>button]:max-sm:flex-1">{actions}</div>}
     </div>
   );
 }

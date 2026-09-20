@@ -165,7 +165,7 @@ export function WeighbridgePage() {
       title="Weighbridge Station" 
       description="Measure each challan before manager approval. Submitted reports are locked and sent to the assigned manager."
       headerContent={
-        <div className="grid grid-cols-3 gap-4 max-[800px]:grid-cols-1">
+        <div className="summary-grid grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
                 <Card tone="yellow" className="flex min-h-28 flex-col items-center justify-center text-center">
                   <div className="text-2xl font-bold">{queue.length}</div>
                   <div className="text-sm text-[#71877b]">Awaiting weighbridge</div>
@@ -185,7 +185,7 @@ export function WeighbridgePage() {
     >
       <Card className="p-0">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e0e5dd] p-4">
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
             <Button
               variant={view === "pending" ? "primary" : "secondary"}
               onClick={() => setView("pending")}

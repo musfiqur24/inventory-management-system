@@ -104,7 +104,7 @@ export function DataTable<T>({
   const navigationButton = "grid size-9 place-items-center rounded-lg border border-[#d9e2d8] bg-white text-[#526b5e] shadow-sm transition hover:border-[#9caf9f] hover:bg-[#f1f6ef] hover:text-[#164c39] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-[#d9e2d8] disabled:hover:bg-white";
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[#cfd9d2] bg-white shadow-[0_5px_16px_rgba(15,23,42,0.055)]">
+    <div className="relative min-w-0 max-w-full overflow-hidden rounded-xl border border-[#cfd9d2] bg-white shadow-[0_5px_16px_rgba(15,23,42,0.055)]">
 
       {toolbar && (
         <div className="border-b border-[#e2e8e1] bg-[#fafbfc] px-4 py-4 sm:px-5">
@@ -112,7 +112,7 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className={twMerge("overflow-x-auto [scrollbar-gutter:auto] [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] print:overflow-visible", scrollAreaClassName)}>
+      <div className={twMerge("max-w-full overflow-x-auto overscroll-x-contain [scrollbar-gutter:stable] [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] print:overflow-visible", scrollAreaClassName)}>
         <table className={twMerge("w-full min-w-180 border-separate border-spacing-0 text-left", tableClassName)}>
           {columnWidths && <colgroup>{columnWidths.map((width,index)=><col key={index} style={{width}}/>)}</colgroup>}
           <thead className="sticky top-0 z-1">
@@ -121,14 +121,14 @@ export function DataTable<T>({
                 <th
                   key={index}
                   scope="col"
-                  className="whitespace-nowrap border-b border-[#cfd6dd] px-5 py-5 text-[11px] font-extrabold uppercase tracking-[0.09em] text-[#374151]"
+                  className="whitespace-nowrap border-b border-[#cfd6dd] px-3 py-4 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#374151] sm:px-5 sm:py-5 sm:text-[11px]"
                 >
                   {header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="[&_tr]:transition-colors [&_tr:nth-child(even)]:bg-[#fafbfc] [&_tr:hover]:bg-[#f5f7f8] [&_td]:border-b [&_td]:border-[#e7ece6] [&_td]:px-4 [&_td]:py-3.5 sm:[&_td]:px-5 sm:[&_td]:py-4 [&_td]:text-sm [&_td]:text-[#263b31] [&_tr:last-child_td]:border-b-0">
+          <tbody className="[&_tr]:transition-colors [&_tr:nth-child(even)]:bg-[#fafbfc] [&_tr:hover]:bg-[#f5f7f8] [&_td]:border-b [&_td]:border-[#e7ece6] [&_td]:px-3 [&_td]:py-3 sm:[&_td]:px-5 sm:[&_td]:py-4 [&_td]:text-sm [&_td]:text-[#263b31] [&_tr:last-child_td]:border-b-0">
             {showSkeleton ? Array.from({length:6},(_,i)=><tr key={i}>{headers.map((_,j)=><td key={j}><Skeleton className="h-5 w-full"/></td>)}</tr>) : dynamic
               ? visibleRows?.map(row => (
                   <tr key={dynamicProps.rowKey(row)}>
@@ -160,7 +160,7 @@ export function DataTable<T>({
 
 
       {(
-        <div className="flex flex-col items-stretch justify-between gap-3 border-t sm:flex-row sm:items-center sm:gap-4 border-[#dbe4da] bg-[#fafbfc] px-4 py-4 sm:px-5">
+        <div className="flex flex-col items-stretch justify-between gap-3 border-t border-[#dbe4da] bg-[#fafbfc] px-3 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4">
           <div className="flex items-center gap-3 text-xs text-[#6a8074]">
             <span className="rounded-full border border-[#d9e4d7] bg-white px-3 py-1.5 font-semibold shadow-sm">
               {recordCount} {recordCount === 1 ? "record" : "records"}

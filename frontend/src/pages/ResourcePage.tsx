@@ -152,11 +152,6 @@ export function ResourcePage({
             rows.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70">
                 <b>No {title.toLowerCase()} yet</b>
-                <span>
-                  {readOnly
-                    ? "Records appear after the related workflow posts stock movements."
-                    : "Use Create to add the first record for this organisation."}
-                </span>
               </div>
             ) : undefined
           }

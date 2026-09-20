@@ -370,8 +370,8 @@ export function ProductHierarchyPage() {
           </div>
           <DataTable
             columns={columns}
-            scrollAreaClassName="[scrollbar-gutter:auto]"
-            tableClassName="!w-full min-w-0 table-fixed [&_th]:px-2 [&_th]:py-4 [&_th]:text-[10px] [&_th:last-child]:text-center [&_td]:px-2 [&_td]:text-xs [&_td:last-child]:px-1"
+            scrollAreaClassName="[scrollbar-gutter:stable]"
+            tableClassName="w-[760px] min-w-[760px] table-fixed lg:w-full [&_th]:px-2 [&_th]:py-4 [&_th]:text-[10px] [&_th:last-child]:text-center [&_td]:px-2 [&_td]:text-xs [&_td:last-child]:px-1"
             total={rows.length}
             page={currentPage}
             pageSize={10}
@@ -428,7 +428,7 @@ export function ProductHierarchyPage() {
                     ? "Loading hierarchy..."
                     : search
                       ? "No matching records."
-                      : "No records in this layer yet. Click New to add one."}
+                      : "No records in this layer yet."}
                 </td>
               </tr>
             )}

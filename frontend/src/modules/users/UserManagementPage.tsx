@@ -133,7 +133,7 @@ export function UserManagementPage() {
       </Card>
 
       <div className="flex justify-end">
-        <Dropdown value={organizationFilter} onChange={event => { setOrganizationFilter(event.target.value); setPage(1); }} className="max-w-70">
+        <Dropdown value={organizationFilter} onChange={event => { setOrganizationFilter(event.target.value); setPage(1); }} className="w-full sm:max-w-70">
           <option value="">All organizations</option>
           {orgs.map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
         </Dropdown>

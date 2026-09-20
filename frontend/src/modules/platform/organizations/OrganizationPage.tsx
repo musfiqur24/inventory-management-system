@@ -69,7 +69,7 @@ export function OrganizationPage() {
               <span className="whitespace-nowrap rounded-[20px] bg-[#e8f2ff] px-[10px] py-[3px] text-[11.5px] font-semibold text-[#1864ab]">{items.length} total</span>
             </div>
             <div className="flex flex-col gap-2">
-              {items.length === 0 ? <div className="p-8 text-center text-[#7a9185]">No organisations found. Create one using the form on the left.</div> : items.map(item => {
+              {items.length === 0 ? <div className="p-8 text-center text-[#7a9185]">No organisations found.</div> : items.map(item => {
                 const isSelected = selected?.id === item.id;
                 return <button type="button" key={item.id} onClick={() => select(item)} className={"flex w-full items-center justify-between gap-3 rounded-lg border p-[12px_16px] text-left transition hover:bg-[#f8faf7] " + (isSelected ? "border-[#0d3b2e] bg-[rgba(13,59,46,0.04)] text-[#0d3b2e]" : "border-[#e0e5dd] bg-white text-[#0f1c16]")}>
                   <span><b className="block text-[13.5px]">{item.name}</b><small className="mt-0.5 block text-[11.5px] tracking-[0.04em] text-[#7a9185]">{item.code}</small></span>
@@ -79,7 +79,7 @@ export function OrganizationPage() {
             </div>
             {selected && <div className="mt-6 rounded-xl border border-[#dbe4da] bg-[#f8faf7] p-4">
               <div className="mb-3 flex items-center justify-between"><h3 className="font-bold text-[#0f1c16]">Selected organisation</h3><span className={"rounded-full px-2.5 py-1 text-xs font-semibold " + (selected.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600")}>{selected.isActive ? "Active" : "Inactive"}</span></div>
-              <dl className="grid grid-cols-2 gap-4 text-sm"><div><dt className="text-xs text-[#7a9185]">Organisation name</dt><dd className="mt-1 font-semibold">{selected.name}</dd></div><div><dt className="text-xs text-[#7a9185]">Unique code</dt><dd className="mt-1 font-semibold">{selected.code}</dd></div><div><dt className="text-xs text-[#7a9185]">Created</dt><dd className="mt-1 font-medium">{new Date(selected.createdAt).toLocaleDateString()}</dd></div><div><dt className="text-xs text-[#7a9185]">Last updated</dt><dd className="mt-1 font-medium">{new Date(selected.updatedAt).toLocaleDateString()}</dd></div></dl>
+              <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2"><div><dt className="text-xs text-[#7a9185]">Organisation name</dt><dd className="mt-1 font-semibold">{selected.name}</dd></div><div><dt className="text-xs text-[#7a9185]">Unique code</dt><dd className="mt-1 font-semibold">{selected.code}</dd></div><div><dt className="text-xs text-[#7a9185]">Created</dt><dd className="mt-1 font-medium">{new Date(selected.createdAt).toLocaleDateString()}</dd></div><div><dt className="text-xs text-[#7a9185]">Last updated</dt><dd className="mt-1 font-medium">{new Date(selected.updatedAt).toLocaleDateString()}</dd></div></dl>
             </div>}
           </div>
         </div>

@@ -63,7 +63,7 @@ export function TraceabilityPage() {
 
       <Card className="mb-6">
         <div className="flex items-center justify-between gap-3 mb-5 [:where(&_h2)]:text-[16px] [:where(&_h2)]:font-bold [:where(&_h2)]:text-[#0f1c16] [:where(&_h2)]:m-0 [:where(&_p)]:text-[12.5px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-0"><h2>Trace Lookup</h2></div>
-        <div className="grid grid-cols-[140px_1fr_auto] gap-3 items-end">
+        <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-[140px_1fr_auto]">
           <FormField label="Trace By">
             <Dropdown value={traceType} onChange={(e) => setTraceType(e.target.value as TraceType)}>
               <option value="lot">Lot Number</option>

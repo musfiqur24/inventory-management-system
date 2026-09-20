@@ -259,7 +259,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       title={fixedType ? storeTypeLabel(fixedType) : "Stores & Bins"}
       description={isSetup ? "Configure RM and FM stores and the bin positions inside each store." : "View products in your store, receive and release stock, and trace store activity."}
       headerContent={!isSetup && store ? (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="summary-grid grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
           <Card tone="sand" className="flex min-h-28 flex-col items-center justify-center text-center">
             <p className="text-2xl font-bold">{bins.length}</p>
             <p className="text-sm text-[#73877c]">Bins in this store</p>
@@ -279,7 +279,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       actions={
         !fixedType ? (
           <div className="flex w-full flex-wrap items-end gap-2 sm:w-auto sm:flex-nowrap">
-            <div className="w-full min-w-64 sm:w-80">
+            <div className="w-full min-w-0 sm:w-80">
               <label htmlFor="active-store-setup" className="sr-only">Store</label>
               <Dropdown id="active-store-setup" value={storeId} onChange={(e) => chooseStore(e.target.value)}>
                 <option value="">{storeLoading ? "Loading stores..." : "Select a store"}</option>
@@ -553,7 +553,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                     <td colSpan={5} className="py-8 text-center">
                       {loading
                         ? "Loading..."
-                        : "No bins found. Add a bin to define a position inside this store."}
+                        : "No bins found."}
                     </td>
                   </tr>
                 )}
@@ -882,4 +882,3 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     </PageContainer>
   );
 }
-
