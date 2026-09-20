@@ -112,7 +112,7 @@ export function DataTable<T>({
         </div>
       )}
 
-      <div className={twMerge("max-w-full overflow-x-auto overscroll-x-contain [scrollbar-gutter:stable] [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] print:overflow-visible", scrollAreaClassName)}>
+      <div className={twMerge("max-w-full overflow-x-auto overscroll-x-contain [scrollbar-color:#b9c8bd_transparent] [scrollbar-width:thin] print:overflow-visible", scrollAreaClassName)}>
         <table className={twMerge("w-full min-w-180 border-separate border-spacing-0 text-left", tableClassName)}>
           {columnWidths && <colgroup>{columnWidths.map((width,index)=><col key={index} style={{width}}/>)}</colgroup>}
           <thead className="sticky top-0 z-1">

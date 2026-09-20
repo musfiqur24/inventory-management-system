@@ -4,6 +4,20 @@ import { prisma } from "../prisma.js";
 import type { Prisma } from "../generated/prisma/client.js";
 
 export const partnersRouter = Router();
+partnersRouter.use((req, res, next) => {
+  if (req.method === "GET") return next();
+  const role = req.auth?.organizations.find(
+    (organization) => organization.id === req.tenantId,
+  )?.role.code;
+  if (req.auth?.isSuperAdmin || role === "SUPER_ADMIN" || role === "MANAGER")
+    return next();
+  return res.status(403).json({
+    error: {
+      code: "PARTNER_MANAGEMENT_FORBIDDEN",
+      message: "Only a System Super Admin or Manager can manage partners.",
+    },
+  });
+});
 partnersRouter.get("/", async (req, res) => {
   const type = req.query.type as string | undefined;
   const partners = await prisma.partner.findMany({

@@ -34,7 +34,7 @@ binsRouter.get("/", async (req, res) => {
 });
 const schema = z.object({
   storeId: z.string().uuid(),
-  code: z.string().trim().min(1),
+  code: z.string().trim().regex(/^\d+$/, "Bin code must contain numbers only."),
   name: z.string().trim().min(1),
   zone: z.string().trim().optional(),
   capacity: z.coerce.number().positive().optional(),
@@ -55,7 +55,7 @@ binsRouter.post("/", async (req, res) => {
       data: {
         ...value,
         organizationId: req.tenantId!,
-        code: value.code.toUpperCase(),
+        code: value.code,
       },
       include: { store: true },
     });
@@ -93,7 +93,7 @@ binsRouter.put("/:id", async (req, res) => {
   const bin = await prisma.bin.update({
     where,
     data: {
-      code: value.code.toUpperCase(),
+      code: value.code,
       name: value.name,
       zone: value.zone || null,
       capacity: value.capacity ?? null,

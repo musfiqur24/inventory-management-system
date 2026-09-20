@@ -13,6 +13,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Dropdown } from '../../../components/ui/Dropdown';
+import { useAuth } from '../../auth/AuthContext';
 
 interface Partner {
   id: string; name: string; code: string; partnerType: string;
@@ -20,6 +21,9 @@ interface Partner {
 }
 
 export function PartnersPage() {
+  const { user } = useAuth();
+  const organizationRole = user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code;
+  const canManagePartners = Boolean(user?.isSuperAdmin || organizationRole === 'SUPER_ADMIN' || organizationRole === 'MANAGER');
   const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Partner[]>([]);
   const [open, setOpen] = useState(false);
@@ -72,7 +76,7 @@ export function PartnersPage() {
       cap="MASTER SETUP"
       title="Suppliers & Customers"
       description="Manage your partner directory — suppliers who provide raw materials and customers who receive finished goods."
-      actions={<Button variant="primary" onClick={() => { setEditingId(null); setForm({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' }); setOpen(true); }}><Plus size={16} /> Add Partner</Button>}
+      actions={canManagePartners ? <Button variant="primary" onClick={() => { setEditingId(null); setForm({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' }); setOpen(true); }}><Plus size={16} /> Add Partner</Button> : undefined}
    >
 
       <div className="summary-grid grid grid-cols-2 gap-3 mb-5 lg:grid-cols-3 lg:gap-4">
@@ -100,7 +104,7 @@ export function PartnersPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <DataTable columns={["Partner Name","Code","Type","Contact Person","Email","Phone","Actions"]} empty={filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Building2 size={28} /></div><b>No partners found</b></div>}>
+          <DataTable columns={["Partner Name","Code","Type","Contact Person","Email","Phone",...(canManagePartners ? ["Actions"] : [])]} empty={filtered.length === 0 && <div className="flex flex-col items-center justify-center p-[48px_24px] text-center [:where(&_b)]:text-[15px] [:where(&_b)]:font-semibold [:where(&_b)]:text-[#0f1c16] [:where(&_p)]:text-[13px] [:where(&_p)]:text-[#7a9185] [:where(&_p)]:m-[6px_0_0] [:where(&_p)]:max-w-70"><div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7"><Building2 size={28} /></div><b>No partners found</b></div>}>
               {filtered.map((p) => (
                 <tr key={p.id}>
                   <td>
@@ -120,10 +124,10 @@ export function PartnersPage() {
                   <td>{p.contactPerson ?? <span className="text-[#7a9185]">—</span>}</td>
                   <td>{p.email ? <a href={`mailto:${p.email}`} className="text-[#1864ab] flex items-center gap-1"><Mail size={12} />{p.email}</a> : '—'}</td>
                   <td>{p.phone ? <span className="flex items-center gap-1 text-[13px]"><Phone size={12} />{p.phone}</span> : '—'}</td>
-                  <td><div className="flex items-center gap-2">
+                  {canManagePartners && <td><div className="flex items-center gap-2">
                     <Button className="size-11 shrink-0 p-0" aria-label={`Edit ${p.name}`} onClick={() => { setEditingId(p.id); setForm({ name: p.name, code: p.code, partnerType: p.partnerType, email: p.email ?? '', phone: p.phone ?? '', address: p.address ?? '', contactPerson: p.contactPerson ?? '' }); setOpen(true); }}><Pencil size={16} /></Button>
                     <Button className="size-11 shrink-0 p-0 text-[#c03030] hover:border-red-200 hover:bg-red-50" aria-label={`Delete ${p.name}`} onClick={() => setDeleteTarget(p)}><Trash2 size={16} /></Button>
-                  </div></td>
+                  </div></td>}
                 </tr>
               ))}
             </DataTable>
@@ -131,14 +135,14 @@ export function PartnersPage() {
         </div>
       </Card>
 
-      {deleteTarget && <ConfirmationModal title="Delete partner?" confirmLabel="Delete Partner" pendingLabel="Deleting..." pending={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={deletePartner}>
+      {canManagePartners && deleteTarget && <ConfirmationModal title="Delete partner?" confirmLabel="Delete Partner" pendingLabel="Deleting..." pending={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={deletePartner}>
         <p>Delete <strong>{deleteTarget.name} ({deleteTarget.code})</strong>? This action cannot be undone.</p>
       </ConfirmationModal>}
-      {open && (
+      {canManagePartners && open && (
         <Modal title={editingId ? "Edit Partner" : "Add Partner"} description="Enter supplier or customer details." wide onClose={() => setOpen(false)}
           footer={<><Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button><Button variant="primary" onClick={submit} disabled={saving || !form.name.trim() || !form.code.trim()}>{saving ? 'Saving...' : editingId ? 'Save Changes' : 'Save Partner'}</Button></>}
        >
-          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-4 max-[640px]:grid-cols-[1fr]">
+          <div className="grid grid-cols-[repeat(2,_minmax(0,_1fr))] gap-x-4 gap-y-2 max-[640px]:grid-cols-[1fr] [&>div]:mb-0">
             <FormField label="Partner Type" required>
               <Dropdown value={form.partnerType} onChange={(e) => setForm({ ...form, partnerType: e.target.value })}>
                 <option value="SUPPLIER">Supplier (RM vendor)</option>

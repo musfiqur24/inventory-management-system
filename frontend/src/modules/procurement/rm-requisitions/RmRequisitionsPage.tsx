@@ -43,9 +43,9 @@ export function RmRequisitionsPage() {
   const [deletePending, setDeletePending] = useState(false);
   const isManager = user?.organizations.find(o=>o.id===selectedOrg())?.role.code === "MANAGER";
   const canDelete = () => isManager;
-  const canEdit = (req:Requisition) => !req.approvedAt && ["DRAFT","SUBMITTED"].includes(req.status) && (req.createdById===user?.id || (isManager && req.assignedManagerId===user?.id));
+  const canEdit = (req:Requisition) => !req.approvedAt && ["DRAFT","PENDING"].includes(req.status) && (req.createdById===user?.id || (isManager && req.assignedManagerId===user?.id));
   const [approving, setApproving] = useState<string | null>(null);
-  const canApprove = (req: Requisition) => req.status === 'SUBMITTED' && req.assignedManagerId === user?.id && can('departments.write') && user?.organizations.find(o=>o.id===selectedOrg())?.role.code === 'MANAGER';
+  const canApprove = (req: Requisition) => req.status === 'PENDING' && req.assignedManagerId === user?.id && can('departments.write') && user?.organizations.find(o=>o.id===selectedOrg())?.role.code === 'MANAGER';
   const closeDetails = () => { setSelected(null); setParams(current => { const next = new URLSearchParams(current); next.delete('requisition'); return next; }, {replace:true}); };
   const [rows, setRows] = useState<Requisition[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -132,7 +132,7 @@ export function RmRequisitionsPage() {
     setApproving(id);
     try {
       await api(`/purchase-requisitions/${id}/approve`, { method: 'POST' });
-      setSelected(current=>current?.id===id?{...current,status:'APPROVED'}:current);
+      setSelected(current=>current?.id===id?{...current,status:'AWAITING_DELIVERY'}:current);
       window.dispatchEvent(new Event('notificationsChanged'));
       void load();
     } catch (e: any) { setMessage(e.message); } finally { setApproving(null); }
@@ -150,16 +150,25 @@ export function RmRequisitionsPage() {
   };
 
   const printReq = (req: Requisition) => {
+    const logo = new URL('/Inventory_Logo.png', window.location.origin).href;
+    const total = req.lines.reduce((sum, line) => sum + Number(line.requestedQty) * Number(line.unitPrice || 0), 0);
+    const status = req.status.replaceAll('_', ' ');
     printReport(`Requisition ${req.number}`, `
-      <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">RM Purchase Requisition</h1><p>ID: <strong>${req.number}</strong> &nbsp;|&nbsp; Date: ${new Date(req.requestedOn).toLocaleDateString('en-GB')}</p>${req.supplier ? `<p>Supplier: <strong>${req.supplier.name}</strong></p>` : ''}</div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f8ef] text-[#1b8f5a]">${req.status === "SUBMITTED" ? "PENDING" : req.status}</span></div>
-      ${req.salesOrderRef ? `<p>Sales Order Ref: <strong>${req.salesOrderRef}</strong></p>` : ''}
-      <table class="mt-5 w-full border-collapse [:where(&_th)]:border [:where(&_th)]:border-[#ccc] [:where(&_th)]:p-2.5 [:where(&_th)]:text-left [:where(&_th)]:bg-[#f5f5f5] [:where(&_td)]:border [:where(&_td)]:border-[#ccc] [:where(&_td)]:p-2.5 [:where(&_td)]:text-left"><thead><tr><th>#</th><th>Product</th><th>Requested Qty</th><th>Received Qty</th><th>UOM</th><th>Unit Price</th><th>Total Price</th></tr></thead>
-      <tbody>${req.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.product?.name ?? ''}<br><small>${l.product?.sku ?? ''}</small></td><td>${Number(l.requestedQty).toLocaleString()}</td><td>${Number(l.receivedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td><td>${l.unitPrice ? (Number(l.requestedQty) * Number(l.unitPrice)).toLocaleString() : '-'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="6" class="text-right font-bold">Total Price</td><td class="font-bold">${req.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr></tfoot></table>
-      <div class="mt-10 text-[13px] text-[#777] flex justify-between"><span>Prepared by: _______________________</span><span>Approved by: _______________________</span><span>Date: _____________</span></div>
-    `);
+      <style>
+        @page{size:A4 landscape;margin:12mm}.report{max-width:1120px;margin:auto;color:#17231d;font:12px Arial,sans-serif;print-color-adjust:exact}.head{position:relative;text-align:center;border-bottom:2px solid #1a5c45;padding-bottom:15px}.logo{width:66px;height:66px;object-fit:contain}.brand{color:#4f7462;font-size:10px;font-weight:700;letter-spacing:.18em}.title{margin:6px 0 0;font-size:24px}.status{position:absolute;right:0;top:4px;border:1px solid #b9dcc7;border-radius:20px;background:#eaf7ee;color:#17633f;padding:5px 12px;font-size:10px;font-weight:700}.meta{display:grid;grid-template-columns:repeat(4,1fr);margin-top:18px;border:1px solid #d8e3da;border-radius:10px;overflow:hidden;background:#f8fbf7}.meta div{padding:11px;border-right:1px solid #d8e3da}.meta div:last-child{border:0}.meta span{display:block;color:#71877b;font-size:9px;font-weight:700;text-transform:uppercase}.meta strong{display:block;margin-top:5px}.items{width:100%;margin-top:18px;border:1px solid #cfdad2;border-collapse:separate;border-spacing:0;border-radius:10px;overflow:hidden}.items thead{display:table-header-group}.items tr{page-break-inside:avoid}.items th{padding:10px;background:#eaf2eb;color:#244839;border-bottom:1px solid #c5d4c8;text-align:left}.items td{padding:9px 10px;border-bottom:1px solid #e1e8e2}.items tbody tr:nth-child(even){background:#f8faf8}.num{text-align:right!important;font-variant-numeric:tabular-nums}.center{text-align:center!important}.items small{display:block;margin-top:2px;color:#71877b;font-size:9px}.items tfoot td{background:#eaf2eb;color:#123d2f;font-size:13px;font-weight:700}.sign{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:50px;text-align:center;color:#526b5e}.sign div{border-top:1px solid #82988c;padding-top:7px;font-weight:600}.foot{margin-top:24px;border-top:1px solid #dce5dd;padding-top:7px;text-align:center;color:#819187;font-size:8px}
+      </style>
+      <main class="report">
+        <header class="head"><img class="logo" src="${logo}" alt="FeedTrack"><div class="brand">FEEDTRACK PRODUCTION INVENTORY</div><h1 class="title">RM Purchase Requisition</h1><span class="status">${status}</span></header>
+        <section class="meta"><div><span>Requisition ID</span><strong>${req.number}</strong></div><div><span>Date</span><strong>${new Date(req.requestedOn).toLocaleDateString('en-GB')}</strong></div><div><span>Supplier</span><strong>${req.supplier?.name ?? 'Not assigned'}</strong></div><div><span>Sales Order Ref.</span><strong>${req.salesOrderRef || 'Not provided'}</strong></div></section>
+        <table class="items"><thead><tr><th class="center">#</th><th>Product</th><th class="num">Requested Qty</th><th class="num">Received Qty</th><th class="center">UOM</th><th class="num">Unit Price</th><th class="num">Total Price</th></tr></thead><tbody>
+        ${req.lines.map((line, i) => `<tr><td class="center">${i + 1}</td><td><strong>${line.product?.name ?? ''}</strong><small>${line.product?.sku ?? ''}</small></td><td class="num">${Number(line.requestedQty).toLocaleString()}</td><td class="num">${Number(line.receivedQty).toLocaleString()}</td><td class="center">${line.uom?.code ?? ''}</td><td class="num">${line.unitPrice ? price(Number(line.unitPrice)) : '&mdash;'}</td><td class="num"><strong>${line.unitPrice ? price(Number(line.requestedQty) * Number(line.unitPrice)) : '&mdash;'}</strong></td></tr>`).join('')}
+        </tbody><tfoot><tr><td colspan="6" class="num">Estimated Total</td><td class="num">${price(total)}</td></tr></tfoot></table>
+        <section class="sign"><div>Prepared By</div><div>Checked By</div><div>Approved By</div></section>
+        <footer class="foot">Generated from FeedTrack &bull; ${new Date().toLocaleString('en-GB')}</footer>
+      </main>`);
   };
 
-  const matchesStatus = (r:Requisition,filter:string) => filter === 'ALL' || (filter === 'PENDING' ? ['DRAFT','SUBMITTED'].includes(r.status) : r.status === filter);
+  const matchesStatus = (r:Requisition,filter:string) => filter === 'ALL' || (filter === 'PENDING' ? ['DRAFT','PENDING'].includes(r.status) : r.status === filter);
   const filtered = rows.filter(r => matchesStatus(r,statusFilter) && (r.number.toLowerCase().includes(search.toLowerCase()) || (r.supplier?.name ?? '').toLowerCase().includes(search.toLowerCase())));
 
 
@@ -178,8 +187,8 @@ export function RmRequisitionsPage() {
       <div className="summary-grid grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-4">
         {[
           { label: 'Total', value: rows.length, icon: Layers3, card: 'border-[#e6ddca] bg-linear-to-br from-[#fffdf8] to-[#f8f2e7]', iconStyle: 'border-[#e8dcc3] bg-[#f2e8d5] text-[#8a6737]' },
-          { label: 'Pending', value: rows.filter((r) => r.status === 'SUBMITTED').length, icon: Clock3, card: 'border-[#e7ddc8] bg-linear-to-br from-[#fffdf7] to-[#faf0dc]', iconStyle: 'border-[#ead8b6] bg-[#f6e7c9] text-[#956919]' },
-          { label: 'Approved', value: rows.filter((r) => r.status === 'APPROVED').length, icon: CheckCircle2, card: 'border-[#d9e4d5] bg-linear-to-br from-[#fcfdf8] to-[#edf4e8]', iconStyle: 'border-[#d2e2cd] bg-[#e2eedc] text-[#477342]' },
+          { label: 'Pending', value: rows.filter((r) => r.status === 'PENDING').length, icon: Clock3, card: 'border-[#e7ddc8] bg-linear-to-br from-[#fffdf7] to-[#faf0dc]', iconStyle: 'border-[#ead8b6] bg-[#f6e7c9] text-[#956919]' },
+          { label: 'Awaiting Delivery', value: rows.filter((r) => r.status === 'AWAITING_DELIVERY').length, icon: CheckCircle2, card: 'border-[#d9e4d5] bg-linear-to-br from-[#fcfdf8] to-[#edf4e8]', iconStyle: 'border-[#d2e2cd] bg-[#e2eedc] text-[#477342]' },
           { label: 'Incomplete', value: rows.filter((r) => r.status === 'INCOMPLETE').length, icon: CircleAlert, card: 'border-[#eadbce] bg-linear-to-br from-[#fffaf6] to-[#f8eadf]', iconStyle: 'border-[#ecd5c5] bg-[#f5dfd0] text-[#a05f3b]' },
           { label: 'Received', value: rows.filter((r) => r.status === 'RECEIVED' || r.status === 'PARTIALLY_RECEIVED').length, icon: PackageCheck, card: 'border-[#d5e4dd] bg-linear-to-br from-[#fbfdf9] to-[#e7f2eb]', iconStyle: 'border-[#cde0d6] bg-[#dcece3] text-[#2f7054]' },
         ].map((s) => {
@@ -206,7 +215,7 @@ export function RmRequisitionsPage() {
           <h2 className="m-0 shrink-0 text-sm font-semibold">Requisition Register</h2>
           <div className="flex w-full min-w-0 flex-1 flex-col items-stretch gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
             <div role="group" aria-label="Filter requisitions by status" className="flex max-w-full items-center gap-2 overflow-x-auto pb-1 [&>button]:shrink-0">
-              {[{value:'ALL',label:'All'},{value:'APPROVED',label:'Approved'},{value:'PENDING',label:'Pending'},{value:'INCOMPLETE',label:'Incomplete'},{value:'REJECTED',label:'Rejected'}].map(filter=><Button key={filter.value} size="sm" className="h-9" variant={statusFilter===filter.value?'primary':'secondary'} aria-pressed={statusFilter===filter.value} onClick={()=>setStatusFilter(filter.value)}>{filter.label}<span className="text-xs opacity-75">({rows.filter(r=>matchesStatus(r,filter.value)).length})</span></Button>)}
+              {[{value:'ALL',label:'All'},{value:'AWAITING_DELIVERY',label:'Awaiting Delivery'},{value:'PENDING',label:'Pending'},{value:'INCOMPLETE',label:'Incomplete'},{value:'PARTIALLY_RECEIVED',label:'Partially Received'},{value:'RECEIVED',label:'Received'}].map(filter=><Button key={filter.value} size="sm" className="h-9" variant={statusFilter===filter.value?'primary':'secondary'} aria-pressed={statusFilter===filter.value} onClick={()=>setStatusFilter(filter.value)}>{filter.label}<span className="text-xs opacity-75">({rows.filter(r=>matchesStatus(r,filter.value)).length})</span></Button>)}
             </div>
             <div className="flex h-9 w-full items-center gap-2 rounded-lg border border-[#e0e5dd] bg-[#f8faf7] px-3 focus-within:border-[#1a5c45] focus-within:ring-2 focus-within:ring-[#1a5c45]/10 sm:w-72">
               <Search size={15} className="shrink-0 text-[#7a9185]"/>
@@ -224,7 +233,7 @@ export function RmRequisitionsPage() {
                   <td><span className="text-[12px] text-[#7a9185]">{req.salesOrderRef ?? '—'}</span></td>
                   <td>{req.lines.length} items</td>
                   <td>{req.totalEstimatedCost ? req.totalEstimatedCost.toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—'}</td>
-                  <td>{statusBadge(req.status === "SUBMITTED" ? "PENDING" : req.status)}</td>
+                  <td>{statusBadge(req.status)}</td>
                   <td className="text-[12px] text-[#7a9185]">{new Date(req.requestedOn).toLocaleDateString('en-GB')}</td>
                   <td>
                     <div className="flex items-center gap-1">
@@ -323,7 +332,7 @@ export function RmRequisitionsPage() {
       {selected && (
         <Modal
           title={`Requisition ${selected.number}`}
-          description={`Status: ${selected.status === "SUBMITTED" ? "PENDING" : selected.status} | Supplier: ${selected.supplier?.name ?? 'Not assigned'}`}
+          description={`Status: ${selected.status.replaceAll("_", " ")} | Supplier: ${selected.supplier?.name ?? 'Not assigned'}`}
           onClose={closeDetails}
           wide
           footer={
@@ -346,7 +355,7 @@ export function RmRequisitionsPage() {
                     <td><strong>{Number(l.requestedQty).toLocaleString()}</strong></td>
                     <td>{Number(l.verifiedQty??0).toLocaleString()}</td>
                     <td><strong>{Math.max(0,Number(l.requestedQty)-Number(l.verifiedQty??0)).toLocaleString()}</strong></td>
-                    <td>{Number(l.verifiedQty??0)>=Number(l.requestedQty)?<span className="text-green-700">Complete</span>:selected.status==="SUBMITTED"?<span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">Pending</span>:selected.status==="APPROVED"?<span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">Awaiting Delivery</span>:<span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">Incomplete</span>}</td>
+                    <td>{Number(l.verifiedQty??0)>=Number(l.requestedQty)?<span className="text-green-700">Complete</span>:selected.status==="PENDING"?<span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">Pending</span>:selected.status==="AWAITING_DELIVERY"?<span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">Awaiting Delivery</span>:<span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">Incomplete</span>}</td>
                     <td>{Number(l.receivedQty).toLocaleString()}</td>
                     <td>{l.uom?.code ?? '—'}</td>
                     <td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td>

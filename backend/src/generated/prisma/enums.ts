@@ -41,8 +41,10 @@ export type ProductType = (typeof ProductType)[keyof typeof ProductType]
 
 export const DocumentStatus = {
   DRAFT: 'DRAFT',
+  PENDING: 'PENDING',
   SUBMITTED: 'SUBMITTED',
   WEIGHED: 'WEIGHED',
+  AWAITING_DELIVERY: 'AWAITING_DELIVERY',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
   PARTIALLY_RECEIVED: 'PARTIALLY_RECEIVED',

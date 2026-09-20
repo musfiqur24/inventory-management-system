@@ -28,6 +28,8 @@ export function statusBadge(status: string) {
     CLOSED: { variant: 'purple', label: 'Closed' },
     CANCELLED: { variant: 'red', label: 'Cancelled' },
     PENDING: { variant: 'yellow', label: 'Pending' },
+    WEIGHING_PENDING: { variant: 'yellow', label: 'Weighing Pending' },
+    AWAITING_DELIVERY: { variant: 'green', label: 'Awaiting Delivery' },
     RELEASED: { variant: 'green', label: 'Released' },
     HOLD: { variant: 'yellow', label: 'On Hold' },
   };

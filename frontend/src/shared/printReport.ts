@@ -23,6 +23,16 @@ export function printReport(title: string, content: string) {
 
   void Promise.all(stylesReady).then(async () => {
     await popup.document.fonts.ready;
+    await Promise.all(
+      Array.from(popup.document.images).map((image) =>
+        image.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              image.onload = () => resolve();
+              image.onerror = () => resolve();
+            }),
+      ),
+    );
     if (!popup.closed) {
       popup.focus();
       popup.print();

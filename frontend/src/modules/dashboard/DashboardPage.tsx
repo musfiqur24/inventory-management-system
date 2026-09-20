@@ -38,7 +38,7 @@ export function DashboardPage() {
       .then(([products, reqs, deliveries, batches, dispatches, movements]) => {
         const lowStock = products.data.filter((p) => p.isBelowReorder);
         setStats({
-          pendingRequisitions: reqs.data.filter((r) => r.status === 'SUBMITTED' || r.status === 'APPROVED').length,
+          pendingRequisitions: reqs.data.filter((r) => r.status === 'PENDING' || r.status === 'AWAITING_DELIVERY').length,
           pendingDeliveries: deliveries.data.filter((d) => d.status === 'SUBMITTED').length,
           activeBatches: batches.data.filter((b) => b.status === 'DRAFT' || b.status === 'SUBMITTED').length,
           pendingDispatches: dispatches.data.filter((d) => d.status === 'SUBMITTED').length,

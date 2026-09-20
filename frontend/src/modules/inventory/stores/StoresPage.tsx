@@ -747,7 +747,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               <Button
                 variant="primary"
                 disabled={
-                  saving || !storeForm.name.trim() || !storeForm.code.trim()
+                  saving || !storeForm.name.trim() || !/^\d+$/.test(storeForm.code)
                 }
                 onClick={saveStore}
               >
@@ -759,9 +759,11 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
           <div className="grid gap-3 sm:grid-cols-2 [&>div]:mb-0">
             <FormField label="Store Code" required>
               <Input
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={storeForm.code}
                 onChange={(e) =>
-                  setStoreForm({ ...storeForm, code: e.target.value })
+                  setStoreForm({ ...storeForm, code: e.target.value.replace(/\D/g, "") })
                 }
               />
             </FormField>
@@ -813,7 +815,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               <Button
                 variant="primary"
                 disabled={
-                  saving || !binForm.name.trim() || !binForm.code.trim()
+                  saving || !binForm.name.trim() || !/^\d+$/.test(binForm.code)
                 }
                 onClick={saveBin}
               >
@@ -825,9 +827,11 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
           <div className="grid gap-3 sm:grid-cols-2 [&>div]:mb-0">
             <FormField label="Bin Code" required>
               <Input
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={binForm.code}
                 onChange={(e) =>
-                  setBinForm({ ...binForm, code: e.target.value })
+                  setBinForm({ ...binForm, code: e.target.value.replace(/\D/g, "") })
                 }
               />
             </FormField>

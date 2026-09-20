@@ -4,7 +4,7 @@ import { prisma } from "../prisma.js";
 import type { Prisma } from "../generated/prisma/client.js";
 export const storesRouter = Router();
 const storeSchema = z.object({
-  code: z.string().trim().min(1),
+  code: z.string().trim().regex(/^\d+$/, "Store code must contain numbers only."),
   name: z.string().trim().min(1),
   storeType: z.enum(["RM_STORE", "FM_STORE"]),
   address: z.string().trim().optional(),
@@ -32,7 +32,7 @@ storesRouter.post("/", async (req, res) => {
       data: await prisma.store.create({
         data: {
           ...value,
-          code: value.code.toUpperCase(),
+          code: value.code,
           organizationId: req.tenantId!,
         },
       }),
@@ -52,7 +52,7 @@ storesRouter.put("/:id", async (req, res) => {
       return "in-use";
     return tx.store.update({
       where,
-      data: { ...value, code: value.code.toUpperCase() },
+      data: { ...value, code: value.code },
     });
   });
   if (!result)

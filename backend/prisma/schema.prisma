@@ -30,8 +30,10 @@ enum ProductType {
 }
 enum DocumentStatus {
   DRAFT
+  PENDING
   SUBMITTED
   WEIGHED
+  AWAITING_DELIVERY
   APPROVED
   REJECTED
   PARTIALLY_RECEIVED
@@ -257,7 +259,7 @@ model PurchaseRequisition {
   number String
   salesOrderRef String?
   supplierId String?
-  status DocumentStatus @default(DRAFT)
+  status DocumentStatus @default(PENDING)
   requestedOn DateTime @default(now())
   approvedAt DateTime?
   createdById String?
