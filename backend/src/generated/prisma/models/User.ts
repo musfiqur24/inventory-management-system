@@ -234,6 +234,8 @@ export type UserWhereInput = {
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
   assignedRequisitions?: Prisma.PurchaseRequisitionListRelationFilter
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
 }
 
@@ -253,6 +255,8 @@ export type UserOrderByWithRelationInput = {
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
   passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
   assignedRequisitions?: Prisma.PurchaseRequisitionOrderByRelationAggregateInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionOrderByRelationAggregateInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
@@ -275,6 +279,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
   assignedRequisitions?: Prisma.PurchaseRequisitionListRelationFilter
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
 }, "id" | "email">
 
@@ -328,6 +334,8 @@ export type UserCreateInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -347,6 +355,8 @@ export type UserUncheckedCreateInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -366,6 +376,8 @@ export type UserUpdateInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -385,6 +397,8 @@ export type UserUncheckedUpdateInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -498,6 +512,38 @@ export type UserUpdateOneWithoutAssignedRequisitionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedRequisitionsInput, Prisma.UserUpdateWithoutAssignedRequisitionsInput>, Prisma.UserUncheckedUpdateWithoutAssignedRequisitionsInput>
 }
 
+export type UserCreateNestedOneWithoutAssignedProductionRequisitionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutAssignedProductionRequisitionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedProductionRequisitionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutApprovedProductionRequisitionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApprovedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutApprovedProductionRequisitionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApprovedProductionRequisitionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAssignedProductionRequisitionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutAssignedProductionRequisitionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedProductionRequisitionsInput
+  upsert?: Prisma.UserUpsertWithoutAssignedProductionRequisitionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedProductionRequisitionsInput, Prisma.UserUpdateWithoutAssignedProductionRequisitionsInput>, Prisma.UserUncheckedUpdateWithoutAssignedProductionRequisitionsInput>
+}
+
+export type UserUpdateOneWithoutApprovedProductionRequisitionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApprovedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutApprovedProductionRequisitionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApprovedProductionRequisitionsInput
+  upsert?: Prisma.UserUpsertWithoutApprovedProductionRequisitionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApprovedProductionRequisitionsInput, Prisma.UserUpdateWithoutApprovedProductionRequisitionsInput>, Prisma.UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput>
+}
+
 export type UserCreateNestedOneWithoutMembershipsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutMembershipsInput, Prisma.UserUncheckedCreateWithoutMembershipsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutMembershipsInput
@@ -569,6 +615,8 @@ export type UserCreateWithoutAssignedRequisitionsInput = {
   memberships?: Prisma.OrganizationMemberCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -587,6 +635,8 @@ export type UserUncheckedCreateWithoutAssignedRequisitionsInput = {
   memberships?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -621,6 +671,8 @@ export type UserUpdateWithoutAssignedRequisitionsInput = {
   memberships?: Prisma.OrganizationMemberUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -639,6 +691,200 @@ export type UserUncheckedUpdateWithoutAssignedRequisitionsInput = {
   memberships?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserCreateWithoutAssignedProductionRequisitionsInput = {
+  id?: string
+  email: string
+  fullName: string
+  avatarUrl?: string | null
+  phone?: string | null
+  presentAddress?: string | null
+  permanentAddress?: string | null
+  passwordHash: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.OrganizationMemberCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutAssignedProductionRequisitionsInput = {
+  id?: string
+  email: string
+  fullName: string
+  avatarUrl?: string | null
+  phone?: string | null
+  presentAddress?: string | null
+  permanentAddress?: string | null
+  passwordHash: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutAssignedProductionRequisitionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutAssignedProductionRequisitionsInput>
+}
+
+export type UserCreateWithoutApprovedProductionRequisitionsInput = {
+  id?: string
+  email: string
+  fullName: string
+  avatarUrl?: string | null
+  phone?: string | null
+  presentAddress?: string | null
+  permanentAddress?: string | null
+  passwordHash: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.OrganizationMemberCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutApprovedProductionRequisitionsInput = {
+  id?: string
+  email: string
+  fullName: string
+  avatarUrl?: string | null
+  phone?: string | null
+  presentAddress?: string | null
+  permanentAddress?: string | null
+  passwordHash: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutApprovedProductionRequisitionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutApprovedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutApprovedProductionRequisitionsInput>
+}
+
+export type UserUpsertWithoutAssignedProductionRequisitionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignedProductionRequisitionsInput, Prisma.UserUncheckedUpdateWithoutAssignedProductionRequisitionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutAssignedProductionRequisitionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssignedProductionRequisitionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignedProductionRequisitionsInput, Prisma.UserUncheckedUpdateWithoutAssignedProductionRequisitionsInput>
+}
+
+export type UserUpdateWithoutAssignedProductionRequisitionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.OrganizationMemberUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssignedProductionRequisitionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUpsertWithoutApprovedProductionRequisitionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutApprovedProductionRequisitionsInput, Prisma.UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutApprovedProductionRequisitionsInput, Prisma.UserUncheckedCreateWithoutApprovedProductionRequisitionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutApprovedProductionRequisitionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutApprovedProductionRequisitionsInput, Prisma.UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput>
+}
+
+export type UserUpdateWithoutApprovedProductionRequisitionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.OrganizationMemberUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -657,6 +903,8 @@ export type UserCreateWithoutMembershipsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -675,6 +923,8 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -709,6 +959,8 @@ export type UserUpdateWithoutMembershipsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -727,6 +979,8 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -745,6 +999,8 @@ export type UserCreateWithoutRefreshTokensInput = {
   memberships?: Prisma.OrganizationMemberCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -763,6 +1019,8 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   memberships?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -797,6 +1055,8 @@ export type UserUpdateWithoutRefreshTokensInput = {
   memberships?: Prisma.OrganizationMemberUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -815,6 +1075,8 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   memberships?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -833,6 +1095,8 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   memberships?: Prisma.OrganizationMemberCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -851,6 +1115,8 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   memberships?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -885,6 +1151,8 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   memberships?: Prisma.OrganizationMemberUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -903,6 +1171,8 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   memberships?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -922,6 +1192,8 @@ export type UserCreateWithoutNotificationsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -940,6 +1212,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -974,6 +1248,8 @@ export type UserUpdateWithoutNotificationsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -992,6 +1268,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
 }
 
 
@@ -1004,6 +1282,8 @@ export type UserCountOutputType = {
   refreshTokens: number
   passwordResetTokens: number
   assignedRequisitions: number
+  assignedProductionRequisitions: number
+  approvedProductionRequisitions: number
   notifications: number
 }
 
@@ -1012,6 +1292,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
   passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
   assignedRequisitions?: boolean | UserCountOutputTypeCountAssignedRequisitionsArgs
+  assignedProductionRequisitions?: boolean | UserCountOutputTypeCountAssignedProductionRequisitionsArgs
+  approvedProductionRequisitions?: boolean | UserCountOutputTypeCountApprovedProductionRequisitionsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
 }
 
@@ -1056,6 +1338,20 @@ export type UserCountOutputTypeCountAssignedRequisitionsArgs<ExtArgs extends run
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountAssignedProductionRequisitionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionRequisitionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountApprovedProductionRequisitionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionRequisitionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.NotificationWhereInput
 }
@@ -1077,6 +1373,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   assignedRequisitions?: boolean | Prisma.User$assignedRequisitionsArgs<ExtArgs>
+  assignedProductionRequisitions?: boolean | Prisma.User$assignedProductionRequisitionsArgs<ExtArgs>
+  approvedProductionRequisitions?: boolean | Prisma.User$approvedProductionRequisitionsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -1129,6 +1427,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   assignedRequisitions?: boolean | Prisma.User$assignedRequisitionsArgs<ExtArgs>
+  assignedProductionRequisitions?: boolean | Prisma.User$assignedProductionRequisitionsArgs<ExtArgs>
+  approvedProductionRequisitions?: boolean | Prisma.User$approvedProductionRequisitionsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1142,6 +1442,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
     passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
     assignedRequisitions: Prisma.$PurchaseRequisitionPayload<ExtArgs>[]
+    assignedProductionRequisitions: Prisma.$ProductionRequisitionPayload<ExtArgs>[]
+    approvedProductionRequisitions: Prisma.$ProductionRequisitionPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1554,6 +1856,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedRequisitions<T extends Prisma.User$assignedRequisitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedRequisitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseRequisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedProductionRequisitions<T extends Prisma.User$assignedProductionRequisitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedProductionRequisitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionRequisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  approvedProductionRequisitions<T extends Prisma.User$approvedProductionRequisitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$approvedProductionRequisitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionRequisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2081,6 +2385,54 @@ export type User$assignedRequisitionsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.PurchaseRequisitionScalarFieldEnum | Prisma.PurchaseRequisitionScalarFieldEnum[]
+}
+
+/**
+ * User.assignedProductionRequisitions
+ */
+export type User$assignedProductionRequisitionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionRequisition
+   */
+  select?: Prisma.ProductionRequisitionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionRequisition
+   */
+  omit?: Prisma.ProductionRequisitionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionRequisitionInclude<ExtArgs> | null
+  where?: Prisma.ProductionRequisitionWhereInput
+  orderBy?: Prisma.ProductionRequisitionOrderByWithRelationInput | Prisma.ProductionRequisitionOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionRequisitionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionRequisitionScalarFieldEnum | Prisma.ProductionRequisitionScalarFieldEnum[]
+}
+
+/**
+ * User.approvedProductionRequisitions
+ */
+export type User$approvedProductionRequisitionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionRequisition
+   */
+  select?: Prisma.ProductionRequisitionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionRequisition
+   */
+  omit?: Prisma.ProductionRequisitionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionRequisitionInclude<ExtArgs> | null
+  where?: Prisma.ProductionRequisitionWhereInput
+  orderBy?: Prisma.ProductionRequisitionOrderByWithRelationInput | Prisma.ProductionRequisitionOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionRequisitionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionRequisitionScalarFieldEnum | Prisma.ProductionRequisitionScalarFieldEnum[]
 }
 
 /**

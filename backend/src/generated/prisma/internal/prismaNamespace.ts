@@ -4116,7 +4116,11 @@ export const ProductionRequisitionScalarFieldEnum = {
   organizationId: 'organizationId',
   number: 'number',
   status: 'status',
-  requestedOn: 'requestedOn'
+  requestedOn: 'requestedOn',
+  createdById: 'createdById',
+  assignedManagerId: 'assignedManagerId',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt'
 } as const
 
 export type ProductionRequisitionScalarFieldEnum = (typeof ProductionRequisitionScalarFieldEnum)[keyof typeof ProductionRequisitionScalarFieldEnum]

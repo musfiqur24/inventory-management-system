@@ -334,10 +334,10 @@ storesRouter.get("/:id/receiving-options", async (req, res) => {
     prisma.productionBatch.findMany({
       where: {
         organizationId: req.tenantId,
-        status: "CLOSED",
-        fgLotId: { not: null },
+        status: "READY",
         actualOutputQty: { gt: 0 },
       },
+      include: { outputLines: true },
       orderBy: { number: "desc" },
     }),
     prisma.productionOrder.findMany({
@@ -356,31 +356,22 @@ storesRouter.get("/:id/receiving-options", async (req, res) => {
     data: batches
       .filter((b) => !posted.some((p) => p.documentId === b.number))
       .flatMap((b) => {
-        const order = orders.find((o) => o.id === b.productionOrderId);
-        return order
-          ? [
-              {
-                id: b.id,
-                number: b.number,
-                referenceNumber: order.number,
-                lines: [
-                  {
-                    id: b.id,
-                    productId: order.finishedProductId,
-                    productName:
-                      products.find((p) => p.id === order.finishedProductId)
-                        ?.name ?? "",
-                    uomId: order.plannedUomId,
-                    uomCode: uoms.find((u) => u.id === order.plannedUomId)
-                      ?.code,
-                    remaining: b.actualOutputQty,
-                  },
-                ],
-              },
-            ]
-          : [];
-      }),
-  });
+        const anchor = orders.find((order) => order.id === b.productionOrderId);
+        const requisitionOrders = anchor?.requisitionId ? orders.filter((order) => order.requisitionId === anchor.requisitionId) : anchor ? [anchor] : [];
+        const orderByProduct = new Map(requisitionOrders.map((order) => [order.finishedProductId, order]));
+        const lines = b.outputLines.filter((line) => line.productId && Number(line.quantity) > 0).map((line) => {
+          const order = orderByProduct.get(line.productId!);
+          return {
+            id: line.id,
+            productId: line.productId!,
+            productName: products.find((product) => product.id === line.productId)?.name ?? line.description,
+            uomId: order?.plannedUomId ?? anchor?.plannedUomId ?? "",
+            uomCode: uoms.find((uom) => uom.id === (order?.plannedUomId ?? anchor?.plannedUomId))?.code,
+            remaining: line.quantity,
+          };
+        });
+        return lines.length ? [{ id: b.id, number: b.number, referenceNumber: anchor?.requisitionId ?? anchor?.number, lines }] : [];
+      }),  });
 });
 storesRouter.get("/:id/release-options", async (req, res) => {
   const store = await prisma.store.findFirst({

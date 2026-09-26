@@ -30,6 +30,10 @@ export type ProductionRequisitionMinAggregateOutputType = {
   number: string | null
   status: $Enums.DocumentStatus | null
   requestedOn: Date | null
+  createdById: string | null
+  assignedManagerId: string | null
+  approvedById: string | null
+  approvedAt: Date | null
 }
 
 export type ProductionRequisitionMaxAggregateOutputType = {
@@ -38,6 +42,10 @@ export type ProductionRequisitionMaxAggregateOutputType = {
   number: string | null
   status: $Enums.DocumentStatus | null
   requestedOn: Date | null
+  createdById: string | null
+  assignedManagerId: string | null
+  approvedById: string | null
+  approvedAt: Date | null
 }
 
 export type ProductionRequisitionCountAggregateOutputType = {
@@ -46,6 +54,10 @@ export type ProductionRequisitionCountAggregateOutputType = {
   number: number
   status: number
   requestedOn: number
+  createdById: number
+  assignedManagerId: number
+  approvedById: number
+  approvedAt: number
   _all: number
 }
 
@@ -56,6 +68,10 @@ export type ProductionRequisitionMinAggregateInputType = {
   number?: true
   status?: true
   requestedOn?: true
+  createdById?: true
+  assignedManagerId?: true
+  approvedById?: true
+  approvedAt?: true
 }
 
 export type ProductionRequisitionMaxAggregateInputType = {
@@ -64,6 +80,10 @@ export type ProductionRequisitionMaxAggregateInputType = {
   number?: true
   status?: true
   requestedOn?: true
+  createdById?: true
+  assignedManagerId?: true
+  approvedById?: true
+  approvedAt?: true
 }
 
 export type ProductionRequisitionCountAggregateInputType = {
@@ -72,6 +92,10 @@ export type ProductionRequisitionCountAggregateInputType = {
   number?: true
   status?: true
   requestedOn?: true
+  createdById?: true
+  assignedManagerId?: true
+  approvedById?: true
+  approvedAt?: true
   _all?: true
 }
 
@@ -153,6 +177,10 @@ export type ProductionRequisitionGroupByOutputType = {
   number: string
   status: $Enums.DocumentStatus
   requestedOn: Date
+  createdById: string | null
+  assignedManagerId: string | null
+  approvedById: string | null
+  approvedAt: Date | null
   _count: ProductionRequisitionCountAggregateOutputType | null
   _min: ProductionRequisitionMinAggregateOutputType | null
   _max: ProductionRequisitionMaxAggregateOutputType | null
@@ -182,6 +210,12 @@ export type ProductionRequisitionWhereInput = {
   number?: Prisma.StringFilter<"ProductionRequisition"> | string
   status?: Prisma.EnumDocumentStatusFilter<"ProductionRequisition"> | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFilter<"ProductionRequisition"> | Date | string
+  createdById?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ProductionRequisition"> | Date | string | null
+  assignedManager?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  approvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   orders?: Prisma.ProductionOrderListRelationFilter
 }
 
@@ -191,6 +225,12 @@ export type ProductionRequisitionOrderByWithRelationInput = {
   number?: Prisma.SortOrder
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManager?: Prisma.UserOrderByWithRelationInput
+  approvedBy?: Prisma.UserOrderByWithRelationInput
   orders?: Prisma.ProductionOrderOrderByRelationAggregateInput
 }
 
@@ -204,6 +244,12 @@ export type ProductionRequisitionWhereUniqueInput = Prisma.AtLeast<{
   number?: Prisma.StringFilter<"ProductionRequisition"> | string
   status?: Prisma.EnumDocumentStatusFilter<"ProductionRequisition"> | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFilter<"ProductionRequisition"> | Date | string
+  createdById?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ProductionRequisition"> | Date | string | null
+  assignedManager?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  approvedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   orders?: Prisma.ProductionOrderListRelationFilter
 }, "id" | "organizationId_number">
 
@@ -213,6 +259,10 @@ export type ProductionRequisitionOrderByWithAggregationInput = {
   number?: Prisma.SortOrder
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ProductionRequisitionCountOrderByAggregateInput
   _max?: Prisma.ProductionRequisitionMaxOrderByAggregateInput
   _min?: Prisma.ProductionRequisitionMinOrderByAggregateInput
@@ -227,6 +277,10 @@ export type ProductionRequisitionScalarWhereWithAggregatesInput = {
   number?: Prisma.StringWithAggregatesFilter<"ProductionRequisition"> | string
   status?: Prisma.EnumDocumentStatusWithAggregatesFilter<"ProductionRequisition"> | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeWithAggregatesFilter<"ProductionRequisition"> | Date | string
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"ProductionRequisition"> | string | null
+  assignedManagerId?: Prisma.StringNullableWithAggregatesFilter<"ProductionRequisition"> | string | null
+  approvedById?: Prisma.StringNullableWithAggregatesFilter<"ProductionRequisition"> | string | null
+  approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductionRequisition"> | Date | string | null
 }
 
 export type ProductionRequisitionCreateInput = {
@@ -235,6 +289,10 @@ export type ProductionRequisitionCreateInput = {
   number: string
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
+  createdById?: string | null
+  approvedAt?: Date | string | null
+  assignedManager?: Prisma.UserCreateNestedOneWithoutAssignedProductionRequisitionsInput
+  approvedBy?: Prisma.UserCreateNestedOneWithoutApprovedProductionRequisitionsInput
   orders?: Prisma.ProductionOrderCreateNestedManyWithoutRequisitionInput
 }
 
@@ -244,6 +302,10 @@ export type ProductionRequisitionUncheckedCreateInput = {
   number: string
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
   orders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutRequisitionInput
 }
 
@@ -253,6 +315,10 @@ export type ProductionRequisitionUpdateInput = {
   number?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedManager?: Prisma.UserUpdateOneWithoutAssignedProductionRequisitionsNestedInput
+  approvedBy?: Prisma.UserUpdateOneWithoutApprovedProductionRequisitionsNestedInput
   orders?: Prisma.ProductionOrderUpdateManyWithoutRequisitionNestedInput
 }
 
@@ -262,6 +328,10 @@ export type ProductionRequisitionUncheckedUpdateInput = {
   number?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   orders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutRequisitionNestedInput
 }
 
@@ -271,6 +341,10 @@ export type ProductionRequisitionCreateManyInput = {
   number: string
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type ProductionRequisitionUpdateManyMutationInput = {
@@ -279,6 +353,8 @@ export type ProductionRequisitionUpdateManyMutationInput = {
   number?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ProductionRequisitionUncheckedUpdateManyInput = {
@@ -287,6 +363,20 @@ export type ProductionRequisitionUncheckedUpdateManyInput = {
   number?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type ProductionRequisitionListRelationFilter = {
+  every?: Prisma.ProductionRequisitionWhereInput
+  some?: Prisma.ProductionRequisitionWhereInput
+  none?: Prisma.ProductionRequisitionWhereInput
+}
+
+export type ProductionRequisitionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ProductionRequisitionOrganizationIdNumberCompoundUniqueInput = {
@@ -300,6 +390,10 @@ export type ProductionRequisitionCountOrderByAggregateInput = {
   number?: Prisma.SortOrder
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
 }
 
 export type ProductionRequisitionMaxOrderByAggregateInput = {
@@ -308,6 +402,10 @@ export type ProductionRequisitionMaxOrderByAggregateInput = {
   number?: Prisma.SortOrder
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
 }
 
 export type ProductionRequisitionMinOrderByAggregateInput = {
@@ -316,11 +414,99 @@ export type ProductionRequisitionMinOrderByAggregateInput = {
   number?: Prisma.SortOrder
   status?: Prisma.SortOrder
   requestedOn?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  assignedManagerId?: Prisma.SortOrder
+  approvedById?: Prisma.SortOrder
+  approvedAt?: Prisma.SortOrder
 }
 
 export type ProductionRequisitionNullableScalarRelationFilter = {
   is?: Prisma.ProductionRequisitionWhereInput | null
   isNot?: Prisma.ProductionRequisitionWhereInput | null
+}
+
+export type ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyAssignedManagerInputEnvelope
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+}
+
+export type ProductionRequisitionCreateNestedManyWithoutApprovedByInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput> | Prisma.ProductionRequisitionCreateWithoutApprovedByInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput | Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyApprovedByInputEnvelope
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+}
+
+export type ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyAssignedManagerInputEnvelope
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+}
+
+export type ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput> | Prisma.ProductionRequisitionCreateWithoutApprovedByInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput | Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyApprovedByInputEnvelope
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+}
+
+export type ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  upsert?: Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput | Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyAssignedManagerInputEnvelope
+  set?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  disconnect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  delete?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  update?: Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput | Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput[]
+  updateMany?: Prisma.ProductionRequisitionUpdateManyWithWhereWithoutAssignedManagerInput | Prisma.ProductionRequisitionUpdateManyWithWhereWithoutAssignedManagerInput[]
+  deleteMany?: Prisma.ProductionRequisitionScalarWhereInput | Prisma.ProductionRequisitionScalarWhereInput[]
+}
+
+export type ProductionRequisitionUpdateManyWithoutApprovedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput> | Prisma.ProductionRequisitionCreateWithoutApprovedByInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput | Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput[]
+  upsert?: Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutApprovedByInput | Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutApprovedByInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyApprovedByInputEnvelope
+  set?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  disconnect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  delete?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  update?: Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutApprovedByInput | Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutApprovedByInput[]
+  updateMany?: Prisma.ProductionRequisitionUpdateManyWithWhereWithoutApprovedByInput | Prisma.ProductionRequisitionUpdateManyWithWhereWithoutApprovedByInput[]
+  deleteMany?: Prisma.ProductionRequisitionScalarWhereInput | Prisma.ProductionRequisitionScalarWhereInput[]
+}
+
+export type ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput> | Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput | Prisma.ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput[]
+  upsert?: Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput | Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyAssignedManagerInputEnvelope
+  set?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  disconnect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  delete?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  update?: Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput | Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput[]
+  updateMany?: Prisma.ProductionRequisitionUpdateManyWithWhereWithoutAssignedManagerInput | Prisma.ProductionRequisitionUpdateManyWithWhereWithoutAssignedManagerInput[]
+  deleteMany?: Prisma.ProductionRequisitionScalarWhereInput | Prisma.ProductionRequisitionScalarWhereInput[]
+}
+
+export type ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput> | Prisma.ProductionRequisitionCreateWithoutApprovedByInput[] | Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput[]
+  connectOrCreate?: Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput | Prisma.ProductionRequisitionCreateOrConnectWithoutApprovedByInput[]
+  upsert?: Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutApprovedByInput | Prisma.ProductionRequisitionUpsertWithWhereUniqueWithoutApprovedByInput[]
+  createMany?: Prisma.ProductionRequisitionCreateManyApprovedByInputEnvelope
+  set?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  disconnect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  delete?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  connect?: Prisma.ProductionRequisitionWhereUniqueInput | Prisma.ProductionRequisitionWhereUniqueInput[]
+  update?: Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutApprovedByInput | Prisma.ProductionRequisitionUpdateWithWhereUniqueWithoutApprovedByInput[]
+  updateMany?: Prisma.ProductionRequisitionUpdateManyWithWhereWithoutApprovedByInput | Prisma.ProductionRequisitionUpdateManyWithWhereWithoutApprovedByInput[]
+  deleteMany?: Prisma.ProductionRequisitionScalarWhereInput | Prisma.ProductionRequisitionScalarWhereInput[]
 }
 
 export type ProductionRequisitionCreateNestedOneWithoutOrdersInput = {
@@ -339,12 +525,131 @@ export type ProductionRequisitionUpdateOneWithoutOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionRequisitionUpdateToOneWithWhereWithoutOrdersInput, Prisma.ProductionRequisitionUpdateWithoutOrdersInput>, Prisma.ProductionRequisitionUncheckedUpdateWithoutOrdersInput>
 }
 
+export type ProductionRequisitionCreateWithoutAssignedManagerInput = {
+  id?: string
+  organizationId: string
+  number: string
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  createdById?: string | null
+  approvedAt?: Date | string | null
+  approvedBy?: Prisma.UserCreateNestedOneWithoutApprovedProductionRequisitionsInput
+  orders?: Prisma.ProductionOrderCreateNestedManyWithoutRequisitionInput
+}
+
+export type ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput = {
+  id?: string
+  organizationId: string
+  number: string
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  createdById?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+  orders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutRequisitionInput
+}
+
+export type ProductionRequisitionCreateOrConnectWithoutAssignedManagerInput = {
+  where: Prisma.ProductionRequisitionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput>
+}
+
+export type ProductionRequisitionCreateManyAssignedManagerInputEnvelope = {
+  data: Prisma.ProductionRequisitionCreateManyAssignedManagerInput | Prisma.ProductionRequisitionCreateManyAssignedManagerInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionRequisitionCreateWithoutApprovedByInput = {
+  id?: string
+  organizationId: string
+  number: string
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  createdById?: string | null
+  approvedAt?: Date | string | null
+  assignedManager?: Prisma.UserCreateNestedOneWithoutAssignedProductionRequisitionsInput
+  orders?: Prisma.ProductionOrderCreateNestedManyWithoutRequisitionInput
+}
+
+export type ProductionRequisitionUncheckedCreateWithoutApprovedByInput = {
+  id?: string
+  organizationId: string
+  number: string
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedAt?: Date | string | null
+  orders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutRequisitionInput
+}
+
+export type ProductionRequisitionCreateOrConnectWithoutApprovedByInput = {
+  where: Prisma.ProductionRequisitionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput>
+}
+
+export type ProductionRequisitionCreateManyApprovedByInputEnvelope = {
+  data: Prisma.ProductionRequisitionCreateManyApprovedByInput | Prisma.ProductionRequisitionCreateManyApprovedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionRequisitionUpsertWithWhereUniqueWithoutAssignedManagerInput = {
+  where: Prisma.ProductionRequisitionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionRequisitionUpdateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedUpdateWithoutAssignedManagerInput>
+  create: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedCreateWithoutAssignedManagerInput>
+}
+
+export type ProductionRequisitionUpdateWithWhereUniqueWithoutAssignedManagerInput = {
+  where: Prisma.ProductionRequisitionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionRequisitionUpdateWithoutAssignedManagerInput, Prisma.ProductionRequisitionUncheckedUpdateWithoutAssignedManagerInput>
+}
+
+export type ProductionRequisitionUpdateManyWithWhereWithoutAssignedManagerInput = {
+  where: Prisma.ProductionRequisitionScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionRequisitionUpdateManyMutationInput, Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerInput>
+}
+
+export type ProductionRequisitionScalarWhereInput = {
+  AND?: Prisma.ProductionRequisitionScalarWhereInput | Prisma.ProductionRequisitionScalarWhereInput[]
+  OR?: Prisma.ProductionRequisitionScalarWhereInput[]
+  NOT?: Prisma.ProductionRequisitionScalarWhereInput | Prisma.ProductionRequisitionScalarWhereInput[]
+  id?: Prisma.StringFilter<"ProductionRequisition"> | string
+  organizationId?: Prisma.StringFilter<"ProductionRequisition"> | string
+  number?: Prisma.StringFilter<"ProductionRequisition"> | string
+  status?: Prisma.EnumDocumentStatusFilter<"ProductionRequisition"> | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFilter<"ProductionRequisition"> | Date | string
+  createdById?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  assignedManagerId?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  approvedById?: Prisma.StringNullableFilter<"ProductionRequisition"> | string | null
+  approvedAt?: Prisma.DateTimeNullableFilter<"ProductionRequisition"> | Date | string | null
+}
+
+export type ProductionRequisitionUpsertWithWhereUniqueWithoutApprovedByInput = {
+  where: Prisma.ProductionRequisitionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionRequisitionUpdateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedUpdateWithoutApprovedByInput>
+  create: Prisma.XOR<Prisma.ProductionRequisitionCreateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedCreateWithoutApprovedByInput>
+}
+
+export type ProductionRequisitionUpdateWithWhereUniqueWithoutApprovedByInput = {
+  where: Prisma.ProductionRequisitionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionRequisitionUpdateWithoutApprovedByInput, Prisma.ProductionRequisitionUncheckedUpdateWithoutApprovedByInput>
+}
+
+export type ProductionRequisitionUpdateManyWithWhereWithoutApprovedByInput = {
+  where: Prisma.ProductionRequisitionScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionRequisitionUpdateManyMutationInput, Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByInput>
+}
+
 export type ProductionRequisitionCreateWithoutOrdersInput = {
   id?: string
   organizationId: string
   number: string
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
+  createdById?: string | null
+  approvedAt?: Date | string | null
+  assignedManager?: Prisma.UserCreateNestedOneWithoutAssignedProductionRequisitionsInput
+  approvedBy?: Prisma.UserCreateNestedOneWithoutApprovedProductionRequisitionsInput
 }
 
 export type ProductionRequisitionUncheckedCreateWithoutOrdersInput = {
@@ -353,6 +658,10 @@ export type ProductionRequisitionUncheckedCreateWithoutOrdersInput = {
   number: string
   status?: $Enums.DocumentStatus
   requestedOn?: Date | string
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
 }
 
 export type ProductionRequisitionCreateOrConnectWithoutOrdersInput = {
@@ -377,6 +686,10 @@ export type ProductionRequisitionUpdateWithoutOrdersInput = {
   number?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedManager?: Prisma.UserUpdateOneWithoutAssignedProductionRequisitionsNestedInput
+  approvedBy?: Prisma.UserUpdateOneWithoutApprovedProductionRequisitionsNestedInput
 }
 
 export type ProductionRequisitionUncheckedUpdateWithoutOrdersInput = {
@@ -385,6 +698,102 @@ export type ProductionRequisitionUncheckedUpdateWithoutOrdersInput = {
   number?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type ProductionRequisitionCreateManyAssignedManagerInput = {
+  id?: string
+  organizationId: string
+  number: string
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  createdById?: string | null
+  approvedById?: string | null
+  approvedAt?: Date | string | null
+}
+
+export type ProductionRequisitionCreateManyApprovedByInput = {
+  id?: string
+  organizationId: string
+  number: string
+  status?: $Enums.DocumentStatus
+  requestedOn?: Date | string
+  createdById?: string | null
+  assignedManagerId?: string | null
+  approvedAt?: Date | string | null
+}
+
+export type ProductionRequisitionUpdateWithoutAssignedManagerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedBy?: Prisma.UserUpdateOneWithoutApprovedProductionRequisitionsNestedInput
+  orders?: Prisma.ProductionOrderUpdateManyWithoutRequisitionNestedInput
+}
+
+export type ProductionRequisitionUncheckedUpdateWithoutAssignedManagerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutRequisitionNestedInput
+}
+
+export type ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type ProductionRequisitionUpdateWithoutApprovedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedManager?: Prisma.UserUpdateOneWithoutAssignedProductionRequisitionsNestedInput
+  orders?: Prisma.ProductionOrderUpdateManyWithoutRequisitionNestedInput
+}
+
+export type ProductionRequisitionUncheckedUpdateWithoutApprovedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutRequisitionNestedInput
+}
+
+export type ProductionRequisitionUncheckedUpdateManyWithoutApprovedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  requestedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedManagerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -424,6 +833,12 @@ export type ProductionRequisitionSelect<ExtArgs extends runtime.Types.Extensions
   number?: boolean
   status?: boolean
   requestedOn?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  assignedManager?: boolean | Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>
+  approvedBy?: boolean | Prisma.ProductionRequisition$approvedByArgs<ExtArgs>
   orders?: boolean | Prisma.ProductionRequisition$ordersArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionRequisitionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionRequisition"]>
@@ -434,6 +849,12 @@ export type ProductionRequisitionSelectCreateManyAndReturn<ExtArgs extends runti
   number?: boolean
   status?: boolean
   requestedOn?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  assignedManager?: boolean | Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>
+  approvedBy?: boolean | Prisma.ProductionRequisition$approvedByArgs<ExtArgs>
 }, ExtArgs["result"]["productionRequisition"]>
 
 export type ProductionRequisitionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -442,6 +863,12 @@ export type ProductionRequisitionSelectUpdateManyAndReturn<ExtArgs extends runti
   number?: boolean
   status?: boolean
   requestedOn?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
+  assignedManager?: boolean | Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>
+  approvedBy?: boolean | Prisma.ProductionRequisition$approvedByArgs<ExtArgs>
 }, ExtArgs["result"]["productionRequisition"]>
 
 export type ProductionRequisitionSelectScalar = {
@@ -450,19 +877,33 @@ export type ProductionRequisitionSelectScalar = {
   number?: boolean
   status?: boolean
   requestedOn?: boolean
+  createdById?: boolean
+  assignedManagerId?: boolean
+  approvedById?: boolean
+  approvedAt?: boolean
 }
 
-export type ProductionRequisitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "status" | "requestedOn", ExtArgs["result"]["productionRequisition"]>
+export type ProductionRequisitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "status" | "requestedOn" | "createdById" | "assignedManagerId" | "approvedById" | "approvedAt", ExtArgs["result"]["productionRequisition"]>
 export type ProductionRequisitionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedManager?: boolean | Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>
+  approvedBy?: boolean | Prisma.ProductionRequisition$approvedByArgs<ExtArgs>
   orders?: boolean | Prisma.ProductionRequisition$ordersArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionRequisitionCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type ProductionRequisitionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type ProductionRequisitionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ProductionRequisitionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedManager?: boolean | Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>
+  approvedBy?: boolean | Prisma.ProductionRequisition$approvedByArgs<ExtArgs>
+}
+export type ProductionRequisitionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedManager?: boolean | Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>
+  approvedBy?: boolean | Prisma.ProductionRequisition$approvedByArgs<ExtArgs>
+}
 
 export type $ProductionRequisitionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionRequisition"
   objects: {
+    assignedManager: Prisma.$UserPayload<ExtArgs> | null
+    approvedBy: Prisma.$UserPayload<ExtArgs> | null
     orders: Prisma.$ProductionOrderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -471,6 +912,10 @@ export type $ProductionRequisitionPayload<ExtArgs extends runtime.Types.Extensio
     number: string
     status: $Enums.DocumentStatus
     requestedOn: Date
+    createdById: string | null
+    assignedManagerId: string | null
+    approvedById: string | null
+    approvedAt: Date | null
   }, ExtArgs["result"]["productionRequisition"]>
   composites: {}
 }
@@ -865,6 +1310,8 @@ readonly fields: ProductionRequisitionFieldRefs;
  */
 export interface Prisma__ProductionRequisitionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  assignedManager<T extends Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRequisition$assignedManagerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  approvedBy<T extends Prisma.ProductionRequisition$approvedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRequisition$approvedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   orders<T extends Prisma.ProductionRequisition$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRequisition$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -900,6 +1347,10 @@ export interface ProductionRequisitionFieldRefs {
   readonly number: Prisma.FieldRef<"ProductionRequisition", 'String'>
   readonly status: Prisma.FieldRef<"ProductionRequisition", 'DocumentStatus'>
   readonly requestedOn: Prisma.FieldRef<"ProductionRequisition", 'DateTime'>
+  readonly createdById: Prisma.FieldRef<"ProductionRequisition", 'String'>
+  readonly assignedManagerId: Prisma.FieldRef<"ProductionRequisition", 'String'>
+  readonly approvedById: Prisma.FieldRef<"ProductionRequisition", 'String'>
+  readonly approvedAt: Prisma.FieldRef<"ProductionRequisition", 'DateTime'>
 }
     
 
@@ -1154,6 +1605,10 @@ export type ProductionRequisitionCreateManyAndReturnArgs<ExtArgs extends runtime
    */
   data: Prisma.ProductionRequisitionCreateManyInput | Prisma.ProductionRequisitionCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionRequisitionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1224,6 +1679,10 @@ export type ProductionRequisitionUpdateManyAndReturnArgs<ExtArgs extends runtime
    * Limit how many ProductionRequisitions to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionRequisitionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1290,6 +1749,44 @@ export type ProductionRequisitionDeleteManyArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many ProductionRequisitions to delete.
    */
   limit?: number
+}
+
+/**
+ * ProductionRequisition.assignedManager
+ */
+export type ProductionRequisition$assignedManagerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * ProductionRequisition.approvedBy
+ */
+export type ProductionRequisition$approvedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

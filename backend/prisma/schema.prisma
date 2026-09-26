@@ -35,6 +35,9 @@ enum DocumentStatus {
   WEIGHED
   AWAITING_DELIVERY
   APPROVED
+  IN_PRODUCTION
+  READY
+  COMPLETED
   REJECTED
   PARTIALLY_RECEIVED
   INCOMPLETE
@@ -102,6 +105,8 @@ model Site {
     refreshTokens RefreshToken[]
     passwordResetTokens PasswordResetToken[]
     assignedRequisitions PurchaseRequisition[] @relation("RequisitionManager")
+    assignedProductionRequisitions ProductionRequisition[] @relation("ProductionRequisitionManager")
+    approvedProductionRequisitions ProductionRequisition[] @relation("ProductionRequisitionApprover")
     notifications Notification[]
   }
 model UnitOfMeasure {
@@ -431,6 +436,12 @@ model ProductionRequisition {
   number String
   status DocumentStatus @default(SUBMITTED)
   requestedOn DateTime @default(now())
+  createdById String?
+  assignedManagerId String?
+  approvedById String?
+  approvedAt DateTime?
+  assignedManager User? @relation("ProductionRequisitionManager",fields:[assignedManagerId],references:[id],onDelete:Restrict)
+  approvedBy User? @relation("ProductionRequisitionApprover",fields:[approvedById],references:[id],onDelete:Restrict)
   orders ProductionOrder[]
   @@unique([organizationId,number])
   @@index([organizationId,status,requestedOn])

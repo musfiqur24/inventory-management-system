@@ -33,24 +33,25 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
   if(!lines.length||lines.some(l=>!allocations[l.id]?.binId||!Number.isFinite(Number(allocations[l.id].quantity))||(!fm&&(!Number.isInteger(Number(allocations[l.id].expiryDays))||Number(allocations[l.id].expiryDays)<=0))))return appToast.validation('Choose a bin, positive quantity, and positive whole-number expiry days for every received product.');
   setSaving(true);
   try {
-   await api(fm?'/fm-store/receive':'/rm-store/receive',{method:'POST',body:JSON.stringify(fm?{batchId:document.id,binId:allocations[document.lines[0].id].binId,notes}:{requestId,deliveryId:document.id,notes,lineAllocations:lines.map(l=>({lineId:l.id,productId:l.productId,uomId:l.uomId,binId:allocations[l.id].binId,acceptedQty:Number(allocations[l.id].quantity),expiryDays:Number(allocations[l.id].expiryDays)}))})});
+   await api(fm?'/fm-store/receive':'/rm-store/receive',{method:'POST',body:JSON.stringify(fm?{batchId:document.id,allocations:lines.map(line=>({lineId:line.id,binId:allocations[line.id].binId})),notes}:{requestId,deliveryId:document.id,notes,lineAllocations:lines.map(l=>({lineId:l.id,productId:l.productId,uomId:l.uomId,binId:allocations[l.id].binId,acceptedQty:Number(allocations[l.id].quantity),expiryDays:Number(allocations[l.id].expiryDays)}))})});
    onSaved();onClose();
   }catch(e){appToast.error(e instanceof Error?e.message:'Unable to receive stock.')}finally{setSaving(false)}
  };
- return <Modal title={`Receive into ${store.name}`} description={fm?'Select completed production output and its destination bin.':'Select a requisition, then choose one of its linked challans and assign the received products to bins.'} extraWide fixedHeight onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!formComplete} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
+ return <Modal title={`Receive into ${store.name}`} description={fm?'Select Ready production output and its destination bin.':'Select a requisition, then choose one of its linked challans and assign the received products to bins.'} extraWide fixedHeight onClose={()=>{if(!saving)onClose()}} footer={<><Button disabled={saving} onClick={onClose}>Cancel</Button><Button variant="primary" disabled={saving||!formComplete} onClick={submit}>{saving?'Receiving...':'Receive Stock'}</Button></>}>
 <LoadingBoundary loading={loading}>
   {!fm ? <div className="mb-5 grid gap-3 sm:grid-cols-2 [&>div]:mb-0">
     <FormField label="Requisition ID" required><Dropdown aria-label="Requisition ID" value={requisitionNumber} onChange={e=>{setRequisitionNumber(e.target.value);setDocumentId('');setAllocations({})}}><option value="">{loading?'Loading requisitions...':'Select a requisition'}</option>{requisitionNumbers.map(number=><option key={number} value={number}>{number}</option>)}</Dropdown></FormField>
     <FormField label="Linked Challan" required><Dropdown aria-label="Receipt source" disabled={!requisitionNumber} value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':!requisitionNumber?'Select a requisition first':'Choose a linked challan'}</option>{linkedDocuments.map(d=><option key={d.id} value={d.id}>{d.number}</option>)}</Dropdown></FormField>
   </div> : <FormField label="Production Batch" required><Dropdown aria-label="Receipt source" value={documentId} onChange={e=>selectDocument(e.target.value)}><option value="">{loading?'Loading documents...':'Choose a batch'}</option>{linkedDocuments.map(d=><option key={d.id} value={d.id}>{d.number}</option>)}</Dropdown></FormField>}
-  {!loading&&!documents.length&&<p className="py-4 text-sm text-[#73877c]">No outstanding {fm?'completed batches':'supplier deliveries'} are available to receive.</p>}
+  <div className="mb-4"><FormField label="Notes"><Input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Add receiving notes (optional)" /></FormField></div>
+  {!loading&&!documents.length&&<p className="py-4 text-sm text-[#73877c]">No outstanding {fm?'Ready batches':'supplier deliveries'} are available to receive.</p>}
   {!bins.length&&<p className="text-sm text-amber-700">Create a bin in this store before receiving stock.</p>}
   {document?.lines.length ? <div className="overflow-x-auto rounded-lg border border-[#d9e1d8]">
     <div className="min-w-0 sm:min-w-[760px]">
       <div className={fm?"hidden grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px] gap-3 sm:grid bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]":"hidden grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px_150px] gap-3 sm:grid bg-[#f2f5f3] px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]"}>
         <span>Product</span><span>Destination Bin</span><span>Quantity</span>{!fm&&<span>Expiry Days</span>}
       </div>
-      <div className="max-h-72 overflow-y-auto">
+      <div className="max-h-[23rem] overflow-y-auto">
         {document.lines.map(line=><div key={line.id} className={fm?"grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px] border-t border-[#e0e5dd] bg-white px-4 py-3":"grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(220px,1.4fr)_minmax(220px,1fr)_160px_150px] border-t border-[#e0e5dd] bg-white px-4 py-3"}>
           <div className="flex min-w-0 items-center gap-2"><strong className="truncate text-sm text-[#243b30]">{line.productName}</strong>{lineComplete(line)&&<CircleCheck size={17} className="shrink-0 text-emerald-600" aria-label="Line complete" />}</div>
           <Dropdown aria-label={`Bin for ${line.productName}`} value={allocations[line.id]?.binId??''} onChange={e=>setAllocations({...allocations,[line.id]:{...allocations[line.id],binId:e.target.value}})}><option value="">Choose a bin</option>{bins.map(b=><option key={b.id} value={b.id}>{b.code} - {b.name}</option>)}</Dropdown>
@@ -60,7 +61,6 @@ export function ReceiveStockModal({store,bins,onClose,onSaved}:{store:Store;bins
       </div>
     </div>
   </div> : null}
-  <div className="mt-4"><FormField label="Notes"><Input value={notes} onChange={e=>setNotes(e.target.value)} /></FormField></div>
  </LoadingBoundary></Modal>;
 }
 

@@ -294,12 +294,12 @@ export function RecipesPage() {
                 </span>
               </div>
             </div>
-            <div className="mb-1.5 grid grid-cols-[minmax(0,_1fr)_90px_44px] gap-2 sm:grid-cols-[minmax(0,_1fr)_120px_44px] px-0.5 text-[12px] font-semibold text-[#31483d]">
+            <div className="mb-1.5 grid grid-cols-[minmax(180px,_1.5fr)_140px_44px] gap-2 sm:grid-cols-[minmax(240px,_1.35fr)_minmax(190px,_.65fr)_44px] px-0.5 text-[12px] font-semibold text-[#31483d]">
               <span>Raw Material</span><span>% Share</span><span className="sr-only">Action</span>
             </div>
             <div className="h-[216px] overflow-y-auto overscroll-contain pr-1 [scrollbar-color:#9bad9f_transparent] [scrollbar-width:thin]">
               {ingredients.map((ing, i) => (
-                <div key={i} className="mb-2 grid grid-cols-[minmax(0,_1fr)_90px_44px] items-center gap-2 sm:grid-cols-[minmax(0,_1fr)_120px_44px] last:mb-0">
+                <div key={i} className="mb-2 grid grid-cols-[minmax(180px,_1.5fr)_140px_44px] items-center gap-2 sm:grid-cols-[minmax(240px,_1.35fr)_minmax(190px,_.65fr)_44px] last:mb-0">
                   <Dropdown aria-label={`Raw material ${i + 1}`} value={ing.productId} onChange={(e) => updateIngredient(i, 'productId', e.target.value)}>
                     <option value="">— Select RM —</option>
                     {rmProducts.map((p) => (

@@ -52,7 +52,7 @@ const NAV_GROUPS = [
       { path: '/purchase-requisitions', label: 'RM Requisitions', icon: ClipboardList },
       { path: '/deliveries', label: 'Supplier Challans', icon: Truck },
       { path: '/weighbridge', label: 'Weighbridge Station', icon: Scale },
-      { path: '/rm-store', label: 'RM Store & Lots', icon: Warehouse },
+      { path: '/rm-store', label: 'RM Store', icon: Warehouse },
     ],
   },
   {
@@ -60,7 +60,7 @@ const NAV_GROUPS = [
     items: [
       { path: '/recipes', label: 'Nutritionist Recipes', icon: FlaskConical },
       { path: '/production-orders', label: 'FM Requisitions', icon: Factory },
-      { path: '/material-issues', label: 'Issue RM to Factory', icon: ArrowLeftRight },
+      { path: '/material-issues', label: 'Dispatch RM', icon: ArrowLeftRight },
       { path: '/batches', label: 'Register FM', icon: Factory },
       { path: '/fm-store', label: 'FM Store', icon: PackageCheck },
     ],

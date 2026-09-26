@@ -121,7 +121,11 @@ export function createApp() {
 
   app.use("/api/v1", authenticate, tenant, (req, res, next) =>
     requirePermission(
-      req.method === "GET" ? "departments.read" : "departments.write",
+      req.method === "POST" && req.path === "/weighments/reports"
+        ? "weighbridge.submit"
+        : req.method === "GET"
+          ? "departments.read"
+          : "departments.write",
     )(req, res, next),
   );
   app.use("/api/v1/uoms", uomsRouter);

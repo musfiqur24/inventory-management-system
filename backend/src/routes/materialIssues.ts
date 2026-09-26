@@ -74,7 +74,8 @@ materialIssuesRouter.get("/", async (req, res) => {
 
 const createIssueSchema = z.object({
   requestId: z.string().uuid().optional(),
-  productionOrderId: z.string().uuid(),
+  productionOrderId: z.string().uuid().optional(),
+  requisitionId: z.string().uuid().optional(),
   fromSiteId: z.string().uuid().optional(),
   toSiteId: z.string().uuid().optional(),
   lines: z
@@ -89,7 +90,7 @@ const createIssueSchema = z.object({
     )
     .min(1, "At least one material issue line is required"),
   notes: z.string().optional(),
-});
+}).refine((value) => Boolean(value.productionOrderId) !== Boolean(value.requisitionId), { message: "Select one production order or production requisition." });
 
 materialIssuesRouter.post("/", async (req, res) => {
   const parsed = createIssueSchema.parse(req.body),
@@ -97,26 +98,27 @@ materialIssuesRouter.post("/", async (req, res) => {
     requestKey = parsed.requestId ?? randomUUID();
   const data = await prisma.$transaction(
     async (tx) => {
-      await lockDocument(
-        tx,
-        "ProductionOrder",
-        parsed.productionOrderId,
-        organizationId,
-      );
-      const order = await tx.productionOrder.findFirst({
-        where: { id: parsed.productionOrderId, organizationId },
+      const orders = await tx.productionOrder.findMany({
+        where: parsed.requisitionId
+          ? { requisitionId: parsed.requisitionId, organizationId }
+          : { id: parsed.productionOrderId, organizationId },
+        orderBy: { number: "asc" },
       });
-      if (!order) throw new StockError("NOT_FOUND", "Order not found.", 404);
-      if (["CANCELLED", "REJECTED", "CLOSED"].includes(order.status))
-        throw new StockError(
-          "ORDER_UNAVAILABLE",
-          "The order is closed or unavailable.",
-        );
-      const number =
-        "ISSUE-" +
-        new Date().getFullYear() +
-        "-" +
-        randomUUID().slice(0, 8).toUpperCase();
+      if (!orders.length) throw new StockError("NOT_FOUND", "Production requisition not found.", 404);
+      for (const currentOrder of orders) {
+        await lockDocument(tx, "ProductionOrder", currentOrder.id, organizationId);
+        if (["CANCELLED", "REJECTED", "CLOSED", "READY", "COMPLETED"].includes(currentOrder.status))
+          throw new StockError("ORDER_UNAVAILABLE", "The requisition contains a closed or unavailable product.");
+      }
+      const order = orders[0];
+      const orderIds = orders.map((currentOrder) => currentOrder.id);
+      const now = new Date();
+      const datePart = String(now.getFullYear()) + String(now.getDate()).padStart(2, "0") + String(now.getMonth() + 1).padStart(2, "0");
+      const numberPrefix = "RMD_" + datePart + "_";
+      const dailyDispatchCount = await tx.materialIssue.count({
+        where: { organizationId, number: { startsWith: numberPrefix } },
+      });
+      const number = numberPrefix + String(dailyDispatchCount + 1).padStart(4, "0");
       const lineIds = parsed.lines.map(() => randomUUID());
       const document = await tx.materialIssue.create({
         data: {
@@ -146,7 +148,7 @@ materialIssuesRouter.post("/", async (req, res) => {
       for (const item of items) {
         let remaining = new Prisma.Decimal(item.quantity);
         const orderLines = await tx.productionOrderLine.findMany({
-          where: { productionOrderId: order.id, productId: item.productId },
+          where: { productionOrderId: { in: orderIds }, productId: item.productId },
           orderBy: { id: "asc" },
         });
         for (const line of orderLines) {
@@ -204,6 +206,22 @@ materialIssuesRouter.post("/", async (req, res) => {
           note: parsed.notes,
         });
       }
+
+      const existingBatch = await tx.productionBatch.findFirst({
+        where: { organizationId, productionOrderId: { in: orderIds } },
+      });
+      if (!existingBatch) {
+        const batchCount = await tx.productionBatch.count({ where: { organizationId } });
+        await tx.productionBatch.create({
+          data: {
+            organizationId,
+            number: "BATCH-" + new Date().getFullYear() + "-" + String(batchCount + 1).padStart(4, "0"),
+            productionOrderId: order.id,
+            status: DocumentStatus.IN_PRODUCTION,
+          },
+        });
+      }
+      await tx.productionOrder.updateMany({ where: { id: { in: orderIds } }, data: { status: DocumentStatus.IN_PRODUCTION } });
 
       return document;
     },

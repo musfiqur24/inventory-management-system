@@ -71,7 +71,7 @@ export function RmRequisitionsPage() {
       ]);
       setRows(reqs.data);
       setManagers(managerData.data);
-      setProducts(prods.data.filter((p) => p.type === 'RAW_MATERIAL'));
+      setProducts(prods.data);
       setUoms(uomData.data);
       setPartners(partnerData.data.filter((p) => p.partnerType === 'SUPPLIER'));
       setMessage('');
@@ -98,7 +98,7 @@ export function RmRequisitionsPage() {
   };
   const lineTotal = (line:ReqLine) => {const value=Number(line.requestedQty)*Number(line.unitPrice);return Number.isFinite(value)?value:0;};
   const price = (value:number) => value.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-  const submit = async () => {
+  const submit = async (submitNow: boolean) => {
     if (saving) return;
     if (!form.assignedManagerId) return setMessage('Select a manager to approve this requisition.');
     if (lines.some(l=>!l.productId || !l.uomId || !Number.isFinite(Number(l.requestedQty)) || Number(l.requestedQty)<=0 || (l.unitPrice!=='' && (!Number.isFinite(Number(l.unitPrice)) || Number(l.unitPrice)<=0)))) return setMessage('Complete every product line with a positive quantity and valid unit price, or remove unused lines.');
@@ -110,6 +110,7 @@ export function RmRequisitionsPage() {
         method: editing ? 'PUT' : 'POST',
         body: JSON.stringify({
           ...form,
+          submit: submitNow,
           supplierId: form.supplierId || undefined,
           lines: validLines.map((l) => ({
             productId: l.productId, uomId: l.uomId,
@@ -271,7 +272,8 @@ export function RmRequisitionsPage() {
           footer={
             <>
               <Button variant="secondary" disabled={saving} onClick={() => setOpen(false)}>Cancel</Button>
-              <Button variant="primary" disabled={saving || !form.assignedManagerId} onClick={submit}>{saving ? "Submitting..." : (editing ? "Save Changes" : "Submit Requisition")}</Button>
+              {(!editing || editing.status==="DRAFT")&&<Button variant="secondary" disabled={saving || !form.assignedManagerId} onClick={()=>void submit(false)}>{saving ? "Saving..." : "Save Draft"}</Button>}
+              <Button variant="primary" disabled={saving || !form.assignedManagerId} onClick={()=>void submit(true)}>{saving ? "Submitting..." : (editing?.status==="DRAFT" ? "Submit Requisition" : editing ? "Save Changes" : "Submit Requisition")}</Button>
             </>
           }
        >
@@ -294,10 +296,10 @@ export function RmRequisitionsPage() {
           </FormField>
           </div>
           <div className="[border-top:1px_solid_#e0e5dd] pt-3.5">
-            <div className="mb-3"><strong className="text-[14px]">Raw Material Lines</strong></div>
+            <div className="mb-3"><strong className="text-[14px]">Product Lines</strong></div>
             <div className="overflow-x-auto rounded-lg border border-[#e0e5dd] pb-1 [&_thead_th:nth-child(5)]:text-right [&_thead_th:last-child]:text-center">
               <DataTable
-                columns={['Raw Material Product','UOM','Qty','Unit Price (optional)','Total Price','Actions']}
+                columns={['Product','UOM','Qty','Unit Price (optional)','Total Price','Actions']}
                 columnWidths={['27%','18%','15%','21%','12%','7%']}
                 scrollAreaClassName="h-[360px]"
                 tableClassName="min-w-[800px] table-fixed [&_th]:!px-3 [&_th]:py-3.5 [&_th]:text-[10px] [&_td]:!px-3 [&_td]:text-xs"
@@ -305,7 +307,7 @@ export function RmRequisitionsPage() {
                 summary={<>
                   <tr className="border-t border-[#e0e5dd] bg-white">
                     <td colSpan={4} className="p-2">
-                      <Button className="w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', requestedQty: '', unitPrice: '' }])}><Plus size={14} /> Add Raw Material Line</Button>
+                      <Button className="w-full justify-center" size="sm" variant="secondary" onClick={() => setLines([...lines, { productId: '', uomId: '', requestedQty: '', unitPrice: '' }])}><Plus size={14} /> Add Product Line</Button>
                     </td>
                     <td colSpan={2} />
                   </tr>

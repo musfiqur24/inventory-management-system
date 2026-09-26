@@ -110,6 +110,7 @@ purchaseRequisitionsRouter.get("/:id", getRequisitionDetails);
 purchaseRequisitionsRouter.get("/:id/report", getRequisitionDetails);
 
 const createRequisitionSchema = z.object({
+  submit: z.boolean().default(true),
   assignedManagerId: z.string().uuid(),
   salesOrderRef: z.string().optional(),
   supplierId: z.string().uuid().optional(),
@@ -120,15 +121,15 @@ const createRequisitionSchema = z.object({
       requestedQty: z.coerce.number().positive(),
       unitPrice: z.coerce.number().positive().optional(),
     })
-  ).min(1, "At least one raw material line is required"),
+  ).min(1, "At least one product line is required"),
 });
 
 async function validateRequisition(tx:Prisma.TransactionClient,organizationId:string,parsed:z.infer<typeof createRequisitionSchema>){
     const manager=await tx.organizationMember.findFirst({where:managerWhere(organizationId,parsed.assignedManagerId)});
     if(!manager)throw new StockError('INVALID_MANAGER','Select an active Manager assigned to this organization.',422);
-    const products=await tx.product.count({where:{organizationId,isActive:true,type:'RAW_MATERIAL',id:{in:[...new Set(parsed.lines.map(l=>l.productId))]}}});
+    const products=await tx.product.count({where:{organizationId,isActive:true,id:{in:[...new Set(parsed.lines.map(l=>l.productId))]}}});
     const uoms=await tx.unitOfMeasure.count({where:{organizationId,isActive:true,id:{in:[...new Set(parsed.lines.map(l=>l.uomId))]}}});
-    if(products!==new Set(parsed.lines.map(l=>l.productId)).size || uoms!==new Set(parsed.lines.map(l=>l.uomId)).size)throw new StockError('INVALID_LINES','Select raw materials and units from this organization.',422);
+    if(products!==new Set(parsed.lines.map(l=>l.productId)).size || uoms!==new Set(parsed.lines.map(l=>l.uomId)).size)throw new StockError('INVALID_LINES','Select active products and units from this organization.',422);
     if(parsed.supplierId&&!await tx.partner.findFirst({where:{id:parsed.supplierId,organizationId,partnerType:'SUPPLIER'}}))throw new StockError('INVALID_SUPPLIER','Select a supplier from this organization.',422);
 }
 
@@ -145,8 +146,8 @@ purchaseRequisitionsRouter.post("/", async (req, res) => {
     let sequence=await tx.purchaseRequisition.count({where:{organizationId,number:{startsWith:prefix}}})+1;
     let number=prefix+String(sequence).padStart(2,'0');
     while(await tx.purchaseRequisition.findUnique({where:{organizationId_number:{organizationId,number}}}))number=prefix+String(++sequence).padStart(2,'0');
-    const created=await tx.purchaseRequisition.create({data:{organizationId,number,createdById:req.auth!.id,assignedManagerId:parsed.assignedManagerId,salesOrderRef:parsed.salesOrderRef?.trim()||null,supplierId:parsed.supplierId||null,status:DocumentStatus.PENDING,lines:{create:parsed.lines.map(l=>({productId:l.productId,uomId:l.uomId,requestedQty:new Prisma.Decimal(l.requestedQty),unitPrice:l.unitPrice?new Prisma.Decimal(l.unitPrice):null}))}},include:{lines:true,assignedManager:{select:managerSelect}}});
-    await tx.notification.create({data:{organizationId,recipientId:parsed.assignedManagerId,requisitionId:created.id,title:'RM requisition awaiting your approval',message:created.number+' has been assigned to you for review and approval.'}});
+    const created=await tx.purchaseRequisition.create({data:{organizationId,number,createdById:req.auth!.id,assignedManagerId:parsed.assignedManagerId,salesOrderRef:parsed.salesOrderRef?.trim()||null,supplierId:parsed.supplierId||null,status:parsed.submit?DocumentStatus.PENDING:DocumentStatus.DRAFT,lines:{create:parsed.lines.map(l=>({productId:l.productId,uomId:l.uomId,requestedQty:new Prisma.Decimal(l.requestedQty),unitPrice:l.unitPrice?new Prisma.Decimal(l.unitPrice):null}))}},include:{lines:true,assignedManager:{select:managerSelect}}});
+    if(parsed.submit)await tx.notification.create({data:{organizationId,recipientId:parsed.assignedManagerId,requisitionId:created.id,title:'RM requisition awaiting your approval',message:created.number+' has been assigned to you for review and approval.'}});
     return created;
   });
 
@@ -184,9 +185,10 @@ purchaseRequisitionsRouter.put('/:id',async(req,res)=>{
   if(current.approvedAt || !['DRAFT','PENDING'].includes(current.status))throw new StockError('REQUISITION_LOCKED','Approved requisitions cannot be edited.');
   if(await tx.supplierDelivery.count({where:{organizationId,requisitionId:id}}))throw new StockError('REQUISITION_IN_USE','A requisition linked to deliveries cannot be edited.');
   await validateRequisition(tx,organizationId,parsed);
-  const updated=await tx.purchaseRequisition.update({where:{id},data:{salesOrderRef:parsed.salesOrderRef?.trim()||null,supplierId:parsed.supplierId||null,assignedManagerId:parsed.assignedManagerId,lines:{deleteMany:{},create:parsed.lines.map(l=>({productId:l.productId,uomId:l.uomId,requestedQty:new Prisma.Decimal(l.requestedQty),unitPrice:l.unitPrice?new Prisma.Decimal(l.unitPrice):null}))}},include:{lines:true,assignedManager:{select:managerSelect}}});
+  const nextStatus=current.status==='DRAFT'&&parsed.submit?DocumentStatus.PENDING:current.status;
+  const updated=await tx.purchaseRequisition.update({where:{id},data:{status:nextStatus,salesOrderRef:parsed.salesOrderRef?.trim()||null,supplierId:parsed.supplierId||null,assignedManagerId:parsed.assignedManagerId,lines:{deleteMany:{},create:parsed.lines.map(l=>({productId:l.productId,uomId:l.uomId,requestedQty:new Prisma.Decimal(l.requestedQty),unitPrice:l.unitPrice?new Prisma.Decimal(l.unitPrice):null}))}},include:{lines:true,assignedManager:{select:managerSelect}}});
   await tx.notification.deleteMany({where:{organizationId,requisitionId:id}});
-  await tx.notification.create({data:{organizationId,recipientId:parsed.assignedManagerId,requisitionId:id,title:'RM requisition updated',message:updated.number+' was edited and requires your review before approval.'}});
+  if(nextStatus===DocumentStatus.PENDING)await tx.notification.create({data:{organizationId,recipientId:parsed.assignedManagerId,requisitionId:id,title:'RM requisition updated',message:updated.number+' was edited and requires your review before approval.'}});
   return updated;
  });
  res.json({data});

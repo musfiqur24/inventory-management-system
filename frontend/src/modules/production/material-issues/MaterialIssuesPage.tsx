@@ -30,6 +30,8 @@ interface MaterialIssue {
 interface ProductionOrder {
   id: string;
   number: string;
+  requisitionId?: string;
+  requisitionNumber?: string;
   status: string;
   lines: Array<{
     productId: string;
@@ -147,6 +149,27 @@ export function MaterialIssuesPage() {
         .catch((e) => setMessage(e.message));
   }, [open]);
 
+  const requisitionOptions = [...orders.reduce((groups, order) => {
+    const id = order.requisitionId;
+    const number = order.requisitionNumber;
+    if (!id || !number) return groups;
+    const existing = groups.get(id) ?? { id, number, status: order.status, lines: [] as ProductionOrder["lines"] };
+    const lineMap = new Map(existing.lines.map((line) => [line.productId + ':' + line.uomId, line]));
+    order.lines.forEach((line) => {
+      const key = line.productId + ':' + line.uomId;
+      const current = lineMap.get(key);
+      if (current) {
+        current.requiredQty = Number(current.requiredQty) + Number(line.requiredQty);
+        current.issuedQty = Number(current.issuedQty) + Number(line.issuedQty);
+      } else {
+        lineMap.set(key, { ...line });
+      }
+    });
+    existing.lines = [...lineMap.values()];
+    groups.set(id, existing);
+    return groups;
+  }, new Map<string, ProductionOrder>()).values()];
+
   const allocateOrder = (
     productionOrderId: string,
     storeId: string,
@@ -157,7 +180,7 @@ export function MaterialIssuesPage() {
       setAllocationShortfalls([]);
       return;
     }
-    const order = orders.find((item) => item.id === productionOrderId);
+    const order = requisitionOptions.find((item) => item.id === productionOrderId);
     if (!order) return;
     const availableByPosition = new Map(
       positions.map((position) => [
@@ -242,10 +265,10 @@ export function MaterialIssuesPage() {
   const submit = async () => {
     if (saving) return;
     if (!form.productionOrderId || !form.storeId)
-      return setMessage("Select a production order and RM store first.");
+      return setMessage("Select a production requisition and RM store first.");
     if (allocationShortfalls.length)
       return setMessage(
-        "The selected store does not have enough released stock to satisfy this production order.",
+        "The selected store does not have enough released stock to satisfy this production requisition.",
       );
     if (
       !lines.length ||
@@ -268,7 +291,7 @@ export function MaterialIssuesPage() {
         method: "POST",
         body: JSON.stringify({
           requestId,
-          productionOrderId: form.productionOrderId || undefined,
+          requisitionId: form.productionOrderId || undefined,
           lines: validLines.map((l) => ({
             productId: l.rawMaterialId,
             lotId: l.lotId || undefined,
@@ -290,7 +313,7 @@ export function MaterialIssuesPage() {
     }
   };
 
-  const selectedOrder = orders.find(
+  const selectedOrder = requisitionOptions.find(
     (order) => order.id === form.productionOrderId,
   );
   const allocationReview = (() => {
@@ -358,8 +381,8 @@ export function MaterialIssuesPage() {
     <PageContainer
       loading={pageLoading}
       cap="PRODUCTION"
-      title="Issue RM to Factory"
-      description="Issue raw materials from RM store to the production floor."
+      title="Dispatch RM"
+      description="Dispatch raw materials from RM store to the production floor."
       actions={
         <Button
           variant="primary"
@@ -372,25 +395,25 @@ export function MaterialIssuesPage() {
             setOpen(true);
           }}
         >
-          <Plus size={16} /> Issue Materials
+          <Plus size={16} /> Dispatch Materials
         </Button>
       }
     >
       <Card className="p-0">
         <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-[18px_24px] [border-bottom:1px_solid_#e0e5dd] [:where(&_h2)]:text-[15px] [:where(&_h2)]:font-bold [:where(&_h2)]:m-0">
-          <h2>Material Issue Register</h2>
+          <h2>Material Dispatch Register</h2>
           <span className="text-[12px] text-[#7a9185]">
-            {rows.length} issues
+            {rows.length} dispatches
           </span>
         </div>
         <div className="overflow-x-auto">
           <DataTable
             columns={[
-              "Issue #",
+              "Dispatch No.",
               "Production Order",
               "Lines",
               "Status",
-              "Issued At",
+              "Dispatch Time",
             ]}
             empty={
               rows.length === 0 && (
@@ -398,7 +421,7 @@ export function MaterialIssuesPage() {
                   <div className="w-14 h-14 rounded-[12px] bg-[#f8faf7] grid place-items-center mb-4 text-[#7a9185] [:where(&_svg)]:w-7 [:where(&_svg)]:h-7">
                     <ArrowLeftRight size={28} />
                   </div>
-                  <b>No issues yet</b>
+                  <b>No dispatches yet</b>
                 </div>
               )
             }
@@ -412,7 +435,7 @@ export function MaterialIssuesPage() {
                 </td>
                 <td>
                   {mi.productionOrder?.number ?? (
-                    <span className="text-[#7a9185]">Direct issue</span>
+                    <span className="text-[#7a9185]">Direct dispatch</span>
                   )}
                 </td>
                 <td>{mi.lines.length} materials</td>
@@ -428,8 +451,8 @@ export function MaterialIssuesPage() {
 
       {open && (
         <Modal
-          title="Issue RM Materials to Factory"
-          description="Select a production order and RM store, then review the automatically allocated stock."
+          title="Dispatch RM"
+          description="Select a production requisition and RM store, then review the automatically allocated stock."
           onClose={() => setOpen(false)}
           extraWide
           fixedHeight
@@ -445,13 +468,13 @@ export function MaterialIssuesPage() {
                   saving || !lines.length || allocationShortfalls.length > 0
                 }
               >
-                Confirm Issue
+                Dispatch
               </Button>
             </>
           }
         >
           <div className="grid grid-cols-2 gap-3.5 max-[700px]:grid-cols-1">
-            <FormField label="Production Order" required>
+            <FormField label="Production Requisition" required>
               <Dropdown
                 value={form.productionOrderId}
                 onChange={(e) =>
@@ -461,11 +484,11 @@ export function MaterialIssuesPage() {
                   }))
                 }
               >
-                <option value="">Select order</option>
-                {orders
+                <option value="">Select requisition</option>
+                {requisitionOptions
                   .filter(
                     (o) =>
-                      !["CANCELLED", "REJECTED", "CLOSED"].includes(o.status),
+                      !["CANCELLED", "REJECTED", "CLOSED", "READY", "COMPLETED"].includes(o.status),
                   )
                   .map((o) => (
                     <option key={o.id} value={o.id}>
@@ -519,7 +542,7 @@ export function MaterialIssuesPage() {
             </div>
             {!form.productionOrderId || !form.storeId ? (
               <div className="rounded-md border border-[#dce5dc] bg-[#f8faf7] px-4 py-8 text-center text-[13px] text-[#7a9185]">
-                Select a production order and RM store to review every required
+                Select a production requisition and RM store to review every required
                 material.
               </div>
             ) : (

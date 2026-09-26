@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../prisma.js";
 import { env } from "../config.js";
 
-export const PERMISSIONS = ["departments.read", "departments.write", "users.manage", "roles.manage", "organizations.manage"] as const;
+export const PERMISSIONS = ["departments.read", "departments.write", "weighbridge.submit", "users.manage", "roles.manage", "organizations.manage"] as const;
 type AppOrganization = { id:string; name:string; code:string; permissions:string[]; role:{id:string;code:string;name:string} };
 export type AppUser = { id:string; email:string; fullName:string; avatarUrl:string|null; phone:string|null; presentAddress:string|null; permanentAddress:string|null; permissions:string[]; isSuperAdmin:boolean; organizations:AppOrganization[] };
 
@@ -12,11 +12,11 @@ declare global { namespace Express { interface Request { auth?:AppUser; tenantId
 
 const rolePermissions:Record<string,string[]>={
   SUPER_ADMIN:[...PERMISSIONS],
-  ADMIN:["departments.read","departments.write","users.manage"],
-  MANAGER:["departments.read","departments.write"],
-  STOREKEEPER:["departments.read","departments.write"],
-  PRODUCTION_MANAGER:["departments.read","departments.write"],
-  STAFF:["departments.read"],
+  ADMIN:["departments.read","departments.write","weighbridge.submit","users.manage"],
+  MANAGER:["departments.read","departments.write","weighbridge.submit"],
+  STOREKEEPER:["departments.read","departments.write","weighbridge.submit"],
+  PRODUCTION_MANAGER:["departments.read","departments.write","weighbridge.submit"],
+  STAFF:["departments.read","weighbridge.submit"],
 };
 
 export async function bootstrapRbac(){
