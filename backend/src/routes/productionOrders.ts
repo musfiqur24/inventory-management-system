@@ -56,7 +56,7 @@ productionOrdersRouter.get("/", async (req, res) => {
 
     return {
       ...ord,
-      status: ord.status === DocumentStatus.SUBMITTED ? DocumentStatus.APPROVED : ord.status,
+      status: ord.status === DocumentStatus.SUBMITTED ? "AWAITING_APPROVAL" : ord.status,
       requisitionNumber: ord.requisition?.number ?? ord.number,
       requisitionId: ord.requisition?.id ?? ord.requisitionId,
       assignedManagerId: ord.requisition?.assignedManagerId ?? null,

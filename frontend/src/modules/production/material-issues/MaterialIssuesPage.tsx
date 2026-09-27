@@ -2,7 +2,7 @@ import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
 import { useToastMessage } from "../../../components/ui/Toast";
 import { useEffect, useState } from "react";
-import { Plus, ArrowLeftRight } from "lucide-react";
+import { Plus, ArrowLeftRight, Eye, Printer } from "lucide-react";
 import { api, selectedOrg } from "../../../shared/api/http";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
@@ -11,6 +11,7 @@ import { Modal } from "../../../components/ui/Modal";
 import { FormField } from "../../../components/ui/FormField";
 import { Dropdown } from "../../../components/ui/Dropdown";
 import { statusBadge } from "../../../components/ui/Badge";
+import { printMaterialIssue } from "./materialIssuePrint";
 
 interface MaterialIssue {
   id: string;
@@ -18,11 +19,14 @@ interface MaterialIssue {
   status: string;
   issuedAt: string;
   productionOrder?: { number: string } | null;
+  productionRequisition?: { id: string; number: string } | null;
+  notes?: string | null;
   issuedBy?: string;
   lines: Array<{
     id: string;
     rawMaterial?: { name: string; sku: string };
     lot?: { lotNumber: string };
+    fromBin?: { code: string; name: string; store?: { code: string; name: string } };
     uom?: { code: string };
     issuedQty: number;
   }>;
@@ -104,6 +108,7 @@ export function MaterialIssuesPage() {
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   const [open, setOpen] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState<MaterialIssue | null>(null);
   const [, setMessage] = useToastMessage();
   const [form, setForm] = useState({ productionOrderId: "", storeId: "" });
   const [lines, setLines] = useState<IssueLine[]>([]);
@@ -410,10 +415,11 @@ export function MaterialIssuesPage() {
           <DataTable
             columns={[
               "Dispatch No.",
-              "Production Order",
+              "FM Requisition",
               "Lines",
               "Status",
               "Dispatch Time",
+              "Actions",
             ]}
             empty={
               rows.length === 0 && (
@@ -434,20 +440,78 @@ export function MaterialIssuesPage() {
                   </strong>
                 </td>
                 <td>
-                  {mi.productionOrder?.number ?? (
-                    <span className="text-[#7a9185]">Direct dispatch</span>
-                  )}
+                  <strong className="font-mono text-[#244b3a]">
+                    {mi.productionRequisition?.number ?? "-"}
+                  </strong>
                 </td>
                 <td>{mi.lines.length} materials</td>
                 <td>{statusBadge(mi.status)}</td>
                 <td className="text-[12px] text-[#7a9185]">
                   {new Date(mi.issuedAt).toLocaleString("en-GB")}
                 </td>
+                <td>
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="View RM issue report" aria-label="View RM issue report" onClick={() => setSelectedIssue(mi)}>
+                      <Eye size={15} />
+                    </Button>
+                    <Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="Print RM issue report" aria-label="Print RM issue report" onClick={() => { if (!printMaterialIssue(mi)) setMessage("Allow pop-ups to print the RM issue report."); }}>
+                      <Printer size={15} />
+                    </Button>
+                  </div>
+                </td>
               </tr>
             ))}
           </DataTable>
         </div>
       </Card>
+
+      {selectedIssue && (
+        <Modal
+          title={`RM Issue: ${selectedIssue.issueNumber}`}
+          description={`FM Requisition: ${selectedIssue.productionRequisition?.number ?? "-"}`}
+          onClose={() => setSelectedIssue(null)}
+          extraWide
+          fixedHeight
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => { if (!printMaterialIssue(selectedIssue)) setMessage("Allow pop-ups to print the RM issue report."); }}>
+                <Printer size={15} /> Print Report
+              </Button>
+              <Button onClick={() => setSelectedIssue(null)}>Close</Button>
+            </>
+          }
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Card tone="sage" className="p-4"><span className="text-xs text-[#73877c]">FM Requisition</span><strong className="mt-1 block font-mono">{selectedIssue.productionRequisition?.number ?? "-"}</strong></Card>
+            <Card tone="sand" className="p-4"><span className="text-xs text-[#73877c]">Dispatch Number</span><strong className="mt-1 block font-mono">{selectedIssue.issueNumber}</strong></Card>
+            <Card tone="blue" className="p-4"><span className="text-xs text-[#73877c]">Issued Lines</span><strong className="mt-1 block">{selectedIssue.lines.length} materials</strong></Card>
+            <Card className="p-4"><span className="text-xs text-[#73877c]">Issue Time</span><strong className="mt-1 block text-sm">{new Date(selectedIssue.issuedAt).toLocaleString("en-GB")}</strong></Card>
+          </div>
+          <div className="mt-5 overflow-x-auto rounded-lg border border-[#d7dfd6]">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead className="bg-[#eef4ef] text-left text-[11px] uppercase tracking-wide text-[#53665c]">
+                <tr><th className="px-4 py-3">Raw Material</th><th className="px-4 py-3">Store / Bin</th><th className="px-4 py-3 text-right">Issued Quantity</th></tr>
+              </thead>
+              <tbody>
+                {selectedIssue.lines.map((line) => (
+                  <tr key={line.id} className="border-t border-[#e0e5dd]">
+                    <td className="px-4 py-3"><strong>{line.rawMaterial?.name ?? "-"}</strong><small className="block text-[#73877c]">{line.rawMaterial?.sku ?? ""}</small></td>
+                    <td className="px-4 py-3">
+                      <strong>{line.fromBin?.store?.code ?? "RM Store"} / {line.fromBin?.code ?? "-"}</strong>
+                      <small className="block text-[#73877c]">{line.fromBin?.store?.name ?? ""}{line.fromBin?.name ? " - " + line.fromBin.name : ""}</small>
+                    </td>
+                    <td className="px-4 py-3 text-right font-semibold">{Number(line.issuedQty).toLocaleString()} {line.uom?.code ?? ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 rounded-lg border-l-4 border-[#83b638] bg-[#f5f8ef] p-4">
+            <span className="text-xs font-semibold uppercase text-[#73877c]">Notes</span>
+            <p className="mt-1 text-sm">{selectedIssue.notes || "No notes"}</p>
+          </div>
+        </Modal>
+      )}
 
       {open && (
         <Modal

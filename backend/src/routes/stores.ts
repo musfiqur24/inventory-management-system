@@ -138,19 +138,30 @@ storesRouter.get("/:id/balances", async (req, res) => {
     orderBy: { updatedAt: "desc" },
   });
   const deliveryIds = [...new Set(data.map((balance) => balance.lot.supplierDeliveryId).filter((id): id is string => Boolean(id)))];
-  const deliveries = deliveryIds.length
-    ? await prisma.supplierDelivery.findMany({ where: { organizationId: req.tenantId, id: { in: deliveryIds } }, select: { id: true, requisitionId: true } })
-    : [];
+  const productionBatchIds = [...new Set(data.map((balance) => balance.lot.productionBatchId).filter((id): id is string => Boolean(id)))];
+  const [deliveries, productionBatches] = await Promise.all([
+    deliveryIds.length
+      ? prisma.supplierDelivery.findMany({ where: { organizationId: req.tenantId, id: { in: deliveryIds } }, select: { id: true, requisitionId: true } })
+      : [],
+    productionBatchIds.length
+      ? prisma.productionBatch.findMany({ where: { organizationId: req.tenantId, id: { in: productionBatchIds } }, select: { id: true, number: true } })
+      : [],
+  ]);
   const requisitionIds = [...new Set(deliveries.map((delivery) => delivery.requisitionId).filter((id): id is string => Boolean(id)))];
   const requisitions = requisitionIds.length
     ? await prisma.purchaseRequisition.findMany({ where: { organizationId: req.tenantId, id: { in: requisitionIds } }, select: { id: true, number: true } })
     : [];
   const deliveryMap = new Map(deliveries.map((delivery) => [delivery.id, delivery]));
   const requisitionMap = new Map(requisitions.map((requisition) => [requisition.id, requisition.number]));
+  const productionBatchMap = new Map(productionBatches.map((batch) => [batch.id, batch.number]));
   res.json({
     data: data.map((balance) => {
       const delivery = balance.lot.supplierDeliveryId ? deliveryMap.get(balance.lot.supplierDeliveryId) : undefined;
-      return { ...balance, requisitionNumber: delivery?.requisitionId ? requisitionMap.get(delivery.requisitionId) ?? null : null };
+      return {
+        ...balance,
+        requisitionNumber: delivery?.requisitionId ? requisitionMap.get(delivery.requisitionId) ?? null : null,
+        batchNumber: balance.lot.productionBatchId ? productionBatchMap.get(balance.lot.productionBatchId) ?? null : null,
+      };
     }),
   });
 });
@@ -162,7 +173,7 @@ storesRouter.get("/:id/activity", async (req, res) => {
       binId: z.string().uuid().optional(),
       direction: z.enum(["IN", "OUT"]).optional(),
       page: z.coerce.number().int().min(1).default(1),
-      pageSize: z.coerce.number().int().min(1).max(100).default(20),
+      pageSize: z.coerce.number().int().min(1).max(1000).default(20),
       search: z.string().optional(),
     })
     .parse(req.query);
@@ -200,17 +211,27 @@ storesRouter.get("/:id/activity", async (req, res) => {
           message: "Start date must be before end date.",
         },
       });
-  if (filters.search)
+  if (filters.search) {
+    const matchingOrders = await prisma.productionOrder.findMany({
+      where: {
+        organizationId: req.tenantId,
+        requisition: { is: { number: { contains: filters.search, mode: "insensitive" } } },
+      },
+      select: { id: true, number: true },
+    });
     where.AND = [
       {
         OR: [
           { documentId: { contains: filters.search, mode: "insensitive" } },
-          {
-            referenceNumber: { contains: filters.search, mode: "insensitive" },
-          },
+          { referenceNumber: { contains: filters.search, mode: "insensitive" } },
+          ...(matchingOrders.length ? [
+            { referenceId: { in: matchingOrders.map((order) => order.id) } },
+            { referenceNumber: { in: matchingOrders.map((order) => order.number) } },
+          ] : []),
         ],
       },
     ];
+  }
   const [movements, total] = await prisma.$transaction([
     prisma.stockMovement.findMany({
       where,
@@ -260,10 +281,38 @@ storesRouter.get("/:id/activity", async (req, res) => {
       select: { id: true, fullName: true },
     }),
   ]);
+  const referenceIds = movements.flatMap((movement) => movement.referenceId ? [movement.referenceId] : []);
+  const referenceNumbers = movements.flatMap((movement) => movement.referenceNumber ? [movement.referenceNumber] : []);
+  const [productionOrders, productionRequisitions] = await Promise.all([
+    prisma.productionOrder.findMany({
+      where: {
+        organizationId: req.tenantId,
+        OR: [
+          { id: { in: referenceIds } },
+          { number: { in: referenceNumbers } },
+        ],
+      },
+      include: { requisition: { select: { id: true, number: true } } },
+    }),
+    prisma.productionRequisition.findMany({
+      where: {
+        organizationId: req.tenantId,
+        OR: [
+          { id: { in: referenceIds } },
+          { number: { in: referenceNumbers } },
+        ],
+      },
+      select: { id: true, number: true },
+    }),
+  ]);
   res.json({
-    data: movements.map((m) => ({
+    data: movements.map((m) => {
+      const productionOrder = productionOrders.find((order) => order.id === m.referenceId || order.number === m.referenceNumber);
+      const productionRequisition = productionRequisitions.find((requisition) => requisition.id === m.referenceId || requisition.number === m.referenceNumber);
+      return {
       ...m,
       direction: m.toStoreId === id ? "IN" : "OUT",
+      requisitionNumber: productionOrder?.requisition?.number ?? productionRequisition?.number ?? m.referenceNumber ?? null,
       product: products.find((p) => p.id === m.productId),
       lot: lots.find((l) => l.id === m.lotId),
       bin: bins.find(
@@ -271,7 +320,8 @@ storesRouter.get("/:id/activity", async (req, res) => {
       ),
       uom: uoms.find((u) => u.id === m.uomId),
       performedBy: users.find((u) => u.id === m.performedById),
-    })),
+    };
+    }),
     total,
     page: filters.page,
     pageSize: filters.pageSize,
@@ -390,16 +440,29 @@ storesRouter.get("/:id/release-options", async (req, res) => {
     const orders = await prisma.productionOrder.findMany({
       where: {
         organizationId: req.tenantId,
-        status: { notIn: ["CLOSED", "CANCELLED", "REJECTED"] },
+        status: "APPROVED",
+        requisitionId: { not: null },
+        requisition: {
+          is: {
+            organizationId: req.tenantId,
+            status: "APPROVED",
+          },
+        },
         lines: { some: { productId } },
       },
-      include: { lines: { where: { productId } } },
+      include: {
+        requisition: { select: { id: true, number: true } },
+        lines: { where: { productId } },
+      },
       orderBy: { number: "desc" },
     });
+    const requisitionOptions = new Map<string, string>();
+    for (const order of orders) {
+      if (order.requisition && order.lines.some((line) => line.wasteAdjustedQty.gt(line.issuedQty)))
+        requisitionOptions.set(order.requisition.id, order.requisition.number);
+    }
     return res.json({
-      data: orders
-        .filter((o) => o.lines.some((l) => l.wasteAdjustedQty.gt(l.issuedQty)))
-        .map((o) => ({ id: o.id, number: o.number })),
+      data: [...requisitionOptions].map(([id, number]) => ({ id, number })),
     });
   }
   const orders = await prisma.salesOrder.findMany({

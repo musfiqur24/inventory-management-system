@@ -156,16 +156,20 @@ export function createApp() {
   );
   const errors: ErrorRequestHandler = (error, _req, res, _next) => {
     if (error instanceof StockError) return res.status(error.status).json({ error: { code: error.code, message: error.message } });
-    if (error instanceof ZodError)
-      return res
-        .status(422)
-        .json({
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Please check the submitted values",
-            details: error.flatten(),
-          },
-        });
+    if (error instanceof ZodError) {
+      const issues = error.issues.map((issue) => ({
+        path: issue.path.map(String).join("."),
+        message: issue.message,
+      }));
+      const first = issues[0];
+      return res.status(422).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: first ? (first.path ? first.path + ": " : "") + first.message : "Please check the submitted values.",
+          details: { issues, ...error.flatten() },
+        },
+      });
+    }
     const prismaCode =
       typeof error === "object" && error !== null && "code" in error
         ? String(error.code)
@@ -176,7 +180,13 @@ export function createApp() {
         .json({
           error: {
             code: "CONFLICT",
-            message: "A record with the same unique value already exists",
+            message: (() => {
+              const target = typeof error === "object" && error !== null && "meta" in error
+                ? (error as { meta?: { target?: unknown } }).meta?.target
+                : undefined;
+              const fields = Array.isArray(target) ? target.join(", ") : typeof target === "string" ? target : "";
+              return fields ? "A record with the same " + fields + " already exists." : "A record with the same unique value already exists.";
+            })(),
           },
         });
     if (prismaCode === "P2025")
@@ -185,9 +195,15 @@ export function createApp() {
         .json({
           error: {
             code: "NOT_FOUND",
-            message: "The requested record was not found",
+            message: typeof error === "object" && error !== null && "meta" in error && (error as { meta?: { cause?: unknown } }).meta?.cause
+              ? String((error as { meta?: { cause?: unknown } }).meta?.cause)
+              : "The requested record was not found.",
           },
         });
+    if (prismaCode === "P2003")
+      return res.status(409).json({ error: { code: "RELATION_CONFLICT", message: "This record is linked to another record and cannot be changed or deleted." } });
+    if (prismaCode === "P2014")
+      return res.status(409).json({ error: { code: "REQUIRED_RELATION", message: "This change would break a required linked record." } });
     logger.error({ err: error }, "Unhandled request error");
     return res
       .status(500)

@@ -29,9 +29,13 @@ materialIssuesRouter.get("/", async (req, res) => {
     prisma.product.findMany({ where: { organizationId: req.tenantId } }),
     prisma.unitOfMeasure.findMany({ where: { organizationId: req.tenantId } }),
     prisma.lot.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.bin.findMany({ where: { organizationId: req.tenantId } }),
+    prisma.bin.findMany({
+      where: { organizationId: req.tenantId },
+      include: { store: { select: { code: true, name: true } } },
+    }),
     prisma.productionOrder.findMany({
       where: { organizationId: req.tenantId },
+      include: { requisition: { select: { id: true, number: true } } },
     }),
   ]);
 
@@ -64,6 +68,7 @@ materialIssuesRouter.get("/", async (req, res) => {
       ...iss,
       issueNumber: iss.number,
       productionOrder,
+      productionRequisition: productionOrder?.requisition ?? null,
       lines,
       totalIssuedQty,
     };
@@ -107,10 +112,21 @@ materialIssuesRouter.post("/", async (req, res) => {
       if (!orders.length) throw new StockError("NOT_FOUND", "Production requisition not found.", 404);
       for (const currentOrder of orders) {
         await lockDocument(tx, "ProductionOrder", currentOrder.id, organizationId);
-        if (["CANCELLED", "REJECTED", "CLOSED", "READY", "COMPLETED"].includes(currentOrder.status))
+        if (["IN_PRODUCTION", "READY", "COMPLETED"].includes(currentOrder.status))
+          throw new StockError(
+            "RM_ISSUE_ALREADY_STARTED",
+            currentOrder.status === "IN_PRODUCTION"
+              ? "Raw materials cannot be issued because this FM requisition is already In Production."
+              : "Raw materials cannot be issued because the linked batch is already Ready or Completed.",
+            422,
+          );
+        if (["CANCELLED", "REJECTED", "CLOSED"].includes(currentOrder.status))
           throw new StockError("ORDER_UNAVAILABLE", "The requisition contains a closed or unavailable product.");
       }
       const order = orders[0];
+      const requisition = order.requisitionId
+        ? await tx.productionRequisition.findFirst({ where: { id: order.requisitionId, organizationId }, select: { id: true, number: true } })
+        : null;
       const orderIds = orders.map((currentOrder) => currentOrder.id);
       const now = new Date();
       const datePart = String(now.getFullYear()) + String(now.getDate()).padStart(2, "0") + String(now.getMonth() + 1).padStart(2, "0");
@@ -198,9 +214,9 @@ materialIssuesRouter.post("/", async (req, res) => {
           documentId: document.number,
           sourceDocumentId: document.id,
           sourceLineId: lineIds[item.index],
-          referenceType: "PRODUCTION_ORDER",
-          referenceId: order.id,
-          referenceNumber: order.number,
+          referenceType: requisition ? "PRODUCTION_REQUISITION" : "PRODUCTION_ORDER",
+          referenceId: requisition?.id ?? order.id,
+          referenceNumber: requisition?.number ?? order.number,
           postingKey: "ISSUE:" + requestKey + ":" + item.index,
           performedById: req.auth?.id,
           note: parsed.notes,

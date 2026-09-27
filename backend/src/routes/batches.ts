@@ -2,8 +2,34 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
 import { Prisma, DocumentStatus, QualityStatus } from "../generated/prisma/client.js";
+import { lockDocument, postStock, StockError } from "../services/stock.js";
 export const batchesRouter = Router();
 const round = (n: number) => Math.round((n + Number.EPSILON) * 10000) / 10000;
+const weightedLinePrices = (lines: Array<{ productId: string; wasteAdjustedQty: unknown; unitPrice: unknown }>) => {
+  const totals = new Map<string, { value: number; qty: number }>();
+  for (const line of lines) {
+    const price = Number(line.unitPrice), qty = Number(line.wasteAdjustedQty);
+    if (!(price > 0) || !(qty > 0)) continue;
+    const current = totals.get(line.productId) ?? { value: 0, qty: 0 };
+    current.value += price * qty;
+    current.qty += qty;
+    totals.set(line.productId, current);
+  }
+  return new Map([...totals].map(([productId, total]) => [productId, total.value / total.qty]));
+};
+const procurementPrices = async (organizationId: string, productIds: string[]) => {
+  const lines = await prisma.supplierDeliveryLine.findMany({ where: { productId: { in: productIds }, unitPrice: { not: null }, delivery: { organizationId } } });
+  const totals = new Map<string, { value: number; qty: number }>();
+  for (const line of lines) {
+    const qty = Number(line.acceptedQty ?? line.declaredQty), price = Number(line.unitPrice);
+    if (!(qty > 0) || !(price > 0)) continue;
+    const current = totals.get(line.productId) ?? { value: 0, qty: 0 };
+    current.value += qty * price;
+    current.qty += qty;
+    totals.set(line.productId, current);
+  }
+  return new Map([...totals].map(([productId, total]) => [productId, total.value / total.qty]));
+};
 const metrics = (batch: any, rates: Map<string, number>, prices: Map<string, number>) => {
   const inputs = batch.inputLines ?? [], outputs = batch.outputLines ?? [], costs = batch.costLines ?? [];
   const lineCost = (x: any) => Number(x.quantity) * (prices.get(x.productId) ?? Number(x.unitPrice));
@@ -47,13 +73,16 @@ batchesRouter.get("/", async (req, res) => {
       ? orders.filter((order) => order.requisitionId === anchorOrder.requisitionId)
       : anchorOrder ? [anchorOrder] : [];
     const prices = new Map(purchaseRates);
+    weightedLinePrices(requisitionOrders.flatMap((item) => item.lines)).forEach((price, productId) => prices.set(productId, price));
     const inputMap = new Map<string, any>();
     for (const order of requisitionOrders) {
       for (const line of order.lines) {
-        if (line.unitPrice != null) prices.set(line.productId, Number(line.unitPrice));
         const current = inputMap.get(line.productId);
         if (current) current.requiredQty += Number(line.wasteAdjustedQty);
-        else inputMap.set(line.productId, { ...line, product: productMap.get(line.productId), requiredQty: Number(line.wasteAdjustedQty), unitPrice: Number(line.unitPrice ?? purchaseRates.get(line.productId) ?? productMap.get(line.productId)?.amount ?? 0) });
+        else {
+          const product = productMap.get(line.productId);
+          inputMap.set(line.productId, { ...line, product, category: product?.type === "PACKAGING" ? "PACKAGING" : "RAW_MATERIAL", requiredQty: Number(line.wasteAdjustedQty), unitPrice: Number(prices.get(line.productId) ?? product?.amount ?? 0) });
+        }
       }
     }
     const enrichedOrders = requisitionOrders.map((order) => ({
@@ -64,6 +93,7 @@ batchesRouter.get("/", async (req, res) => {
     const enrichedOrder = anchorOrder ? { ...anchorOrder, fgProduct: productMap.get(anchorOrder.finishedProductId), lines: [...inputMap.values()] } : null;
     return {
       ...batch,
+      status: batch.status === DocumentStatus.SUBMITTED ? "AWAITING_APPROVAL" : batch.status,
       batchNumber: batch.number,
       order: enrichedOrder,
       productionOrder: enrichedOrder,
@@ -82,6 +112,87 @@ batchesRouter.get("/", async (req, res) => {
       metrics: metrics(batch, rates, prices),
     };
   }) });
+});
+
+const managerWhere = (organizationId: string, userId: string) => ({
+  organizationId,
+  userId,
+  isActive: true,
+  user: { isActive: true },
+  organization: { isActive: true },
+  role: { code: "MANAGER" },
+});
+
+batchesRouter.post("/:id/approve", async (req, res) => {
+  const organizationId = req.tenantId!, userId = req.auth!.id;
+  const manager = await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, userId) });
+  if (!manager) return res.status(403).json({ error: { message: "Only a manager can approve finished-good details." } });
+  const result = await prisma.$transaction(async (tx) => {
+    await lockDocument(tx, "ProductionBatch", req.params.id, organizationId);
+    const batch = await tx.productionBatch.findFirst({ where: { id: req.params.id, organizationId } });
+    if (!batch) throw new StockError("NOT_FOUND", "Production batch not found.", 404);
+    if (batch.status !== DocumentStatus.SUBMITTED) throw new StockError("INVALID_STATUS", "Only a batch awaiting approval can be approved.");
+    const anchor = await tx.productionOrder.findFirst({ where: { id: batch.productionOrderId, organizationId } });
+    if (!anchor) throw new StockError("INVALID_ORDER", "Production order not found.", 422);
+    const orders = anchor.requisitionId
+      ? await tx.productionOrder.findMany({ where: { organizationId, requisitionId: anchor.requisitionId } })
+      : [anchor];
+    const updated = await tx.productionBatch.update({ where: { id: batch.id }, data: { status: DocumentStatus.READY } });
+    await tx.productionOrder.updateMany({ where: { id: { in: orders.map((order) => order.id) } }, data: { status: DocumentStatus.READY } });
+    return updated;
+  });
+  res.json({ data: result });
+});
+
+batchesRouter.delete("/:id", async (req, res) => {
+  const organizationId = req.tenantId!, userId = req.auth!.id;
+  const manager = await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, userId) });
+  if (!manager) return res.status(403).json({ error: { message: "Only a manager can delete a production batch." } });
+  await prisma.$transaction(async (tx) => {
+    await lockDocument(tx, "ProductionBatch", req.params.id, organizationId);
+    const batch = await tx.productionBatch.findFirst({ where: { id: req.params.id, organizationId } });
+    if (!batch) throw new StockError("NOT_FOUND", "Production batch not found.", 404);
+    if (batch.status === DocumentStatus.COMPLETED) throw new StockError("BATCH_RECEIVED", "A completed batch cannot be deleted because its finished materials are already in FM Store.");
+    const anchor = await tx.productionOrder.findFirst({ where: { id: batch.productionOrderId, organizationId } });
+    if (!anchor) throw new StockError("INVALID_ORDER", "Production order not found.", 422);
+    const orders = anchor.requisitionId
+      ? await tx.productionOrder.findMany({ where: { organizationId, requisitionId: anchor.requisitionId } })
+      : [anchor];
+    const orderIds = orders.map((order) => order.id);
+    const issues = await tx.materialIssue.findMany({ where: { organizationId, productionOrderId: { in: orderIds } }, include: { lines: true } });
+    for (const issue of issues) {
+      for (const line of issue.lines) {
+        if (!line.lotId || !line.fromBinId) throw new StockError("INVALID_DISPATCH", "The linked RM dispatch is missing its original lot or bin.");
+        await postStock(tx, {
+          organizationId,
+          binId: line.fromBinId,
+          productId: line.productId,
+          lotId: line.lotId,
+          uomId: line.uomId,
+          quantity: line.quantity,
+          direction: "IN",
+          storeType: "RM_STORE",
+          movementType: "ADJUSTMENT",
+          documentType: "BATCH_DELETION",
+          documentId: batch.number,
+          sourceDocumentId: batch.id,
+          sourceLineId: line.id,
+          referenceType: "MATERIAL_ISSUE_REVERSAL",
+          referenceId: issue.id,
+          referenceNumber: issue.number,
+          postingKey: "BATCH-DELETE:" + batch.id + ":" + line.id,
+          performedById: userId,
+          note: "RM returned automatically after deleting " + batch.number,
+        });
+      }
+    }
+    await tx.productionOrderLine.updateMany({ where: { productionOrderId: { in: orderIds } }, data: { issuedQty: new Prisma.Decimal(0) } });
+    await tx.materialIssue.deleteMany({ where: { id: { in: issues.map((issue) => issue.id) } } });
+    await tx.productionOrder.updateMany({ where: { id: { in: orderIds } }, data: { status: DocumentStatus.APPROVED } });
+    await tx.productionBatch.delete({ where: { id: batch.id } });
+    await tx.lot.deleteMany({ where: { organizationId, OR: [{ productionBatchId: batch.id }, ...(batch.fgLotId ? [{ id: batch.fgLotId }] : [])], balances: { none: {} } } });
+  }, { timeout: 20000 });
+  res.status(204).send();
 });
 
 const pricedLine = z.object({ productId: z.string().uuid().nullish(), description: z.string().trim().min(1).max(160), quantity: z.coerce.number().nonnegative(), unitPrice: z.coerce.number().nonnegative() });
@@ -109,7 +220,8 @@ batchesRouter.put("/:id", async (req, res) => {
   const selectedProducts = await prisma.product.findMany({ where: { organizationId, id: { in: ids } } });
   if (ids.length !== selectedProducts.length) return res.status(422).json({ error: { message: "Selected product unavailable" } });
   const prices = new Map(selectedProducts.map((product) => [product.id, Number(product.amount ?? 0)]));
-  requisitionOrders.flatMap((item) => item.lines).forEach((line) => { if (line.unitPrice != null) prices.set(line.productId, Number(line.unitPrice)); });
+  (await procurementPrices(organizationId, ids)).forEach((price, productId) => prices.set(productId, price));
+  weightedLinePrices(requisitionOrders.flatMap((item) => item.lines)).forEach((price, productId) => prices.set(productId, price));
   const rawQty = data.inputs.filter((line) => line.category === "RAW_MATERIAL").reduce((sum, line) => sum + line.quantity, 0);
   const outputQty = data.outputs.reduce((sum, line) => sum + line.quantity, 0);
   const wasteQty = Math.max(0, rawQty - outputQty), wastePct = rawQty ? wasteQty / rawQty * 100 : 0;
@@ -123,14 +235,14 @@ batchesRouter.put("/:id", async (req, res) => {
     const updated = await tx.productionBatch.update({ where: { id: batch.id }, data: {
       actualRMConsumed: new Prisma.Decimal(rawQty), actualOutputQty: new Prisma.Decimal(outputQty), actualWasteQty: new Prisma.Decimal(wasteQty),
       actualWastePercent: new Prisma.Decimal(wastePct.toFixed(2)), wasteVariancePercent: new Prisma.Decimal((wastePct - Number(order.expectedWastePercent)).toFixed(2)),
-      fgLotId: lot.id, status: DocumentStatus.READY, startedAt: data.startedAt ? new Date(data.startedAt) : batch.startedAt,
+      fgLotId: lot.id, status: DocumentStatus.SUBMITTED, startedAt: data.startedAt ? new Date(data.startedAt) : batch.startedAt,
       completedAt: null, notes: data.notes,
       inputLines: { deleteMany: {}, create: data.inputs.map((line) => ({ ...line, productId: line.productId || null, quantity: new Prisma.Decimal(line.quantity), unitPrice: new Prisma.Decimal(line.productId ? prices.get(line.productId) ?? 0 : 0) })) },
       outputLines: { deleteMany: {}, create: data.outputs.map((line) => ({ ...line, productId: line.productId || null, quantity: new Prisma.Decimal(line.quantity), unitPrice: new Prisma.Decimal(line.unitPrice) })) },
       costLines: { deleteMany: {}, create: data.costs.map((line) => ({ description: line.description, quantity: new Prisma.Decimal(line.quantity), unitPrice: new Prisma.Decimal(line.unitPrice) })) },
     }, include: { inputLines: true, outputLines: true, costLines: true } });
     await tx.lot.update({ where: { id: lot.id }, data: { productionBatchId: updated.id } });
-    await tx.productionOrder.updateMany({ where: { id: { in: requisitionOrders.map((item) => item.id) } }, data: { status: DocumentStatus.READY } });
+    await tx.productionOrder.updateMany({ where: { id: { in: requisitionOrders.map((item) => item.id) } }, data: { status: DocumentStatus.SUBMITTED } });
     return { batch: updated, lot };
   });
   res.json({ data: result });
@@ -144,7 +256,8 @@ batchesRouter.post("/", async (req, res) => {
   const selectedProducts = await prisma.product.findMany({ where: { organizationId, id: { in: ids } } });
   if (ids.length !== selectedProducts.length) return res.status(422).json({ error: { message: "Selected product unavailable" } });
   const prices = new Map(selectedProducts.map(product => [product.id, Number(product.amount ?? 0)]));
-  order.lines.forEach(line => { if (line.unitPrice != null) prices.set(line.productId, Number(line.unitPrice)); });
+  (await procurementPrices(organizationId, ids)).forEach((price, productId) => prices.set(productId, price));
+  weightedLinePrices(order.lines).forEach((price, productId) => prices.set(productId, price));
   const rawQty = data.inputs.filter(x => x.category === "RAW_MATERIAL").reduce((s, x) => s + x.quantity, 0);
   const outputQty = data.outputs.reduce((s, x) => s + x.quantity, 0);
   const wasteQty = Math.max(0, rawQty - outputQty), wastePct = rawQty ? wasteQty / rawQty * 100 : 0;
@@ -164,14 +277,14 @@ batchesRouter.post("/", async (req, res) => {
       actualRMConsumed: new Prisma.Decimal(rawQty), actualOutputQty: new Prisma.Decimal(outputQty),
       actualWasteQty: new Prisma.Decimal(wasteQty), actualWastePercent: new Prisma.Decimal(wastePct.toFixed(2)),
       wasteVariancePercent: new Prisma.Decimal((wastePct - Number(order.expectedWastePercent)).toFixed(2)),
-      fgLotId: lot.id, status: DocumentStatus.READY,
+      fgLotId: lot.id, status: DocumentStatus.SUBMITTED,
       startedAt: data.startedAt ? new Date(data.startedAt) : new Date(), completedAt: data.completedAt ? new Date(data.completedAt) : new Date(), notes: data.notes,
       inputLines: { create: data.inputs.map(x => ({ ...x, productId: x.productId || null, quantity: new Prisma.Decimal(x.quantity), unitPrice: new Prisma.Decimal(x.productId ? prices.get(x.productId) ?? 0 : 0) })) },
       outputLines: { create: data.outputs.map(x => ({ ...x, productId: x.productId || null, quantity: new Prisma.Decimal(x.quantity), unitPrice: new Prisma.Decimal(x.productId ? prices.get(x.productId) ?? 0 : 0) })) },
       costLines: { create: data.costs.map(x => ({ description: x.description, quantity: new Prisma.Decimal(x.quantity), unitPrice: new Prisma.Decimal(x.unitPrice) })) },
     }, include: { inputLines: true, outputLines: true, costLines: true } });
     await tx.lot.update({ where: { id: lot.id }, data: { productionBatchId: batch.id } });
-    await tx.productionOrder.update({ where: { id: order.id }, data: { status: DocumentStatus.READY } });
+    await tx.productionOrder.update({ where: { id: order.id }, data: { status: DocumentStatus.SUBMITTED } });
     return { batch, lot };
   });
   res.status(201).json({ data: result });

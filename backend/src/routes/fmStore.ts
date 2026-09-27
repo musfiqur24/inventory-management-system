@@ -24,7 +24,11 @@ fmStoreRouter.get("/balances", async (req, res) =>
 fmStoreRouter.post("/receive", async (req, res) => {
   const parsed = z.object({
     batchId: z.string().uuid(),
-    allocations: z.array(z.object({ lineId: z.string().uuid(), binId: z.string().uuid() })).min(1),
+    allocations: z.array(z.object({
+      lineId: z.string().uuid(),
+      binId: z.string().uuid(),
+      expiryDate: z.string().date().optional(),
+    })).min(1),
     notes: z.string().optional(),
   }).parse(req.body);
   const organizationId = req.tenantId!;
@@ -46,14 +50,18 @@ fmStoreRouter.post("/receive", async (req, res) => {
       ? await tx.productionOrder.findMany({ where: { organizationId, requisitionId: anchor.requisitionId } })
       : [anchor];
     const orderByProduct = new Map(orders.map((order) => [order.finishedProductId, order]));
-    const allocationMap = new Map(parsed.allocations.map((allocation) => [allocation.lineId, allocation.binId]));
+    const allocationMap = new Map(parsed.allocations.map((allocation) => [allocation.lineId, allocation]));
     if (batch.outputLines.some((line) => !line.productId || !allocationMap.has(line.id) || Number(line.quantity) <= 0))
       throw new StockError("INVALID_OUTPUTS", "Choose an FM Store bin for every finished product.", 422);
     const movements = [];
     for (const [index, output] of batch.outputLines.entries()) {
       const order = orderByProduct.get(output.productId!);
-      if (!order) throw new StockError("INVALID_OUTPUT", "A batch output does not belong to this requisition.", 422);
-      const binId = allocationMap.get(output.id)!;
+      const outputProduct = await tx.product.findFirst({ where: { id: output.productId!, organizationId, isActive: true } });
+      if (!outputProduct || (!order && outputProduct.type !== "BY_PRODUCT"))
+        throw new StockError("INVALID_OUTPUT", "A finished-good output must belong to this requisition; only registered by-products may be additional outputs.", 422);
+      const outputUomId = order?.plannedUomId ?? outputProduct.baseUomId;
+      const allocation = allocationMap.get(output.id)!;
+      const binId = allocation.binId;
       const bin = await tx.bin.findFirst({ where: { id: binId, organizationId, store: { storeType: "FM_STORE" } } });
       if (!bin) throw new StockError("INVALID_BIN", "Select a valid FM Store bin.", 422);
       const lot = await tx.lot.create({ data: {
@@ -61,6 +69,7 @@ fmStoreRouter.post("/receive", async (req, res) => {
         productId: output.productId!,
         code: output.lotCode || batch.number + "-" + String(index + 1).padStart(2, "0"),
         manufactureDate: new Date(),
+        expiryDate: allocation.expiryDate ? new Date(allocation.expiryDate + "T23:59:59.999Z") : null,
         qualityStatus: "RELEASED",
         productionBatchId: batch.id,
       } });
@@ -69,7 +78,7 @@ fmStoreRouter.post("/receive", async (req, res) => {
         binId,
         productId: output.productId!,
         lotId: lot.id,
-        uomId: order.plannedUomId,
+        uomId: outputUomId,
         quantity: output.quantity,
         direction: "IN",
         storeType: "FM_STORE",
@@ -79,8 +88,8 @@ fmStoreRouter.post("/receive", async (req, res) => {
         sourceDocumentId: batch.id,
         sourceLineId: output.id,
         referenceType: "PRODUCTION_REQUISITION",
-        referenceId: anchor.requisitionId ?? order.id,
-        referenceNumber: anchor.requisitionId ?? order.number,
+        referenceId: anchor.requisitionId ?? anchor.id,
+        referenceNumber: anchor.requisitionId ?? anchor.number,
         postingKey: "FM:" + batch.id + ":" + output.id,
         performedById: req.auth?.id,
         note: parsed.notes,

@@ -31,7 +31,16 @@ export const syncAssignedOrganization=(organizations:Array<{id:string;name:strin
 };
 export const ensureOrgDetails=async()=>selectedOrgName();
 
-type ErrorPayload={error?:{message?:string;code?:string;details?:unknown}};
+type ErrorDetails={issues?:Array<{path?:string;message?:string}>;fieldErrors?:Record<string,string[]>;formErrors?:string[]};
+type ErrorPayload={error?:string|{message?:string;code?:string;details?:ErrorDetails|unknown};message?:string};
+function errorInfo(payload:ErrorPayload,fallback:string){
+  if(typeof payload.error==="string")return{message:payload.error,code:"REQUEST_FAILED",details:undefined};
+  const details=payload.error?.details as ErrorDetails|undefined;
+  const issue=details?.issues?.find(item=>item.message);
+  const field=details?.fieldErrors&&Object.entries(details.fieldErrors).find(([,messages])=>messages?.length);
+  const detailMessage=issue?.message?(issue.path?issue.path+": ":"")+issue.message:field?field[0]+": "+field[1][0]:details?.formErrors?.[0];
+  return{message:payload.error?.message?.trim()||detailMessage||payload.message?.trim()||fallback,code:payload.error?.code??"REQUEST_FAILED",details};
+}
 type RefreshPayload={data:{accessToken:string;refreshToken:string}};
 let refreshRequest:Promise<RefreshPayload>|null=null;
 
@@ -45,7 +54,7 @@ async function refreshSession(){
     refreshRequest=fetch(API_URL+"/auth/refresh",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({refreshToken:session.refreshToken})})
       .then(async response=>{
         const payload=await parseResponse(response) as RefreshPayload&ErrorPayload;
-        if(!response.ok)throw new ApiError(payload.error?.message??"Session expired",response.status,payload.error?.code??"REFRESH_FAILED",payload.error?.details);
+        if(!response.ok){const info=errorInfo(payload,"Session expired");throw new ApiError(info.message,response.status,info.code==="REQUEST_FAILED"?"REFRESH_FAILED":info.code,info.details);}
         session.set(payload.data.accessToken,payload.data.refreshToken);
         return payload;
       })
@@ -67,7 +76,7 @@ export async function api<T=unknown>(path:string,init:RequestInit={},retried=fal
     catch{clearSession();window.dispatchEvent(new Event("authExpired"));}
   }
   const payload=await parseResponse(response) as T&ErrorPayload;
-  if(!response.ok)throw new ApiError(payload.error?.message??"Request failed",response.status,payload.error?.code??"REQUEST_FAILED",payload.error?.details);
+  if(!response.ok){const info=errorInfo(payload,"Request failed");throw new ApiError(info.message,response.status,info.code,info.details);}
 
   const method=(init.method??"GET").toUpperCase();
   if(["POST","PUT","PATCH","DELETE"].includes(method)&&!path.startsWith("/auth/")&&!path.startsWith("/users")&&!path.startsWith("/notifications")&&path!=="/organizations"){

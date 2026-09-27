@@ -6,6 +6,8 @@ import {
   ArrowUpFromLine,
   Warehouse,
   Trash2,
+  Eye,
+  Printer,
 } from "lucide-react";
 import { api } from "../../../shared/api/http";
 import { useAuth } from "../../auth/AuthContext";
@@ -20,6 +22,7 @@ import { Modal } from "../../../components/ui/Modal";
 import { FormField } from "../../../components/ui/FormField";
 import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
 import { ReceiveStockModal, ReleaseStockModal } from "./StockModals";
+import { printStoreActivityReport } from "./storeActivityPrint";
 import {
   storeTypeLabel,
   type Store,
@@ -52,6 +55,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const tab = isSetup ? "bins" : selectedTab === "bins" ? "stock" : selectedTab;
   const [binId, setBinId] = useState(""),
     [search, setSearch] = useState(""),
+    [batchFilter,setBatchFilter]=useState(""),
     [direction, setDirection] = useState(""),
     [requisitionFilter,setRequisitionFilter]=useState(""),
     [from, setFrom] = useState(""),
@@ -76,7 +80,9 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     [deleteTarget, setDeleteTarget] = useState<{ type: "store"; item: Store } | { type: "bin"; item: Bin } | null>(null),
     [deleting, setDeleting] = useState(false),
     [receive, setReceive] = useState(false),
-    [release, setRelease] = useState<StockBalance | null>(null);
+    [release, setRelease] = useState<StockBalance | null>(null),
+    [selectedActivity, setSelectedActivity] = useState<Activity | null>(null),
+    [printingActivity, setPrintingActivity] = useState(false);
   const store = stores.find((s) => s.id === storeId);
   const refresh = () => setRevision((v) => v + 1);
   useEffect(() => {
@@ -179,6 +185,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
     setBinId("");
     setPage(1);
     setSearch("");
+    setBatchFilter("");
     setRequisitionFilter("");
     setBalances([]);
     setActivity([]);
@@ -242,11 +249,39 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const filteredBins = bins.filter((b) =>
     [b.code, b.name, b.zone ?? ""].some((v) => v.toLowerCase().includes(term)),
   );
+  const batchNumbers=[...new Set(balances.map((b)=>b.batchNumber).filter((number):number is string=>Boolean(number)))].sort().reverse();
   const stock = balances.filter((b) =>
-    [b.product.name, b.product.sku, b.bin.code, b.lot.code].some((v) =>
+    (!batchFilter||b.batchNumber===batchFilter)&&
+    [b.product.name, b.product.sku, b.bin.code, b.batchNumber ?? "", b.lot.code].some((v) =>
       v.toLowerCase().includes(term),
     ),
   );
+  const printActivity = async () => {
+    if (!store || printingActivity) return;
+    setPrintingActivity(true);
+    try {
+      const params = new URLSearchParams({ page: "1", pageSize: "1000" });
+      if (binId) params.set("binId", binId);
+      if (direction) params.set("direction", direction);
+      if (requisitionFilter) params.set("search", requisitionFilter);
+      if (from) params.set("from", new Date(from + "T00:00:00").toISOString());
+      if (to) params.set("to", new Date(to + "T23:59:59.999").toISOString());
+      const result = await api<{ data: Activity[] }>(`/stores/${store.id}/activity?${params}`);
+      const filterText = [
+        binId ? "Bin: " + (bins.find((bin) => bin.id === binId)?.code ?? binId) : "",
+        requisitionFilter ? "Requisition: " + requisitionFilter : "",
+        direction ? "Direction: " + direction : "",
+        from ? "From: " + from : "",
+        to ? "To: " + to : "",
+      ].filter(Boolean).join(" | ");
+      if (!printStoreActivityReport(store, result.data, filterText))
+        appToast.error("Allow pop-ups to print the Store Activity report.");
+    } catch (error) {
+      appToast.error(error instanceof Error ? error.message : "Unable to print Store Activity.");
+    } finally {
+      setPrintingActivity(false);
+    }
+  };
   const totals = Object.entries(
     balances.reduce<Record<string, number>>((result, b) => {
       result[b.uom.code] = (result[b.uom.code] ?? 0) + Number(b.quantity);
@@ -370,7 +405,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 items-end gap-3 border-b border-[#e0e5dd] bg-[#fbfcfa] p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-[minmax(0,15rem)_repeat(4,minmax(0,11rem))]">
+            <div className={`grid grid-cols-1 items-end gap-3 border-b border-[#e0e5dd] bg-[#fbfcfa] p-4 sm:grid-cols-2 sm:p-5 ${tab === "activity" ? "xl:grid-cols-6" : "xl:grid-cols-[minmax(0,15rem)_repeat(4,minmax(0,11rem))]"}`}>
               {tab !== "activity" && (
                 <div className="min-w-0">
                   <label
@@ -385,7 +420,9 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                     placeholder={
                       tab === "bins"
                         ? "Search bin code, name, position..."
-                        : "Search product, bin, or lot..."
+                        : fixedType === "FM_STORE"
+                          ? "Search product, bin, or batch..."
+                          : "Search product, bin, or lot..."
                     }
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -437,66 +474,30 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   </Dropdown>
                 </div>
               )}
+              {tab === "stock" && fixedType === "FM_STORE" && (
+                <div className="min-w-0 sm:col-span-2 xl:col-span-2">
+                  <label htmlFor="stock-batch" className="mb-2 block text-sm font-semibold">Batch ID</label>
+                  <Dropdown id="stock-batch" value={batchFilter} onChange={(e) => { setBatchFilter(e.target.value); setPage(1); }}>
+                    <option value="">All batches</option>
+                    {batchNumbers.map((number) => <option key={number} value={number}>{number}</option>)}
+                  </Dropdown>
+                </div>
+              )}
               {tab === "activity" && (
                 <>
-                  {fixedType === "RM_STORE" && <div className="min-w-0 sm:col-span-2 xl:col-span-2"><label htmlFor="activity-requisition" className="mb-2 block text-sm font-semibold">Requisition</label><Dropdown id="activity-requisition" value={requisitionFilter} onChange={e=>{setRequisitionFilter(e.target.value);setPage(1)}}><option value="">All requisitions</option>{requisitions.map(r=><option key={r.id} value={r.number}>{r.number}</option>)}</Dropdown></div>}
                   <div className="min-w-0">
-                    <label
-                      htmlFor="activity-direction"
-                      className="mb-2 block text-sm font-semibold"
-                    >
-                      Direction
-                    </label>
-                    <Dropdown
-                      id="activity-direction"
-                      value={direction}
-                      onChange={(e) => {
-                        setDirection(e.target.value);
-                        setPage(1);
-                      }}
-                    >
-                      <option value="">In and out</option>
-                      <option value="IN">Stock in</option>
-                      <option value="OUT">Stock out</option>
+                    <label htmlFor="activity-requisition" className="mb-2 block text-sm font-semibold">Requisition ID</label>
+                    <Input id="activity-requisition" className="h-11" placeholder="All requisitions" value={requisitionFilter} onChange={(e) => { setRequisitionFilter(e.target.value); setPage(1); }} />
+                  </div>
+                  <div className="min-w-0">
+                    <label htmlFor="activity-direction" className="mb-2 block text-sm font-semibold">Direction</label>
+                    <Dropdown id="activity-direction" value={direction} onChange={(e) => { setDirection(e.target.value); setPage(1); }}>
+                      <option value="">In and out</option><option value="IN">Stock in</option><option value="OUT">Stock out</option>
                     </Dropdown>
                   </div>
-                  <div className="min-w-0">
-                    <label
-                      className="mb-2 block text-sm font-semibold"
-                      htmlFor="activity-from"
-                    >
-                      From date
-                    </label>
-                    <Input
-                      className="h-11 min-w-0"
-                      id="activity-from"
-                      type="date"
-                      value={from}
-                      onChange={(e) => {
-                        setFrom(e.target.value);
-                        setPage(1);
-                      }}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <label
-                      className="mb-2 block text-sm font-semibold"
-                      htmlFor="activity-to"
-                    >
-                      To date
-                    </label>
-                    <Input
-                      className="h-11 min-w-0"
-                      id="activity-to"
-                      type="date"
-                      value={to}
-                      min={from}
-                      onChange={(e) => {
-                        setTo(e.target.value);
-                        setPage(1);
-                      }}
-                    />
-                  </div>
+                  <div className="min-w-0"><label className="mb-2 block text-sm font-semibold" htmlFor="activity-from">From date</label><Input className="h-11 min-w-0" id="activity-from" type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} /></div>
+                  <div className="min-w-0"><label className="mb-2 block text-sm font-semibold" htmlFor="activity-to">To date</label><Input className="h-11 min-w-0" id="activity-to" type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} /></div>
+                  <Button className="h-11" variant="secondary" disabled={printingActivity} onClick={() => void printActivity()}><Printer size={16} />{printingActivity ? "Preparing..." : "Print Report"}</Button>
                 </>
               )}
             </div>
@@ -565,7 +566,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   "Product",
                   ...(fixedType === "RM_STORE" ? ["Requisition #"] : []),
                   "Bin / Position",
-                  ...(fixedType === "RM_STORE" ? [] : ["Lot"]),
+                  ...(fixedType === "RM_STORE" ? [] : ["Batch ID"]),
                   "Quality / Expiry",
                   ...(fixedType === "RM_STORE" ? [] : ["On Hand"]),
                   "Reserved",
@@ -587,7 +588,9 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                       {b.bin.code}
                       <div className="text-xs text-[#73877c]">{b.bin.zone}</div>
                     </td>
-                    {fixedType !== "RM_STORE" && <td className="text-xs">{b.lot.code}</td>}
+                    {fixedType !== "RM_STORE" && (
+                      <td><span className="font-mono text-xs font-semibold text-[#0d3b2e]">{b.batchNumber ?? "-"}</span></td>
+                    )}
                     <td className="text-xs">
                       {b.lot.qualityStatus}
                       <div>
@@ -644,80 +647,55 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
               </DataTable>
             )}
             {tab === "activity" && (
-              <DataTable loading={loading && bins.length === 0 && balances.length === 0 && activity.length === 0}
-                columns={[
-                  "Date & Time",
-                  "In / Out",
-                  "Product",
-                  "Bin",
-                  "Lot",
-                  "Quantity",
-                  "Balance After",
-                  "Source Document",
-                  "Requisition / Order",
-                  "Recorded By",
-                  "Notes",
-                ]}
+              <DataTable
+                loading={loading && activity.length === 0}
+                columns={["Product", "Requisition ID", "In / Out", "Date & Time", "Bin", "Quantity", "Balance After", "Actions"]}
                 total={total}
                 page={page}
                 pageSize={20}
                 onPageChange={setPage}
               >
-                {activity.map((a) => (
-                  <tr key={a.id}>
-                    <td className="text-xs whitespace-nowrap">
-                      {new Date(a.occurredAt).toLocaleString()}
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          a.direction === "IN"
-                            ? "font-semibold text-emerald-700"
-                            : "font-semibold text-amber-700"
-                        }
-                      >
-                        {a.direction}
-                      </span>
-                    </td>
-                    <td>
-                      {a.product?.name ?? "—"}
-                      <div className="text-xs text-[#73877c]">
-                        {a.product?.sku}
-                      </div>
-                    </td>
-                    <td>{a.bin?.code ?? "—"}</td>
-                    <td className="text-xs">{a.lot?.code ?? "—"}</td>
-                    <td>
-                      {Number(a.quantity).toLocaleString()} {a.uom?.code}
-                    </td>
-                    <td>
-                      {a.balanceAfter != null
-                        ? `${Number(a.balanceAfter).toLocaleString()} ${a.uom?.code ?? ""}`
-                        : "—"}
-                    </td>
-                    <td className="text-xs">
-                      {a.documentId}
-                      <div className="text-[#73877c]">
-                        {a.documentType.replaceAll("_", " ")}
-                      </div>
-                    </td>
-                    <td>{a.referenceNumber ?? "—"}</td>
-                    <td>{a.performedBy?.fullName ?? "—"}</td>
-                    <td className="max-w-60 text-xs">{a.note ?? "—"}</td>
+                {activity.map((item) => (
+                  <tr key={item.id}>
+                    <td><strong>{item.product?.name ?? "-"}</strong><div className="text-xs text-[#73877c]">{item.product?.sku}</div></td>
+                    <td><span className="font-mono text-xs font-semibold text-[#244b3a]">{item.requisitionNumber ?? "-"}</span></td>
+                    <td><span className={item.direction === "IN" ? "font-semibold text-emerald-700" : "font-semibold text-amber-700"}>{item.direction}</span></td>
+                    <td className="whitespace-nowrap text-xs">{new Date(item.occurredAt).toLocaleString()}</td>
+                    <td><strong>{item.bin?.code ?? "-"}</strong><div className="text-xs text-[#73877c]">{item.bin?.name}</div></td>
+                    <td>{Number(item.quantity).toLocaleString()} {item.uom?.code}</td>
+                    <td>{item.balanceAfter != null ? Number(item.balanceAfter).toLocaleString() + " " + (item.uom?.code ?? "") : "-"}</td>
+                    <td><Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="View activity record" aria-label="View activity record" onClick={() => setSelectedActivity(item)}><Eye size={15} /></Button></td>
                   </tr>
                 ))}
-                {!activity.length && (
-                  <tr>
-                    <td colSpan={11} className="py-8 text-center">
-                      {loading
-                        ? "Loading..."
-                        : "No activity for the selected filters."}
-                    </td>
-                  </tr>
-                )}
+                {!activity.length && <tr><td colSpan={8} className="py-8 text-center">{loading ? "Loading..." : "No activity for the selected filters."}</td></tr>}
               </DataTable>
             )}
           </Card>
+          {selectedActivity && (
+            <Modal
+              title="Store Activity Record"
+              description={selectedActivity.product?.name ?? "Stock movement"}
+              onClose={() => setSelectedActivity(null)}
+              wide
+              footer={<Button onClick={() => setSelectedActivity(null)}>Close</Button>}
+            >
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Card tone="sage" className="p-4"><span className="text-xs text-[#73877c]">Product</span><strong className="mt-1 block">{selectedActivity.product?.name ?? "-"}</strong><small className="text-[#73877c]">{selectedActivity.product?.sku}</small></Card>
+                <Card tone="sand" className="p-4"><span className="text-xs text-[#73877c]">Requisition ID</span><strong className="mt-1 block font-mono">{selectedActivity.requisitionNumber ?? "-"}</strong></Card>
+                <Card tone={selectedActivity.direction === "IN" ? "sage" : "blue"} className="p-4"><span className="text-xs text-[#73877c]">Movement</span><strong className="mt-1 block">{selectedActivity.direction === "IN" ? "Stock In" : "Stock Out"}</strong></Card>
+                <Card className="p-4"><span className="text-xs text-[#73877c]">Date & Time</span><strong className="mt-1 block text-sm">{new Date(selectedActivity.occurredAt).toLocaleString()}</strong></Card>
+              </div>
+              <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-[#dce4dc] bg-[#dce4dc] sm:grid-cols-2">
+                {[
+                  ["Store / Bin", (store?.code ?? "") + " - " + (store?.name ?? "") + " / " + (selectedActivity.bin?.code ?? "-") + " - " + (selectedActivity.bin?.name ?? "")],
+                  ["Quantity", Number(selectedActivity.quantity).toLocaleString() + " " + (selectedActivity.uom?.code ?? "")],
+                  ["Balance After", selectedActivity.balanceAfter == null ? "-" : Number(selectedActivity.balanceAfter).toLocaleString() + " " + (selectedActivity.uom?.code ?? "")],
+                  ["Source Document", selectedActivity.documentId + " (" + selectedActivity.documentType.replaceAll("_", " ") + ")"],
+                  ["Recorded By", selectedActivity.performedBy?.fullName ?? "-"],
+                ].map(([label, value]) => <div key={label} className="bg-white p-4"><span className="text-xs font-semibold uppercase text-[#73877c]">{label}</span><strong className="mt-1 block">{value}</strong></div>)}
+              </div>
+            </Modal>
+          )}
         </>
       )}
       {isSetup && deleteTarget && (
