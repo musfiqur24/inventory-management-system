@@ -604,6 +604,7 @@ export const SalesOrderScalarFieldEnum = {
   organizationId: 'organizationId',
   number: 'number',
   customerId: 'customerId',
+  assignedPersonId: 'assignedPersonId',
   status: 'status',
   orderedAt: 'orderedAt'
 } as const

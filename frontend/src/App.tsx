@@ -4,7 +4,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react
 import {
   Boxes, Building2, ClipboardList, Factory, FlaskConical,
   PackageCheck, Scale, ShoppingCart, Truck, Warehouse, LayoutDashboard,
-  GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut, BadgeDollarSign
+  GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut, BadgeDollarSign, ReceiptText
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
@@ -30,6 +30,7 @@ import { MaterialIssuesPage } from './modules/production/material-issues/Materia
 import { ProductionBatchesPage } from './modules/production/batches/ProductionBatchesPage';
 import { FmStorePage } from './modules/inventory/fm-store/FmStorePage';
 import { DispatchesPage } from './modules/sales/dispatches/DispatchesPage';
+import { InvoicesPage } from './modules/sales/invoices/InvoicesPage';
 import { TraceabilityPage } from './modules/traceability/TraceabilityPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { AuthProvider, useAuth } from './modules/auth/AuthContext';
@@ -48,7 +49,6 @@ const NAV_GROUPS = [
   {
     label: 'RM Procurement',
     items: [
-      { path: '/sales-orders', label: 'Sales Orders', icon: ShoppingCart },
       { path: '/purchase-requisitions', label: 'RM Requisitions', icon: ClipboardList },
       { path: '/deliveries', label: 'Supplier Challans', icon: Truck },
       { path: '/weighbridge', label: 'Weighbridge Station', icon: Scale },
@@ -66,6 +66,14 @@ const NAV_GROUPS = [
     ],
   },
   {
+    label: 'Sales',
+    items: [
+      { path: '/sales-orders', label: 'Sales Orders', icon: ShoppingCart },
+      { path: '/dispatches', label: 'FM Dispatch', icon: Truck },
+      { path: '/invoices', label: 'Invoices', icon: ReceiptText },
+    ],
+  },
+  {
     label: 'Master Setup',
     items: [
       { path: '/uoms', label: 'Units of Measure', icon: Scale },
@@ -76,9 +84,8 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: 'Sales & Reports',
+    label: 'Reports',
     items: [
-      { path: '/dispatches', label: 'FM Dispatches', icon: Truck },
       { path: '/profit-loss', label: 'Profit & Loss', icon: BadgeDollarSign },
       { path: '/traceability', label: 'Traceability', icon: GitBranch },
     ],
@@ -176,6 +183,7 @@ function Shell() {
           <Route path="/batches" element={<ProductionBatchesPage />} />
           <Route path="/fm-store" element={<FmStorePage />} />
           <Route path="/dispatches" element={<DispatchesPage />} />
+          <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/traceability" element={<TraceabilityPage />} />
           <Route path="/profit-loss" element={<ProfitLossPage />} />
           <Route path="/users" element={can("users.manage") ? <UserManagementPage /> : <Navigate to="/" replace />} />

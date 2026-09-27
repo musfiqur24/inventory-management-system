@@ -30,7 +30,7 @@ dispatchesRouter.get("/", async (req, res) => {
     prisma.unitOfMeasure.findMany({ where: { organizationId: req.tenantId } }),
     prisma.lot.findMany({ where: { organizationId: req.tenantId } }),
     prisma.bin.findMany({ where: { organizationId: req.tenantId } }),
-    prisma.salesOrder.findMany({ where: { organizationId: req.tenantId } }),
+    prisma.salesOrder.findMany({ where: { organizationId: req.tenantId }, include: { lines: true } }),
     prisma.partner.findMany({ where: { organizationId: req.tenantId } }),
   ]);
 
@@ -55,10 +55,16 @@ dispatchesRouter.get("/", async (req, res) => {
         ? { ...lotMap.get(l.lotId), lotNumber: lotMap.get(l.lotId)?.code }
         : null,
       fromBin: l.fromBinId ? binMap.get(l.fromBinId) : null,
+      unitPrice: salesOrder?.lines.find((line) => line.productId === l.productId && line.uomId === l.uomId)?.unitPrice ?? null,
     }));
 
     const totalDispatchedQty = lines.reduce(
       (sum, l) => sum + Number(l.quantity),
+      0,
+    );
+
+    const totalValue = lines.reduce(
+      (sum, line) => sum + Number(line.quantity) * Number(line.unitPrice ?? 0),
       0,
     );
 
@@ -69,6 +75,7 @@ dispatchesRouter.get("/", async (req, res) => {
       customer,
       lines,
       totalDispatchedQty,
+      totalValue,
     };
   });
 

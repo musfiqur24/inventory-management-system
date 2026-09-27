@@ -107,6 +107,7 @@ model Site {
     assignedRequisitions PurchaseRequisition[] @relation("RequisitionManager")
     assignedProductionRequisitions ProductionRequisition[] @relation("ProductionRequisitionManager")
     approvedProductionRequisitions ProductionRequisition[] @relation("ProductionRequisitionApprover")
+    assignedSalesOrders SalesOrder[] @relation("SalesOrderAssignee")
     notifications Notification[]
   }
 model UnitOfMeasure {
@@ -558,11 +559,14 @@ model SalesOrder {
   organizationId String
   number String
   customerId String
+  assignedPersonId String?
+  assignedPerson User? @relation("SalesOrderAssignee", fields:[assignedPersonId], references:[id], onDelete:Restrict)
   status DocumentStatus @default(DRAFT)
   orderedAt DateTime @default(now())
   lines SalesOrderLine[]
   @@unique([organizationId,number])
   @@index([organizationId,status,orderedAt])
+  @@index([assignedPersonId])
 }
 model SalesOrderLine {
   id String @id @default(uuid())

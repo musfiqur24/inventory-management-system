@@ -5,11 +5,23 @@ import { Prisma, DocumentStatus } from "../generated/prisma/client.js";
 
 export const salesOrdersRouter = Router();
 
+const personSelect = { id: true, fullName: true, email: true };
+
+salesOrdersRouter.get("/assignees", async (req, res) => {
+  const memberships = await prisma.organizationMember.findMany({
+    where: { organizationId: req.tenantId, isActive: true, user: { isActive: true } },
+    select: { user: { select: personSelect } },
+    orderBy: { user: { fullName: "asc" } },
+  });
+  res.json({ data: memberships.map((membership) => membership.user) });
+});
+
 salesOrdersRouter.get("/", async (req, res) => {
   const orders = await prisma.salesOrder.findMany({
     where: { organizationId: req.tenantId },
     include: {
       lines: true,
+      assignedPerson: { select: personSelect },
     },
     orderBy: { orderedAt: "desc" },
   });
@@ -51,7 +63,7 @@ salesOrdersRouter.get("/", async (req, res) => {
 salesOrdersRouter.get("/:id", async (req, res) => {
   const order = await prisma.salesOrder.findFirst({
     where: { id: req.params.id, organizationId: req.tenantId },
-    include: { lines: true },
+    include: { lines: true, assignedPerson: { select: personSelect } },
   });
   if (!order) return res.status(404).json({ error: { message: "Sales order not found" } });
 
@@ -87,6 +99,7 @@ salesOrdersRouter.get("/:id", async (req, res) => {
 
 const createSalesOrderSchema = z.object({
   customerId: z.string().uuid("Please select a customer"),
+  assignedPersonId: z.string().uuid("Please select an assigned person"),
   lines: z.array(
     z.object({
       productId: z.string().uuid("Please select a product"),
@@ -99,6 +112,12 @@ const createSalesOrderSchema = z.object({
 
 salesOrdersRouter.post("/", async (req, res) => {
   const parsed = createSalesOrderSchema.parse(req.body);
+  const [customer, assignee] = await Promise.all([
+    prisma.partner.findFirst({ where: { id: parsed.customerId, organizationId: req.tenantId, partnerType: "CUSTOMER" } }),
+    prisma.organizationMember.findFirst({ where: { organizationId: req.tenantId, userId: parsed.assignedPersonId, isActive: true, user: { isActive: true } } }),
+  ]);
+  if (!customer) return res.status(422).json({ error: { message: "Select an active customer from this organization." } });
+  if (!assignee) return res.status(422).json({ error: { message: "Select an active assigned person from this organization." } });
 
   const count = await prisma.salesOrder.count({
     where: { organizationId: req.tenantId },
@@ -111,6 +130,7 @@ salesOrdersRouter.post("/", async (req, res) => {
       organizationId: req.tenantId!,
       number,
       customerId: parsed.customerId,
+      assignedPersonId: parsed.assignedPersonId,
       status: DocumentStatus.SUBMITTED,
       lines: {
         create: parsed.lines.map((l) => ({
@@ -124,6 +144,7 @@ salesOrdersRouter.post("/", async (req, res) => {
     },
     include: {
       lines: true,
+      assignedPerson: { select: personSelect },
     },
   });
 

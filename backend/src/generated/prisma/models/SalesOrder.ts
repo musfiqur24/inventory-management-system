@@ -29,6 +29,7 @@ export type SalesOrderMinAggregateOutputType = {
   organizationId: string | null
   number: string | null
   customerId: string | null
+  assignedPersonId: string | null
   status: $Enums.DocumentStatus | null
   orderedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type SalesOrderMaxAggregateOutputType = {
   organizationId: string | null
   number: string | null
   customerId: string | null
+  assignedPersonId: string | null
   status: $Enums.DocumentStatus | null
   orderedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type SalesOrderCountAggregateOutputType = {
   organizationId: number
   number: number
   customerId: number
+  assignedPersonId: number
   status: number
   orderedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type SalesOrderMinAggregateInputType = {
   organizationId?: true
   number?: true
   customerId?: true
+  assignedPersonId?: true
   status?: true
   orderedAt?: true
 }
@@ -67,6 +71,7 @@ export type SalesOrderMaxAggregateInputType = {
   organizationId?: true
   number?: true
   customerId?: true
+  assignedPersonId?: true
   status?: true
   orderedAt?: true
 }
@@ -76,6 +81,7 @@ export type SalesOrderCountAggregateInputType = {
   organizationId?: true
   number?: true
   customerId?: true
+  assignedPersonId?: true
   status?: true
   orderedAt?: true
   _all?: true
@@ -158,6 +164,7 @@ export type SalesOrderGroupByOutputType = {
   organizationId: string
   number: string
   customerId: string
+  assignedPersonId: string | null
   status: $Enums.DocumentStatus
   orderedAt: Date
   _count: SalesOrderCountAggregateOutputType | null
@@ -188,8 +195,10 @@ export type SalesOrderWhereInput = {
   organizationId?: Prisma.StringFilter<"SalesOrder"> | string
   number?: Prisma.StringFilter<"SalesOrder"> | string
   customerId?: Prisma.StringFilter<"SalesOrder"> | string
+  assignedPersonId?: Prisma.StringNullableFilter<"SalesOrder"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"SalesOrder"> | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeFilter<"SalesOrder"> | Date | string
+  assignedPerson?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lines?: Prisma.SalesOrderLineListRelationFilter
 }
 
@@ -198,8 +207,10 @@ export type SalesOrderOrderByWithRelationInput = {
   organizationId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  assignedPersonId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   orderedAt?: Prisma.SortOrder
+  assignedPerson?: Prisma.UserOrderByWithRelationInput
   lines?: Prisma.SalesOrderLineOrderByRelationAggregateInput
 }
 
@@ -212,8 +223,10 @@ export type SalesOrderWhereUniqueInput = Prisma.AtLeast<{
   organizationId?: Prisma.StringFilter<"SalesOrder"> | string
   number?: Prisma.StringFilter<"SalesOrder"> | string
   customerId?: Prisma.StringFilter<"SalesOrder"> | string
+  assignedPersonId?: Prisma.StringNullableFilter<"SalesOrder"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"SalesOrder"> | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeFilter<"SalesOrder"> | Date | string
+  assignedPerson?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lines?: Prisma.SalesOrderLineListRelationFilter
 }, "id" | "organizationId_number">
 
@@ -222,6 +235,7 @@ export type SalesOrderOrderByWithAggregationInput = {
   organizationId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  assignedPersonId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   orderedAt?: Prisma.SortOrder
   _count?: Prisma.SalesOrderCountOrderByAggregateInput
@@ -237,6 +251,7 @@ export type SalesOrderScalarWhereWithAggregatesInput = {
   organizationId?: Prisma.StringWithAggregatesFilter<"SalesOrder"> | string
   number?: Prisma.StringWithAggregatesFilter<"SalesOrder"> | string
   customerId?: Prisma.StringWithAggregatesFilter<"SalesOrder"> | string
+  assignedPersonId?: Prisma.StringNullableWithAggregatesFilter<"SalesOrder"> | string | null
   status?: Prisma.EnumDocumentStatusWithAggregatesFilter<"SalesOrder"> | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeWithAggregatesFilter<"SalesOrder"> | Date | string
 }
@@ -248,6 +263,7 @@ export type SalesOrderCreateInput = {
   customerId: string
   status?: $Enums.DocumentStatus
   orderedAt?: Date | string
+  assignedPerson?: Prisma.UserCreateNestedOneWithoutAssignedSalesOrdersInput
   lines?: Prisma.SalesOrderLineCreateNestedManyWithoutSalesOrderInput
 }
 
@@ -256,6 +272,7 @@ export type SalesOrderUncheckedCreateInput = {
   organizationId: string
   number: string
   customerId: string
+  assignedPersonId?: string | null
   status?: $Enums.DocumentStatus
   orderedAt?: Date | string
   lines?: Prisma.SalesOrderLineUncheckedCreateNestedManyWithoutSalesOrderInput
@@ -268,6 +285,7 @@ export type SalesOrderUpdateInput = {
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedPerson?: Prisma.UserUpdateOneWithoutAssignedSalesOrdersNestedInput
   lines?: Prisma.SalesOrderLineUpdateManyWithoutSalesOrderNestedInput
 }
 
@@ -276,6 +294,7 @@ export type SalesOrderUncheckedUpdateInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  assignedPersonId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.SalesOrderLineUncheckedUpdateManyWithoutSalesOrderNestedInput
@@ -286,6 +305,7 @@ export type SalesOrderCreateManyInput = {
   organizationId: string
   number: string
   customerId: string
+  assignedPersonId?: string | null
   status?: $Enums.DocumentStatus
   orderedAt?: Date | string
 }
@@ -304,8 +324,19 @@ export type SalesOrderUncheckedUpdateManyInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  assignedPersonId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SalesOrderListRelationFilter = {
+  every?: Prisma.SalesOrderWhereInput
+  some?: Prisma.SalesOrderWhereInput
+  none?: Prisma.SalesOrderWhereInput
+}
+
+export type SalesOrderOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type SalesOrderOrganizationIdNumberCompoundUniqueInput = {
@@ -318,6 +349,7 @@ export type SalesOrderCountOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  assignedPersonId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   orderedAt?: Prisma.SortOrder
 }
@@ -327,6 +359,7 @@ export type SalesOrderMaxOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  assignedPersonId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   orderedAt?: Prisma.SortOrder
 }
@@ -336,6 +369,7 @@ export type SalesOrderMinOrderByAggregateInput = {
   organizationId?: Prisma.SortOrder
   number?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  assignedPersonId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   orderedAt?: Prisma.SortOrder
 }
@@ -343,6 +377,48 @@ export type SalesOrderMinOrderByAggregateInput = {
 export type SalesOrderScalarRelationFilter = {
   is?: Prisma.SalesOrderWhereInput
   isNot?: Prisma.SalesOrderWhereInput
+}
+
+export type SalesOrderCreateNestedManyWithoutAssignedPersonInput = {
+  create?: Prisma.XOR<Prisma.SalesOrderCreateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput> | Prisma.SalesOrderCreateWithoutAssignedPersonInput[] | Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput[]
+  connectOrCreate?: Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput | Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput[]
+  createMany?: Prisma.SalesOrderCreateManyAssignedPersonInputEnvelope
+  connect?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+}
+
+export type SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput = {
+  create?: Prisma.XOR<Prisma.SalesOrderCreateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput> | Prisma.SalesOrderCreateWithoutAssignedPersonInput[] | Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput[]
+  connectOrCreate?: Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput | Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput[]
+  createMany?: Prisma.SalesOrderCreateManyAssignedPersonInputEnvelope
+  connect?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+}
+
+export type SalesOrderUpdateManyWithoutAssignedPersonNestedInput = {
+  create?: Prisma.XOR<Prisma.SalesOrderCreateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput> | Prisma.SalesOrderCreateWithoutAssignedPersonInput[] | Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput[]
+  connectOrCreate?: Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput | Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput[]
+  upsert?: Prisma.SalesOrderUpsertWithWhereUniqueWithoutAssignedPersonInput | Prisma.SalesOrderUpsertWithWhereUniqueWithoutAssignedPersonInput[]
+  createMany?: Prisma.SalesOrderCreateManyAssignedPersonInputEnvelope
+  set?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  disconnect?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  delete?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  connect?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  update?: Prisma.SalesOrderUpdateWithWhereUniqueWithoutAssignedPersonInput | Prisma.SalesOrderUpdateWithWhereUniqueWithoutAssignedPersonInput[]
+  updateMany?: Prisma.SalesOrderUpdateManyWithWhereWithoutAssignedPersonInput | Prisma.SalesOrderUpdateManyWithWhereWithoutAssignedPersonInput[]
+  deleteMany?: Prisma.SalesOrderScalarWhereInput | Prisma.SalesOrderScalarWhereInput[]
+}
+
+export type SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput = {
+  create?: Prisma.XOR<Prisma.SalesOrderCreateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput> | Prisma.SalesOrderCreateWithoutAssignedPersonInput[] | Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput[]
+  connectOrCreate?: Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput | Prisma.SalesOrderCreateOrConnectWithoutAssignedPersonInput[]
+  upsert?: Prisma.SalesOrderUpsertWithWhereUniqueWithoutAssignedPersonInput | Prisma.SalesOrderUpsertWithWhereUniqueWithoutAssignedPersonInput[]
+  createMany?: Prisma.SalesOrderCreateManyAssignedPersonInputEnvelope
+  set?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  disconnect?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  delete?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  connect?: Prisma.SalesOrderWhereUniqueInput | Prisma.SalesOrderWhereUniqueInput[]
+  update?: Prisma.SalesOrderUpdateWithWhereUniqueWithoutAssignedPersonInput | Prisma.SalesOrderUpdateWithWhereUniqueWithoutAssignedPersonInput[]
+  updateMany?: Prisma.SalesOrderUpdateManyWithWhereWithoutAssignedPersonInput | Prisma.SalesOrderUpdateManyWithWhereWithoutAssignedPersonInput[]
+  deleteMany?: Prisma.SalesOrderScalarWhereInput | Prisma.SalesOrderScalarWhereInput[]
 }
 
 export type SalesOrderCreateNestedOneWithoutLinesInput = {
@@ -359,6 +435,65 @@ export type SalesOrderUpdateOneRequiredWithoutLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SalesOrderUpdateToOneWithWhereWithoutLinesInput, Prisma.SalesOrderUpdateWithoutLinesInput>, Prisma.SalesOrderUncheckedUpdateWithoutLinesInput>
 }
 
+export type SalesOrderCreateWithoutAssignedPersonInput = {
+  id?: string
+  organizationId: string
+  number: string
+  customerId: string
+  status?: $Enums.DocumentStatus
+  orderedAt?: Date | string
+  lines?: Prisma.SalesOrderLineCreateNestedManyWithoutSalesOrderInput
+}
+
+export type SalesOrderUncheckedCreateWithoutAssignedPersonInput = {
+  id?: string
+  organizationId: string
+  number: string
+  customerId: string
+  status?: $Enums.DocumentStatus
+  orderedAt?: Date | string
+  lines?: Prisma.SalesOrderLineUncheckedCreateNestedManyWithoutSalesOrderInput
+}
+
+export type SalesOrderCreateOrConnectWithoutAssignedPersonInput = {
+  where: Prisma.SalesOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.SalesOrderCreateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput>
+}
+
+export type SalesOrderCreateManyAssignedPersonInputEnvelope = {
+  data: Prisma.SalesOrderCreateManyAssignedPersonInput | Prisma.SalesOrderCreateManyAssignedPersonInput[]
+  skipDuplicates?: boolean
+}
+
+export type SalesOrderUpsertWithWhereUniqueWithoutAssignedPersonInput = {
+  where: Prisma.SalesOrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.SalesOrderUpdateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedUpdateWithoutAssignedPersonInput>
+  create: Prisma.XOR<Prisma.SalesOrderCreateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedCreateWithoutAssignedPersonInput>
+}
+
+export type SalesOrderUpdateWithWhereUniqueWithoutAssignedPersonInput = {
+  where: Prisma.SalesOrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.SalesOrderUpdateWithoutAssignedPersonInput, Prisma.SalesOrderUncheckedUpdateWithoutAssignedPersonInput>
+}
+
+export type SalesOrderUpdateManyWithWhereWithoutAssignedPersonInput = {
+  where: Prisma.SalesOrderScalarWhereInput
+  data: Prisma.XOR<Prisma.SalesOrderUpdateManyMutationInput, Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonInput>
+}
+
+export type SalesOrderScalarWhereInput = {
+  AND?: Prisma.SalesOrderScalarWhereInput | Prisma.SalesOrderScalarWhereInput[]
+  OR?: Prisma.SalesOrderScalarWhereInput[]
+  NOT?: Prisma.SalesOrderScalarWhereInput | Prisma.SalesOrderScalarWhereInput[]
+  id?: Prisma.StringFilter<"SalesOrder"> | string
+  organizationId?: Prisma.StringFilter<"SalesOrder"> | string
+  number?: Prisma.StringFilter<"SalesOrder"> | string
+  customerId?: Prisma.StringFilter<"SalesOrder"> | string
+  assignedPersonId?: Prisma.StringNullableFilter<"SalesOrder"> | string | null
+  status?: Prisma.EnumDocumentStatusFilter<"SalesOrder"> | $Enums.DocumentStatus
+  orderedAt?: Prisma.DateTimeFilter<"SalesOrder"> | Date | string
+}
+
 export type SalesOrderCreateWithoutLinesInput = {
   id?: string
   organizationId: string
@@ -366,6 +501,7 @@ export type SalesOrderCreateWithoutLinesInput = {
   customerId: string
   status?: $Enums.DocumentStatus
   orderedAt?: Date | string
+  assignedPerson?: Prisma.UserCreateNestedOneWithoutAssignedSalesOrdersInput
 }
 
 export type SalesOrderUncheckedCreateWithoutLinesInput = {
@@ -373,6 +509,7 @@ export type SalesOrderUncheckedCreateWithoutLinesInput = {
   organizationId: string
   number: string
   customerId: string
+  assignedPersonId?: string | null
   status?: $Enums.DocumentStatus
   orderedAt?: Date | string
 }
@@ -400,9 +537,49 @@ export type SalesOrderUpdateWithoutLinesInput = {
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedPerson?: Prisma.UserUpdateOneWithoutAssignedSalesOrdersNestedInput
 }
 
 export type SalesOrderUncheckedUpdateWithoutLinesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  assignedPersonId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SalesOrderCreateManyAssignedPersonInput = {
+  id?: string
+  organizationId: string
+  number: string
+  customerId: string
+  status?: $Enums.DocumentStatus
+  orderedAt?: Date | string
+}
+
+export type SalesOrderUpdateWithoutAssignedPersonInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.SalesOrderLineUpdateManyWithoutSalesOrderNestedInput
+}
+
+export type SalesOrderUncheckedUpdateWithoutAssignedPersonInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  number?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
+  orderedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lines?: Prisma.SalesOrderLineUncheckedUpdateManyWithoutSalesOrderNestedInput
+}
+
+export type SalesOrderUncheckedUpdateManyWithoutAssignedPersonInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.StringFieldUpdateOperationsInput | string
@@ -447,8 +624,10 @@ export type SalesOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   organizationId?: boolean
   number?: boolean
   customerId?: boolean
+  assignedPersonId?: boolean
   status?: boolean
   orderedAt?: boolean
+  assignedPerson?: boolean | Prisma.SalesOrder$assignedPersonArgs<ExtArgs>
   lines?: boolean | Prisma.SalesOrder$linesArgs<ExtArgs>
   _count?: boolean | Prisma.SalesOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["salesOrder"]>
@@ -458,8 +637,10 @@ export type SalesOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   organizationId?: boolean
   number?: boolean
   customerId?: boolean
+  assignedPersonId?: boolean
   status?: boolean
   orderedAt?: boolean
+  assignedPerson?: boolean | Prisma.SalesOrder$assignedPersonArgs<ExtArgs>
 }, ExtArgs["result"]["salesOrder"]>
 
 export type SalesOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -467,8 +648,10 @@ export type SalesOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   organizationId?: boolean
   number?: boolean
   customerId?: boolean
+  assignedPersonId?: boolean
   status?: boolean
   orderedAt?: boolean
+  assignedPerson?: boolean | Prisma.SalesOrder$assignedPersonArgs<ExtArgs>
 }, ExtArgs["result"]["salesOrder"]>
 
 export type SalesOrderSelectScalar = {
@@ -476,21 +659,28 @@ export type SalesOrderSelectScalar = {
   organizationId?: boolean
   number?: boolean
   customerId?: boolean
+  assignedPersonId?: boolean
   status?: boolean
   orderedAt?: boolean
 }
 
-export type SalesOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "customerId" | "status" | "orderedAt", ExtArgs["result"]["salesOrder"]>
+export type SalesOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "number" | "customerId" | "assignedPersonId" | "status" | "orderedAt", ExtArgs["result"]["salesOrder"]>
 export type SalesOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedPerson?: boolean | Prisma.SalesOrder$assignedPersonArgs<ExtArgs>
   lines?: boolean | Prisma.SalesOrder$linesArgs<ExtArgs>
   _count?: boolean | Prisma.SalesOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type SalesOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type SalesOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type SalesOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedPerson?: boolean | Prisma.SalesOrder$assignedPersonArgs<ExtArgs>
+}
+export type SalesOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedPerson?: boolean | Prisma.SalesOrder$assignedPersonArgs<ExtArgs>
+}
 
 export type $SalesOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SalesOrder"
   objects: {
+    assignedPerson: Prisma.$UserPayload<ExtArgs> | null
     lines: Prisma.$SalesOrderLinePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -498,6 +688,7 @@ export type $SalesOrderPayload<ExtArgs extends runtime.Types.Extensions.Internal
     organizationId: string
     number: string
     customerId: string
+    assignedPersonId: string | null
     status: $Enums.DocumentStatus
     orderedAt: Date
   }, ExtArgs["result"]["salesOrder"]>
@@ -894,6 +1085,7 @@ readonly fields: SalesOrderFieldRefs;
  */
 export interface Prisma__SalesOrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  assignedPerson<T extends Prisma.SalesOrder$assignedPersonArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesOrder$assignedPersonArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.SalesOrder$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SalesOrder$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesOrderLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -928,6 +1120,7 @@ export interface SalesOrderFieldRefs {
   readonly organizationId: Prisma.FieldRef<"SalesOrder", 'String'>
   readonly number: Prisma.FieldRef<"SalesOrder", 'String'>
   readonly customerId: Prisma.FieldRef<"SalesOrder", 'String'>
+  readonly assignedPersonId: Prisma.FieldRef<"SalesOrder", 'String'>
   readonly status: Prisma.FieldRef<"SalesOrder", 'DocumentStatus'>
   readonly orderedAt: Prisma.FieldRef<"SalesOrder", 'DateTime'>
 }
@@ -1184,6 +1377,10 @@ export type SalesOrderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    */
   data: Prisma.SalesOrderCreateManyInput | Prisma.SalesOrderCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesOrderIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1254,6 +1451,10 @@ export type SalesOrderUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many SalesOrders to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesOrderIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1320,6 +1521,25 @@ export type SalesOrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many SalesOrders to delete.
    */
   limit?: number
+}
+
+/**
+ * SalesOrder.assignedPerson
+ */
+export type SalesOrder$assignedPersonArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

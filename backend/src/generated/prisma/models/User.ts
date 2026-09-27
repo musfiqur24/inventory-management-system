@@ -236,6 +236,7 @@ export type UserWhereInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionListRelationFilter
   assignedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
   approvedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
+  assignedSalesOrders?: Prisma.SalesOrderListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
 }
 
@@ -257,6 +258,7 @@ export type UserOrderByWithRelationInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionOrderByRelationAggregateInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionOrderByRelationAggregateInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionOrderByRelationAggregateInput
+  assignedSalesOrders?: Prisma.SalesOrderOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
@@ -281,6 +283,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   assignedRequisitions?: Prisma.PurchaseRequisitionListRelationFilter
   assignedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
   approvedProductionRequisitions?: Prisma.ProductionRequisitionListRelationFilter
+  assignedSalesOrders?: Prisma.SalesOrderListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
 }, "id" | "email">
 
@@ -336,6 +339,7 @@ export type UserCreateInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -357,6 +361,7 @@ export type UserUncheckedCreateInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -378,6 +383,7 @@ export type UserUpdateInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -399,6 +405,7 @@ export type UserUncheckedUpdateInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -544,6 +551,22 @@ export type UserUpdateOneWithoutApprovedProductionRequisitionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApprovedProductionRequisitionsInput, Prisma.UserUpdateWithoutApprovedProductionRequisitionsInput>, Prisma.UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput>
 }
 
+export type UserCreateNestedOneWithoutAssignedSalesOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesOrdersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedSalesOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAssignedSalesOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesOrdersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedSalesOrdersInput
+  upsert?: Prisma.UserUpsertWithoutAssignedSalesOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedSalesOrdersInput, Prisma.UserUpdateWithoutAssignedSalesOrdersInput>, Prisma.UserUncheckedUpdateWithoutAssignedSalesOrdersInput>
+}
+
 export type UserCreateNestedOneWithoutMembershipsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutMembershipsInput, Prisma.UserUncheckedCreateWithoutMembershipsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutMembershipsInput
@@ -617,6 +640,7 @@ export type UserCreateWithoutAssignedRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -637,6 +661,7 @@ export type UserUncheckedCreateWithoutAssignedRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -673,6 +698,7 @@ export type UserUpdateWithoutAssignedRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -693,6 +719,7 @@ export type UserUncheckedUpdateWithoutAssignedRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -713,6 +740,7 @@ export type UserCreateWithoutAssignedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -733,6 +761,7 @@ export type UserUncheckedCreateWithoutAssignedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -758,6 +787,7 @@ export type UserCreateWithoutApprovedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -778,6 +808,7 @@ export type UserUncheckedCreateWithoutApprovedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -814,6 +845,7 @@ export type UserUpdateWithoutAssignedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -834,6 +866,7 @@ export type UserUncheckedUpdateWithoutAssignedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -865,6 +898,7 @@ export type UserUpdateWithoutApprovedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -885,6 +919,107 @@ export type UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput = {
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserCreateWithoutAssignedSalesOrdersInput = {
+  id?: string
+  email: string
+  fullName: string
+  avatarUrl?: string | null
+  phone?: string | null
+  presentAddress?: string | null
+  permanentAddress?: string | null
+  passwordHash: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.OrganizationMemberCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutAssignedSalesOrdersInput = {
+  id?: string
+  email: string
+  fullName: string
+  avatarUrl?: string | null
+  phone?: string | null
+  presentAddress?: string | null
+  permanentAddress?: string | null
+  passwordHash: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.OrganizationMemberUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutAssignedSalesOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesOrdersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesOrdersInput>
+}
+
+export type UserUpsertWithoutAssignedSalesOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignedSalesOrdersInput, Prisma.UserUncheckedUpdateWithoutAssignedSalesOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesOrdersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssignedSalesOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignedSalesOrdersInput, Prisma.UserUncheckedUpdateWithoutAssignedSalesOrdersInput>
+}
+
+export type UserUpdateWithoutAssignedSalesOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.OrganizationMemberUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssignedSalesOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.OrganizationMemberUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
+  approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -905,6 +1040,7 @@ export type UserCreateWithoutMembershipsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -925,6 +1061,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -961,6 +1098,7 @@ export type UserUpdateWithoutMembershipsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -981,6 +1119,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -1001,6 +1140,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -1021,6 +1161,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -1057,6 +1198,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -1077,6 +1219,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -1097,6 +1240,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
@@ -1117,6 +1261,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
@@ -1153,6 +1298,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
@@ -1173,6 +1319,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
@@ -1194,6 +1341,7 @@ export type UserCreateWithoutNotificationsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderCreateNestedManyWithoutAssignedPersonInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1214,6 +1362,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutAssignedManagerInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedCreateNestedManyWithoutApprovedByInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedCreateNestedManyWithoutAssignedPersonInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1250,6 +1399,7 @@ export type UserUpdateWithoutNotificationsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUpdateManyWithoutAssignedPersonNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1270,6 +1420,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   assignedRequisitions?: Prisma.PurchaseRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   assignedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutAssignedManagerNestedInput
   approvedProductionRequisitions?: Prisma.ProductionRequisitionUncheckedUpdateManyWithoutApprovedByNestedInput
+  assignedSalesOrders?: Prisma.SalesOrderUncheckedUpdateManyWithoutAssignedPersonNestedInput
 }
 
 
@@ -1284,6 +1435,7 @@ export type UserCountOutputType = {
   assignedRequisitions: number
   assignedProductionRequisitions: number
   approvedProductionRequisitions: number
+  assignedSalesOrders: number
   notifications: number
 }
 
@@ -1294,6 +1446,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   assignedRequisitions?: boolean | UserCountOutputTypeCountAssignedRequisitionsArgs
   assignedProductionRequisitions?: boolean | UserCountOutputTypeCountAssignedProductionRequisitionsArgs
   approvedProductionRequisitions?: boolean | UserCountOutputTypeCountApprovedProductionRequisitionsArgs
+  assignedSalesOrders?: boolean | UserCountOutputTypeCountAssignedSalesOrdersArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
 }
 
@@ -1352,6 +1505,13 @@ export type UserCountOutputTypeCountApprovedProductionRequisitionsArgs<ExtArgs e
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountAssignedSalesOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalesOrderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.NotificationWhereInput
 }
@@ -1375,6 +1535,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   assignedRequisitions?: boolean | Prisma.User$assignedRequisitionsArgs<ExtArgs>
   assignedProductionRequisitions?: boolean | Prisma.User$assignedProductionRequisitionsArgs<ExtArgs>
   approvedProductionRequisitions?: boolean | Prisma.User$approvedProductionRequisitionsArgs<ExtArgs>
+  assignedSalesOrders?: boolean | Prisma.User$assignedSalesOrdersArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -1429,6 +1590,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   assignedRequisitions?: boolean | Prisma.User$assignedRequisitionsArgs<ExtArgs>
   assignedProductionRequisitions?: boolean | Prisma.User$assignedProductionRequisitionsArgs<ExtArgs>
   approvedProductionRequisitions?: boolean | Prisma.User$approvedProductionRequisitionsArgs<ExtArgs>
+  assignedSalesOrders?: boolean | Prisma.User$assignedSalesOrdersArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1444,6 +1606,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     assignedRequisitions: Prisma.$PurchaseRequisitionPayload<ExtArgs>[]
     assignedProductionRequisitions: Prisma.$ProductionRequisitionPayload<ExtArgs>[]
     approvedProductionRequisitions: Prisma.$ProductionRequisitionPayload<ExtArgs>[]
+    assignedSalesOrders: Prisma.$SalesOrderPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1858,6 +2021,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   assignedRequisitions<T extends Prisma.User$assignedRequisitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedRequisitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseRequisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedProductionRequisitions<T extends Prisma.User$assignedProductionRequisitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedProductionRequisitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionRequisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvedProductionRequisitions<T extends Prisma.User$approvedProductionRequisitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$approvedProductionRequisitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionRequisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedSalesOrders<T extends Prisma.User$assignedSalesOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedSalesOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalesOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2433,6 +2597,30 @@ export type User$approvedProductionRequisitionsArgs<ExtArgs extends runtime.Type
   take?: number
   skip?: number
   distinct?: Prisma.ProductionRequisitionScalarFieldEnum | Prisma.ProductionRequisitionScalarFieldEnum[]
+}
+
+/**
+ * User.assignedSalesOrders
+ */
+export type User$assignedSalesOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalesOrder
+   */
+  select?: Prisma.SalesOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalesOrder
+   */
+  omit?: Prisma.SalesOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalesOrderInclude<ExtArgs> | null
+  where?: Prisma.SalesOrderWhereInput
+  orderBy?: Prisma.SalesOrderOrderByWithRelationInput | Prisma.SalesOrderOrderByWithRelationInput[]
+  cursor?: Prisma.SalesOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalesOrderScalarFieldEnum | Prisma.SalesOrderScalarFieldEnum[]
 }
 
 /**
