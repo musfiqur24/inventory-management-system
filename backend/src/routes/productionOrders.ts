@@ -297,16 +297,22 @@ productionOrdersRouter.post("/requisitions/:id/reject", async (req, res) => {
 });
 
 productionOrdersRouter.post("/requisitions/:id/approve", async (req, res) => {
+  const parsed = z.object({ rejectedOrderIds: z.array(z.string().uuid()).default([]) }).parse(req.body ?? {});
   const organizationId = req.tenantId!;
   const userId = req.auth!.id;
-  const requisition = await prisma.productionRequisition.findFirst({ where: { id: req.params.id, organizationId } });
+  const requisition = await prisma.productionRequisition.findFirst({ where: { id: req.params.id, organizationId }, include: { orders: { select: { id: true } } } });
   if (!requisition) return res.status(404).json({ error: { message: "Production requisition not found." } });
   if (requisition.assignedManagerId !== userId || !await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, userId) })) return res.status(403).json({ error: { message: "Only the assigned manager can approve this requisition." } });
   if (requisition.status !== DocumentStatus.PENDING) return res.status(409).json({ error: { message: "Only a pending requisition can be approved." } });
+  const orderIds = new Set(requisition.orders.map((order) => order.id));
+  const rejectedOrderIds = [...new Set(parsed.rejectedOrderIds)];
+  if (rejectedOrderIds.some((orderId) => !orderIds.has(orderId))) return res.status(422).json({ error: { message: "One or more rejected finished goods do not belong to this requisition." } });
+  if (requisition.orders.length - rejectedOrderIds.length < 1) return res.status(409).json({ error: { message: "A requisition must contain at least one finished good. Reject the whole requisition instead." } });
   const approvedAt = new Date();
-  await prisma.$transaction([
-    prisma.productionRequisition.update({ where: { id: requisition.id }, data: { status: DocumentStatus.APPROVED, approvedById: userId, approvedAt } }),
-    prisma.productionOrder.updateMany({ where: { requisitionId: requisition.id }, data: { status: DocumentStatus.APPROVED } }),
-  ]);
+  await prisma.$transaction(async (tx) => {
+    if (rejectedOrderIds.length) await tx.productionOrder.deleteMany({ where: { requisitionId: requisition.id, id: { in: rejectedOrderIds } } });
+    await tx.productionRequisition.update({ where: { id: requisition.id }, data: { status: DocumentStatus.APPROVED, approvedById: userId, approvedAt } });
+    await tx.productionOrder.updateMany({ where: { requisitionId: requisition.id }, data: { status: DocumentStatus.APPROVED } });
+  });
   res.json({ data: { id: requisition.id, status: DocumentStatus.APPROVED, approvedAt } });
 });

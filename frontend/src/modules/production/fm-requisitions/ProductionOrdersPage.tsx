@@ -47,6 +47,7 @@ export function ProductionOrdersPage() {
   const [assignedManagerId, setAssignedManagerId] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [selectedGroup, setSelectedGroup] = useState<{ number: string; orders: ProductionOrder[] } | null>(null);
+  const [rejectedOrderIds, setRejectedOrderIds] = useState<string[]>([]);
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [editingGroup, setEditingGroup] = useState<{ number: string; orders: ProductionOrder[] } | null>(null);
@@ -191,9 +192,10 @@ export function ProductionOrdersPage() {
     if (!requisitionId || approving) return;
     setApproving(true);
     try {
-      await api(`/production-orders/requisitions/${requisitionId}/approve`, { method: 'POST' });
+      await api(`/production-orders/requisitions/${requisitionId}/approve`, { method: 'POST', body: JSON.stringify({ rejectedOrderIds }) });
       await load();
       setSelectedGroup(null);
+      setRejectedOrderIds([]);
     } catch (error: any) { setMessage(error.message); } finally { setApproving(false); }
   };
   const rejectGroup = async (orders: ProductionOrder[]) => {
@@ -204,7 +206,13 @@ export function ProductionOrdersPage() {
       await api('/production-orders/requisitions/' + requisitionId + '/reject', { method: 'POST' });
       await load();
       setSelectedGroup(null);
+      setRejectedOrderIds([]);
     } catch (error: any) { setMessage(error.message); } finally { setRejecting(false); }
+  };
+  const rejectProduct = async (orders: ProductionOrder[], orderId: string) => {
+    const isRejected = rejectedOrderIds.includes(orderId);
+    if (!isRejected && orders.length - rejectedOrderIds.length <= 1) return setMessage('Reject the whole requisition to remove its final finished good.');
+    setRejectedOrderIds((current) => isRejected ? current.filter((id) => id !== orderId) : [...current, orderId]);
   };
   const printGroup = ({ number, orders }: { number: string; orders: ProductionOrder[] }) => {
     const manager = orders[0]?.assignedManager?.fullName ?? 'Not assigned';
@@ -270,7 +278,7 @@ export function ProductionOrdersPage() {
                       <td>{totalMaterials} materials</td>
                       <td>{statusBadge(po.status)}</td>
                       <td className="text-[12px] text-[#7a9185]">{po.plannedStartDate ? new Date(po.plannedStartDate).toLocaleDateString('en-GB') : ''}</td>
-                      <td><div className="flex gap-1"><Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="View report" onClick={() => { setSelectedGroup({ number, orders }); setDetailExpanded(new Set()); }}><Eye size={15}/></Button><Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="Print requisition" onClick={() => printGroup({ number, orders })}><Printer size={15}/></Button>{isManager && <Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="Edit requisition" onClick={() => editGroup({ number, orders })}><Pencil size={15}/></Button>}{isManager && <Button size="sm" variant="danger" className="size-9 min-h-9 p-0" disabled={orders.some((order) => (order.issues?.length ?? 0) > 0)} title={orders.some((order) => (order.issues?.length ?? 0) > 0) ? "Cannot delete: linked to Dispatch RM" : "Delete requisition"} onClick={() => setDeletingGroup({ number, orders })}><Trash2 size={15}/></Button>}{canApproveGroup(orders) && <Button size="sm" variant="accent" className="size-9 min-h-9 p-0" title="Review for approval" onClick={() => { setSelectedGroup({ number, orders }); setDetailExpanded(new Set()); }}><CheckCircle2 size={15}/></Button>}</div></td>
+                      <td><div className="flex gap-1"><Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="View report" onClick={() => { setRejectedOrderIds([]); setSelectedGroup({ number, orders }); setDetailExpanded(new Set()); }}><Eye size={15}/></Button><Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="Print requisition" onClick={() => printGroup({ number, orders })}><Printer size={15}/></Button>{isManager && <Button size="sm" variant="secondary" className="size-9 min-h-9 p-0" title="Edit requisition" onClick={() => editGroup({ number, orders })}><Pencil size={15}/></Button>}{isManager && <Button size="sm" variant="danger" className="size-9 min-h-9 p-0" disabled={orders.some((order) => (order.issues?.length ?? 0) > 0)} title={orders.some((order) => (order.issues?.length ?? 0) > 0) ? "Cannot delete: linked to Dispatch RM" : "Delete requisition"} onClick={() => setDeletingGroup({ number, orders })}><Trash2 size={15}/></Button>}{canApproveGroup(orders) && <Button size="sm" variant="accent" className="size-9 min-h-9 p-0" title="Review for approval" onClick={() => { setRejectedOrderIds([]); setSelectedGroup({ number, orders }); setDetailExpanded(new Set()); }}><CheckCircle2 size={15}/></Button>}</div></td>
                     </tr>
                     {isExpanded && <tr><td colSpan={8} className="bg-[#f8faf7]! p-3!"><div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{orders.map((order) => <div key={order.id} className="rounded-md border border-[#dce5dc] bg-white p-3"><strong className="block text-[#173b30]">{order.fgProduct?.name ?? '-'}</strong><span className="mt-1 block text-xs text-[#708278]">{order.recipe?.name ?? '-'} | {Number(order.targetQty).toLocaleString()} kg | {Number(order.expectedWastePercent).toLocaleString()}% waste</span></div>)}</div></td></tr>}
                   </Fragment>
@@ -293,14 +301,14 @@ export function ProductionOrdersPage() {
             <div className="rounded-md border border-[#dfd4b9] bg-[#fff8e9] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#916719]">Total RM needed</span><strong className="mt-1 block text-lg text-[#9a650d]">{totalRmNeeded.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong></div>
           </div>
           <div className="overflow-x-auto rounded-md border border-[#d8e0d7]">
-            <div className="min-w-0 lg:min-w-[1290px]">
-              <div className="hidden grid-cols-[minmax(270px,_1fr)_100px_190px_135px_125px_125px_70px_40px] items-center gap-3 bg-[#f2f5f3] lg:grid px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
+            <div className="min-w-0">
+              <div className="hidden grid-cols-[minmax(210px,_1fr)_90px_170px_110px_100px_110px_64px_40px] items-center gap-3 bg-[#f2f5f3] lg:grid px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
                 <span>Product</span><span>UOM</span><span>Linked recipe</span><span>Target</span><span>Waste %</span><span>Expected</span><span className="text-center">RM Details</span><span />
               </div>
               <div className="min-h-64 max-h-64 overflow-y-auto">
               {itemPreview.map((item, index) => {
                 const duplicate = item.finishedProductId && items.some((other, otherIndex) => otherIndex !== index && other.finishedProductId === item.finishedProductId);
-                return <div key={index} className="grid grid-cols-1 items-center gap-3 border-t lg:grid-cols-[minmax(270px,_1fr)_100px_190px_135px_125px_125px_70px_40px] border-[#e0e5dd] bg-white px-4 py-3">
+                return <div key={index} className="grid grid-cols-1 items-center gap-3 border-t lg:grid-cols-[minmax(210px,_1fr)_90px_170px_110px_100px_110px_64px_40px] border-[#e0e5dd] bg-white px-4 py-3">
                   <Dropdown aria-label="Product" value={item.finishedProductId} onChange={(event) => { const linkedRecipe = recipes.find((recipe) => recipe.finishedProductId === event.target.value); setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, finishedProductId: event.target.value, recipeId: linkedRecipe?.id ?? "" } : line)); }}>
                     <option value="">Select product</option>
                     {finishedGoods.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
@@ -315,7 +323,7 @@ export function ProductionOrdersPage() {
                   {duplicate && <div className="-mt-1 lg:col-span-8 text-[11px] font-medium text-[#c34838]">This finished good is already included.</div>}
                 </div>;
               })}
-              <div className="grid grid-cols-1 gap-3 border-t border-[#e0e5dd] bg-[#fafbf8] px-4 py-3 lg:grid-cols-[minmax(270px,_1fr)_100px_190px_135px_125px_125px_70px_40px]">
+              <div className="grid grid-cols-1 gap-3 border-t border-[#e0e5dd] bg-[#fafbf8] px-4 py-3 lg:grid-cols-[minmax(210px,_1fr)_90px_170px_110px_100px_110px_64px_40px]">
                 <Button type="button" className="w-full justify-center lg:col-span-6" variant="secondary" onClick={() => setItems([...items, emptyItem()])}><Plus size={15} /> Add Finished Good</Button>
               </div>
               </div>
@@ -378,11 +386,12 @@ export function ProductionOrdersPage() {
 
       {selectedGroup && (() => {
         const { number, orders } = selectedGroup;
-        const totalTarget = orders.reduce((sum, order) => sum + Number(order.targetQty), 0);
-        const totalExpected = orders.reduce((sum, order) => sum + Number(order.targetQty) * (1 - Number(order.expectedWastePercent) / 100), 0);
+        const approvedOrders = orders.filter((order) => !rejectedOrderIds.includes(order.id));
+        const totalTarget = approvedOrders.reduce((sum, order) => sum + Number(order.targetQty), 0);
+        const totalExpected = approvedOrders.reduce((sum, order) => sum + Number(order.targetQty) * (1 - Number(order.expectedWastePercent) / 100), 0);
         return (
-          <Modal extraWide fixedHeight title={`Requisition ${number}`} description={`${orders.length} finished goods | Assigned manager: ${orders[0]?.assignedManager?.fullName ?? 'Not assigned'}`} onClose={() => setSelectedGroup(null)}
-            footer={<>{canApproveGroup(orders) && <Button variant="danger" disabled={rejecting || approving} onClick={() => void rejectGroup(orders)}><XCircle size={14}/> {rejecting ? 'Rejecting...' : 'Reject'}</Button>}{canApproveGroup(orders) && <Button variant="primary" disabled={approving || rejecting} onClick={() => void approveGroup(orders)}><CheckCircle2 size={14}/> {approving ? 'Approving...' : 'Approve'}</Button>}<Button variant="secondary" onClick={() => setSelectedGroup(null)}>Close</Button></>}>
+          <Modal extraWide fixedHeight title={`Requisition ${number}`} description={`${orders.length} finished goods | Assigned manager: ${orders[0]?.assignedManager?.fullName ?? 'Not assigned'}`} onClose={() => {setRejectedOrderIds([]);setSelectedGroup(null)}}
+            footer={<>{canApproveGroup(orders) && <Button variant="danger" disabled={rejecting || approving} onClick={() => void rejectGroup(orders)}><XCircle size={14}/> {rejecting ? 'Rejecting...' : 'Reject'}</Button>}{canApproveGroup(orders) && <Button variant="primary" disabled={approving || rejecting} onClick={() => void approveGroup(orders)}><CheckCircle2 size={14}/> {approving ? 'Approving...' : 'Approve'}</Button>}<Button variant="secondary" onClick={() => {setRejectedOrderIds([]);setSelectedGroup(null)}}>Close</Button></>}>
             <div className="mb-4 grid grid-cols-3 gap-3 max-[700px]:grid-cols-1">
               <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase text-[#7a9185]">Status</span><div className="mt-2">{statusBadge(orders[0]?.status)}</div></div>
               <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase text-[#7a9185]">Total Target</span><strong className="mt-1 block text-lg">{totalTarget.toLocaleString()} kg</strong></div>
@@ -392,11 +401,12 @@ export function ProductionOrdersPage() {
               {orders.map((order, index) => {
                 const target = Number(order.targetQty);
                 const expected = target * (1 - Number(order.expectedWastePercent) / 100);
-                return <section key={order.id} className="overflow-hidden rounded-md border border-[#d8e0d7]">
-                  <button type="button" className="flex w-full flex-wrap items-center justify-between gap-3 border-b border-[#dfe5dd] bg-[#f2f6f2] px-4 py-3 text-left" onClick={() => setDetailExpanded((current) => { const next = new Set(current); next.has(order.id) ? next.delete(order.id) : next.add(order.id); return next; })}>
-                    <div className="flex items-center gap-2">{detailExpanded.has(order.id) ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}<div><span className="text-[10px] font-bold uppercase tracking-[.08em] text-[#71847a]">FM Product {String(index + 1).padStart(2, '0')}</span><h3 className="mt-0.5 font-bold text-[#173b30]">{order.fgProduct?.name ?? '-'}</h3><p className="text-xs text-[#6f8378]">Recipe: {order.recipe?.name ?? '-'}</p></div></div>
-                    <div className="flex gap-5 text-right text-xs"><div><span className="block text-[#7a9185]">Target</span><strong>{target.toLocaleString()} kg</strong></div><div><span className="block text-[#7a9185]">Expected</span><strong className="text-[#176b4b]">{expected.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong></div><div><span className="block text-[#7a9185]">Waste</span><strong>{Number(order.expectedWastePercent).toLocaleString()}%</strong></div></div>
-                  </button>
+                const isRejected = rejectedOrderIds.includes(order.id);
+                return <section key={order.id} className={twMerge("overflow-hidden rounded-md border border-[#d8e0d7]",isRejected&&"bg-red-50/60 opacity-75")}>
+                  <div className="flex w-full flex-wrap items-center justify-between gap-3 border-b border-[#dfe5dd] bg-[#f2f6f2] px-4 py-3 text-left">
+                    <button type="button" className={twMerge("flex items-center gap-2 text-left",isRejected&&"line-through decoration-2 decoration-red-500")} onClick={() => setDetailExpanded((current) => { const next = new Set(current); next.has(order.id) ? next.delete(order.id) : next.add(order.id); return next; })}>{detailExpanded.has(order.id) ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}<div><span className="text-[10px] font-bold uppercase tracking-[.08em] text-[#71847a]">FM Product {String(index + 1).padStart(2, '0')}</span><h3 className="mt-0.5 font-bold text-[#173b30]">{order.fgProduct?.name ?? '-'}</h3><p className="text-xs text-[#6f8378]">Recipe: {order.recipe?.name ?? '-'}</p></div></button>
+                    <div className="flex items-center gap-5 text-right text-xs"><div className={isRejected?"line-through decoration-2 decoration-red-500":""}><span className="block text-[#7a9185]">Target</span><strong>{target.toLocaleString()} kg</strong></div><div className={isRejected?"line-through decoration-2 decoration-red-500":""}><span className="block text-[#7a9185]">Expected</span><strong className="text-[#176b4b]">{expected.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong></div><div className={isRejected?"line-through decoration-2 decoration-red-500":""}><span className="block text-[#7a9185]">Waste</span><strong>{Number(order.expectedWastePercent).toLocaleString()}%</strong></div>{canApproveGroup(orders)&&<Button type="button" size="sm" variant={isRejected?"secondary":"danger"} disabled={rejecting || approving || (!isRejected&&orders.length-rejectedOrderIds.length<=1)} title={isRejected?'Restore this finished good':orders.length-rejectedOrderIds.length<=1?'Reject the whole requisition to remove its final product':'Reject this finished good'} onClick={()=>void rejectProduct(orders,order.id)}>{isRejected?'Undo':<><XCircle size={14}/> Reject</>}</Button>}</div>
+                  </div>
                   {detailExpanded.has(order.id) && <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-xs"><thead className="bg-[#fafbf8] text-[10px] uppercase text-[#66796f]"><tr><th className="px-4 py-2">Raw Material</th><th className="px-4 py-2">SKU</th><th className="px-4 py-2 text-right">Required (kg)</th></tr></thead><tbody>{order.lines.map((line) => <tr key={line.id} className="border-t border-[#edf0eb]"><td className="px-4 py-2">{line.rawMaterial?.name ?? '-'}</td><td className="px-4 py-2 font-mono text-[#7a9185]">{line.rawMaterial?.sku ?? '-'}</td><td className="px-4 py-2 text-right font-semibold">{Number(line.requiredQty).toLocaleString()}</td></tr>)}</tbody></table></div>}
                 </section>;
               })}

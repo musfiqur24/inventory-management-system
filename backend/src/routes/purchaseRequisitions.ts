@@ -155,12 +155,17 @@ purchaseRequisitionsRouter.post("/", async (req, res) => {
 });
 
 purchaseRequisitionsRouter.post('/:id/approve',async(req,res)=>{
+ const parsed=z.object({rejectedLineIds:z.array(z.string().uuid()).default([])}).parse(req.body??{});
  const data=await prisma.$transaction(async tx=>{
   const organizationId=req.tenantId!,id=String(req.params.id),userId=req.auth!.id;
   await tx.$queryRaw`SELECT id FROM "PurchaseRequisition" WHERE id=${id} AND "organizationId"=${organizationId} FOR UPDATE`;
-  const requisition=await tx.purchaseRequisition.findFirst({where:{id,organizationId,deletedAt:null}});
+  const requisition=await tx.purchaseRequisition.findFirst({where:{id,organizationId,deletedAt:null},include:{lines:{select:{id:true}}}});
   if(!requisition)throw new StockError('NOT_FOUND','Requisition not found.',404);
   if(requisition.assignedManagerId!==userId || !await tx.organizationMember.findFirst({where:managerWhere(organizationId,userId)}))throw new StockError('APPROVAL_FORBIDDEN','Only the assigned manager can approve this requisition.',403);
+  const lineIds=new Set(requisition.lines.map(line=>line.id)),rejectedLineIds=[...new Set(parsed.rejectedLineIds)];
+  if(rejectedLineIds.some(lineId=>!lineIds.has(lineId)))throw new StockError('INVALID_LINES','One or more rejected products do not belong to this requisition.',422);
+  if(requisition.lines.length-rejectedLineIds.length<1)throw new StockError('LAST_LINE','A requisition must contain at least one product. Reject the whole requisition instead.',409);
+  if(rejectedLineIds.length)await tx.purchaseRequisitionLine.deleteMany({where:{requisitionId:id,id:{in:rejectedLineIds}}});
   const result=await tx.purchaseRequisition.updateMany({where:{id,organizationId,status:'PENDING',assignedManagerId:userId},data:{status:'AWAITING_DELIVERY',approvedAt:new Date(),approvedById:userId}});
   if(!result.count)throw new StockError('INVALID_STATUS','Only a submitted requisition can be approved.');
   await tx.notification.updateMany({where:{organizationId,recipientId:userId,requisitionId:id,readAt:null},data:{readAt:new Date()}});

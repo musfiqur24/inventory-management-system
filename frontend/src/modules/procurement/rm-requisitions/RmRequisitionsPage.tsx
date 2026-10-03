@@ -46,7 +46,7 @@ export function RmRequisitionsPage() {
   const canEdit = (req:Requisition) => !req.approvedAt && ["DRAFT","PENDING"].includes(req.status) && (req.createdById===user?.id || (isManager && req.assignedManagerId===user?.id));
   const [approving, setApproving] = useState<string | null>(null);
   const canApprove = (req: Requisition) => req.status === 'PENDING' && req.assignedManagerId === user?.id && can('departments.write') && user?.organizations.find(o=>o.id===selectedOrg())?.role.code === 'MANAGER';
-  const closeDetails = () => { setSelected(null); setParams(current => { const next = new URLSearchParams(current); next.delete('requisition'); return next; }, {replace:true}); };
+  const closeDetails = () => { setSelected(null); setRejectedLineIds([]); setParams(current => { const next = new URLSearchParams(current); next.delete('requisition'); return next; }, {replace:true}); };
   const [rows, setRows] = useState<Requisition[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [uoms, setUoms] = useState<UOM[]>([]);
@@ -56,6 +56,7 @@ export function RmRequisitionsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selected, setSelected] = useState<Requisition | null>(null);
+  const [rejectedLineIds, setRejectedLineIds] = useState<string[]>([]);
   const [form, setForm] = useState({ salesOrderRef: '', supplierId: '', assignedManagerId: '' });
   const [lines, setLines] = useState<ReqLine[]>([{ productId: '', uomId: '', requestedQty: '', unitPrice: '' }]);
 
@@ -84,7 +85,7 @@ export function RmRequisitionsPage() {
   useEffect(() => {
     if (!requestedId) return;
     let active = true;
-    void api<{data:Requisition}>('/purchase-requisitions/'+encodeURIComponent(requestedId)).then(r=>{if(active)setSelected(r.data)}).catch(e=>{if(active)setMessage(e.message)});
+    void api<{data:Requisition}>('/purchase-requisitions/'+encodeURIComponent(requestedId)).then(r=>{if(active){setRejectedLineIds([]);setSelected(r.data)}}).catch(e=>{if(active)setMessage(e.message)});
     return () => {active=false};
   },[requestedId]);
 
@@ -132,8 +133,9 @@ export function RmRequisitionsPage() {
     if (approving) return;
     setApproving(id);
     try {
-      await api(`/purchase-requisitions/${id}/approve`, { method: 'POST' });
+      await api(`/purchase-requisitions/${id}/approve`, { method: 'POST', body: JSON.stringify({ rejectedLineIds }) });
       setSelected(current=>current?.id===id?{...current,status:'AWAITING_DELIVERY'}:current);
+      setRejectedLineIds([]);
       window.dispatchEvent(new Event('notificationsChanged'));
       void load();
     } catch (e: any) { setMessage(e.message); } finally { setApproving(null); }
@@ -148,6 +150,13 @@ export function RmRequisitionsPage() {
       window.dispatchEvent(new Event('notificationsChanged'));
       await load();
     } catch (e: any) { setMessage(e.message); } finally { setApproving(null); }
+  };
+
+  const rejectLine = async (lineId: string) => {
+    if (!selected || approving) return;
+    const isRejected = rejectedLineIds.includes(lineId);
+    if (!isRejected && selected.lines.length - rejectedLineIds.length <= 1) return setMessage('Reject the whole requisition to remove its final product.');
+    setRejectedLineIds((current) => isRejected ? current.filter((id) => id !== lineId) : [...current, lineId]);
   };
 
   const printReq = (req: Requisition) => {
@@ -238,10 +247,10 @@ export function RmRequisitionsPage() {
                   <td className="text-[12px] text-[#7a9185]">{new Date(req.requestedOn).toLocaleDateString('en-GB')}</td>
                   <td>
                     <div className="flex items-center gap-1">
-                      <Button size="sm" className="size-8 min-h-8 p-0" title="View requisition" aria-label="View requisition" onClick={()=>setSelected(req)}><FileText size={15}/></Button>
+                      <Button size="sm" className="size-8 min-h-8 p-0" title="View requisition" aria-label="View requisition" onClick={()=>{setRejectedLineIds([]);setSelected(req)}}><FileText size={15}/></Button>
                       <Button size="sm" className="size-8 min-h-8 p-0" title="Print requisition" aria-label="Print requisition" onClick={()=>printReq(req)}><Printer size={15}/></Button>
                       {canEdit(req)&&<Button size="sm" className="size-8 min-h-8 p-0" title="Edit requisition" aria-label="Edit requisition" onClick={()=>edit(req)}><Pencil size={15}/></Button>}
-                      {canApprove(req)&&<Button size="sm" variant="accent" className="size-8 min-h-8 p-0" title="Review and approve requisition" aria-label="Review and approve requisition" disabled={!!approving} onClick={()=>setSelected(req)}><CheckCircle2 size={15}/></Button>}
+                      {canApprove(req)&&<Button size="sm" variant="accent" className="size-8 min-h-8 p-0" title="Review and approve requisition" aria-label="Review and approve requisition" disabled={!!approving} onClick={()=>{setRejectedLineIds([]);setSelected(req)}}><CheckCircle2 size={15}/></Button>}
                       {canDelete()&&<Button size="sm" variant="danger" className="size-8 min-h-8 p-0" title="Delete requisition" aria-label="Delete requisition" onClick={()=>setDeleting(req)}><Trash2 size={15}/></Button>}
                     </div>
                   </td>
@@ -337,6 +346,7 @@ export function RmRequisitionsPage() {
           description={`Status: ${selected.status.replaceAll("_", " ")} | Supplier: ${selected.supplier?.name ?? 'Not assigned'}`}
           onClose={closeDetails}
           wide
+          fixedHeight
           footer={
             <>
               {canApprove(selected) && <><Button variant="primary" disabled={!!approving} onClick={()=>void approve(selected.id)}>{approving ? "Working..." : "Approve"}</Button><Button variant="danger" disabled={!!approving} onClick={()=>void reject(selected.id)}><XCircle size={15}/> Reject</Button></>}
@@ -349,19 +359,19 @@ export function RmRequisitionsPage() {
        >
           <p className="mb-4 text-sm"><strong>Assigned Manager:</strong> {selected.assignedManager?.fullName ?? "Not assigned"}</p>
           <div className="overflow-x-auto">
-            <DataTable columns={["Product","SKU","Requested","Fulfilled","Remaining","Status","Received","UOM","Unit Price","Total Price"]} summary={<tr className="border-t-2 border-[#cfd8d1] bg-[#f3f7f1]"><th colSpan={9} className="px-5 py-4 text-right text-sm font-bold text-[#263b31]">Total Price</th><td className="px-5 py-4 font-bold tabular-nums text-[#0d3b2e]">{selected.lines.reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td></tr>}>
+            <DataTable columns={["Product","SKU","Requested","Fulfilled","Remaining","Received","UOM","Unit Price","Total Price",...(canApprove(selected)?["Action"]:[])]} summary={<tr className="border-t-2 border-[#cfd8d1] bg-[#f3f7f1]"><th colSpan={canApprove(selected)?8:7} className="px-5 py-4 text-right text-sm font-bold text-[#263b31]">Total Price</th><td className="px-5 py-4 font-bold tabular-nums text-[#0d3b2e]">{selected.lines.filter(l=>!rejectedLineIds.includes(l.id)).reduce((sum,l)=>sum+Number(l.requestedQty)*Number(l.unitPrice||0),0).toLocaleString()}</td>{canApprove(selected)&&<td/>}</tr>}>
                 {selected.lines.map((l, i) => (
-                  <tr key={i}>
+                  <tr key={i} className={rejectedLineIds.includes(l.id)?"bg-red-50/60 text-[#8a8f8c] [&>td:not(:last-child)]:line-through [&>td:not(:last-child)]:decoration-2 [&>td:not(:last-child)]:decoration-red-500":""}>
                     <td>{l.product?.name ?? '—'}</td>
                     <td><span className="text-[11px] text-[#7a9185] font-mono">{l.product?.sku ?? '—'}</span></td>
                     <td><strong>{Number(l.requestedQty).toLocaleString()}</strong></td>
                     <td>{Number(l.verifiedQty??0).toLocaleString()}</td>
                     <td><strong>{Math.max(0,Number(l.requestedQty)-Number(l.verifiedQty??0)).toLocaleString()}</strong></td>
-                    <td>{Number(l.verifiedQty??0)>=Number(l.requestedQty)?<span className="text-green-700">Complete</span>:selected.status==="PENDING"?<span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">Pending</span>:selected.status==="AWAITING_DELIVERY"?<span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">Awaiting Delivery</span>:<span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">Incomplete</span>}</td>
                     <td>{Number(l.receivedQty).toLocaleString()}</td>
                     <td>{l.uom?.code ?? '—'}</td>
                     <td>{l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td>
                     <td className="font-semibold tabular-nums">{l.unitPrice ? (Number(l.requestedQty) * Number(l.unitPrice)).toLocaleString() : '-'}</td>
+                    {canApprove(selected)&&<td className="text-right"><Button size="sm" variant={rejectedLineIds.includes(l.id)?"secondary":"danger"} disabled={!!approving || (!rejectedLineIds.includes(l.id) && selected.lines.length-rejectedLineIds.length<=1)} title={rejectedLineIds.includes(l.id)?'Restore this product':selected.lines.length-rejectedLineIds.length<=1?'Reject the whole requisition to remove its final product':'Reject this product'} onClick={()=>void rejectLine(l.id)}>{rejectedLineIds.includes(l.id)?'Undo':<><XCircle size={14}/> Reject</>}</Button></td>}
                   </tr>
                 ))}
               </DataTable>
