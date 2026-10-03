@@ -159,7 +159,10 @@ export function ProductionBatchesPage() {
   useEffect(() => {
     void load();
   }, []);
-  const isManager = user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code === "MANAGER";
+  const isManager =
+    user?.organizations.find(
+      (organization) => organization.id === selectedOrg(),
+    )?.role.code === "MANAGER";
   const totals = useMemo(
     () => ({
       input: form.inputs
@@ -281,8 +284,8 @@ export function ProductionBatchesPage() {
     if (actionPending) return;
     setActionPending(true);
     try {
-      await api('/batches/' + batch.id + '/approve', { method: 'POST' });
-      setMessage('Batch approved and ready for FM Store receipt.');
+      await api("/batches/" + batch.id + "/approve", { method: "POST" });
+      setMessage("Batch approved and ready for FM Store receipt.");
       await load();
     } catch (error: any) {
       setMessage(error.message);
@@ -294,9 +297,11 @@ export function ProductionBatchesPage() {
     if (!deleting || actionPending) return;
     setActionPending(true);
     try {
-      await api('/batches/' + deleting.id, { method: 'DELETE' });
+      await api("/batches/" + deleting.id, { method: "DELETE" });
       setDeleting(null);
-      setMessage('Batch and linked RM dispatch deleted. Dispatched materials were returned to RM Store.');
+      setMessage(
+        "Batch and linked RM dispatch deleted. Dispatched materials were returned to RM Store.",
+      );
       await load();
     } catch (error: any) {
       setMessage(error.message);
@@ -489,10 +494,27 @@ export function ProductionBatchesPage() {
         <div className="summary-grid grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
           {[
             ["Production lots", rows.length],
-            ["Total output", rows.reduce((sum, row) => sum + Number(row.actualQty), 0).toLocaleString() + " kg"],
-            ["Total batch cost", money(rows.reduce((sum, row) => sum + row.metrics.totalCost, 0))],
+            [
+              "Total output",
+              rows
+                .reduce((sum, row) => sum + Number(row.actualQty), 0)
+                .toLocaleString() + " kg",
+            ],
+            [
+              "Total batch cost",
+              money(rows.reduce((sum, row) => sum + row.metrics.totalCost, 0)),
+            ],
             ["FM Price", money(totalFmPrice)],
-          ].map(([label, value]) => <Card key={String(label)} className="p-5"><div className="text-xs font-semibold uppercase tracking-wide text-[#7a9185]">{label}</div><div className="mt-2 text-xl font-bold text-[#0f1c16]">{value}</div></Card>)}
+          ].map(([label, value]) => (
+            <Card key={String(label)} className="p-5">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[#7a9185]">
+                {label}
+              </div>
+              <div className="mt-2 text-xl font-bold text-[#0f1c16]">
+                {value}
+              </div>
+            </Card>
+          ))}
         </div>
       }
     >
@@ -501,7 +523,8 @@ export function ProductionBatchesPage() {
           <div>
             <h2 className="font-bold">Batch costing register</h2>
             <p className="text-xs text-[#7a9185]">
-              FM Price uses the recorded per-kg amount for each finished product.
+              FM Price uses the recorded per-kg amount for each finished
+              product.
             </p>
           </div>
           <TrendingUp size={20} className="text-[#1b8f5a]" />
@@ -572,18 +595,62 @@ export function ProductionBatchesPage() {
                     <td>
                       <div className="flex items-center gap-1">
                         {row.status === "IN_PRODUCTION" ? (
-                          <Button variant="primary" onClick={() => editBatch(row)}>Update FG Details</Button>
+                          <Button
+                            variant="primary"
+                            onClick={() => editBatch(row)}
+                          >
+                            Update FG Details
+                          </Button>
                         ) : (
                           <>
-                            <Button variant="secondary" className="size-9 min-h-9 p-0" title="View batch details" aria-label="View batch details" onClick={() => setSelected(row)}><Eye size={15} /></Button>
-                            <Button variant="secondary" className="size-9 min-h-9 p-0" title="Print batch report" aria-label="Print batch report" onClick={() => { if (!printBatchReport(row, products)) setMessage("Allow pop-ups to print the batch report."); }}><Printer size={15} /></Button>
+                            <Button
+                              variant="secondary"
+                              className="size-9 min-h-9 p-0"
+                              title="View batch details"
+                              aria-label="View batch details"
+                              onClick={() => setSelected(row)}
+                            >
+                              <Eye size={15} />
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              className="size-9 min-h-9 p-0"
+                              title="Print batch report"
+                              aria-label="Print batch report"
+                              onClick={() => {
+                                if (!printBatchReport(row, products))
+                                  setMessage(
+                                    "Allow pop-ups to print the batch report.",
+                                  );
+                              }}
+                            >
+                              <Printer size={15} />
+                            </Button>
                           </>
                         )}
                         {isManager && row.status === "AWAITING_APPROVAL" && (
-                          <Button variant="accent" className="size-9 min-h-9 p-0" disabled={actionPending} title="Approve FG details" aria-label="Approve FG details" onClick={() => void approveBatch(row)}><CheckCircle2 size={15} /></Button>
+                          <Button
+                            variant="accent"
+                            className="size-9 min-h-9 p-0"
+                            disabled={actionPending}
+                            title="Approve FG details"
+                            aria-label="Approve FG details"
+                            onClick={() => void approveBatch(row)}
+                          >
+                            <CheckCircle2 size={15} />
+                          </Button>
                         )}
                         {isManager && row.status !== "COMPLETED" && (
-                          <Button variant="danger" className="size-9 min-h-9 p-0" disabled={actionPending} title="Delete batch and reverse RM dispatch" aria-label="Delete batch and reverse RM dispatch" onClick={() => setDeleting(row)}><Trash2 size={15} /></Button>
+                          <Button
+                            variant="danger"
+                            className="size-9 min-h-9 p-0"
+                            disabled={actionPending}
+                            title="Delete batch and reverse RM dispatch"
+                            aria-label="Delete batch and reverse RM dispatch"
+                            onClick={() => setDeleting(row)}
+                          >
+                            <Trash2 size={15} />
+                          </Button>
                         )}
                       </div>
                     </td>
@@ -868,19 +935,43 @@ export function ProductionBatchesPage() {
                   content={
                     <div className="w-72">
                       <b className="block text-sm">RM cost per kg FM</b>
-                      <p className="mt-1 text-white/70">Average across all FM products. Utilities and packaging are excluded.</p>
+                      <p className="mt-1 text-white/70">
+                        Average across all FM products. Utilities and packaging
+                        are excluded.
+                      </p>
                       <div className="mt-3 space-y-2 border-t border-white/20 pt-3">
-                        <div className="flex justify-between gap-4"><span className="text-white/70">Total RM cost</span><b>BDT {amount(rawMaterialCost)}</b></div>
-                        <div className="flex justify-between gap-4"><span className="text-white/70">Total FM produced</span><b>{fmQuantity.toLocaleString()} kg</b></div>
-                        <div className="border-t border-white/20 pt-2"><span className="block text-white/70">Calculation</span><b>{amount(rawMaterialCost)} / {fmQuantity.toLocaleString()} = {amount(rmCostPerKgFm)} BDT/kg</b></div>
+                        <div className="flex justify-between gap-4">
+                          <span className="text-white/70">Total RM cost</span>
+                          <b>BDT {amount(rawMaterialCost)}</b>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <span className="text-white/70">
+                            Total FM produced
+                          </span>
+                          <b>{fmQuantity.toLocaleString()} kg</b>
+                        </div>
+                        <div className="border-t border-white/20 pt-2">
+                          <span className="block text-white/70">
+                            Calculation
+                          </span>
+                          <b>
+                            {amount(rawMaterialCost)} /{" "}
+                            {fmQuantity.toLocaleString()} ={" "}
+                            {amount(rmCostPerKgFm)} BDT/kg
+                          </b>
+                        </div>
                       </div>
                     </div>
                   }
                 >
                   <Card className="h-full cursor-help p-4 outline-none">
-                    <span className="text-xs text-[#7a9185]">RM cost per kg FM</span>
+                    <span className="text-xs text-[#7a9185]">
+                      RM cost per kg FM
+                    </span>
                     <b className="block text-lg">BDT {amount(rmCostPerKgFm)}</b>
-                    <small className="text-[#7a9185]">Hover or click for calculation</small>
+                    <small className="text-[#7a9185]">
+                      Hover or click for calculation
+                    </small>
                   </Card>
                 </Tooltip>
               </div>
@@ -935,15 +1026,20 @@ export function ProductionBatchesPage() {
             </Modal>
           );
         })()}
-      {deleting && <ConfirmationModal
-        title="Delete batch and reverse RM dispatch?"
-        confirmLabel="Delete and return RM"
-        pending={actionPending}
-        onCancel={() => setDeleting(null)}
-        onConfirm={() => void deleteBatch()}
-      >
-        This will permanently delete <b>{deleting.batchNumber}</b> and its linked Dispatch RM record. Every dispatched RM quantity will be returned to its original RM Store lot and bin. This action is available only before FM Store receipt.
-      </ConfirmationModal>}
+      {deleting && (
+        <ConfirmationModal
+          title="Delete batch and reverse RM dispatch?"
+          confirmLabel="Delete and return RM"
+          pending={actionPending}
+          onCancel={() => setDeleting(null)}
+          onConfirm={() => void deleteBatch()}
+        >
+          This will permanently delete <b>{deleting.batchNumber}</b> and its
+          linked Dispatch RM record. Every dispatched RM quantity will be
+          returned to its original RM Store lot and bin. This action is
+          available only before FM Store receipt.
+        </ConfirmationModal>
+      )}
     </PageContainer>
   );
 }

@@ -24,11 +24,12 @@ interface ProductionOrder {
   issues?: Array<{ id: string }>;
   lines: Array<{ id: string; productId: string; rawMaterial?: { name: string; sku: string }; requiredQty: number; issuedQty: number; }>;
 }
-interface Product { id: string; name: string; sku: string; type: string; }
+interface Product { id: string; name: string; sku: string; type: string; baseUomId: string; baseUom?: { code: string } | null; }
 interface Manager { id: string; fullName: string; email: string; }
 interface Recipe {
   id: string; name: string; code: string; targetTonnage: number;
   finishedProductId: string; outputUomId: string; outputQty: number;
+  outputUom?: { code: string } | null;
   ingredients: Array<{
     id: string; rawProductId: string; percentage: number; quantityPerTon: number;
     rawMaterial?: { name: string; sku: string } | null;
@@ -292,36 +293,37 @@ export function ProductionOrdersPage() {
             <div className="rounded-md border border-[#dfd4b9] bg-[#fff8e9] p-3"><span className="text-[10px] font-bold uppercase tracking-[.07em] text-[#916719]">Total RM needed</span><strong className="mt-1 block text-lg text-[#9a650d]">{totalRmNeeded.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong></div>
           </div>
           <div className="overflow-x-auto rounded-md border border-[#d8e0d7]">
-            <div className="min-w-0 lg:min-w-[1210px]">
-              <div className="hidden grid-cols-[minmax(300px,_1fr)_205px_145px_135px_135px_70px_40px] items-center gap-3 bg-[#f2f5f3] lg:grid px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
-                <span>Product</span><span>Linked recipe</span><span>Target (kg)</span><span>Waste %</span><span>Expected (kg)</span><span className="text-center">RM Details</span><span />
+            <div className="min-w-0 lg:min-w-[1290px]">
+              <div className="hidden grid-cols-[minmax(270px,_1fr)_100px_190px_135px_125px_125px_70px_40px] items-center gap-3 bg-[#f2f5f3] lg:grid px-4 py-3 text-[10.5px] font-bold uppercase tracking-[.07em] text-[#53665c]">
+                <span>Product</span><span>UOM</span><span>Linked recipe</span><span>Target</span><span>Waste %</span><span>Expected</span><span className="text-center">RM Details</span><span />
               </div>
               <div className="min-h-64 max-h-64 overflow-y-auto">
               {itemPreview.map((item, index) => {
                 const duplicate = item.finishedProductId && items.some((other, otherIndex) => otherIndex !== index && other.finishedProductId === item.finishedProductId);
-                return <div key={index} className="grid grid-cols-1 items-center gap-3 border-t lg:grid-cols-[minmax(300px,_1fr)_205px_145px_135px_135px_70px_40px] border-[#e0e5dd] bg-white px-4 py-3">
+                return <div key={index} className="grid grid-cols-1 items-center gap-3 border-t lg:grid-cols-[minmax(270px,_1fr)_100px_190px_135px_125px_125px_70px_40px] border-[#e0e5dd] bg-white px-4 py-3">
                   <Dropdown aria-label="Product" value={item.finishedProductId} onChange={(event) => { const linkedRecipe = recipes.find((recipe) => recipe.finishedProductId === event.target.value); setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, finishedProductId: event.target.value, recipeId: linkedRecipe?.id ?? "" } : line)); }}>
                     <option value="">Select product</option>
                     {finishedGoods.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
                   </Dropdown>
+                  <Input aria-label={`UOM for finished good ${index + 1}`} readOnly value={item.recipe?.outputUom?.code ?? ''} placeholder="UOM" className="bg-[#f2f4f1]! text-[#52675d]!" />
                   <Input aria-label="Linked recipe" readOnly value={item.recipe?.code ?? (item.finishedProductId ? "No linked recipe" : "")} className={item.finishedProductId && !item.recipe ? "border-red-200! bg-red-50! text-red-700!" : "bg-[#f4f6f2]! text-[#52675d]!"} />
                   <Input aria-label="Target quantity in kilograms" type="number" min="0.001" step="0.001" placeholder="kg" value={item.targetQty} onChange={(event) => setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, targetQty: event.target.value } : line))} />
                   <Input aria-label="Expected waste percentage" type="number" min="0" max="50" step="0.01" placeholder="Waste %" value={item.expectedWastePercent} onChange={(event) => setItems(items.map((line, lineIndex) => lineIndex === index ? { ...line, expectedWastePercent: event.target.value } : line))} />
                   <div className="rounded-md border border-[#d5e6d7] bg-[#edf8ef] px-3 py-2.5 text-center"><strong className="text-[14px] text-[#176b4b]">{item.predictedOutput.toLocaleString(undefined, { maximumFractionDigits: 4 })}</strong></div>
                   <Button type="button" size="sm" variant="secondary" className="size-10 p-0" title="View RM details" aria-label={`View RM details for product ${index + 1}`} disabled={!item.recipe} onClick={() => setPreviewIndex(index)}><Eye size={15} /></Button>
                   <Button type="button" size="sm" variant="danger" className="size-10 p-0" disabled={items.length === 1} onClick={() => setItems(items.filter((_, lineIndex) => lineIndex !== index))} title="Remove finished good"><Trash2 size={15} /></Button>
-                  {duplicate && <div className="-mt-1 lg:col-span-7 text-[11px] font-medium text-[#c34838]">This finished good is already included.</div>}
+                  {duplicate && <div className="-mt-1 lg:col-span-8 text-[11px] font-medium text-[#c34838]">This finished good is already included.</div>}
                 </div>;
               })}
-              <div className="grid grid-cols-1 gap-3 border-t border-[#e0e5dd] bg-[#fafbf8] px-4 py-3 lg:grid-cols-[minmax(300px,_1fr)_205px_145px_135px_135px_70px_40px]">
-                <Button type="button" className="w-full justify-center lg:col-span-5" variant="secondary" onClick={() => setItems([...items, emptyItem()])}><Plus size={15} /> Add Finished Good</Button>
+              <div className="grid grid-cols-1 gap-3 border-t border-[#e0e5dd] bg-[#fafbf8] px-4 py-3 lg:grid-cols-[minmax(270px,_1fr)_100px_190px_135px_125px_125px_70px_40px]">
+                <Button type="button" className="w-full justify-center lg:col-span-6" variant="secondary" onClick={() => setItems([...items, emptyItem()])}><Plus size={15} /> Add Finished Good</Button>
               </div>
               </div>
             </div>
           </div>
           <div className="mt-4 rounded-md border border-[#d8e0d7] bg-white p-4">
             <div className="mb-3"><strong className="text-[13px] text-[#173b30]">Utilities and packaging</strong><p className="text-[11px] text-[#75887e]">Enter quantity and requisition rate for each utility.</p></div>
-            <div className="space-y-2">{utilities.map((line, index) => <div key={index} className="grid grid-cols-[1fr_180px_42px] gap-2 max-[650px]:grid-cols-1"><Dropdown value={line.productId} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, productId: event.target.value } : value))}><option value="">Select product</option>{utilityProducts.map(product => <option key={product.id} value={product.id} disabled={utilities.some((other, otherIndex) => otherIndex !== index && other.productId === product.id)}>{product.sku} · {product.name}</option>)}</Dropdown><Input type="number" min="0" step="0.001" placeholder="Quantity" value={line.quantity} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, quantity: event.target.value } : value))}/><Button type="button" variant="danger" className="size-10 p-0" disabled={utilities.length === 1} onClick={() => setUtilities(utilities.filter((_, lineIndex) => lineIndex !== index))}><Trash2 size={14}/></Button></div>)}<div className="grid grid-cols-[1fr_180px_42px] gap-2 border-t border-[#e0e5dd] pt-3 max-[650px]:grid-cols-1"><Button type="button" className="col-span-2 w-full justify-center max-[650px]:col-span-1" variant="secondary" onClick={() => setUtilities([...utilities, { productId: '', quantity: '' }])}><Plus size={14}/> Add Utility</Button></div></div>
+            <div className="space-y-2">{utilities.map((line, index) => <div key={index} className="grid grid-cols-[1fr_120px_180px_42px] gap-2 max-[650px]:grid-cols-1"><Dropdown value={line.productId} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, productId: event.target.value } : value))}><option value="">Select product</option>{utilityProducts.map(product => <option key={product.id} value={product.id} disabled={utilities.some((other, otherIndex) => otherIndex !== index && other.productId === product.id)}>{product.sku} · {product.name}</option>)}</Dropdown><Input aria-label={`UOM for utility ${index + 1}`} readOnly value={utilityProducts.find((product) => product.id === line.productId)?.baseUom?.code ?? ''} placeholder="UOM" className="bg-[#f2f4f1]! text-[#52675d]!"/><Input type="number" min="0" step="0.001" placeholder="Quantity" value={line.quantity} onChange={event => setUtilities(utilities.map((value, lineIndex) => lineIndex === index ? { ...value, quantity: event.target.value } : value))}/><Button type="button" variant="danger" className="size-10 p-0" disabled={utilities.length === 1} onClick={() => setUtilities(utilities.filter((_, lineIndex) => lineIndex !== index))}><Trash2 size={14}/></Button></div>)}<div className="grid grid-cols-[1fr_120px_180px_42px] gap-2 border-t border-[#e0e5dd] pt-3 max-[650px]:grid-cols-1"><Button type="button" className="col-span-3 w-full justify-center max-[650px]:col-span-1" variant="secondary" onClick={() => setUtilities([...utilities, { productId: '', quantity: '' }])}><Plus size={14}/> Add Utility</Button></div></div>
           </div>
           {combinedRmBreakdown.length > 0 && <div className="mt-4 overflow-x-auto rounded-md border border-[#d8e0d7] bg-white">
             <div className="flex items-center justify-between gap-3 border-b border-[#dfe5dd] bg-[#f5f7f2] px-4 py-3"><div><strong className="text-[13px] text-[#173b30]">Combined Raw Material Breakdown</strong><p className="mt-0.5 text-[11px] text-[#75887e]">Aggregated requirement for every finished good in this requisition.</p></div><strong className="text-[14px] text-[#9a650d]">{totalRmNeeded.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg total</strong></div>
