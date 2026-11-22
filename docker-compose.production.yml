@@ -3,13 +3,37 @@
 name: inventory-production
 
 services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      SERVER_IP: ${SERVER_IP:?Set SERVER_IP in .env.production}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     depends_on:
       backend:
         condition: service_healthy
@@ -23,8 +47,8 @@ services:
       NODE_ENV: production
       PORT: 4000
       DATABASE_URL: postgresql://inventory:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}@db:5432/inventory?schema=public
-      WEB_ORIGIN: http://${SERVER_IP:?Set SERVER_IP in .env.production}
-      PASSWORD_RESET_URL: http://${SERVER_IP:?Set SERVER_IP in .env.production}/reset-password
+      WEB_ORIGIN: https://${SERVER_IP:?Set SERVER_IP in .env.production}
+      PASSWORD_RESET_URL: https://${SERVER_IP:?Set SERVER_IP in .env.production}/reset-password
       LOG_LEVEL: info
       JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 32 characters}
       INITIAL_SUPER_ADMIN_EMAIL: ${INITIAL_SUPER_ADMIN_EMAIL:?Set INITIAL_SUPER_ADMIN_EMAIL}
@@ -59,3 +83,5 @@ services:
 
 volumes:
   inventory_pg:
+  caddy_data:
+  caddy_config:

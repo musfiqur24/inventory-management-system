@@ -76,9 +76,8 @@ if you want to reuse that account. Existing account passwords are not reset.
 
 ## Fresh Ubuntu server deployment (public IP, no domain)
 
-Use `docker-compose.production.yml` by itself. It runs the frontend on port 80,
-the API internally on port 4000, and PostgreSQL internally on port 5432. Only the
-frontend is published to the server. The Compose project is `inventory-production`
+Use `docker-compose.production.yml` by itself. Caddy publishes HTTP on port 80 and HTTPS on port 443.
+The frontend, API, and PostgreSQL are internal Docker services. The Compose project is `inventory-production`
 with database volume `inventory-production_inventory_pg`.
 
 After installing Docker Engine and the Compose plugin, upload the latest project
@@ -90,8 +89,8 @@ chmod 600 .env.production
 nano .env.production
 ```
 
-Fill every blank value. `SERVER_IP` is the server's public IPv4 address without a
-protocol or port. Generate `POSTGRES_PASSWORD` with `openssl rand -hex 24` and
+Fill every blank value. `SERVER_IP` is the server's IPv4 address without a
+protocol or port; a private LAN/VPN address such as `10.10.252.50` works. Generate `POSTGRES_PASSWORD` with `openssl rand -hex 24` and
 `JWT_SECRET` with a separate `openssl rand -hex 32` command. Use a valid email
 and a long password for `INITIAL_SUPER_ADMIN_EMAIL` and
 `INITIAL_SUPER_ADMIN_PASSWORD` (minimum 6 characters). Single-quote passwords
@@ -104,10 +103,11 @@ sudo docker compose --env-file .env.production -f docker-compose.production.yml 
 sudo docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=100 backend
 ```
 
-Allow inbound TCP port 80 in the hosting provider's firewall. If UFW is enabled,
-allow your SSH port before changing firewall rules, then allow `80/tcp`. Open
-`http://YOUR_SERVER_IP` and sign in with the configured initial Super Admin email
-and password. HTTP traffic is unencrypted.
+Allow inbound TCP ports 80 and 443 in the hosting provider's firewall. If UFW is
+enabled, allow your SSH port before changing firewall rules, then allow `80/tcp`
+and `443/tcp`. Open `https://YOUR_SERVER_IP` and sign in with the configured
+initial Super Admin email and password. HTTP redirects to HTTPS. Install the
+Caddy root certificate on client devices using the instructions below first.
 
 On first startup, PostgreSQL creates an empty `inventory` database; the backend
 runs `prisma db push` to create application tables, then bootstraps permissions,
@@ -202,7 +202,8 @@ and manage retention as they accumulate. Backups include user and inventory data
 
 The deployment preserves the database volume and recreates both app containers
 so Nginx resolves the replacement backend. It waits for container health and
-checks `/api/v1/health` through Nginx before reporting success. It never runs
+checks the HTTPS API health endpoint and frontend through Caddy with explicit
+CA verification before reporting success. It never runs
 `down -v`, prunes volumes, or passes `--accept-data-loss` to Prisma. Schema
 synchronization can still require downtime or fail on incompatible changes.
 Failures are reported in Actions; automatic rollback and automatic database
@@ -221,3 +222,72 @@ References:
 - Runner registration: https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners
 - Linux runner service: https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/configure-the-application
 - Runner security: https://docs.github.com/en/actions/reference/security/secure-use
+
+## HTTPS on a private IP with Caddy
+
+Production uses `deploy/Caddyfile` with `tls internal`. Caddy automatically
+issues and renews a certificate for `SERVER_IP`, redirects HTTP to HTTPS, and
+proxies API traffic to the backend and other requests to the frontend. No domain
+or public certificate issuer is required. The local Compose setup stays HTTP.
+
+The volumes `inventory-production_caddy_data` and
+`inventory-production_caddy_config` persist Caddy state. The data volume contains
+the CA private keys: keep it private, preserve it across deployments, and back it
+up securely. Deleting it creates a different CA that clients must trust again.
+Database backups do not include Caddy state. Do not commit certificates or keys.
+
+### Enable the new configuration
+
+Push these changes to main and allow CI/CD to deploy. Keep `SERVER_IP=10.10.252.50`
+in `~/.config/inventory/.env.production`; no scheme is needed. The backend now
+receives an HTTPS origin and reset URL automatically. Permit inbound TCP 443
+from your LAN/VPN clients, and keep port 80 for the HTTPS redirect. Deployment
+has a short interruption while the frontend releases port 80 and Caddy takes it.
+No separate Caddy installation on Ubuntu is needed; Compose runs it in Docker.
+
+To deploy manually instead, update the server clone first and use its production
+Compose file with the existing external env file:
+
+```bash
+cd ~/inventory-management-system
+git pull --ff-only
+PRODUCTION_ENV_FILE="$HOME/.config/inventory/.env.production" bash scripts/deploy-production.sh
+```
+
+Do not run manual deployment while Actions is deploying. The shared script takes
+a lock and a database backup. It verifies HTTPS using the Caddy CA, rather than
+using `curl -k` or globally trusting the CA on the server.
+
+### Export and trust the certificate on Windows
+
+After deployment, update your manual clone so its Compose file includes Caddy,
+then export only the public root certificate:
+
+```bash
+cd ~/inventory-management-system
+git pull --ff-only
+docker compose --env-file "$HOME/.config/inventory/.env.production" -f docker-compose.production.yml cp caddy:/data/caddy/pki/authorities/local/root.crt "$HOME/inventory-caddy-root.crt"
+sha256sum "$HOME/inventory-caddy-root.crt"
+```
+
+On your Windows computer, run in PowerShell (not on Ubuntu):
+
+```powershell
+scp musfiq@10.10.252.50:~/inventory-caddy-root.crt .
+Get-FileHash .\inventory-caddy-root.crt -Algorithm SHA256
+certutil -user -addstore Root .\inventory-caddy-root.crt
+```
+
+Compare the file hash with the server's output before importing it. This trusts
+Caddy's CA for your Windows account, so import only the root you exported from
+your server. Restart your browser and open `https://10.10.252.50`. Repeat the
+trust setup on every device that accesses the app. Firefox may need an explicit
+import under Settings > Privacy & Security > Certificates > View Certificates >
+Authorities. On Ubuntu clients, copy the root into
+`/usr/local/share/ca-certificates/inventory-caddy-root.crt` and run
+`sudo update-ca-certificates`. Mobile devices require their platform's certificate
+installation and trust settings. Browser warnings remain until the root is trusted.
+
+Caddy documentation:
+- https://caddyserver.com/docs/running#local-https-with-docker
+- https://caddyserver.com/docs/caddyfile/directives/tls#internal

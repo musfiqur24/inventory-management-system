@@ -30,6 +30,8 @@ trap on_error ERR
 
 "${compose[@]}" config --quiet
 # Finish both builds before replacing any application containers.
+"${compose[@]}" pull caddy
+"${compose[@]}" run --rm --no-deps caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 "${compose[@]}" build backend frontend
 "${compose[@]}" up -d --wait --wait-timeout 180 db
 
@@ -51,6 +53,21 @@ echo "Database backup saved: $backup"
 # Recreate Nginx as well so it resolves the new backend container address.
 # --no-deps keeps the healthy database running and preserves its volume.
 "${compose[@]}" up -d --no-deps --force-recreate --wait --wait-timeout 180 backend frontend
-curl --fail --silent --show-error --retry 5 --retry-delay 3 --retry-connrefused \
-  http://127.0.0.1/api/v1/health >/dev/null
+# Start Caddy after the old frontend has released host port 80.
+"${compose[@]}" up -d --no-deps --force-recreate --wait --wait-timeout 90 caddy
+server_ip="$("${compose[@]}" exec -T caddy printenv SERVER_IP)"
+server_ip="${server_ip//$'\r'/}"
+if [[ ! "$server_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo 'SERVER_IP must be an IPv4 address without a scheme, port, or spaces.' >&2
+  exit 1
+fi
+# Trust this deployment's CA explicitly; never skip certificate verification.
+root_cert="$state_dir/caddy-root.crt"
+"${compose[@]}" exec -T caddy cat /data/caddy/pki/authorities/local/root.crt > "$root_cert.partial"
+mv -- "$root_cert.partial" "$root_cert"
+for endpoint in /api/v1/health /; do
+  curl --fail --silent --show-error --connect-timeout 5 --max-time 20 --retry 5 --retry-delay 3 --retry-connrefused \
+    --noproxy '*' --cacert "$root_cert" \
+    --connect-to "$server_ip:443:127.0.0.1:443" "https://$server_ip$endpoint" >/dev/null
+done
 echo "Production deployment succeeded: $revision"

@@ -46,6 +46,10 @@ jobs:
         run: npm run build --prefix frontend
       - name: Test deployment script
         run: bash scripts/tests/deploy-production.test.sh
+      - name: Validate Caddy configuration
+        run: docker run --rm -e SERVER_IP=10.10.252.50 -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Test real Caddy HTTPS routing
+        run: node scripts/tests/caddy-https.test.cjs
       - name: Validate backend Docker build
         run: docker build --tag inventory-api-ci ./backend
       - name: Validate frontend Docker build

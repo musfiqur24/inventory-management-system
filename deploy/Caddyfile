@@ -1,0 +1,18 @@
+{
+	# IP-address clients may omit SNI; Docker sees a different local IP.
+	default_sni {$SERVER_IP}
+}
+
+# SERVER_IP is supplied by production Compose. Certificates renew automatically.
+https://{$SERVER_IP} {
+	tls internal
+	encode zstd gzip
+
+	handle /api/* {
+		reverse_proxy backend:4000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}
