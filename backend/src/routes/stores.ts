@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
-import type { Prisma } from "../generated/prisma/client.js";
+import { Prisma } from "../generated/prisma/client.js";
 export const storesRouter = Router();
 const storeSchema = z.object({
   code: z.string().trim().regex(/^\d+$/, "Store code must contain numbers only."),
@@ -479,4 +479,29 @@ storesRouter.get("/:id/release-options", async (req, res) => {
       .filter((o) => o.lines.some((l) => l.quantity.gt(l.dispatchedQty)))
       .map((o) => ({ id: o.id, number: o.number })),
   });
+});
+
+// Product totals intentionally ignore requisition and lot filters.
+storesRouter.get("/:id/product-stock", async (req, res) => {
+  const storeId = String(req.params.id);
+  const store = await prisma.store.findFirst({ where: { id: storeId, organizationId: req.tenantId } });
+  if (!store) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Store not found." } });
+  const balances = await prisma.inventoryBalance.findMany({
+    where: { organizationId: req.tenantId, bin: { storeId } },
+    include: { product: { include: { baseUom: true } }, uom: true },
+  });
+  const totals = new Map<string, { productId: string; name: string; sku: string; unit: string; quantity: Prisma.Decimal; reserved: Prisma.Decimal; reorderLevel: number | null }>();
+  for (const b of balances) {
+    const weight = b.uom.dimension === "WEIGHT";
+    const divisor = weight ? new Prisma.Decimal(1) : b.product.baseUom.factorToBase;
+    const row = totals.get(b.productId) ?? { productId: b.productId, name: b.product.name, sku: b.product.sku,
+      unit: weight ? "kg" : b.product.baseUom.code, quantity: new Prisma.Decimal(0), reserved: new Prisma.Decimal(0),
+      reorderLevel: weight && store.storeType === "RM_STORE" ? 20 : null };
+    row.quantity = row.quantity.plus(b.quantity.mul(b.uom.factorToBase).div(divisor));
+    row.reserved = row.reserved.plus(b.reservedQty.mul(b.uom.factorToBase).div(divisor));
+    totals.set(b.productId, row);
+  }
+  res.json({ data: [...totals.values()].sort((a,b) => a.name.localeCompare(b.name)).map(row => ({ ...row,
+    available: row.quantity.minus(row.reserved), lowStock: row.reorderLevel !== null && row.quantity.lt(row.reorderLevel),
+  })) });
 });

@@ -106,7 +106,7 @@ export function NotificationBell() {
         {count > 0 && <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">{count > 99 ? "99+" : count}</span>}
       </button>
       {open && (
-        <Modal title="Notifications" description="Approvals assigned to you in this organization." onClose={() => setOpen(false)} fixedHeight>
+        <Modal title="Notifications" description="Approvals and stock alerts for this organization." onClose={() => setOpen(false)} fixedHeight>
           <LoadingBoundary loading={loading}>
             <div className="mb-3 flex items-center justify-end">
               <Button size="sm" disabled={!count || markingAll} onClick={() => void markAllRead()}>

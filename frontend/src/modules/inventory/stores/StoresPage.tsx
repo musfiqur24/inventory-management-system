@@ -33,10 +33,13 @@ import {
   type ReceiptDocument,
 } from "./store.types";
 
+import { ProductStockTable } from "./ProductStockTable";
+
 type RequisitionOption={id:string;number:string;status:string};
 
 export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const isSetup = !fixedType;
+  const [stockView, setStockView] = useState<"detail" | "product">("detail");
   const { can } = useAuth();
   const writable = can("departments.write");
   const [stores, setStores] = useState<Store[]>([]),
@@ -418,7 +421,9 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                     id="store-search"
                     className="h-11"
                     placeholder={
-                      tab === "bins"
+                      stockView === "product" && tab === "stock"
+                        ? "Search product name or SKU..."
+                        : tab === "bins"
                         ? "Search bin code, name, position..."
                         : fixedType === "FM_STORE"
                           ? "Search product, bin, or batch..."
@@ -429,7 +434,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   />
                 </div>
               )}
-              {tab !== "bins" && (
+              {tab !== "bins" && !(tab === "stock" && stockView === "product") && (
                 <div className="min-w-0">
                   <label
                     htmlFor="store-bin-filter"
@@ -454,7 +459,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   </Dropdown>
                 </div>
               )}
-              {tab === "stock" && fixedType === "RM_STORE" && (
+              {tab === "stock" && stockView === "detail" && fixedType === "RM_STORE" && (
                 <div className="min-w-0 sm:col-span-2 xl:col-span-2">
                   <label htmlFor="stock-requisition" className="mb-2 block text-sm font-semibold">
                     Requisition
@@ -474,7 +479,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                   </Dropdown>
                 </div>
               )}
-              {tab === "stock" && fixedType === "FM_STORE" && (
+              {tab === "stock" && stockView === "detail" && fixedType === "FM_STORE" && (
                 <div className="min-w-0 sm:col-span-2 xl:col-span-2">
                   <label htmlFor="stock-batch" className="mb-2 block text-sm font-semibold">Batch ID</label>
                   <Dropdown id="stock-batch" value={batchFilter} onChange={(e) => { setBatchFilter(e.target.value); setPage(1); }}>
@@ -560,7 +565,12 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                 )}
               </DataTable>
             )}
-            {tab === "stock" && (
+            {tab === "stock" && <div className="flex gap-2 border-b border-[#e0e5dd] px-4 py-3">
+              <Button variant={stockView === "detail" ? "primary" : "secondary"} onClick={() => setStockView("detail")}>{fixedType === "RM_STORE" ? "Requisition-wise Stock" : "Lot-wise Stock"}</Button>
+              <Button variant={stockView === "product" ? "primary" : "secondary"} onClick={() => { setStockView("product"); setBinId(""); setRequisitionFilter(""); setBatchFilter(""); }}>Product-wise Stock</Button>
+            </div>}
+            {tab === "stock" && stockView === "product" && <ProductStockTable key={store.id} storeId={store.id} revision={revision} search={search} />}
+            {tab === "stock" && stockView === "detail" && (
               <DataTable loading={loading && bins.length === 0 && balances.length === 0 && activity.length === 0}
                 columns={[
                   "Product",

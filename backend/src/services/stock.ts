@@ -80,6 +80,11 @@ type Posting = {
   note?: string;
 };
 export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
+  // Serialize RM postings across bins so threshold crossings are counted once.
+  if (input.storeType === "RM_STORE") {
+    const position = await tx.bin.findFirst({ where: { id: input.binId, organizationId: input.organizationId }, select: { storeId: true } });
+    if (position) await tx.$queryRaw`SELECT id FROM "Store" WHERE id=${position.storeId} AND "organizationId"=${input.organizationId} FOR UPDATE`;
+  }
   // Lock the bin even when its balance does not exist yet. All receipt/release paths use this service.
   await tx.$queryRaw`SELECT id FROM "Bin" WHERE id=${input.binId} AND "organizationId"=${input.organizationId} FOR UPDATE`;
   const bin = await tx.bin.findFirst({
@@ -221,5 +226,29 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
       balanceAfter: balance.quantity,
     },
   });
+  if (input.storeType === "RM_STORE" && input.direction === "OUT") {
+    const positions = await tx.inventoryBalance.findMany({
+      where: { organizationId: input.organizationId, productId: input.productId, bin: { storeId: bin.storeId } },
+      include: { uom: true },
+    });
+    const unit = await tx.unitOfMeasure.findUniqueOrThrow({ where: { id: uomId } });
+    if (unit.dimension === "WEIGHT") {
+      // Weight factors use kg as their base, matching bin capacity validation.
+      const after = positions.filter(b => b.uom.dimension === "WEIGHT").reduce(
+        (sum, b) => sum.plus(b.quantity.mul(b.uom.factorToBase)), new Prisma.Decimal(0));
+      const before = after.plus(quantity.mul(unit.factorToBase));
+      if (before.gte(20) && after.lt(20)) {
+        const members = await tx.organizationMember.findMany({
+          where: { organizationId: input.organizationId, isActive: true, user: { isActive: true } },
+          select: { userId: true },
+        });
+        await tx.notification.createMany({ data: members.map(member => ({
+          organizationId: input.organizationId, recipientId: member.userId,
+          title: "RM stock below reorder level",
+          message: product.name + " (" + product.sku + ") in " + bin.store.name + " has " + after.toDecimalPlaces(3).toString() + " kg on hand, below the 20 kg reorder level.",
+        })) });
+      }
+    }
+  }
   return { balance, movement };
 }
