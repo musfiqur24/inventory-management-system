@@ -130,3 +130,94 @@ this deployment**, as it deletes the database volume.
 Production secrets belong only in `.env.production`, which is ignored by Git.
 Docker Compose requires the production values to be present before starting:
 https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
+
+## Automatic deployment from GitHub main
+
+The workflow in `.github/workflows/deploy.yml` runs on pushes to `main` and can
+also be started manually from GitHub Actions. It installs dependencies, generates
+Prisma, builds both apps, runs the reorder tests, and validates both Docker
+builds on a GitHub-hosted runner. Deployment runs only after those checks pass,
+on a Linux self-hosted runner labeled `inventory-production` on your server.
+Concurrent deployments are serialized; a running deployment is not cancelled.
+
+A self-hosted runner works with the private server address `10.10.252.50`; the
+server initiates outbound HTTPS connections to GitHub. GitHub does not need
+inbound SSH access. The server needs outbound access to GitHub, npm, Docker Hub,
+and the operating-system package repositories used by the Docker builds.
+
+### One-time server setup as musfiq
+
+Confirm `docker ps` works without sudo, and install the deployment utilities:
+
+```bash
+sudo apt install -y git curl util-linux
+mkdir -p ~/.config/inventory
+chmod 700 ~/.config/inventory
+cp ~/inventory-management-system/.env.production ~/.config/inventory/.env.production
+chmod 600 ~/.config/inventory/.env.production
+```
+
+This copies your existing production settings; it does not generate new database
+credentials. The external file is required because Actions cleans its checkout
+folder. The deployment keeps the Compose project name `inventory-production`,
+so it reuses your existing database volume. It does not use the local Compose
+file or import the local database.
+
+In the GitHub repository, go to **Settings > Actions > Runners > New self-hosted
+runner**, select Linux and your server architecture. Follow GitHub's displayed
+download and registration commands as `musfiq` in `~/actions-runner` (outside
+your project folder). During registration, add the custom label
+`inventory-production`. Use the current commands and temporary registration
+token shown by GitHub; do not commit the token.
+
+After registration, install the runner as a system service:
+
+```bash
+cd ~/actions-runner
+sudo ./svc.sh install musfiq
+sudo ./svc.sh start
+sudo ./svc.sh status
+```
+
+The runner should appear **Idle** in GitHub. It runs as `musfiq`, which must be
+in the Docker group. No SSH key or production environment secret needs to be
+uploaded to GitHub for this configuration.
+
+Commit and push the workflow and deployment script to `main`. Open the repository's
+**Actions** tab to follow the build and deployment. Subsequent pushes to `main`
+automatically update the server. Manual runs deploy only when `main` is selected.
+Use the same external environment file for any manual Compose operations:
+
+```bash
+docker compose --env-file "$HOME/.config/inventory/.env.production" -f docker-compose.production.yml ps
+```
+
+### Data protection and troubleshooting
+
+`scripts/deploy-production.sh` builds before replacing the app containers, starts
+or checks PostgreSQL, and requires a successful custom-format `pg_dump` before
+the new backend can synchronize the schema. Backups are private files under
+`~/.local/state/inventory-deploy/backups/`; copy important backups off the server
+and manage retention as they accumulate. Backups include user and inventory data.
+
+The deployment preserves the database volume and recreates both app containers
+so Nginx resolves the replacement backend. It waits for container health and
+checks `/api/v1/health` through Nginx before reporting success. It never runs
+`down -v`, prunes volumes, or passes `--accept-data-loss` to Prisma. Schema
+synchronization can still require downtime or fail on incompatible changes.
+Failures are reported in Actions; automatic rollback and automatic database
+restore are not implemented. If a deployment fails after replacing containers,
+inspect the backend logs using the external env file above.
+
+Edit `~/.config/inventory/.env.production` for future environment changes; the
+original file in the manual clone is no longer used by CI/CD. Changing database
+or bootstrap passwords still follows the existing-database rules described above.
+
+Use this production runner only with trusted repository collaborators. GitHub
+recommends self-hosted runners for private repositories; do not run untrusted pull
+request workflows on this server. Protect `main` to control who can deploy.
+
+References:
+- Runner registration: https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners
+- Linux runner service: https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/configure-the-application
+- Runner security: https://docs.github.com/en/actions/reference/security/secure-use

@@ -1,0 +1,66 @@
+name: CI and production deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: inventory-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://inventory:ci-only@localhost:5432/inventory?schema=public
+    steps:
+      - uses: actions/checkout@v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+      - name: Generate database client
+        working-directory: backend
+        run: npm run db:generate
+      - name: Build backend
+        run: npm run build --prefix backend
+      - name: Test reorder notifications
+        working-directory: backend
+        run: node node_modules/tsx/dist/cli.mjs --test tests/*.test.ts
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+      - name: Build frontend
+        run: npm run build --prefix frontend
+      - name: Test deployment script
+        run: bash scripts/tests/deploy-production.test.sh
+      - name: Validate backend Docker build
+        run: docker build --tag inventory-api-ci ./backend
+      - name: Validate frontend Docker build
+        run: docker build --tag inventory-web-ci ./frontend
+
+  deploy:
+    name: Deploy on production server
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux, inventory-production]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6.1.0
+        with:
+          persist-credentials: false
+      - name: Back up database and deploy
+        shell: bash
+        run: bash scripts/deploy-production.sh
