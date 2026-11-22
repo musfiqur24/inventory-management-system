@@ -51,3 +51,82 @@ docker compose up -d --build
 - Page actions wrap on small screens, forms collapse to one column, dialogs become bottom-aligned mobile sheets, and tables keep horizontal scrolling with mobile pagination.
 - Preserve semantic labels, dialog titles, accessible icon-button names, reduced-motion preferences, and the application skip link.
 - Keep table headers neutral and square as part of the current Feed Track visual language.
+
+## Local Docker setup
+
+`docker-compose.yml` runs the frontend at http://localhost:5173 and connects the
+backend to your existing host PostgreSQL database. It does not create another
+local database. PostgreSQL must be reachable from Docker. Defaults match the
+previous local database URL (`postgres`, password `1234`, database `inventory`).
+
+```bash
+docker compose -f docker-compose.yml up -d --build
+```
+
+For different credentials, copy `.env.local.example` to `.env.local`, edit it,
+and run:
+
+```bash
+docker compose --env-file .env.local -f docker-compose.yml up -d --build
+```
+
+The default local bootstrap account is `musfiqur.utsho@gmail.com` with password
+`123456`. Set `LOCAL_SUPER_ADMIN_EMAIL` to your existing admin email
+if you want to reuse that account. Existing account passwords are not reset.
+
+## Fresh Ubuntu server deployment (public IP, no domain)
+
+Use `docker-compose.production.yml` by itself. It runs the frontend on port 80,
+the API internally on port 4000, and PostgreSQL internally on port 5432. Only the
+frontend is published to the server. The Compose project is `inventory-production`
+with database volume `inventory-production_inventory_pg`.
+
+After installing Docker Engine and the Compose plugin, upload the latest project
+source to the server and run from the project root:
+
+```bash
+cp .env.production.example .env.production
+chmod 600 .env.production
+nano .env.production
+```
+
+Fill every blank value. `SERVER_IP` is the server's public IPv4 address without a
+protocol or port. Generate `POSTGRES_PASSWORD` with `openssl rand -hex 24` and
+`JWT_SECRET` with a separate `openssl rand -hex 32` command. Use a valid email
+and a long password for `INITIAL_SUPER_ADMIN_EMAIL` and
+`INITIAL_SUPER_ADMIN_PASSWORD` (minimum 6 characters). Single-quote passwords
+containing `$` or `#` in the env file.
+
+```bash
+sudo docker compose --env-file .env.production -f docker-compose.production.yml config --quiet
+sudo docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
+sudo docker compose --env-file .env.production -f docker-compose.production.yml ps
+sudo docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=100 backend
+```
+
+Allow inbound TCP port 80 in the hosting provider's firewall. If UFW is enabled,
+allow your SSH port before changing firewall rules, then allow `80/tcp`. Open
+`http://YOUR_SERVER_IP` and sign in with the configured initial Super Admin email
+and password. HTTP traffic is unencrypted.
+
+On first startup, PostgreSQL creates an empty `inventory` database; the backend
+runs `prisma db push` to create application tables, then bootstraps permissions,
+roles, the initial workspace, and its Super Admin. No products, stock, or
+transactions are imported from your local database. Subsequent startups preserve
+data and do not reset the existing Super Admin password. Changing the bootstrap
+password in the env file does not change an existing user's password.
+
+PostgreSQL initialization settings apply when the volume is empty. Keep the same
+database credentials on later deployments unless you deliberately change the
+password inside PostgreSQL too. Changing `.env.production` alone will not change
+an existing database password.
+
+Deploy later code updates with the same `up -d --build` command. Startup applies
+schema changes through `prisma db push`; take a database backup before updates.
+Do not add `--accept-data-loss` to bypass a failed schema update. Ordinary
+`docker compose ... down` preserves the database; **never use `down -v` to update
+this deployment**, as it deletes the database volume.
+
+Production secrets belong only in `.env.production`, which is ignored by Git.
+Docker Compose requires the production values to be present before starting:
+https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
