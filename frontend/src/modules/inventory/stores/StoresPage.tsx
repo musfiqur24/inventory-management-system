@@ -1,3 +1,4 @@
+import { ReservationModal } from "./ReservationModal";
 import { useEffect, useState } from "react";
 import {
   Plus,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 import { api } from "../../../shared/api/http";
 import { useAuth } from "../../auth/AuthContext";
-import { appToast } from "../../../components/ui/Toast";
+import { appToast } from "../../../components/ui/ToastMessages";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
@@ -38,6 +39,7 @@ import { ProductStockTable } from "./ProductStockTable";
 type RequisitionOption={id:string;number:string;status:string};
 
 export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
+  const [reservation,setReservation]=useState<StockBalance|null>(null);
   const isSetup = !fixedType;
   const [stockView, setStockView] = useState<"detail" | "product">("detail");
   const { can } = useAuth();
@@ -112,11 +114,11 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   useEffect(()=>{if(fixedType!=="RM_STORE")return;void api<{data:RequisitionOption[]}>("/purchase-requisitions").then(r=>setRequisitions(r.data.filter(x=>!["CANCELLED","REJECTED"].includes(x.status)))).catch(e=>appToast.error(e.message))},[fixedType,revision]);
   useEffect(() => {
     if (!storeId) {
-      setBins([]);
+      queueMicrotask(()=>{setBins([]);
       setBalances([]);
       setActivity([]);
       setTotal(0);
-      setPendingReceipts(0);
+      setPendingReceipts(0);});
       return;
     }
     let active = true;
@@ -182,7 +184,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
       window.clearInterval(timer);
       window.removeEventListener("focus", onFocus);
     };
-  }, [storeId, binId, page, direction, requisitionFilter, from, to, revision, isSetup]);
+  }, [storeId, binId, page, direction, requisitionFilter, from, to, revision, isSetup, fixedType]);
   const chooseStore = (id: string) => {
     setStoreId(id);
     setBinId("");
@@ -615,7 +617,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                     <td>{Number(b.reservedQty).toLocaleString()}</td>
                     <td className="font-semibold">
                       {(
-                        Number(b.quantity) - Number(b.reservedQty)
+                        Number(b.availableQty ?? (Number(b.quantity) - Number(b.reservedQty)))
                       ).toLocaleString()}{" "}
                       {b.uom.code}
                     </td>
@@ -623,6 +625,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
                       {new Date(b.updatedAt).toLocaleString()}
                     </td>
                     <td>
+                      {writable && <Button size="sm" onClick={()=>setReservation(b)}>Reserve</Button>}
                       {writable && (
                         <Button
                           size="sm"
@@ -855,6 +858,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
           </div>
         </Modal>
       )}
+      {reservation && store && <ReservationModal stock={reservation} store={store} onClose={()=>setReservation(null)} onSaved={refresh}/>}
       {!isSetup && receive && store && (
         <ReceiveStockModal
           store={store}

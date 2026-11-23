@@ -1,5 +1,5 @@
 import { usePageLoading } from "../../shared/hooks/usePageLoading";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback} from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { api } from "../../shared/api/http";
 import { useAuth } from "../auth/AuthContext";
@@ -12,7 +12,7 @@ import { Checkbox } from "../../components/ui/Checkbox";
 import { DataTable } from "../../components/ui/DataTable";
 import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
-import { appToast } from "../../components/ui/Toast";
+import { appToast } from "../../components/ui/ToastMessages";
 
 type Role = { id: string; code: string; name: string };
 type Org = { id: string; name: string };
@@ -42,7 +42,7 @@ export function UserManagementPage() {
 
   const availableRoles = roles.filter(role => user?.isSuperAdmin || !["SUPER_ADMIN", "ADMIN"].includes(role.code));
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     try {
       const [usersResult, rolesResult, orgsResult] = await Promise.all([
         api<{ data: Row[] }>("/users"),
@@ -56,9 +56,9 @@ export function UserManagementPage() {
     } catch (cause) {
       appToast.error(cause instanceof Error ? cause.message : "Could not load users");
     }
-  });};
+  });}, [user, runPageLoad]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -121,7 +121,7 @@ export function UserManagementPage() {
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
           <Input required placeholder="Full name" value={form.fullName} onChange={event => setForm({ ...form, fullName: event.target.value })} />
           <Input required type="email" placeholder="Email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} />
-          <Input required minLength={8} type="password" placeholder="Temporary password (min 8)" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} />
+          <Input required minLength={12} type="password" placeholder="Temporary password (min 8)" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} />
           <Dropdown required value={form.roleId} onChange={event => setForm({ ...form, roleId: event.target.value })}>
             {availableRoles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
           </Dropdown>

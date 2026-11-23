@@ -1,3 +1,5 @@
+import {addStockAvailability} from "../services/stockAvailability.js";
+import { stockTransaction } from "../services/stockTransaction.js";
 import { storeLots } from "../services/storeLots.js";
 import { Router } from "express";
 import { z } from "zod";
@@ -6,7 +8,7 @@ import { postStock, lockDocument, StockError } from "../services/stock.js";
 export const fmStoreRouter = Router();
 fmStoreRouter.get("/balances", async (req, res) =>
   res.json({
-    data: await prisma.inventoryBalance.findMany({
+    data: await addStockAvailability(req.tenantId!,await prisma.inventoryBalance.findMany({
       where: {
         organizationId: req.tenantId,
         bin: { store: { storeType: "FM_STORE" } },
@@ -18,7 +20,7 @@ fmStoreRouter.get("/balances", async (req, res) =>
         uom: true,
       },
       orderBy: { updatedAt: "desc" },
-    }),
+    })),
   }),
 );
 fmStoreRouter.post("/receive", async (req, res) => {
@@ -32,7 +34,7 @@ fmStoreRouter.post("/receive", async (req, res) => {
     notes: z.string().optional(),
   }).parse(req.body);
   const organizationId = req.tenantId!;
-  const data = await prisma.$transaction(async (tx) => {
+  const data = await stockTransaction(organizationId,"FM:"+parsed.batchId,parsed,async (tx) => {
     await lockDocument(tx, "ProductionBatch", parsed.batchId, organizationId);
     const batch = await tx.productionBatch.findFirst({
       where: { id: parsed.batchId, organizationId },
@@ -47,7 +49,7 @@ fmStoreRouter.post("/receive", async (req, res) => {
     const anchor = await tx.productionOrder.findFirst({ where: { id: batch.productionOrderId, organizationId } });
     if (!anchor) throw new StockError("INVALID_ORDER", "Production order not found.", 422);
     const orders = anchor.requisitionId
-      ? await tx.productionOrder.findMany({ where: { organizationId, requisitionId: anchor.requisitionId } })
+      ? await tx.productionOrder.findMany({ where: { organizationId, requisitionId: anchor.requisitionId, status:{notIn:["REJECTED","CANCELLED"]} } })
       : [anchor];
     const orderByProduct = new Map(orders.map((order) => [order.finishedProductId, order]));
     const allocationMap = new Map(parsed.allocations.map((allocation) => [allocation.lineId, allocation]));
@@ -64,7 +66,10 @@ fmStoreRouter.post("/receive", async (req, res) => {
       const binId = allocation.binId;
       const bin = await tx.bin.findFirst({ where: { id: binId, organizationId, store: { storeType: "FM_STORE" } } });
       if (!bin) throw new StockError("INVALID_BIN", "Select a valid FM Store bin.", 422);
-      const lot = await tx.lot.create({ data: {
+      const code=output.lotCode || batch.number + "-" + String(index + 1).padStart(2,"0");
+      const oldLot=await tx.lot.findUnique({where:{organizationId_code:{organizationId,code}},include:{_count:{select:{balances:true}}}});
+      if(oldLot&&(oldLot.productionBatchId!==batch.id||oldLot.productId!==output.productId||oldLot._count.balances))throw new StockError("LOT_IN_USE","Output lot code is already used by another stock position.");
+      const lot = oldLot ?? await tx.lot.create({ data: {
         organizationId,
         productId: output.productId!,
         code: output.lotCode || batch.number + "-" + String(index + 1).padStart(2, "0"),
@@ -95,7 +100,7 @@ fmStoreRouter.post("/receive", async (req, res) => {
         note: parsed.notes,
       }));
     }
-    await tx.productionBatch.update({ where: { id: batch.id }, data: { status: "COMPLETED", completedAt: new Date() } });
+    await tx.productionBatch.update({ where: { id: batch.id }, data: { fgLotId:movements[0]?.balance.lotId, status: "COMPLETED", completedAt: new Date() } });
     await tx.productionOrder.updateMany({ where: { id: { in: orders.map((order) => order.id) } }, data: { status: "COMPLETED" } });
     return movements;
   }, { timeout: 20000 });

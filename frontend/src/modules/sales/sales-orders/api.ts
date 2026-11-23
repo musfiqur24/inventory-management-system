@@ -30,6 +30,8 @@ export interface FinishedProduct { id: string; name: string; sku: string; type: 
 export interface Uom { id: string; code: string; name: string }
 
 export const salesOrderApi = {
+  approve: (id:string) => api("/sales-orders/"+id+"/approve",{method:"POST",body:"{}"}),
+  cancel: (id:string,reason:string) => api("/sales-orders/"+id+"/cancel",{method:"POST",body:JSON.stringify({reason})}),
   list: () => api<{ data: SalesOrder[] }>("/sales-orders").then((response) => response.data),
   customers: () => api<{ data: Customer[] }>("/partners").then((response) => response.data.filter((item) => item.partnerType === "CUSTOMER" || item.type === "CUSTOMER" || item.type === "BOTH")),
   assignees: () => api<{ data: Assignee[] }>("/sales-orders/assignees").then((response) => response.data),

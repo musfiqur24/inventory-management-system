@@ -1,8 +1,10 @@
+import {availableForSource} from "../../../shared/stockAvailability";
+import { escapeHtml } from "../../../shared/escapeHtml";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import { printReport } from '../../../shared/printReport';
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useCallback} from 'react';
 import { Plus, Truck, Search, FileText } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
@@ -12,7 +14,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Dropdown } from '../../../components/ui/Dropdown';
-import { statusBadge } from '../../../components/ui/Badge';
+import { StatusBadge as statusBadge } from '../../../components/ui/Badge';
 
 interface Dispatch {
   id: string; dispatchNumber: string; status: string; dispatchedAt?: string;
@@ -25,7 +27,7 @@ interface SalesOrder { id: string; number: string; }
 interface Partner { id: string; name: string; partnerType: string; }
 interface Product { id: string; name: string; sku: string; type: string; }
 interface Lot { id: string; lotNumber: string; productId: string; currentQty: number; }
-interface Position { id: string; productId: string; lotId: string; binId: string; uomId: string; quantity: number; reservedQty: number; bin: {code:string;store?:{name:string}}; }
+interface Position { lot?:{qualityStatus?:string;expiryDate?:string|null};reservations?:Array<{sourceId:string;quantity:string|number}>; id: string; productId: string; lotId: string; binId: string; uomId: string; quantity: number; reservedQty: number; bin: {code:string;store?:{name:string}}; }
 interface UOM { id: string; name: string; code: string; }
 
 export function DispatchesPage() {
@@ -46,7 +48,7 @@ export function DispatchesPage() {
   const [form, setForm] = useState({ salesOrderId: '', customerId: '', vehicleNo: '' });
   const [lines, setLines] = useState([{ fgProductId: '', lotId: '', fromBinId: '', uomId: '', dispatchedQty: '', unitPrice: '' }]);
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [d, so, p, pr, lt, u] = await Promise.all([
@@ -62,10 +64,10 @@ export function DispatchesPage() {
       setProducts(pr.data.filter((x) => x.type === 'FINISHED_GOOD'));
       setLots(lt.data); setUoms(u.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  });};
+  });}, [runPageLoad, setMessage]);
 
-  useEffect(() => { void load(); }, []);
-  useEffect(()=>{if(open)void api<{data:Position[]}>('/fm-store/balances').then(r=>setPositions(r.data)).catch(e=>setMessage(e.message));},[open]);
+  useEffect(() => { void load(); }, [load]);
+  useEffect(()=>{if(open)void api<{data:Position[]}>('/fm-store/balances').then(r=>setPositions(r.data)).catch(e=>setMessage(e.message));},[open, setMessage]);
 
   const submit = async () => {
     if(saving)return;
@@ -96,9 +98,9 @@ export function DispatchesPage() {
 
   const printDispatch = (d: Dispatch) => {
     printReport(`Dispatch ${d.dispatchNumber}`, `
-      <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">Dispatch Note — ${d.dispatchNumber}</h1><p>Customer: <strong>${d.customer?.name ?? 'N/A'}</strong><br>Vehicle: <strong>${d.vehicleNo ?? 'N/A'}</strong><br>Sales Order: ${d.salesOrder?.number ?? 'N/A'}</p></div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f0ff] text-[#1864ab]">${d.status}</span></div>
+      <div class="flex items-start justify-between"><div><h1 class="text-[22px] font-bold">Dispatch Note — ${escapeHtml(d.dispatchNumber)}</h1><p>Customer: <strong>${escapeHtml(d.customer?.name ?? 'N/A')}</strong><br>Vehicle: <strong>${escapeHtml(d.vehicleNo ?? 'N/A')}</strong><br>Sales Order: ${escapeHtml(d.salesOrder?.number ?? 'N/A')}</p></div><span class="rounded-full px-2.5 py-1 text-xs font-bold bg-[#e8f0ff] text-[#1864ab]">${escapeHtml(d.status)}</span></div>
       <table class="mt-5 w-full border-collapse [:where(&_th)]:border [:where(&_th)]:border-[#ccc] [:where(&_th)]:p-2.5 [:where(&_th)]:text-left [:where(&_th)]:bg-[#f5f5f5] [:where(&_td)]:border [:where(&_td)]:border-[#ccc] [:where(&_td)]:p-2.5 [:where(&_td)]:text-left"><thead><tr><th>#</th><th>FG Product</th><th>SKU</th><th>Batch Lot</th><th>Qty Dispatched</th><th>UOM</th><th>Unit Price</th></tr></thead>
-      <tbody>${d.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${l.fgProduct?.name ?? ''}</td><td>${l.fgProduct?.sku ?? ''}</td><td>${l.lot?.lotNumber ?? '—'}</td><td>${Number(l.dispatchedQty).toLocaleString()}</td><td>${l.uom?.code ?? ''}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>`).join('')}</tbody></table>
+      <tbody>${d.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(l.fgProduct?.name ?? '')}</td><td>${escapeHtml(l.fgProduct?.sku ?? '')}</td><td>${escapeHtml(l.lot?.lotNumber ?? '—')}</td><td>${Number(l.dispatchedQty).toLocaleString()}</td><td>${escapeHtml(l.uom?.code ?? '')}</td><td>${l.unitPrice ? Number(l.unitPrice).toLocaleString() : '—'}</td></tr>`).join('')}</tbody></table>
       <div class="mt-10 text-[13px] text-[#777] "><p>Total Value: <strong>${d.totalValue ? d.totalValue.toLocaleString() : 'N/A'}</strong></p><p>Received by: _______________________ &nbsp;&nbsp; Date: _____________ &nbsp;&nbsp; Seal:</p></div>
     `);
   };
@@ -178,7 +180,7 @@ export function DispatchesPage() {
                   <FormField label="Batch Lot"><Dropdown value={line.lotId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, lotId: e.target.value, fromBinId: '' } : l))}><option value="">— Select lot —</option>{avlLots.map((lt) => <option key={lt.id} value={lt.id}>{lt.lotNumber} ({Number(lt.currentQty).toLocaleString()} avail.)</option>)}</Dropdown></FormField>
                   <FormField label="Qty"><Input type="number" value={line.dispatchedQty} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, dispatchedQty: e.target.value } : l))} /></FormField>
                   <FormField label="Unit Price"><Input type="number" value={line.unitPrice} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, unitPrice: e.target.value } : l))} /></FormField>
-                  <FormField label="Store / Bin" required><Dropdown value={line.fromBinId} onChange={e=>setLines(lines.map((l,li)=>li===i?{...l,fromBinId:e.target.value}:l))}><option value="">Select store bin</option>{positions.filter(p=>p.productId===line.fgProductId&&p.lotId===line.lotId&&Number(p.quantity)>Number(p.reservedQty)).map(p=><option key={p.id} value={p.binId}>{p.bin.store?.name} / {p.bin.code} ({Number(p.quantity)-Number(p.reservedQty)} available)</option>)}</Dropdown></FormField><FormField label="UOM"><Dropdown value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">— UOM —</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</Dropdown></FormField>
+                  <FormField label="Store / Bin" required><Dropdown value={line.fromBinId} onChange={e=>setLines(lines.map((l,li)=>li===i?{...l,fromBinId:e.target.value}:l))}><option value="">Select store bin</option>{positions.filter(p=>p.productId===line.fgProductId&&p.lotId===line.lotId&&availableForSource(p,form.salesOrderId)>0).map(p=><option key={p.id} value={p.binId}>{p.bin.store?.name} / {p.bin.code} ({availableForSource(p,form.salesOrderId)} available)</option>)}</Dropdown></FormField><FormField label="UOM"><Dropdown value={line.uomId} onChange={(e) => setLines(lines.map((l, li) => li === i ? { ...l, uomId: e.target.value } : l))}><option value="">— UOM —</option>{uoms.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</Dropdown></FormField>
                 </div>
               );
             })}

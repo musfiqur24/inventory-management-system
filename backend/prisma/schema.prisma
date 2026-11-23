@@ -97,6 +97,10 @@ model Site {
     phone String?
     presentAddress String?
     permanentAddress String?
+    mfaEnabled Boolean @default(false)
+    mfaSecret String?
+    mfaRecoveryHashes Json?
+    sessionVersion Int @default(0)
     passwordHash String
     isActive Boolean @default(true)
     createdAt DateTime @default(now())
@@ -592,6 +596,7 @@ model Dispatch {
   @@index([organizationId,salesOrderId,status])
 }
 model DispatchLine {
+  unitPrice Decimal? @db.Decimal(18,4)
   id String @id @default(uuid())
   dispatchId String
   productId String
@@ -652,11 +657,14 @@ model UserPermissionOverride {
   @@unique([membershipId, permissionId])
 }
 model RefreshToken {
+  familyId String @default(uuid())
+  consumedAt DateTime?
   id String @id @default(uuid())
   tokenHash String @unique
   userId String
   expiresAt DateTime
   user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@index([familyId])
   @@index([userId, expiresAt])
 }
 
@@ -684,4 +692,68 @@ model Notification {
  readAt DateTime?
  recipient User @relation(fields:[recipientId],references:[id],onDelete:Cascade)
  @@index([organizationId,recipientId,createdAt])
+}
+
+model AuditEvent {
+  id String @id @default(uuid())
+  organizationId String?
+  actorId String?
+  action String
+  resourceId String?
+  details Json?
+  createdAt DateTime @default(now())
+  @@index([organizationId,createdAt])
+}
+model DocumentSequence {
+  organizationId String
+  kind String
+  value Int @default(0)
+  @@id([organizationId,kind])
+}
+model IdempotencyRequest {
+  organizationId String
+  key String
+  payloadHash String
+  result Json?
+  createdAt DateTime @default(now())
+  @@id([organizationId,key])
+}
+model AuthThrottle {
+  key String @id
+  count Int @default(1)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+model ReorderState {
+  organizationId String
+  storeId String
+  productId String
+  low Boolean
+  updatedAt DateTime @updatedAt
+  @@id([organizationId,storeId,productId])
+}
+model Reservation {
+  id String @id @default(uuid())
+  organizationId String
+  balanceId String
+  sourceType String
+  sourceId String
+  quantity Decimal @db.Decimal(18,3)
+  createdById String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([organizationId,sourceType,sourceId])
+  @@index([balanceId])
+}
+model MailOutbox {
+  id String @id @default(uuid())
+  email String
+  tokenCipher String @db.Text
+  status String @default("PENDING")
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([status,nextAttemptAt])
 }

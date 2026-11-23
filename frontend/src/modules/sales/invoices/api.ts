@@ -6,7 +6,7 @@ export interface SalesInvoice {
   status: string;
   dispatchedAt?: string;
   vehicleNo?: string;
-  totalValue?: number;
+  totalValue?: number | null;
   salesOrder?: { number: string } | null;
   customer?: { name: string } | null;
   lines: Array<{

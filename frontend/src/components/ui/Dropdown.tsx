@@ -121,7 +121,7 @@ export function Dropdown({
     );
   }, [required, selected]);
   useEffect(() => {
-    if (disabled) close();
+    if(disabled){const timer=window.setTimeout(close,0);return()=>window.clearTimeout(timer);}
   }, [disabled]);
   useEffect(() => {
     const form = select.current?.form;
@@ -131,7 +131,7 @@ export function Dropdown({
     };
     form?.addEventListener("reset", reset);
     return () => form?.removeEventListener("reset", reset);
-  }, [defaultValue, children]);
+  }, [defaultValue, children, options]);
   useEffect(() => {
     if (!open) return;
     const place = () => {

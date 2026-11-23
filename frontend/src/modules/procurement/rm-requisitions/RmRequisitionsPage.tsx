@@ -1,11 +1,12 @@
+import { escapeHtml } from "../../../shared/escapeHtml";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import { printReport } from '../../../shared/printReport';
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useCallback} from 'react';
 import { Plus, Printer, Search, FileText, CheckCircle2, XCircle, Trash2, Pencil, Layers3, Clock3, CircleAlert, PackageCheck } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
@@ -15,7 +16,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormField';
 import { Input } from '../../../components/ui/Input';
 import { Dropdown } from '../../../components/ui/Dropdown';
-import { statusBadge } from '../../../components/ui/Badge';
+import { StatusBadge as statusBadge } from '../../../components/ui/Badge';
 
 interface Product { id: string; sku: string; name: string; type: string; baseUomId: string; }
 interface UOM { id: string; code: string; name: string; }
@@ -60,7 +61,7 @@ export function RmRequisitionsPage() {
   const [form, setForm] = useState({ salesOrderRef: '', supplierId: '', assignedManagerId: '' });
   const [lines, setLines] = useState<ReqLine[]>([{ productId: '', uomId: '', requestedQty: '', unitPrice: '' }]);
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [reqs, prods, uomData, partnerData, managerData] = await Promise.all([
@@ -77,9 +78,9 @@ export function RmRequisitionsPage() {
       setPartners(partnerData.data.filter((p) => p.partnerType === 'SUPPLIER'));
       setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  });};
+  });}, [runPageLoad, setMessage, setRows, setProducts, setUoms, setPartners]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const requestedId = params.get('requisition');
   useEffect(() => {
@@ -87,7 +88,7 @@ export function RmRequisitionsPage() {
     let active = true;
     void api<{data:Requisition}>('/purchase-requisitions/'+encodeURIComponent(requestedId)).then(r=>{if(active){setRejectedLineIds([]);setSelected(r.data)}}).catch(e=>{if(active)setMessage(e.message)});
     return () => {active=false};
-  },[requestedId]);
+  },[requestedId, setMessage]);
 
   const edit = (req:Requisition) => {
     setEditing(req);setForm({salesOrderRef:req.salesOrderRef??'',supplierId:req.supplierId??'',assignedManagerId:req.assignedManagerId??''});
@@ -168,10 +169,10 @@ export function RmRequisitionsPage() {
         @page{size:A4 landscape;margin:12mm}.report{max-width:1120px;margin:auto;color:#17231d;font:12px Arial,sans-serif;print-color-adjust:exact}.head{position:relative;text-align:center;border-bottom:2px solid #1a5c45;padding-bottom:15px}.logo{width:66px;height:66px;object-fit:contain}.brand{color:#4f7462;font-size:10px;font-weight:700;letter-spacing:.18em}.title{margin:6px 0 0;font-size:24px}.status{position:absolute;right:0;top:4px;border:1px solid #b9dcc7;border-radius:20px;background:#eaf7ee;color:#17633f;padding:5px 12px;font-size:10px;font-weight:700}.meta{display:grid;grid-template-columns:repeat(4,1fr);margin-top:18px;border:1px solid #d8e3da;border-radius:10px;overflow:hidden;background:#f8fbf7}.meta div{padding:11px;border-right:1px solid #d8e3da}.meta div:last-child{border:0}.meta span{display:block;color:#71877b;font-size:9px;font-weight:700;text-transform:uppercase}.meta strong{display:block;margin-top:5px}.items{width:100%;margin-top:18px;border:1px solid #cfdad2;border-collapse:separate;border-spacing:0;border-radius:10px;overflow:hidden}.items thead{display:table-header-group}.items tr{page-break-inside:avoid}.items th{padding:10px;background:#eaf2eb;color:#244839;border-bottom:1px solid #c5d4c8;text-align:left}.items td{padding:9px 10px;border-bottom:1px solid #e1e8e2}.items tbody tr:nth-child(even){background:#f8faf8}.num{text-align:right!important;font-variant-numeric:tabular-nums}.center{text-align:center!important}.items small{display:block;margin-top:2px;color:#71877b;font-size:9px}.items tfoot td{background:#eaf2eb;color:#123d2f;font-size:13px;font-weight:700}.sign{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:50px;text-align:center;color:#526b5e}.sign div{border-top:1px solid #82988c;padding-top:7px;font-weight:600}.foot{margin-top:24px;border-top:1px solid #dce5dd;padding-top:7px;text-align:center;color:#819187;font-size:8px}
       </style>
       <main class="report">
-        <header class="head"><img class="logo" src="${logo}" alt="FeedTrack"><div class="brand">FEEDTRACK PRODUCTION INVENTORY</div><h1 class="title">RM Purchase Requisition</h1><span class="status">${status}</span></header>
-        <section class="meta"><div><span>Requisition ID</span><strong>${req.number}</strong></div><div><span>Date</span><strong>${new Date(req.requestedOn).toLocaleDateString('en-GB')}</strong></div><div><span>Supplier</span><strong>${req.supplier?.name ?? 'Not assigned'}</strong></div><div><span>Sales Order Ref.</span><strong>${req.salesOrderRef || 'Not provided'}</strong></div></section>
+        <header class="head"><img class="logo" src="${logo}" alt="FeedTrack"><div class="brand">FEEDTRACK PRODUCTION INVENTORY</div><h1 class="title">RM Purchase Requisition</h1><span class="status">${escapeHtml(status)}</span></header>
+        <section class="meta"><div><span>Requisition ID</span><strong>${escapeHtml(req.number)}</strong></div><div><span>Date</span><strong>${new Date(req.requestedOn).toLocaleDateString('en-GB')}</strong></div><div><span>Supplier</span><strong>${escapeHtml(req.supplier?.name ?? 'Not assigned')}</strong></div><div><span>Sales Order Ref.</span><strong>${escapeHtml(req.salesOrderRef || 'Not provided')}</strong></div></section>
         <table class="items"><thead><tr><th class="center">#</th><th>Product</th><th class="num">Requested Qty</th><th class="num">Received Qty</th><th class="center">UOM</th><th class="num">Unit Price</th><th class="num">Total Price</th></tr></thead><tbody>
-        ${req.lines.map((line, i) => `<tr><td class="center">${i + 1}</td><td><strong>${line.product?.name ?? ''}</strong><small>${line.product?.sku ?? ''}</small></td><td class="num">${Number(line.requestedQty).toLocaleString()}</td><td class="num">${Number(line.receivedQty).toLocaleString()}</td><td class="center">${line.uom?.code ?? ''}</td><td class="num">${line.unitPrice ? price(Number(line.unitPrice)) : '&mdash;'}</td><td class="num"><strong>${line.unitPrice ? price(Number(line.requestedQty) * Number(line.unitPrice)) : '&mdash;'}</strong></td></tr>`).join('')}
+        ${req.lines.map((line, i) => `<tr><td class="center">${i + 1}</td><td><strong>${escapeHtml(line.product?.name ?? '')}</strong><small>${escapeHtml(line.product?.sku ?? '')}</small></td><td class="num">${Number(line.requestedQty).toLocaleString()}</td><td class="num">${Number(line.receivedQty).toLocaleString()}</td><td class="center">${escapeHtml(line.uom?.code ?? '')}</td><td class="num">${line.unitPrice ? price(Number(line.unitPrice)) : '&mdash;'}</td><td class="num"><strong>${line.unitPrice ? price(Number(line.requestedQty) * Number(line.unitPrice)) : '&mdash;'}</strong></td></tr>`).join('')}
         </tbody><tfoot><tr><td colspan="6" class="num">Estimated Total</td><td class="num">${price(total)}</td></tr></tfoot></table>
         <section class="sign"><div>Prepared By</div><div>Checked By</div><div>Approved By</div></section>
         <footer class="foot">Generated from FeedTrack &bull; ${new Date().toLocaleString('en-GB')}</footer>

@@ -427,14 +427,6 @@ export type GroupLayerUncheckedUpdateManyWithoutOrganizationNestedInput = {
   deleteMany?: Prisma.GroupLayerScalarWhereInput | Prisma.GroupLayerScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type GroupLayerCreateNestedOneWithoutChildrenInput = {
   create?: Prisma.XOR<Prisma.GroupLayerCreateWithoutChildrenInput, Prisma.GroupLayerUncheckedCreateWithoutChildrenInput>
   connectOrCreate?: Prisma.GroupLayerCreateOrConnectWithoutChildrenInput

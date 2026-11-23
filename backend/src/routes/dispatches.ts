@@ -1,3 +1,4 @@
+import { stockTransaction } from "../services/stockTransaction.js";
 import { randomUUID } from "node:crypto";
 import {
   postStock,
@@ -55,7 +56,7 @@ dispatchesRouter.get("/", async (req, res) => {
         ? { ...lotMap.get(l.lotId), lotNumber: lotMap.get(l.lotId)?.code }
         : null,
       fromBin: l.fromBinId ? binMap.get(l.fromBinId) : null,
-      unitPrice: salesOrder?.lines.find((line) => line.productId === l.productId && line.uomId === l.uomId)?.unitPrice ?? null,
+      unitPrice: l.unitPrice ?? null,
     }));
 
     const totalDispatchedQty = lines.reduce(
@@ -63,7 +64,7 @@ dispatchesRouter.get("/", async (req, res) => {
       0,
     );
 
-    const totalValue = lines.reduce(
+    const totalValue = lines.some(line=>line.unitPrice===null) ? null : lines.reduce(
       (sum, line) => sum + Number(line.quantity) * Number(line.unitPrice ?? 0),
       0,
     );
@@ -83,7 +84,7 @@ dispatchesRouter.get("/", async (req, res) => {
 });
 
 const createDispatchSchema = z.object({
-  requestId: z.string().uuid().optional(),
+  requestId: z.string().uuid(),
   salesOrderId: z.string().uuid(),
   vehicleNo: z.string().min(2),
   lines: z
@@ -104,14 +105,14 @@ dispatchesRouter.post("/", async (req, res) => {
   const parsed = createDispatchSchema.parse(req.body),
     organizationId = req.tenantId!,
     requestKey = parsed.requestId ?? randomUUID();
-  const data = await prisma.$transaction(
+  const data = await stockTransaction(organizationId,"DISPATCH:"+requestKey,parsed,
     async (tx) => {
       await lockDocument(tx, "SalesOrder", parsed.salesOrderId, organizationId);
       const order = await tx.salesOrder.findFirst({
         where: { id: parsed.salesOrderId, organizationId },
       });
       if (!order) throw new StockError("NOT_FOUND", "Order not found.", 404);
-      if (["CANCELLED", "REJECTED", "CLOSED"].includes(order.status))
+      if (!["APPROVED", "PARTIALLY_RECEIVED"].includes(order.status))
         throw new StockError(
           "ORDER_UNAVAILABLE",
           "The order is closed or unavailable.",
@@ -148,6 +149,7 @@ dispatchesRouter.post("/", async (req, res) => {
         .sort((a, b) => a.fromBinId.localeCompare(b.fromBinId));
       for (const item of items) {
         let remaining = new Prisma.Decimal(item.quantity);
+        let shipmentValue=new Prisma.Decimal(0);
         const orderLines = await tx.salesOrderLine.findMany({
           where: { salesOrderId: order.id, productId: item.productId },
           orderBy: { id: "asc" },
@@ -166,6 +168,7 @@ dispatchesRouter.post("/", async (req, res) => {
               line.uomId,
             ),
           );
+          shipmentValue=shipmentValue.plus(amount.mul(line.unitPrice??0));
           await tx.salesOrderLine.update({
             where: { id: line.id },
             data: { dispatchedQty: { increment: amount } },
@@ -185,6 +188,7 @@ dispatchesRouter.post("/", async (req, res) => {
             "ORDER_QUANTITY",
             "Product or quantity exceeds the remaining order requirements.",
           );
+        await tx.dispatchLine.update({where:{id:lineIds[item.index]},data:{unitPrice:shipmentValue.div(item.quantity)}});
         await postStock(tx, {
           organizationId,
           binId: item.fromBinId,
@@ -218,7 +222,7 @@ dispatchesRouter.post("/", async (req, res) => {
             : DocumentStatus.PARTIALLY_RECEIVED,
         },
       });
-      return document;
+      return tx.dispatch.findUniqueOrThrow({where:{id:document.id},include:{lines:true}});
     },
     { timeout: 20000 },
   );

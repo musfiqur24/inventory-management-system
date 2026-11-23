@@ -6,7 +6,7 @@ import { env } from "../config.js";
 
 export const PERMISSIONS = ["departments.read", "departments.write", "weighbridge.submit", "users.manage", "roles.manage", "organizations.manage"] as const;
 type AppOrganization = { id:string; name:string; code:string; permissions:string[]; role:{id:string;code:string;name:string} };
-export type AppUser = { id:string; email:string; fullName:string; avatarUrl:string|null; phone:string|null; presentAddress:string|null; permanentAddress:string|null; permissions:string[]; isSuperAdmin:boolean; organizations:AppOrganization[] };
+export type AppUser = { mfaEnabled:boolean; sessionVersion:number; id:string; email:string; fullName:string; avatarUrl:string|null; phone:string|null; presentAddress:string|null; permanentAddress:string|null; permissions:string[]; isSuperAdmin:boolean; organizations:AppOrganization[] };
 
 declare global { namespace Express { interface Request { auth?:AppUser; tenantId?:string } } }
 
@@ -22,20 +22,24 @@ const rolePermissions:Record<string,string[]>={
 export async function bootstrapRbac(){
   const permissions=await Promise.all(PERMISSIONS.map(key=>prisma.permission.upsert({where:{key},update:{},create:{key,name:key.replace("."," "),description:"System permission"}})));
   for(const [code,keys] of Object.entries(rolePermissions)){
-    const role=await prisma.role.upsert({where:{code},update:{},create:{code,name:code.split("_").map(value=>value[0]+value.slice(1).toLowerCase()).join(" "),isSystem:true}});
-    await prisma.$transaction([
-      prisma.rolePermission.deleteMany({where:{roleId:role.id}}),
-      prisma.rolePermission.createMany({data:permissions.filter(permission=>keys.includes(permission.key)).map(permission=>({roleId:role.id,permissionId:permission.id})),skipDuplicates:true}),
-    ]);
+    await prisma.role.upsert({where:{code},update:{},create:{code,name:code.split("_").map(value=>value[0]+value.slice(1).toLowerCase()).join(" "),isSystem:true,permissions:{create:permissions.filter(permission=>keys.includes(permission.key)).map(permission=>({permissionId:permission.id}))}}});
   }
+  if(await prisma.user.count())return;
   const email=process.env.INITIAL_SUPER_ADMIN_EMAIL?.trim().toLowerCase();
   const password=process.env.INITIAL_SUPER_ADMIN_PASSWORD;
-  if(!email||!password||password.length<6)return;
-  const user=await prisma.user.upsert({where:{email},update:{},create:{email,fullName:"System Super Admin",passwordHash:await bcrypt.hash(password,12)}});
-  const role=await prisma.role.findUniqueOrThrow({where:{code:"SUPER_ADMIN"}});
-  let organizations=await prisma.organization.findMany({where:{isActive:true}});
-  if(!organizations.length)organizations=[await prisma.organization.create({data:{code:"DEFAULT",name:process.env.INITIAL_ORGANIZATION_NAME??"FeedTrack Workspace"}})];
-  await prisma.organizationMember.createMany({data:organizations.map(organization=>({userId:user.id,organizationId:organization.id,roleId:role.id})),skipDuplicates:true});
+  if(!email||!password||password.length<6)throw new Error("Initial administrator credentials are required on an empty database");
+  if(env.SESSION_COOKIE_SECURE&&(password.length<12||password.length>72||Buffer.byteLength(password,'utf8')>72))throw new Error("Initial production administrator password must contain 12 to 72 characters and at most 72 UTF-8 bytes");
+  const passwordHash=await bcrypt.hash(password,12);
+  await prisma.$transaction(async tx=>{
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(831142,2)`;
+    if(await tx.user.count())return;
+    const user=await tx.user.create({data:{email,fullName:"System Super Admin",passwordHash}});
+    const role=await tx.role.findUniqueOrThrow({where:{code:"SUPER_ADMIN"}});
+    let organizations=await tx.organization.findMany({where:{isActive:true}});
+    if(!organizations.length)organizations=[await tx.organization.create({data:{code:"DEFAULT",name:process.env.INITIAL_ORGANIZATION_NAME??"FeedTrack Workspace"}})];
+    await tx.organizationMember.createMany({data:organizations.map(organization=>({userId:user.id,organizationId:organization.id,roleId:role.id})),skipDuplicates:true});
+    await tx.auditEvent.create({data:{actorId:user.id,action:'INITIAL_ADMIN_ENROLLMENT',details:{status:'completed'}}});
+  });
 }
 
 export async function getAppUser(userId:string):Promise<AppUser|null>{
@@ -50,10 +54,10 @@ export async function getAppUser(userId:string):Promise<AppUser|null>{
     if(membership.role.code==="SUPER_ADMIN")isSuperAdmin=true;
     return {id:membership.organization.id,name:membership.organization.name,code:membership.organization.code,permissions:[...membershipPermissions],role:{id:membership.role.id,code:membership.role.code,name:membership.role.name}};
   });
-  return {id:user.id,email:user.email,fullName:user.fullName,avatarUrl:user.avatarUrl,phone:user.phone,presentAddress:user.presentAddress,permanentAddress:user.permanentAddress,permissions:[...permissions],isSuperAdmin,organizations};
+  return {mfaEnabled:user.mfaEnabled,sessionVersion:user.sessionVersion,id:user.id,email:user.email,fullName:user.fullName,avatarUrl:user.avatarUrl,phone:user.phone,presentAddress:user.presentAddress,permanentAddress:user.permanentAddress,permissions:[...permissions],isSuperAdmin,organizations};
 }
 
-export function signAccessToken(user:AppUser){return jwt.sign({sub:user.id},env.JWT_SECRET,{expiresIn:env.ACCESS_TOKEN_TTL as jwt.SignOptions["expiresIn"]});}
+export function signAccessToken(user:AppUser){return jwt.sign({sub:user.id,ver:user.sessionVersion},env.JWT_SECRET,{expiresIn:env.ACCESS_TOKEN_TTL as jwt.SignOptions["expiresIn"]});}
 
 export const authenticate:RequestHandler=async(req,res,next)=>{
   const token=req.header("authorization")?.replace(/^Bearer\s+/i,"");
@@ -61,10 +65,11 @@ export const authenticate:RequestHandler=async(req,res,next)=>{
   try{
     const payload=jwt.verify(token,env.JWT_SECRET) as jwt.JwtPayload;
     const user=payload.sub?await getAppUser(String(payload.sub)):null;
-    if(!user)return res.status(401).json({error:{code:"INVALID_SESSION",message:"Session is no longer valid"}});
+    if(!user||payload.ver!==user.sessionVersion)return res.status(401).json({error:{code:"INVALID_SESSION",message:"Session is no longer valid"}});
+    if(env.REQUIRE_ADMIN_MFA&&!user.mfaEnabled&&!req.originalUrl.startsWith("/api/v1/auth/")&&!["GET","HEAD","OPTIONS"].includes(req.method)&&(user.isSuperAdmin||user.organizations.some(o=>["ADMIN","MANAGER"].includes(o.role.code))))return res.status(403).json({error:{code:"MFA_SETUP_REQUIRED",message:"Enable two-factor authentication in My Profile before making privileged changes."}});
     req.auth=user;
     return next();
-  }catch{return res.status(401).json({error:{code:"INVALID_TOKEN",message:"Invalid or expired token"}});}
+  }catch(error){if(error instanceof jwt.JsonWebTokenError)return res.status(401).json({error:{code:"INVALID_TOKEN",message:"Invalid or expired token"}});return next(error);}
 };
 
 export const tenant:RequestHandler=async(req,res,next)=>{

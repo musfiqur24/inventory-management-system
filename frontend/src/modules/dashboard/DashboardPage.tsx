@@ -1,5 +1,5 @@
 import { twMerge } from 'tailwind-merge';
-import { useToastMessage } from "../../components/ui/Toast";
+import { useToastMessage } from "../../components/ui/ToastMessages";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
 import { Card } from '../../components/ui/Card';
 import { useEffect, useState } from 'react';
@@ -24,31 +24,15 @@ export function DashboardPage() {
   useEffect(() => {
     if (!selectedOrg()) {
       setMessage('Please select an organisation to view the dashboard.');
-      setLoading(false);
+      queueMicrotask(()=>setLoading(false));
       return;
     }
-    Promise.all([
-      api<{ data: any[] }>('/products'),
-      api<{ data: any[] }>('/purchase-requisitions'),
-      api<{ data: any[] }>('/deliveries'),
-      api<{ data: any[] }>('/batches'),
-      api<{ data: any[] }>('/dispatches'),
-      api<{ data: any[] }>('/inventory/movements'),
-    ])
-      .then(([products, reqs, deliveries, batches, dispatches, movements]) => {
-        const lowStock = products.data.filter((p) => p.isBelowReorder);
-        setStats({
-          pendingRequisitions: reqs.data.filter((r) => r.status === 'PENDING' || r.status === 'AWAITING_DELIVERY').length,
-          pendingDeliveries: deliveries.data.filter((d) => d.status === 'SUBMITTED').length,
-          activeBatches: batches.data.filter((b) => b.status === 'DRAFT' || b.status === 'SUBMITTED').length,
-          pendingDispatches: dispatches.data.filter((d) => d.status === 'SUBMITTED').length,
-          lowStockCount: lowStock.length,
-          movements: movements.data.slice(0, 8),
-        });
-      })
+    let active=true;
+    api<{data:DashboardStats}>('/dashboard').then(result=>{if(active)setStats(result.data);})
       .catch((e) => setMessage(e.message))
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {if(active)setLoading(false);});
+    return()=>{active=false;};
+  }, [setMessage]);
 
   const statCards = stats
     ? [

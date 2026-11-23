@@ -1,4 +1,7 @@
-import { SessionSkeleton, useMinimumLoading } from "./components/ui/Skeleton";
+import { PageSkeleton } from "./components/ui/Skeleton";
+import { useMinimumLoading } from "./shared/hooks/useMinimumLoading";
+const ResetPasswordPage=lazy(()=>import("./modules/auth/ResetPasswordPage").then(module=>({default:module.ResetPasswordPage})));
+import { SessionSkeleton} from "./components/ui/Skeleton";
 import { NotificationBell } from "./components/layout/NotificationBell";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
@@ -6,38 +9,38 @@ import {
   PackageCheck, Scale, ShoppingCart, Truck, Warehouse, LayoutDashboard,
   GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut, BadgeDollarSign, ReceiptText
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { selectedOrgName, ensureOrgDetails } from './shared/api/http';
 import { MobileMenuButton, Sidebar } from './components/layout/Sidebar';
 import { AppToaster } from './components/ui/Toast';
 
 // Pages
-import { OrganizationPage } from './modules/platform/organizations/OrganizationPage';
-import { UnitsOfMeasurePage } from './modules/set-up/units-of-measure/UnitsOfMeasurePage';
-import { ProductHierarchyPage } from './modules/set-up/product-hierarchy/ProductHierarchyPage';
-import { CurrenciesPage } from './modules/set-up/currencies/CurrenciesPage';
-import { PartnersPage } from './modules/set-up/partners/PartnersPage';
-import { StoresPage } from './modules/inventory/stores/StoresPage';
-import { SalesOrdersPage } from './modules/sales/sales-orders/SalesOrdersPage';
-import { RmRequisitionsPage } from './modules/procurement/rm-requisitions/RmRequisitionsPage';
-import { SupplierChallansPage } from './modules/procurement/supplier-challans/SupplierChallansPage';
-import { WeighbridgePage } from './modules/procurement/weighbridge/WeighbridgePage';
-import { RmStorePage } from './modules/inventory/rm-store/RmStorePage';
-import { RecipesPage } from './modules/production/recipes/RecipesPage';
-import { ProductionOrdersPage } from './modules/production/fm-requisitions/ProductionOrdersPage';
-import { MaterialIssuesPage } from './modules/production/material-issues/MaterialIssuesPage';
-import { ProductionBatchesPage } from './modules/production/batches/ProductionBatchesPage';
-import { FmStorePage } from './modules/inventory/fm-store/FmStorePage';
-import { DispatchesPage } from './modules/sales/dispatches/DispatchesPage';
-import { InvoicesPage } from './modules/sales/invoices/InvoicesPage';
-import { TraceabilityPage } from './modules/traceability/TraceabilityPage';
-import { DashboardPage } from './modules/dashboard/DashboardPage';
+const OrganizationPage=lazy(()=>import('./modules/platform/organizations/OrganizationPage').then(module=>({default:module.OrganizationPage})));
+const UnitsOfMeasurePage=lazy(()=>import('./modules/set-up/units-of-measure/UnitsOfMeasurePage').then(module=>({default:module.UnitsOfMeasurePage})));
+const ProductHierarchyPage=lazy(()=>import('./modules/set-up/product-hierarchy/ProductHierarchyPage').then(module=>({default:module.ProductHierarchyPage})));
+const CurrenciesPage=lazy(()=>import('./modules/set-up/currencies/CurrenciesPage').then(module=>({default:module.CurrenciesPage})));
+const PartnersPage=lazy(()=>import('./modules/set-up/partners/PartnersPage').then(module=>({default:module.PartnersPage})));
+const StoresPage=lazy(()=>import('./modules/inventory/stores/StoresPage').then(module=>({default:module.StoresPage})));
+const SalesOrdersPage=lazy(()=>import('./modules/sales/sales-orders/SalesOrdersPage').then(module=>({default:module.SalesOrdersPage})));
+const RmRequisitionsPage=lazy(()=>import('./modules/procurement/rm-requisitions/RmRequisitionsPage').then(module=>({default:module.RmRequisitionsPage})));
+const SupplierChallansPage=lazy(()=>import('./modules/procurement/supplier-challans/SupplierChallansPage').then(module=>({default:module.SupplierChallansPage})));
+const WeighbridgePage=lazy(()=>import('./modules/procurement/weighbridge/WeighbridgePage').then(module=>({default:module.WeighbridgePage})));
+const RmStorePage=lazy(()=>import('./modules/inventory/rm-store/RmStorePage').then(module=>({default:module.RmStorePage})));
+const RecipesPage=lazy(()=>import('./modules/production/recipes/RecipesPage').then(module=>({default:module.RecipesPage})));
+const ProductionOrdersPage=lazy(()=>import('./modules/production/fm-requisitions/ProductionOrdersPage').then(module=>({default:module.ProductionOrdersPage})));
+const MaterialIssuesPage=lazy(()=>import('./modules/production/material-issues/MaterialIssuesPage').then(module=>({default:module.MaterialIssuesPage})));
+const ProductionBatchesPage=lazy(()=>import('./modules/production/batches/ProductionBatchesPage').then(module=>({default:module.ProductionBatchesPage})));
+const FmStorePage=lazy(()=>import('./modules/inventory/fm-store/FmStorePage').then(module=>({default:module.FmStorePage})));
+const DispatchesPage=lazy(()=>import('./modules/sales/dispatches/DispatchesPage').then(module=>({default:module.DispatchesPage})));
+const InvoicesPage=lazy(()=>import('./modules/sales/invoices/InvoicesPage').then(module=>({default:module.InvoicesPage})));
+const TraceabilityPage=lazy(()=>import('./modules/traceability/TraceabilityPage').then(module=>({default:module.TraceabilityPage})));
+const DashboardPage=lazy(()=>import('./modules/dashboard/DashboardPage').then(module=>({default:module.DashboardPage})));
 import { AuthProvider, useAuth } from './modules/auth/AuthContext';
-import { LoginPage } from './modules/auth/LoginPage';
-import { UserManagementPage } from './modules/users/UserManagementPage';
-import { ProfilePage } from './modules/auth/ProfilePage';
-import { ProfitLossPage } from './modules/reports/ProfitLossPage';
+const LoginPage=lazy(()=>import('./modules/auth/LoginPage').then(module=>({default:module.LoginPage})));
+const UserManagementPage=lazy(()=>import('./modules/users/UserManagementPage').then(module=>({default:module.UserManagementPage})));
+const ProfilePage=lazy(()=>import('./modules/auth/ProfilePage').then(module=>({default:module.ProfilePage})));
+const ProfitLossPage=lazy(()=>import('./modules/reports/ProfitLossPage').then(module=>({default:module.ProfitLossPage})));
 
 const NAV_GROUPS = [
   {
@@ -86,7 +89,7 @@ const NAV_GROUPS = [
   {
     label: 'Reports',
     items: [
-      { path: '/profit-loss', label: 'Profit & Loss', icon: BadgeDollarSign },
+      { path: '/profit-loss', label: 'Estimated Batch Margin', icon: BadgeDollarSign },
       { path: '/traceability', label: 'Traceability', icon: GitBranch },
     ],
   },
@@ -162,7 +165,7 @@ function Shell() {
           </div>
         </header>
 
-        <Routes key={orgRevision}>
+        <Suspense fallback={<PageSkeleton/>}><Routes key={orgRevision}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/organizations" element={can("organizations.manage") ? <OrganizationPage /> : <Navigate to="/" replace />} />
           <Route path="/uoms" element={<UnitsOfMeasurePage />} />
@@ -188,7 +191,7 @@ function Shell() {
           <Route path="/profit-loss" element={<ProfitLossPage />} />
           <Route path="/users" element={can("users.manage") ? <UserManagementPage /> : <Navigate to="/" replace />} />
           <Route path="/profile" element={<ProfilePage />} />
-        </Routes>
+        </Routes></Suspense>
       </main>
       </div>
     </>
@@ -197,6 +200,6 @@ function Shell() {
 
 export default function App() {
   return (
-    <BrowserRouter><AppToaster /><AuthProvider><Routes><Route path="/login" element={<LoginPage />} /><Route path="/*" element={<Shell />} /></Routes></AuthProvider></BrowserRouter>
+    <BrowserRouter><AppToaster /><AuthProvider><Suspense fallback={<SessionSkeleton/>}><Routes><Route path="/login" element={<LoginPage />} /><Route path="/reset-password" element={<ResetPasswordPage />} /><Route path="/*" element={<Shell />} /></Routes></Suspense></AuthProvider></BrowserRouter>
   );
 }

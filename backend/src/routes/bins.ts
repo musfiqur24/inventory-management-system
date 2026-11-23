@@ -105,6 +105,8 @@ binsRouter.put("/:id", async (req, res) => {
 binsRouter.delete("/:id", async (req, res) => {
   const where = { id: String(req.params.id), organizationId: req.tenantId! };
   const result = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${where.organizationId} FOR UPDATE`;
+    await tx.$queryRaw`SELECT id FROM "Bin" WHERE id=${where.id} FOR UPDATE`;
     const bin = await tx.bin.findFirst({ where });
     if (!bin) return "not-found";
     const stockCount = await tx.inventoryBalance.count({

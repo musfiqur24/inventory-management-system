@@ -9,6 +9,8 @@ async function release(before: number, quantity: number, factor = 1, otherBin = 
   const store = { id: 'store', storeType: fm ? 'FM_STORE' : 'RM_STORE', isActive: true, name: 'Main RM' };
   const tx: any = {
     $queryRaw: async () => [],
+    auditEvent:{create:async()=>({})},
+    reorderState:{findUnique:async()=>({low:(before+otherBin)*factor<20}),upsert:async()=>({})},
     bin: { findFirst: async () => ({ id: 'bin', storeId: 'store', isActive: true, store }) },
     product: { findFirst: async () => ({ id: 'product', type: fm ? 'FINISHED_GOOD' : 'RAW_MATERIAL', baseUomId: 'unit', name: 'Corn', sku: 'CORN' }) },
     lot: { findFirst: async () => ({ qualityStatus: 'RELEASED' }) },

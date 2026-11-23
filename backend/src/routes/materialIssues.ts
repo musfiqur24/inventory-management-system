@@ -1,3 +1,5 @@
+import { stockTransaction } from "../services/stockTransaction.js";
+import { nextDocumentNumber } from "../services/documentNumbers.js";
 import { randomUUID } from "node:crypto";
 import {
   postStock,
@@ -78,7 +80,7 @@ materialIssuesRouter.get("/", async (req, res) => {
 });
 
 const createIssueSchema = z.object({
-  requestId: z.string().uuid().optional(),
+  requestId: z.string().uuid(),
   productionOrderId: z.string().uuid().optional(),
   requisitionId: z.string().uuid().optional(),
   fromSiteId: z.string().uuid().optional(),
@@ -101,27 +103,20 @@ materialIssuesRouter.post("/", async (req, res) => {
   const parsed = createIssueSchema.parse(req.body),
     organizationId = req.tenantId!,
     requestKey = parsed.requestId ?? randomUUID();
-  const data = await prisma.$transaction(
+  const data = await stockTransaction(organizationId,"ISSUE:"+requestKey,parsed,
     async (tx) => {
       const orders = await tx.productionOrder.findMany({
         where: parsed.requisitionId
-          ? { requisitionId: parsed.requisitionId, organizationId }
+          ? { requisitionId: parsed.requisitionId, organizationId, status:{notIn:["REJECTED","CANCELLED"]} }
           : { id: parsed.productionOrderId, organizationId },
         orderBy: { number: "asc" },
       });
       if (!orders.length) throw new StockError("NOT_FOUND", "Production requisition not found.", 404);
       for (const currentOrder of orders) {
         await lockDocument(tx, "ProductionOrder", currentOrder.id, organizationId);
-        if (["IN_PRODUCTION", "READY", "COMPLETED"].includes(currentOrder.status))
-          throw new StockError(
-            "RM_ISSUE_ALREADY_STARTED",
-            currentOrder.status === "IN_PRODUCTION"
-              ? "Raw materials cannot be issued because this FM requisition is already In Production."
-              : "Raw materials cannot be issued because the linked batch is already Ready or Completed.",
-            422,
-          );
-        if (["CANCELLED", "REJECTED", "CLOSED"].includes(currentOrder.status))
-          throw new StockError("ORDER_UNAVAILABLE", "The requisition contains a closed or unavailable product.");
+        const locked=await tx.productionOrder.findFirstOrThrow({where:{id:currentOrder.id,organizationId}});
+        if (!["APPROVED","IN_PRODUCTION"].includes(locked.status)) throw new StockError("ORDER_UNAVAILABLE","Only approved, unfinished production orders can receive materials.");
+
       }
       const order = orders[0];
       const requisition = order.requisitionId
@@ -131,10 +126,7 @@ materialIssuesRouter.post("/", async (req, res) => {
       const now = new Date();
       const datePart = String(now.getFullYear()) + String(now.getDate()).padStart(2, "0") + String(now.getMonth() + 1).padStart(2, "0");
       const numberPrefix = "RMD_" + datePart + "_";
-      const dailyDispatchCount = await tx.materialIssue.count({
-        where: { organizationId, number: { startsWith: numberPrefix } },
-      });
-      const number = numberPrefix + String(dailyDispatchCount + 1).padStart(4, "0");
+      const number=await nextDocumentNumber(tx,organizationId,"MaterialIssue",numberPrefix);
       const lineIds = parsed.lines.map(() => randomUUID());
       const document = await tx.materialIssue.create({
         data: {
@@ -224,14 +216,14 @@ materialIssuesRouter.post("/", async (req, res) => {
       }
 
       const existingBatch = await tx.productionBatch.findFirst({
-        where: { organizationId, productionOrderId: { in: orderIds } },
+        where: { organizationId, productionOrderId: { in: orderIds }, status: {not: "CANCELLED"} },
       });
       if (!existingBatch) {
-        const batchCount = await tx.productionBatch.count({ where: { organizationId } });
+        const batchNumber=await nextDocumentNumber(tx,organizationId,"ProductionBatch",`BATCH-${new Date().getFullYear()}-`);
         await tx.productionBatch.create({
           data: {
             organizationId,
-            number: "BATCH-" + new Date().getFullYear() + "-" + String(batchCount + 1).padStart(4, "0"),
+            number: batchNumber,
             productionOrderId: order.id,
             status: DocumentStatus.IN_PRODUCTION,
           },

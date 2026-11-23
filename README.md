@@ -8,12 +8,14 @@ Use components from `frontend/src/components/ui` for every reusable UI pattern.
 - Add a component when a UI pattern appears in more than one page.
 - Keep pages focused on data loading and composition; keep shared visual behavior in UI components.
 
+Tailwind is compiled through the Vite plugin using `virtual:tailwind.css`. Keep dynamic utility classes as complete strings in `frontend/src/shared/styles/variants.ts`. Print reports reuse the compiled application stylesheet.
+
 ## Toast notifications
 
-Transient success, error, validation, and information messages must use the shared `appToast` service from `frontend/src/components/ui/Toast.tsx`. The application mounts `AppToaster` once in `App.tsx` and displays notifications at the top-right of the viewport. Do not render transient messages through `PageContainer.notice`, manual alert divs, or page-local fixed-position markup.
+Transient success, error, validation, and information messages must use the shared `appToast` service from `frontend/src/components/ui/ToastMessages.tsx`. The application mounts `AppToaster` once in `App.tsx` and displays notifications at the top-right of the viewport. Do not render transient messages through `PageContainer.notice`, manual alert divs, or page-local fixed-position markup.
 
 ```tsx
-import { appToast } from "../../components/ui/Toast";
+import { appToast } from "../../components/ui/ToastMessages";
 
 appToast.success("Saved successfully.");
 appToast.error("Unable to save the record.");
@@ -52,242 +54,224 @@ docker compose up -d --build
 - Preserve semantic labels, dialog titles, accessible icon-button names, reduced-motion preferences, and the application skip link.
 - Keep table headers neutral and square as part of the current Feed Track visual language.
 
-## Local Docker setup
+## Local development
 
-`docker-compose.yml` runs the frontend at http://localhost:5173 and connects the
-backend to your existing host PostgreSQL database. It does not create another
-local database. PostgreSQL must be reachable from Docker. Defaults match the
-previous local database URL (`postgres`, password `1234`, database `inventory`).
-
-```bash
-docker compose -f docker-compose.yml up -d --build
-```
-
-For different credentials, copy `.env.local.example` to `.env.local`, edit it,
-and run:
+Use Node 22 and PostgreSQL 17. Install with npm ci in backend and frontend.
+The local Compose file connects to your existing host PostgreSQL database using
+host.docker.internal. It keeps the previous local account and database defaults.
+For other settings copy .env.local.example to .env.local.
 
 ```bash
 docker compose --env-file .env.local -f docker-compose.yml up -d --build
 ```
 
-The default local bootstrap account is `musfiqur.utsho@gmail.com` with password
-`123456`. Set `LOCAL_SUPER_ADMIN_EMAIL` to your existing admin email
-if you want to reuse that account. Existing account passwords are not reset.
+Omit --env-file if using defaults. A separate migrate service now applies tracked
+migrations before the API starts. Production never uses prisma db push.
+Existing databases are adopted only when they match prisma/baseline.prisma.
+Unexpected drift stops migration and requires review; no reset is performed.
+The bootstrap admin is created only on an empty database. Changing bootstrap
+settings does not change an existing account or restore removed memberships.
 
-## Fresh Ubuntu server deployment (public IP, no domain)
+## Production rollout on the Ubuntu server
 
-Use `docker-compose.production.yml` by itself. Caddy publishes HTTP on port 80 and HTTPS on port 443.
-The frontend, API, and PostgreSQL are internal Docker services. The Compose project is `inventory-production`
-with database volume `inventory-production_inventory_pg`.
+Use docker-compose.production.yml alone. The project remains inventory-production
+and preserves inventory-production_inventory_pg and the Caddy volumes. PostgreSQL
+and the API have no published host ports. Caddy exposes 80/443 with internal HTTPS
+for SERVER_IP; a domain is optional. Each client must trust this Caddy root CA.
 
-After installing Docker Engine and the Compose plugin, upload the latest project
-source to the server and run from the project root:
+Production Compose separates the internal database network from the application
+network: only the API and migration job can reach PostgreSQL. The API retains
+outbound access for email delivery. Caddy waits for API and frontend health;
+frontend health checks verify that Nginx can serve the built index.html. Runtime
+services use unless-stopped; the migration job exits without restarting. An
+unhealthy status alone does not restart a container: alert on failed readiness
+and investigate before restarting. API and database shutdown allow 30 seconds.
 
-```bash
-cp .env.production.example .env.production
-chmod 600 .env.production
-nano .env.production
-```
+Keep the production env file outside the checkout with directory mode 700 and
+file mode 600, as shown below. Compose injects only the listed variables into
+each service; its --env-file option supplies interpolation values. These values
+remain accessible to Docker administrators and container inspection. Do not
+publish resolved Compose configuration, copy secrets into images, or put secrets
+in VITE_* variables (they become public browser code). Use separate random hex
+passwords for the database owner and application role; arbitrary URL-reserved
+characters require encoding in DATABASE_URL. Changing POSTGRES_PASSWORD does
+not rotate an existing database password: coordinate SQL role changes and env
+updates during a maintenance window. Preserve MFA_ENCRYPTION_KEY across releases.
 
-Fill every blank value. `SERVER_IP` is the server's IPv4 address without a
-protocol or port; a private LAN/VPN address such as `10.10.252.50` works. Generate `POSTGRES_PASSWORD` with `openssl rand -hex 24` and
-`JWT_SECRET` with a separate `openssl rand -hex 32` command. Use a valid email
-and a long password for `INITIAL_SUPER_ADMIN_EMAIL` and
-`INITIAL_SUPER_ADMIN_PASSWORD` (minimum 6 characters). Single-quote passwords
-containing `$` or `#` in the env file.
+This configuration serves an IP address using a private Caddy CA. For public
+browser access, configure a DNS hostname, publicly trusted TLS, matching
+WEB_ORIGIN/PASSWORD_RESET_URL values, and update the IP-specific deployment
+verification scripts together. Restrict ingress with the host/cloud firewall;
+only Caddy publishes ports. Local Compose binds port 5173 to loopback and uses
+development credentials and insecure cookies; use the production file alone on
+the server.
 
-```bash
-sudo docker compose --env-file .env.production -f docker-compose.production.yml config --quiet
-sudo docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
-sudo docker compose --env-file .env.production -f docker-compose.production.yml ps
-sudo docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=100 backend
-```
+Before the first upgrade, retain an independent database backup and a copy of
+Caddy data and the external env file. Rehearse the upgrade against a restored
+copy of actual data. The automatic baseline checks the schema, not the quality
+of every historic business record; new constraints can reject inconsistent data.
+Schedule the first upgrade while business writes are paused.
 
-Allow inbound TCP ports 80 and 443 in the hosting provider's firewall. If UFW is
-enabled, allow your SSH port before changing firewall rules, then allow `80/tcp`
-and `443/tcp`. Open `https://YOUR_SERVER_IP` and sign in with the configured
-initial Super Admin email and password. HTTP redirects to HTTPS. Install the
-Caddy root certificate on client devices using the instructions below first.
-
-On first startup, PostgreSQL creates an empty `inventory` database; the backend
-runs `prisma db push` to create application tables, then bootstraps permissions,
-roles, the initial workspace, and its Super Admin. No products, stock, or
-transactions are imported from your local database. Subsequent startups preserve
-data and do not reset the existing Super Admin password. Changing the bootstrap
-password in the env file does not change an existing user's password.
-
-PostgreSQL initialization settings apply when the volume is empty. Keep the same
-database credentials on later deployments unless you deliberately change the
-password inside PostgreSQL too. Changing `.env.production` alone will not change
-an existing database password.
-
-Deploy later code updates with the same `up -d --build` command. Startup applies
-schema changes through `prisma db push`; take a database backup before updates.
-Do not add `--accept-data-loss` to bypass a failed schema update. Ordinary
-`docker compose ... down` preserves the database; **never use `down -v` to update
-this deployment**, as it deletes the database volume.
-
-Production secrets belong only in `.env.production`, which is ignored by Git.
-Docker Compose requires the production values to be present before starting:
-https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/
-
-## Automatic deployment from GitHub main
-
-The workflow in `.github/workflows/deploy.yml` runs on pushes to `main` and can
-also be started manually from GitHub Actions. It installs dependencies, generates
-Prisma, builds both apps, runs the reorder tests, and validates both Docker
-builds on a GitHub-hosted runner. Deployment runs only after those checks pass,
-on a Linux self-hosted runner labeled `inventory-production` on your server.
-Concurrent deployments are serialized; a running deployment is not cancelled.
-
-A self-hosted runner works with the private server address `10.10.252.50`; the
-server initiates outbound HTTPS connections to GitHub. GitHub does not need
-inbound SSH access. The server needs outbound access to GitHub, npm, Docker Hub,
-and the operating-system package repositories used by the Docker builds.
-
-### One-time server setup as musfiq
-
-Confirm `docker ps` works without sudo, and install the deployment utilities:
+As musfiq on the server, from the project folder:
 
 ```bash
-sudo apt install -y git curl util-linux
 mkdir -p ~/.config/inventory
 chmod 700 ~/.config/inventory
-cp ~/inventory-management-system/.env.production ~/.config/inventory/.env.production
+# On a NEW server only, copy the template; preserve an existing server env file.
+cp .env.production.example ~/.config/inventory/.env.production
 chmod 600 ~/.config/inventory/.env.production
+nano ~/.config/inventory/.env.production
+bash scripts/prepare-production-env.sh
+bash scripts/deploy-production.sh
 ```
 
-This copies your existing production settings; it does not generate new database
-credentials. The external file is required because Actions cleans its checkout
-folder. The deployment keeps the Compose project name `inventory-production`,
-so it reuses your existing database volume. It does not use the local Compose
-file or import the local database.
+For an existing deployment, skip the template copy and edit the existing
+~/.config/inventory/.env.production. Set SERVER_IP, POSTGRES_PASSWORD, JWT_SECRET,
+INITIAL_SUPER_ADMIN_EMAIL and a strong initial password (12-72 characters).
+Generate JWT_SECRET with openssl rand -hex 32. The preparation script generates
+APP_DB_PASSWORD and MFA_ENCRYPTION_KEY if absent, without displaying them or
+changing existing PostgreSQL/JWT credentials. Keep the MFA key stable: rotating
+it without re-enrolling users makes existing authenticator secrets unreadable.
 
-In the GitHub repository, go to **Settings > Actions > Runners > New self-hosted
-runner**, select Linux and your server architecture. Follow GitHub's displayed
-download and registration commands as `musfiq` in `~/actions-runner` (outside
-your project folder). During registration, add the custom label
-`inventory-production`. Use the current commands and temporary registration
-token shown by GitHub; do not commit the token.
+The migration container has schema privileges; the API uses inventory_app and
+cannot alter tables. Deployment builds locally for manual runs, or pulls the five
+CI-tested image digests. It requires a successful pg_dump before replacing an existing database container
+or running migrations,
+recreates application containers, and verifies readiness and the SPA using the
+actual Caddy root CA. A failure stops rollout and records failed-revision in
+~/.local/state/inventory-deploy. No automatic database restore is attempted.
+Do not delete database or Caddy volumes during an upgrade.
 
-After registration, install the runner as a system service:
+Sign in, open My Profile, change any previously exposed password and set up
+Two-factor authentication. Save the one-use recovery codes offline. Production
+administrators/managers must enroll before privileged business writes.
+
+Optional password recovery requires RESEND_API_KEY and a provider-authorized
+MAIL_FROM address in the external env file. The app's HTTPS IP address is the
+reset-link destination. Tokens are carried in a browser URL fragment; frontend
+access logs omit query strings. Delivery uses an encrypted durable outbox with retries;
+without a provider the API explicitly reports recovery unavailable. Verify a real
+email/reset flow after configuration. Provider failures appear in API logs.
+
+## GitHub CI/CD and GHCR
+
+The workflow tests main pushes and pull requests on GitHub-hosted runners.
+Only main pushes/manual runs publish backend, frontend, migration, Caddy and
+PostgreSQL images to
+GHCR and deploy exact sha256 references. Environment files are excluded from
+image build contexts. Publication was explicitly authorized for this project.
+
+1. Protect main: require review and the Build, secure and test check. Restrict who
+   may modify workflows and deployment scripts.
+2. Create the production GitHub Environment and restrict deployments to main.
+   Configure required reviewers if your release policy requires them.
+3. Under Settings > Actions > Runners, add the custom label inventory-production
+   to the existing inventory runner. Its service must run as musfiq with Docker
+   access. Only trusted deployment workflows should target this runner.
+4. Check Actions/package policies permit GHCR writes. GITHUB_TOKEN publishes and
+   downloads packages; a PAT is unnecessary when packages are linked to this repo
+   and grant it Actions access. Keep package visibility consistent with code policy.
+5. Keep the env file outside the runner checkout at the location above. Push the
+   reviewed changes to main, then inspect the Actions run and deployment health.
+
+CI enforces dependency audits, zero-warning frontend lint, TypeScript builds,
+stock tests, real PostgreSQL security/concurrency tests, schema adoption/drift
+checks, dump restoration/reconciliation, deployment failure tests, real Caddy
+HTTPS and a production-image smoke test. Trivy blocks fixable HIGH/CRITICAL
+image vulnerabilities across all five images. Caddy is built with locked patched
+Go dependencies. PostgreSQL stays on version 17 with updated OS packages and
+Alpine su-exec for dropping privileges; the obsolete bundled Go helper is removed.
+Dependabot proposes dependency, Go module, image and action updates.
+
+This repository cannot itself enforce GitHub account settings or isolate a
+compromised Docker-capable production runner. Keep untrusted PR workflows on
+hosted runners; review repository-wide workflows and runner access before use.
+
+## Backups, restore rehearsal and monitoring
+
+Deployment dumps are local safety copies, not offsite disaster recovery. Configure
+an independent backup machine and an age public recipient before enabling daily
+backups. Keep its private key offline on another machine. Install age and rsync
+on the server, configure SSH access to the destination, then:
 
 ```bash
-cd ~/actions-runner
-sudo ./svc.sh install musfiq
-sudo ./svc.sh start
-sudo ./svc.sh status
+bash scripts/install-backup-timer.sh
+nano ~/.config/inventory/backup.env
+sudo loginctl enable-linger musfiq
+systemctl --user enable --now inventory-backup.timer
+systemctl --user start inventory-backup.service
+journalctl --user -u inventory-backup.service
 ```
 
-The runner should appear **Idle** in GitHub. It runs as `musfiq`, which must be
-in the Docker group. No SSH key or production environment secret needs to be
-uploaded to GitHub for this configuration.
+The encrypted archive contains a PostgreSQL dump, Caddy CA/config data and the
+production env file. A SHA-256 manifest is uploaded with it; encrypted local
+copies retain 30 days. Configure remote retention independently and verify the
+remote checksum. Agree on recovery point/time targets with the business; the
+default daily schedule permits up to a day's data loss. Use WAL/PITR if that is
+unacceptable.
 
-Commit and push the workflow and deployment script to `main`. Open the repository's
-**Actions** tab to follow the build and deployment. Subsequent pushes to `main`
-automatically update the server. Manual runs deploy only when `main` is selected.
-Use the same external environment file for any manual Compose operations:
+On an isolated recovery/test machine with Docker and age, validate a downloaded
+archive using this repository:
 
 ```bash
-docker compose --env-file "$HOME/.config/inventory/.env.production" -f docker-compose.production.yml ps
+bash scripts/restore-check.sh /path/to/backup.tar.gz.age /path/to/offline-age-key
 ```
 
-### Data protection and troubleshooting
+The script restores into a disposable PostgreSQL container and fails on balance,
+ledger or reservation inconsistency. It never targets production. A full recovery
+also needs restoring Caddy data/env securely and verifying user access, business
+totals and HTTPS trust on a clean server. Rehearse and record the elapsed time.
 
-`scripts/deploy-production.sh` builds before replacing the app containers, starts
-or checks PostgreSQL, and requires a successful custom-format `pg_dump` before
-the new backend can synchronize the schema. Backups are private files under
-`~/.local/state/inventory-deploy/backups/`; copy important backups off the server
-and manage retention as they accumulate. Backups include user and inventory data.
+Configure an external monitor to check /api/v1/ready over verified HTTPS. Liveness
+is /api/v1/health. The administrator operations API exposes /operations/metrics,
+/operations/audit (cursor pagination), and /operations/reconciliation. Wire
+scripts/check-production-health.sh to your monitoring system with
+INVENTORY_READY_URL=https://YOUR_SERVER_IP/api/v1/ready; it checks backup freshness
+and disk usage. Alert routing and central log storage require operator setup.
 
-The deployment preserves the database volume and recreates both app containers
-so Nginx resolves the replacement backend. It waits for container health and
-checks the HTTPS API health endpoint and frontend through Caddy with explicit
-CA verification before reporting success. It never runs
-`down -v`, prunes volumes, or passes `--accept-data-loss` to Prisma. Schema
-synchronization can still require downtime or fail on incompatible changes.
-Failures are reported in Actions; automatic rollback and automatic database
-restore are not implemented. If a deployment fails after replacing containers,
-inspect the backend logs using the external env file above.
+## Rollback and credential rotation
 
-Edit `~/.config/inventory/.env.production` for future environment changes; the
-original file in the manual clone is no longer used by CI/CD. Changing database
-or bootstrap passwords still follows the existing-database rules described above.
-
-Use this production runner only with trusted repository collaborators. GitHub
-recommends self-hosted runners for private repositories; do not run untrusted pull
-request workflows on this server. Protect `main` to control who can deploy.
-
-References:
-- Runner registration: https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners
-- Linux runner service: https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/configure-the-application
-- Runner security: https://docs.github.com/en/actions/reference/security/secure-use
-
-## HTTPS on a private IP with Caddy
-
-Production uses `deploy/Caddyfile` with `tls internal`. Caddy automatically
-issues and renews a certificate for `SERVER_IP`, redirects HTTP to HTTPS, and
-proxies API traffic to the backend and other requests to the frontend. No domain
-or public certificate issuer is required. The local Compose setup stays HTTP.
-
-The volumes `inventory-production_caddy_data` and
-`inventory-production_caddy_config` persist Caddy state. The data volume contains
-the CA private keys: keep it private, preserve it across deployments, and back it
-up securely. Deleting it creates a different CA that clients must trust again.
-Database backups do not include Caddy state. Do not commit certificates or keys.
-
-### Enable the new configuration
-
-Push these changes to main and allow CI/CD to deploy. Keep `SERVER_IP=10.10.252.50`
-in `~/.config/inventory/.env.production`; no scheme is needed. The backend now
-receives an HTTPS origin and reset URL automatically. Permit inbound TCP 443
-from your LAN/VPN clients, and keep port 80 for the HTTPS redirect. Deployment
-has a short interruption while the frontend releases port 80 and Caddy takes it.
-No separate Caddy installation on Ubuntu is needed; Compose runs it in Docker.
-
-To deploy manually instead, update the server clone first and use its production
-Compose file with the existing external env file:
+Release digests are recorded in ~/.local/state/inventory-deploy/deployed-images;
+previous-deployed-images holds the preceding successful release. After reviewing
+schema compatibility, restore application images with:
 
 ```bash
-cd ~/inventory-management-system
-git pull --ff-only
-PRODUCTION_ENV_FILE="$HOME/.config/inventory/.env.production" bash scripts/deploy-production.sh
+ROLLBACK_SCHEMA_COMPATIBLE=yes bash scripts/rollback-production.sh previous
 ```
 
-Do not run manual deployment while Actions is deploying. The shared script takes
-a lock and a database backup. It verifies HTTPS using the Caddy CA, rather than
-using `curl -k` or globally trusting the CA on the server.
+Omit previous to return to the last successful release after a failed rollout.
+This changes application/proxy images only and keeps the running database image.
+A database rollback needs a separate reviewed
+restore plan and can lose writes after the backup. Verify HTTPS/readiness after
+any rollback.
 
-### Export and trust the certificate on Windows
+Rotate credentials exposed in chats/screenshots on the actual server. Changing
+POSTGRES_PASSWORD in env does not change an existing PostgreSQL role password.
+Use psql's interactive password command on the running database first, then
+update the external env file to the same new value and redeploy. Change the
+existing administrator password in My Profile; bootstrap variables do not reset
+it. Rotate JWT_SECRET to revoke old JWTs and clear RefreshToken rows during a
+planned session reset. Preserve MFA_ENCRYPTION_KEY. Review Git history and GitHub
+secret-scanning alerts separately; ignoring env files does not erase old commits.
 
-After deployment, update your manual clone so its Compose file includes Caddy,
-then export only the public root certificate:
+## Inventory behavior and known boundaries
 
-```bash
-cd ~/inventory-management-system
-git pull --ff-only
-docker compose --env-file "$HOME/.config/inventory/.env.production" -f docker-compose.production.yml cp caddy:/data/caddy/pki/authorities/local/root.crt "$HOME/inventory-caddy-root.crt"
-sha256sum "$HOME/inventory-caddy-root.crt"
-```
+RM reorder policy is fixed at strictly below 20 kg per product per RM store,
+based on on-hand weight. Dashboard, product totals and alerts share this policy.
+The first low receipt alerts once; recovery to 20 kg rearms the next drop.
+Product-wise totals are separate from requisition/lot details. Usable availability
+excludes held/expired lots and reservations. Reservations bind to approved demand,
+are consumed on issue/dispatch and are released on explicit cancellation.
 
-On your Windows computer, run in PowerShell (not on Ubuntu):
+Approved recipes, used stock units/product semantics, stock movements and completed
+audit history are protected. History is retained on cancellation. Production
+actuals must reconcile with issued materials; output cannot exceed raw weight.
+Sales require approval before dispatch. Dispatch prices are snapshotted; older
+records without a saved historical price show Price unavailable rather than a
+fabricated amount.
 
-```powershell
-scp musfiq@10.10.252.50:~/inventory-caddy-root.crt .
-Get-FileHash .\inventory-caddy-root.crt -Algorithm SHA256
-certutil -user -addstore Root .\inventory-caddy-root.crt
-```
-
-Compare the file hash with the server's output before importing it. This trusts
-Caddy's CA for your Windows account, so import only the root you exported from
-your server. Restart your browser and open `https://10.10.252.50`. Repeat the
-trust setup on every device that accesses the app. Firefox may need an explicit
-import under Settings > Privacy & Security > Certificates > View Certificates >
-Authorities. On Ubuntu clients, copy the root into
-`/usr/local/share/ca-certificates/inventory-caddy-root.crt` and run
-`sudo update-ca-certificates`. Mobile devices require their platform's certificate
-installation and trust settings. Browser warnings remain until the root is trusted.
-
-Caddy documentation:
-- https://caddyserver.com/docs/running#local-https-with-docker
-- https://caddyserver.com/docs/caddyfile/directives/tls#internal
+Estimated Batch Margin values unsold output using saved output prices. It is not
+recognized financial profit or a complete accounting ledger. Accounting valuation,
+warehouse transfers/counts/returns/quality approval workflows, broad server-side
+pagination and production-size load testing remain separate work. See
+production-remediation-status-2026-11-23.txt for the precise audit disposition.

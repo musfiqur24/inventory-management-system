@@ -1,3 +1,5 @@
+import {addStockAvailability} from "../services/stockAvailability.js";
+import { stockTransaction } from "../services/stockTransaction.js";
 import { storeLots } from "../services/storeLots.js";
 import { randomUUID } from "node:crypto";
 import { postStock, lockDocument, StockError, convertQuantity } from "../services/stock.js";
@@ -23,18 +25,18 @@ rmStoreRouter.get("/balances", async (req, res) => {
     orderBy: { updatedAt: "desc" },
   });
 
-  res.json({ data: balances });
+  res.json({ data: await addStockAvailability(req.tenantId!,balances) });
 });
 
 const receiveRmSchema = z.object({
-  requestId: z.string().uuid().optional(), deliveryId: z.string().uuid(),
+  requestId: z.string().uuid(), deliveryId: z.string().uuid(),
   lineAllocations: z.array(z.object({ lineId: z.string().uuid(), productId: z.string().uuid(), binId: z.string().uuid(), acceptedQty: z.coerce.number().positive(), uomId: z.string().uuid(), expiryDays: z.coerce.number().int().positive().max(36500) })).min(1),
   notes: z.string().optional(),
 });
 rmStoreRouter.post('/receive', async (req, res) => {
   const parsed = receiveRmSchema.parse(req.body), organizationId = req.tenantId!;
   const receiptKey = parsed.requestId ?? randomUUID();
-  const result = await prisma.$transaction(async tx => {
+  const result = await stockTransaction(organizationId,"RM:"+receiptKey,parsed,async tx => {
     await lockDocument(tx, 'SupplierDelivery', parsed.deliveryId, organizationId);
     const delivery = await tx.supplierDelivery.findFirst({ where: { id: parsed.deliveryId, organizationId }, include: { lines: true } });
     if (!delivery) throw new StockError('NOT_FOUND','Supplier delivery not found.',404);

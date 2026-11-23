@@ -1,4 +1,5 @@
-import { Skeleton, useMinimumLoading } from "./Skeleton";
+import { useMinimumLoading } from "../../shared/hooks/useMinimumLoading";
+import { Skeleton} from "./Skeleton";
 import { Children, isValidElement, useState, type ReactNode, type ReactElement } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { twMerge } from "tailwind-merge";

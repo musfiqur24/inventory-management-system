@@ -1,9 +1,10 @@
+import { escapeHtml } from "../../../shared/escapeHtml";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import type { CSSProperties } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState , useCallback} from 'react';
 import { Plus, Factory, Search, Eye, Trash2, ChevronRight, ChevronDown, Printer, CheckCircle2, Pencil, TriangleAlert, XCircle } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { api, selectedOrg } from '../../../shared/api/http';
@@ -14,7 +15,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { FormField } from '../../../components/ui/FormField';
 import { Dropdown } from '../../../components/ui/Dropdown';
-import { statusBadge } from '../../../components/ui/Badge';
+import { StatusBadge as statusBadge } from '../../../components/ui/Badge';
 
 interface ProductionOrder {
   id: string; number: string; requisitionId?: string; requisitionNumber?: string; status: string; targetQty: number; expectedWastePercent: number; plannedStartDate?: string; assignedManagerId?: string | null; assignedManager?: Manager | null; approvedAt?: string | null;
@@ -62,7 +63,7 @@ export function ProductionOrdersPage() {
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const [plannedStartDate, setPlannedStartDate] = useState('');
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [po, r, p, managerData] = await Promise.all([
@@ -73,9 +74,9 @@ export function ProductionOrdersPage() {
       ]);
       setRows(po.data); setRecipes(r.data); setFinishedGoods(p.data.filter((product) => product.type === 'FINISHED_GOOD')); setUtilityProducts(p.data.filter((product) => product.type === 'PACKAGING')); setManagers(managerData.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  });};
+  });}, [setMessage, runPageLoad]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const emptyItem = () => ({ finishedProductId: '', recipeId: '', targetQty: '', expectedWastePercent: '0' });
   const [items, setItems] = useState([emptyItem()]);
@@ -180,7 +181,7 @@ export function ProductionOrdersPage() {
 
   const toggleExpanded = (number: string) => setExpanded((current) => {
     const next = new Set(current);
-    next.has(number) ? next.delete(number) : next.add(number);
+    if(next.has(number))next.delete(number);else next.add(number);
     return next;
   });
   const canApproveGroup = (orders: ProductionOrder[]) => {
@@ -224,10 +225,11 @@ export function ProductionOrdersPage() {
       materials.set(key, current);
     }));
     const totalRequired = [...materials.values()].reduce((sum, material) => sum + material.required, 0);
-    const rows = [...materials.values()].sort((a, b) => a.name.localeCompare(b.name)).map((material) => `<tr><td>${material.name}</td><td>${material.sku}</td><td>${material.required.toLocaleString()}</td></tr>`).join('');
+    const rows = [...materials.values()].sort((a, b) => a.name.localeCompare(b.name)).map((material) => `<tr><td>${escapeHtml(material.name)}</td><td>${escapeHtml(material.sku)}</td><td>${material.required.toLocaleString()}</td></tr>`).join('');
     const popup = window.open('', '_blank', 'width=1000,height=800');
     if (!popup) return setMessage('Allow pop-ups to print this requisition.');
-    popup.document.write(`<!doctype html><html><head><title>${number}</title><style>body{font:13px Arial;color:#17251e;padding:28px}header{border-bottom:3px solid #14563f;margin-bottom:20px}h1{margin:0 0 6px}h2{margin:22px 0 8px;color:#14563f}table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #ccd6cf;text-align:left}th{background:#eef4ef}tfoot{font-weight:bold;background:#f6f8f4}@media print{button{display:none}}</style></head><body><header><h1>FM Production Requisition</h1><p><b>Requisition:</b> ${number} &nbsp; <b>Status:</b> ${orders[0]?.status} &nbsp; <b>Assigned Manager:</b> ${manager}</p></header><h2>Combined Raw Material Requirements</h2><table><thead><tr><th>Raw Material</th><th>SKU</th><th>Total Required (kg)</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total RM Required</td><td>${totalRequired.toLocaleString()} kg</td></tr></tfoot></table><script>window.onload=()=>window.print()<\/script></body></html>`);
+    popup.opener=null;
+    popup.document.write(`<!doctype html><html><head><title>${escapeHtml(number)}</title><style>body{font:13px Arial;color:#17251e;padding:28px}header{border-bottom:3px solid #14563f;margin-bottom:20px}h1{margin:0 0 6px}h2{margin:22px 0 8px;color:#14563f}table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #ccd6cf;text-align:left}th{background:#eef4ef}tfoot{font-weight:bold;background:#f6f8f4}@media print{button{display:none}}</style></head><body><header><h1>FM Production Requisition</h1><p><b>Requisition:</b> ${escapeHtml(number)} &nbsp; <b>Status:</b> ${escapeHtml(orders[0]?.status)} &nbsp; <b>Assigned Manager:</b> ${escapeHtml(manager)}</p></header><h2>Combined Raw Material Requirements</h2><table><thead><tr><th>Raw Material</th><th>SKU</th><th>Total Required (kg)</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="2">Total RM Required</td><td>${totalRequired.toLocaleString()} kg</td></tr></tfoot></table><script>window.onload=()=>window.print()</script></body></html>`);
     popup.document.close();
   };
 
@@ -390,7 +392,7 @@ export function ProductionOrdersPage() {
         const totalTarget = approvedOrders.reduce((sum, order) => sum + Number(order.targetQty), 0);
         const totalExpected = approvedOrders.reduce((sum, order) => sum + Number(order.targetQty) * (1 - Number(order.expectedWastePercent) / 100), 0);
         return (
-          <Modal extraWide fixedHeight title={`Requisition ${number}`} description={`${orders.length} finished goods | Assigned manager: ${orders[0]?.assignedManager?.fullName ?? 'Not assigned'}`} onClose={() => {setRejectedOrderIds([]);setSelectedGroup(null)}}
+          <Modal extraWide fixedHeight title={`Requisition ${escapeHtml(number)}`} description={`${orders.length} finished goods | Assigned manager: ${orders[0]?.assignedManager?.fullName ?? 'Not assigned'}`} onClose={() => {setRejectedOrderIds([]);setSelectedGroup(null)}}
             footer={<>{canApproveGroup(orders) && <Button variant="danger" disabled={rejecting || approving} onClick={() => void rejectGroup(orders)}><XCircle size={14}/> {rejecting ? 'Rejecting...' : 'Reject'}</Button>}{canApproveGroup(orders) && <Button variant="primary" disabled={approving || rejecting} onClick={() => void approveGroup(orders)}><CheckCircle2 size={14}/> {approving ? 'Approving...' : 'Approve'}</Button>}<Button variant="secondary" onClick={() => {setRejectedOrderIds([]);setSelectedGroup(null)}}>Close</Button></>}>
             <div className="mb-4 grid grid-cols-3 gap-3 max-[700px]:grid-cols-1">
               <div className="rounded-md border border-[#dfe6dc] bg-[#f8faf7] p-3"><span className="text-[10px] font-bold uppercase text-[#7a9185]">Status</span><div className="mt-2">{statusBadge(orders[0]?.status)}</div></div>
@@ -404,7 +406,7 @@ export function ProductionOrdersPage() {
                 const isRejected = rejectedOrderIds.includes(order.id);
                 return <section key={order.id} className={twMerge("overflow-hidden rounded-md border border-[#d8e0d7]",isRejected&&"bg-red-50/60 opacity-75")}>
                   <div className="flex w-full flex-wrap items-center justify-between gap-3 border-b border-[#dfe5dd] bg-[#f2f6f2] px-4 py-3 text-left">
-                    <button type="button" className={twMerge("flex items-center gap-2 text-left",isRejected&&"line-through decoration-2 decoration-red-500")} onClick={() => setDetailExpanded((current) => { const next = new Set(current); next.has(order.id) ? next.delete(order.id) : next.add(order.id); return next; })}>{detailExpanded.has(order.id) ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}<div><span className="text-[10px] font-bold uppercase tracking-[.08em] text-[#71847a]">FM Product {String(index + 1).padStart(2, '0')}</span><h3 className="mt-0.5 font-bold text-[#173b30]">{order.fgProduct?.name ?? '-'}</h3><p className="text-xs text-[#6f8378]">Recipe: {order.recipe?.name ?? '-'}</p></div></button>
+                    <button type="button" className={twMerge("flex items-center gap-2 text-left",isRejected&&"line-through decoration-2 decoration-red-500")} onClick={() => setDetailExpanded((current) => { const next = new Set(current); if(next.has(order.id))next.delete(order.id);else next.add(order.id); return next; })}>{detailExpanded.has(order.id) ? <ChevronDown size={16}/> : <ChevronRight size={16}/>}<div><span className="text-[10px] font-bold uppercase tracking-[.08em] text-[#71847a]">FM Product {String(index + 1).padStart(2, '0')}</span><h3 className="mt-0.5 font-bold text-[#173b30]">{order.fgProduct?.name ?? '-'}</h3><p className="text-xs text-[#6f8378]">Recipe: {order.recipe?.name ?? '-'}</p></div></button>
                     <div className="flex items-center gap-5 text-right text-xs"><div className={isRejected?"line-through decoration-2 decoration-red-500":""}><span className="block text-[#7a9185]">Target</span><strong>{target.toLocaleString()} kg</strong></div><div className={isRejected?"line-through decoration-2 decoration-red-500":""}><span className="block text-[#7a9185]">Expected</span><strong className="text-[#176b4b]">{expected.toLocaleString(undefined, { maximumFractionDigits: 3 })} kg</strong></div><div className={isRejected?"line-through decoration-2 decoration-red-500":""}><span className="block text-[#7a9185]">Waste</span><strong>{Number(order.expectedWastePercent).toLocaleString()}%</strong></div>{canApproveGroup(orders)&&<Button type="button" size="sm" variant={isRejected?"secondary":"danger"} disabled={rejecting || approving || (!isRejected&&orders.length-rejectedOrderIds.length<=1)} title={isRejected?'Restore this finished good':orders.length-rejectedOrderIds.length<=1?'Reject the whole requisition to remove its final product':'Reject this finished good'} onClick={()=>void rejectProduct(orders,order.id)}>{isRejected?'Undo':<><XCircle size={14}/> Reject</>}</Button>}</div>
                   </div>
                   {detailExpanded.has(order.id) && <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-xs"><thead className="bg-[#fafbf8] text-[10px] uppercase text-[#66796f]"><tr><th className="px-4 py-2">Raw Material</th><th className="px-4 py-2">SKU</th><th className="px-4 py-2 text-right">Required (kg)</th></tr></thead><tbody>{order.lines.map((line) => <tr key={line.id} className="border-t border-[#edf0eb]"><td className="px-4 py-2">{line.rawMaterial?.name ?? '-'}</td><td className="px-4 py-2 font-mono text-[#7a9185]">{line.rawMaterial?.sku ?? '-'}</td><td className="px-4 py-2 text-right font-semibold">{Number(line.requiredQty).toLocaleString()}</td></tr>)}</tbody></table></div>}

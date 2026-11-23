@@ -1,8 +1,8 @@
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import { twMerge } from 'tailwind-merge';
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useCallback} from 'react';
 import { Plus, Building2, Search, Phone, Mail, Pencil, Trash2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
@@ -36,13 +36,13 @@ export function PartnersPage() {
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'SUPPLIER' | 'CUSTOMER'>('ALL');
   const [form, setForm] = useState({ name: '', code: '', partnerType: 'SUPPLIER', email: '', phone: '', address: '', contactPerson: '' });
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try { const r = await api<{ data: Partner[] }>('/partners'); setRows(r.data); setMessage(''); }
     catch (e: any) { setMessage(e.message); }
-  });};
+  });}, [runPageLoad, setMessage]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const submit = async () => {
     if (saving) return;

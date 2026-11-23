@@ -1,13 +1,22 @@
 # Local app containers use your existing PostgreSQL installation.
 # Optional overrides: copy .env.local.example to .env.local and use --env-file .env.local.
 services:
+  migrate:
+    build:
+      context: ./backend
+      target: migration
+    environment:
+      DATABASE_URL: ${LOCAL_DATABASE_URL:-postgresql://postgres:1234@host.docker.internal:5432/inventory?schema=public}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "5173:80"
+      - "127.0.0.1:5173:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -19,6 +28,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      SESSION_COOKIE_SECURE: "false"
+      REQUIRE_ADMIN_MFA: "false"
       PORT: 4000
       DATABASE_URL: ${LOCAL_DATABASE_URL:-postgresql://postgres:1234@host.docker.internal:5432/inventory?schema=public}
       WEB_ORIGIN: http://localhost:5173
@@ -27,6 +38,9 @@ services:
       INITIAL_SUPER_ADMIN_PASSWORD: ${LOCAL_SUPER_ADMIN_PASSWORD:-123456}
       INITIAL_ORGANIZATION_NAME: FeedTrack Workspace
       JWT_SECRET: ${LOCAL_JWT_SECRET:-local-development-secret-at-least-32-characters}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     expose:
       - "4000"
     extra_hosts:

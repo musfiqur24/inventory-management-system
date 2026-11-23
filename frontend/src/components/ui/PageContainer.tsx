@@ -1,4 +1,5 @@
-import { PageSkeleton, useMinimumLoading } from "./Skeleton";
+import { useMinimumLoading } from "../../shared/hooks/useMinimumLoading";
+import { PageSkeleton} from "./Skeleton";
 import type { ReactNode } from "react";
 import { PageHeader } from "./PageHeader";
 interface PageContainerProps{loading?:boolean;title:string;cap?:string;description?:string;actions?:ReactNode;headerContent?:ReactNode;children:ReactNode;}

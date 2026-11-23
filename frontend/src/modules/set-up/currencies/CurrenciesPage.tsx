@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect,useState , useCallback} from "react";
 import { BadgeDollarSign,Pencil,Plus,Search,Trash2 } from "lucide-react";
 import { api,selectedOrg } from "../../../shared/api/http";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
@@ -10,12 +10,12 @@ import { Input } from "../../../components/ui/Input";
 import { FormField } from "../../../components/ui/FormField";
 import { Modal } from "../../../components/ui/Modal";
 import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 interface Currency{id:string;code:string;name:string;symbol:string;decimalPlaces:number}
 const blank={code:"",name:"",symbol:"",decimalPlaces:"2"};
 export function CurrenciesPage(){const[loading,runLoad]=usePageLoading(),[rows,setRows]=useState<Currency[]>([]),[search,setSearch]=useState(""),[open,setOpen]=useState(false),[editing,setEditing]=useState<Currency|null>(null),[target,setTarget]=useState<Currency|null>(null),[saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false),[form,setForm]=useState(blank),[,toast]=useToastMessage();
-const load=()=>runLoad(async()=>{if(!selectedOrg())return toast("Select an organisation first.");try{setRows((await api<{data:Currency[]}>("/currencies")).data)}catch(e:any){toast(e.message)}});
-useEffect(()=>{void load()},[]);
+const load=useCallback(()=>runLoad(async()=>{if(!selectedOrg())return toast("Select an organisation first.");try{setRows((await api<{data:Currency[]}>("/currencies")).data)}catch(e:any){toast(e.message)}}), [toast, runLoad]);
+useEffect(()=>{void load()},[load]);
 const submit=async()=>{if(saving)return;setSaving(true);try{await api(editing?"/currencies/"+editing.id:"/currencies",{method:editing?"PUT":"POST",body:JSON.stringify({...form,decimalPlaces:Number(form.decimalPlaces)})});setOpen(false);setEditing(null);await load()}catch(e:any){toast(e.message)}finally{setSaving(false)}};
 const remove=async()=>{if(!target||deleting)return;setDeleting(true);try{await api("/currencies/"+target.id,{method:"DELETE"});setTarget(null);await load()}catch(e:any){toast(e.message)}finally{setDeleting(false)}};
 const filtered=rows.filter(x=>[x.code,x.name,x.symbol].some(v=>v.toLowerCase().includes(search.toLowerCase())));

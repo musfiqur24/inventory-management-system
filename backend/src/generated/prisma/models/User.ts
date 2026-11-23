@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  sessionVersion: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  sessionVersion: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -32,6 +42,9 @@ export type UserMinAggregateOutputType = {
   phone: string | null
   presentAddress: string | null
   permanentAddress: string | null
+  mfaEnabled: boolean | null
+  mfaSecret: string | null
+  sessionVersion: number | null
   passwordHash: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -46,6 +59,9 @@ export type UserMaxAggregateOutputType = {
   phone: string | null
   presentAddress: string | null
   permanentAddress: string | null
+  mfaEnabled: boolean | null
+  mfaSecret: string | null
+  sessionVersion: number | null
   passwordHash: string | null
   isActive: boolean | null
   createdAt: Date | null
@@ -60,6 +76,10 @@ export type UserCountAggregateOutputType = {
   phone: number
   presentAddress: number
   permanentAddress: number
+  mfaEnabled: number
+  mfaSecret: number
+  mfaRecoveryHashes: number
+  sessionVersion: number
   passwordHash: number
   isActive: number
   createdAt: number
@@ -67,6 +87,14 @@ export type UserCountAggregateOutputType = {
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  sessionVersion?: true
+}
+
+export type UserSumAggregateInputType = {
+  sessionVersion?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -76,6 +104,9 @@ export type UserMinAggregateInputType = {
   phone?: true
   presentAddress?: true
   permanentAddress?: true
+  mfaEnabled?: true
+  mfaSecret?: true
+  sessionVersion?: true
   passwordHash?: true
   isActive?: true
   createdAt?: true
@@ -90,6 +121,9 @@ export type UserMaxAggregateInputType = {
   phone?: true
   presentAddress?: true
   permanentAddress?: true
+  mfaEnabled?: true
+  mfaSecret?: true
+  sessionVersion?: true
   passwordHash?: true
   isActive?: true
   createdAt?: true
@@ -104,6 +138,10 @@ export type UserCountAggregateInputType = {
   phone?: true
   presentAddress?: true
   permanentAddress?: true
+  mfaEnabled?: true
+  mfaSecret?: true
+  mfaRecoveryHashes?: true
+  sessionVersion?: true
   passwordHash?: true
   isActive?: true
   createdAt?: true
@@ -149,6 +187,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -179,6 +229,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -191,11 +243,17 @@ export type UserGroupByOutputType = {
   phone: string | null
   presentAddress: string | null
   permanentAddress: string | null
+  mfaEnabled: boolean
+  mfaSecret: string | null
+  mfaRecoveryHashes: runtime.JsonValue | null
+  sessionVersion: number
   passwordHash: string
   isActive: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -226,6 +284,10 @@ export type UserWhereInput = {
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   presentAddress?: Prisma.StringNullableFilter<"User"> | string | null
   permanentAddress?: Prisma.StringNullableFilter<"User"> | string | null
+  mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  mfaRecoveryHashes?: Prisma.JsonNullableFilter<"User">
+  sessionVersion?: Prisma.IntFilter<"User"> | number
   passwordHash?: Prisma.StringFilter<"User"> | string
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -248,6 +310,10 @@ export type UserOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   presentAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   permanentAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaEnabled?: Prisma.SortOrder
+  mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaRecoveryHashes?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -273,6 +339,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"User"> | string | null
   presentAddress?: Prisma.StringNullableFilter<"User"> | string | null
   permanentAddress?: Prisma.StringNullableFilter<"User"> | string | null
+  mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  mfaRecoveryHashes?: Prisma.JsonNullableFilter<"User">
+  sessionVersion?: Prisma.IntFilter<"User"> | number
   passwordHash?: Prisma.StringFilter<"User"> | string
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -295,13 +365,19 @@ export type UserOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   presentAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   permanentAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaEnabled?: Prisma.SortOrder
+  mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  mfaRecoveryHashes?: Prisma.SortOrderInput | Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -315,6 +391,10 @@ export type UserScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   presentAddress?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   permanentAddress?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  mfaEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  mfaSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  mfaRecoveryHashes?: Prisma.JsonNullableWithAggregatesFilter<"User">
+  sessionVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -329,6 +409,10 @@ export type UserCreateInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -351,6 +435,10 @@ export type UserUncheckedCreateInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -373,6 +461,10 @@ export type UserUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -395,6 +487,10 @@ export type UserUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -417,6 +513,10 @@ export type UserCreateManyInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -431,6 +531,10 @@ export type UserUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -445,6 +549,10 @@ export type UserUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -459,10 +567,18 @@ export type UserCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   presentAddress?: Prisma.SortOrder
   permanentAddress?: Prisma.SortOrder
+  mfaEnabled?: Prisma.SortOrder
+  mfaSecret?: Prisma.SortOrder
+  mfaRecoveryHashes?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  sessionVersion?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -473,6 +589,9 @@ export type UserMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   presentAddress?: Prisma.SortOrder
   permanentAddress?: Prisma.SortOrder
+  mfaEnabled?: Prisma.SortOrder
+  mfaSecret?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -487,10 +606,17 @@ export type UserMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   presentAddress?: Prisma.SortOrder
   permanentAddress?: Prisma.SortOrder
+  mfaEnabled?: Prisma.SortOrder
+  mfaSecret?: Prisma.SortOrder
+  sessionVersion?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  sessionVersion?: Prisma.SortOrder
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -501,6 +627,14 @@ export type UserNullableScalarRelationFilter = {
 export type UserScalarRelationFilter = {
   is?: Prisma.UserWhereInput
   isNot?: Prisma.UserWhereInput
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type UserCreateNestedOneWithoutAssignedRequisitionsInput = {
@@ -631,6 +765,10 @@ export type UserCreateWithoutAssignedRequisitionsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -652,6 +790,10 @@ export type UserUncheckedCreateWithoutAssignedRequisitionsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -689,6 +831,10 @@ export type UserUpdateWithoutAssignedRequisitionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -710,6 +856,10 @@ export type UserUncheckedUpdateWithoutAssignedRequisitionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -731,6 +881,10 @@ export type UserCreateWithoutAssignedProductionRequisitionsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -752,6 +906,10 @@ export type UserUncheckedCreateWithoutAssignedProductionRequisitionsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -778,6 +936,10 @@ export type UserCreateWithoutApprovedProductionRequisitionsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -799,6 +961,10 @@ export type UserUncheckedCreateWithoutApprovedProductionRequisitionsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -836,6 +1002,10 @@ export type UserUpdateWithoutAssignedProductionRequisitionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -857,6 +1027,10 @@ export type UserUncheckedUpdateWithoutAssignedProductionRequisitionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -889,6 +1063,10 @@ export type UserUpdateWithoutApprovedProductionRequisitionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -910,6 +1088,10 @@ export type UserUncheckedUpdateWithoutApprovedProductionRequisitionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -931,6 +1113,10 @@ export type UserCreateWithoutAssignedSalesOrdersInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -952,6 +1138,10 @@ export type UserUncheckedCreateWithoutAssignedSalesOrdersInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -989,6 +1179,10 @@ export type UserUpdateWithoutAssignedSalesOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1010,6 +1204,10 @@ export type UserUncheckedUpdateWithoutAssignedSalesOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1031,6 +1229,10 @@ export type UserCreateWithoutMembershipsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1052,6 +1254,10 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1089,6 +1295,10 @@ export type UserUpdateWithoutMembershipsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1110,6 +1320,10 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1131,6 +1345,10 @@ export type UserCreateWithoutRefreshTokensInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1152,6 +1370,10 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1189,6 +1411,10 @@ export type UserUpdateWithoutRefreshTokensInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1210,6 +1436,10 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1231,6 +1461,10 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1252,6 +1486,10 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1289,6 +1527,10 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1310,6 +1552,10 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1331,6 +1577,10 @@ export type UserCreateWithoutNotificationsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1352,6 +1602,10 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   phone?: string | null
   presentAddress?: string | null
   permanentAddress?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: number
   passwordHash: string
   isActive?: boolean
   createdAt?: Date | string
@@ -1389,6 +1643,10 @@ export type UserUpdateWithoutNotificationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1410,6 +1668,10 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   presentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   permanentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaRecoveryHashes?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1525,6 +1787,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   phone?: boolean
   presentAddress?: boolean
   permanentAddress?: boolean
+  mfaEnabled?: boolean
+  mfaSecret?: boolean
+  mfaRecoveryHashes?: boolean
+  sessionVersion?: boolean
   passwordHash?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1548,6 +1814,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   presentAddress?: boolean
   permanentAddress?: boolean
+  mfaEnabled?: boolean
+  mfaSecret?: boolean
+  mfaRecoveryHashes?: boolean
+  sessionVersion?: boolean
   passwordHash?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1562,6 +1832,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phone?: boolean
   presentAddress?: boolean
   permanentAddress?: boolean
+  mfaEnabled?: boolean
+  mfaSecret?: boolean
+  mfaRecoveryHashes?: boolean
+  sessionVersion?: boolean
   passwordHash?: boolean
   isActive?: boolean
   createdAt?: boolean
@@ -1576,13 +1850,17 @@ export type UserSelectScalar = {
   phone?: boolean
   presentAddress?: boolean
   permanentAddress?: boolean
+  mfaEnabled?: boolean
+  mfaSecret?: boolean
+  mfaRecoveryHashes?: boolean
+  sessionVersion?: boolean
   passwordHash?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "fullName" | "avatarUrl" | "phone" | "presentAddress" | "permanentAddress" | "passwordHash" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "fullName" | "avatarUrl" | "phone" | "presentAddress" | "permanentAddress" | "mfaEnabled" | "mfaSecret" | "mfaRecoveryHashes" | "sessionVersion" | "passwordHash" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
@@ -1617,6 +1895,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     phone: string | null
     presentAddress: string | null
     permanentAddress: string | null
+    mfaEnabled: boolean
+    mfaSecret: string | null
+    mfaRecoveryHashes: runtime.JsonValue | null
+    sessionVersion: number
     passwordHash: string
     isActive: boolean
     createdAt: Date
@@ -2059,6 +2341,10 @@ export interface UserFieldRefs {
   readonly phone: Prisma.FieldRef<"User", 'String'>
   readonly presentAddress: Prisma.FieldRef<"User", 'String'>
   readonly permanentAddress: Prisma.FieldRef<"User", 'String'>
+  readonly mfaEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly mfaSecret: Prisma.FieldRef<"User", 'String'>
+  readonly mfaRecoveryHashes: Prisma.FieldRef<"User", 'Json'>
+  readonly sessionVersion: Prisma.FieldRef<"User", 'Int'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

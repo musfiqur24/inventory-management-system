@@ -1,8 +1,9 @@
+import { escapeHtml } from "../../../shared/escapeHtml";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import type { CSSProperties } from 'react';
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import { twMerge } from 'tailwind-merge';
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useCallback} from 'react';
 import { Plus, FlaskConical, Search, Trash2, Info, Pencil, Printer } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
@@ -48,15 +49,15 @@ export function RecipesPage() {
     { productId: '', name: '', percentage: 0 }
   ]);
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try {
       const [r, p] = await Promise.all([api<{ data: Recipe[] }>('/recipes'), api<{ data: Product[] }>('/products')]);
       setRows(r.data); setProducts(p.data); setMessage('');
     } catch (e: any) { setMessage(e.message); }
-  });};
+  });}, [setMessage, runPageLoad]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const totalPct = ingredients.reduce((s, i) => s + Number(i.percentage), 0);
   const rmProducts = products.filter((p) => p.type === 'RAW_MATERIAL');
@@ -159,15 +160,15 @@ export function RecipesPage() {
   const printRecipe = (recipe: Recipe) => {
     const ingredientRows = recipe.ingredients.map((ingredient) => `
       <tr>
-        <td class="border border-slate-300 px-3 py-2">${ingredient.rawMaterial?.name ?? '-'}</td>
-        <td class="border border-slate-300 px-3 py-2">${ingredient.rawMaterial?.sku ?? '-'}</td>
+        <td class="border border-slate-300 px-3 py-2">${escapeHtml(ingredient.rawMaterial?.name ?? '-')}</td>
+        <td class="border border-slate-300 px-3 py-2">${escapeHtml(ingredient.rawMaterial?.sku ?? '-')}</td>
         <td class="border border-slate-300 px-3 py-2 text-right">${Number(ingredient.percentage).toFixed(2)}%</td>
         <td class="border border-slate-300 px-3 py-2 text-right">${Number(ingredient.quantityPerTon).toLocaleString()} kg</td>
       </tr>`).join('');
     printReport(`Recipe ${recipe.name}`, `
       <div class="mx-auto max-w-4xl">
-        <h1 class="text-2xl font-bold">${recipe.name}</h1>
-        <p class="mt-1 text-slate-600">${recipe.code} � Base formulation: ${recipe.targetTonnage} ton</p>
+        <h1 class="text-2xl font-bold">${escapeHtml(recipe.name)}</h1>
+        <p class="mt-1 text-slate-600">${escapeHtml(recipe.code)} � Base formulation: ${escapeHtml(recipe.targetTonnage)} ton</p>
         <table class="mt-6 w-full border-collapse">
           <thead><tr class="bg-slate-100"><th class="border border-slate-300 px-3 py-2 text-left">Raw Material</th><th class="border border-slate-300 px-3 py-2 text-left">SKU</th><th class="border border-slate-300 px-3 py-2 text-right">Share</th><th class="border border-slate-300 px-3 py-2 text-right">Per Ton</th></tr></thead>
           <tbody>${ingredientRows}</tbody>

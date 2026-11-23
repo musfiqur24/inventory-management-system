@@ -1,3 +1,4 @@
+import {addStockAvailability} from "../services/stockAvailability.js";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
@@ -121,7 +122,7 @@ storesRouter.get("/:id/balances", async (req, res) => {
     }));
     if (!requisitionPositions.length) return res.json({ data: [] });
   }
-  const data = await prisma.inventoryBalance.findMany({
+  const data = await addStockAvailability(req.tenantId!,await prisma.inventoryBalance.findMany({
     where: {
       organizationId: req.tenantId,
       bin: { storeId },
@@ -136,7 +137,7 @@ storesRouter.get("/:id/balances", async (req, res) => {
       uom: true,
     },
     orderBy: { updatedAt: "desc" },
-  });
+  }));
   const deliveryIds = [...new Set(data.map((balance) => balance.lot.supplierDeliveryId).filter((id): id is string => Boolean(id)))];
   const productionBatchIds = [...new Set(data.map((balance) => balance.lot.productionBatchId).filter((id): id is string => Boolean(id)))];
   const [deliveries, productionBatches] = await Promise.all([
@@ -159,6 +160,7 @@ storesRouter.get("/:id/balances", async (req, res) => {
       const delivery = balance.lot.supplierDeliveryId ? deliveryMap.get(balance.lot.supplierDeliveryId) : undefined;
       return {
         ...balance,
+        availableQty:balance.lot.qualityStatus==="RELEASED"&&(!balance.lot.expiryDate||balance.lot.expiryDate>=new Date())?balance.quantity.minus(balance.reservedQty):0,
         requisitionNumber: delivery?.requisitionId ? requisitionMap.get(delivery.requisitionId) ?? null : null,
         batchNumber: balance.lot.productionBatchId ? productionBatchMap.get(balance.lot.productionBatchId) ?? null : null,
       };
@@ -440,7 +442,7 @@ storesRouter.get("/:id/release-options", async (req, res) => {
     const orders = await prisma.productionOrder.findMany({
       where: {
         organizationId: req.tenantId,
-        status: "APPROVED",
+        status: {in:["APPROVED","IN_PRODUCTION"]},
         requisitionId: { not: null },
         requisition: {
           is: {
@@ -468,7 +470,7 @@ storesRouter.get("/:id/release-options", async (req, res) => {
   const orders = await prisma.salesOrder.findMany({
     where: {
       organizationId: req.tenantId,
-      status: { notIn: ["CLOSED", "CANCELLED", "REJECTED"] },
+      status: { in: ["APPROVED", "PARTIALLY_RECEIVED"] },
       lines: { some: { productId } },
     },
     include: { lines: { where: { productId } } },
@@ -488,20 +490,21 @@ storesRouter.get("/:id/product-stock", async (req, res) => {
   if (!store) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Store not found." } });
   const balances = await prisma.inventoryBalance.findMany({
     where: { organizationId: req.tenantId, bin: { storeId } },
-    include: { product: { include: { baseUom: true } }, uom: true },
+    include: { product: { include: { baseUom: true } }, uom: true, lot:true },
   });
-  const totals = new Map<string, { productId: string; name: string; sku: string; unit: string; quantity: Prisma.Decimal; reserved: Prisma.Decimal; reorderLevel: number | null }>();
+  const totals = new Map<string, { productId: string; name: string; sku: string; unit: string; quantity: Prisma.Decimal; usable: Prisma.Decimal; reserved: Prisma.Decimal; reorderLevel: number | null }>();
   for (const b of balances) {
     const weight = b.uom.dimension === "WEIGHT";
     const divisor = weight ? new Prisma.Decimal(1) : b.product.baseUom.factorToBase;
     const row = totals.get(b.productId) ?? { productId: b.productId, name: b.product.name, sku: b.product.sku,
-      unit: weight ? "kg" : b.product.baseUom.code, quantity: new Prisma.Decimal(0), reserved: new Prisma.Decimal(0),
+      unit: weight ? "kg" : b.product.baseUom.code, quantity: new Prisma.Decimal(0), usable:new Prisma.Decimal(0), reserved: new Prisma.Decimal(0),
       reorderLevel: weight && store.storeType === "RM_STORE" ? 20 : null };
     row.quantity = row.quantity.plus(b.quantity.mul(b.uom.factorToBase).div(divisor));
+    if(b.lot.qualityStatus==="RELEASED"&&(!b.lot.expiryDate||b.lot.expiryDate>=new Date()))row.usable=row.usable.plus(b.quantity.minus(b.reservedQty).mul(b.uom.factorToBase).div(divisor));
     row.reserved = row.reserved.plus(b.reservedQty.mul(b.uom.factorToBase).div(divisor));
     totals.set(b.productId, row);
   }
   res.json({ data: [...totals.values()].sort((a,b) => a.name.localeCompare(b.name)).map(row => ({ ...row,
-    available: row.quantity.minus(row.reserved), lowStock: row.reorderLevel !== null && row.quantity.lt(row.reorderLevel),
+    available: Prisma.Decimal.max(0,row.usable), lowStock: row.reorderLevel !== null && row.quantity.lt(row.reorderLevel),
   })) });
 });

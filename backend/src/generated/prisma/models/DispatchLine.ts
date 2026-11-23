@@ -27,14 +27,17 @@ export type AggregateDispatchLine = {
 }
 
 export type DispatchLineAvgAggregateOutputType = {
+  unitPrice: runtime.Decimal | null
   quantity: runtime.Decimal | null
 }
 
 export type DispatchLineSumAggregateOutputType = {
+  unitPrice: runtime.Decimal | null
   quantity: runtime.Decimal | null
 }
 
 export type DispatchLineMinAggregateOutputType = {
+  unitPrice: runtime.Decimal | null
   id: string | null
   dispatchId: string | null
   productId: string | null
@@ -45,6 +48,7 @@ export type DispatchLineMinAggregateOutputType = {
 }
 
 export type DispatchLineMaxAggregateOutputType = {
+  unitPrice: runtime.Decimal | null
   id: string | null
   dispatchId: string | null
   productId: string | null
@@ -55,6 +59,7 @@ export type DispatchLineMaxAggregateOutputType = {
 }
 
 export type DispatchLineCountAggregateOutputType = {
+  unitPrice: number
   id: number
   dispatchId: number
   productId: number
@@ -67,14 +72,17 @@ export type DispatchLineCountAggregateOutputType = {
 
 
 export type DispatchLineAvgAggregateInputType = {
+  unitPrice?: true
   quantity?: true
 }
 
 export type DispatchLineSumAggregateInputType = {
+  unitPrice?: true
   quantity?: true
 }
 
 export type DispatchLineMinAggregateInputType = {
+  unitPrice?: true
   id?: true
   dispatchId?: true
   productId?: true
@@ -85,6 +93,7 @@ export type DispatchLineMinAggregateInputType = {
 }
 
 export type DispatchLineMaxAggregateInputType = {
+  unitPrice?: true
   id?: true
   dispatchId?: true
   productId?: true
@@ -95,6 +104,7 @@ export type DispatchLineMaxAggregateInputType = {
 }
 
 export type DispatchLineCountAggregateInputType = {
+  unitPrice?: true
   id?: true
   dispatchId?: true
   productId?: true
@@ -192,6 +202,7 @@ export type DispatchLineGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 export type DispatchLineGroupByOutputType = {
+  unitPrice: runtime.Decimal | null
   id: string
   dispatchId: string
   productId: string
@@ -225,6 +236,7 @@ export type DispatchLineWhereInput = {
   AND?: Prisma.DispatchLineWhereInput | Prisma.DispatchLineWhereInput[]
   OR?: Prisma.DispatchLineWhereInput[]
   NOT?: Prisma.DispatchLineWhereInput | Prisma.DispatchLineWhereInput[]
+  unitPrice?: Prisma.DecimalNullableFilter<"DispatchLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFilter<"DispatchLine"> | string
   dispatchId?: Prisma.StringFilter<"DispatchLine"> | string
   productId?: Prisma.StringFilter<"DispatchLine"> | string
@@ -236,6 +248,7 @@ export type DispatchLineWhereInput = {
 }
 
 export type DispatchLineOrderByWithRelationInput = {
+  unitPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   id?: Prisma.SortOrder
   dispatchId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
@@ -251,6 +264,7 @@ export type DispatchLineWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DispatchLineWhereInput | Prisma.DispatchLineWhereInput[]
   OR?: Prisma.DispatchLineWhereInput[]
   NOT?: Prisma.DispatchLineWhereInput | Prisma.DispatchLineWhereInput[]
+  unitPrice?: Prisma.DecimalNullableFilter<"DispatchLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dispatchId?: Prisma.StringFilter<"DispatchLine"> | string
   productId?: Prisma.StringFilter<"DispatchLine"> | string
   lotId?: Prisma.StringNullableFilter<"DispatchLine"> | string | null
@@ -261,6 +275,7 @@ export type DispatchLineWhereUniqueInput = Prisma.AtLeast<{
 }, "id">
 
 export type DispatchLineOrderByWithAggregationInput = {
+  unitPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   id?: Prisma.SortOrder
   dispatchId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
@@ -279,6 +294,7 @@ export type DispatchLineScalarWhereWithAggregatesInput = {
   AND?: Prisma.DispatchLineScalarWhereWithAggregatesInput | Prisma.DispatchLineScalarWhereWithAggregatesInput[]
   OR?: Prisma.DispatchLineScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DispatchLineScalarWhereWithAggregatesInput | Prisma.DispatchLineScalarWhereWithAggregatesInput[]
+  unitPrice?: Prisma.DecimalNullableWithAggregatesFilter<"DispatchLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringWithAggregatesFilter<"DispatchLine"> | string
   dispatchId?: Prisma.StringWithAggregatesFilter<"DispatchLine"> | string
   productId?: Prisma.StringWithAggregatesFilter<"DispatchLine"> | string
@@ -289,6 +305,7 @@ export type DispatchLineScalarWhereWithAggregatesInput = {
 }
 
 export type DispatchLineCreateInput = {
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: string
   productId: string
   lotId?: string | null
@@ -299,6 +316,7 @@ export type DispatchLineCreateInput = {
 }
 
 export type DispatchLineUncheckedCreateInput = {
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: string
   dispatchId: string
   productId: string
@@ -309,6 +327,7 @@ export type DispatchLineUncheckedCreateInput = {
 }
 
 export type DispatchLineUpdateInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   lotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -319,6 +338,7 @@ export type DispatchLineUpdateInput = {
 }
 
 export type DispatchLineUncheckedUpdateInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dispatchId?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -329,6 +349,7 @@ export type DispatchLineUncheckedUpdateInput = {
 }
 
 export type DispatchLineCreateManyInput = {
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: string
   dispatchId: string
   productId: string
@@ -339,6 +360,7 @@ export type DispatchLineCreateManyInput = {
 }
 
 export type DispatchLineUpdateManyMutationInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   lotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -348,6 +370,7 @@ export type DispatchLineUpdateManyMutationInput = {
 }
 
 export type DispatchLineUncheckedUpdateManyInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   dispatchId?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -368,6 +391,7 @@ export type DispatchLineOrderByRelationAggregateInput = {
 }
 
 export type DispatchLineCountOrderByAggregateInput = {
+  unitPrice?: Prisma.SortOrder
   id?: Prisma.SortOrder
   dispatchId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
@@ -378,10 +402,12 @@ export type DispatchLineCountOrderByAggregateInput = {
 }
 
 export type DispatchLineAvgOrderByAggregateInput = {
+  unitPrice?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
 }
 
 export type DispatchLineMaxOrderByAggregateInput = {
+  unitPrice?: Prisma.SortOrder
   id?: Prisma.SortOrder
   dispatchId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
@@ -392,6 +418,7 @@ export type DispatchLineMaxOrderByAggregateInput = {
 }
 
 export type DispatchLineMinOrderByAggregateInput = {
+  unitPrice?: Prisma.SortOrder
   id?: Prisma.SortOrder
   dispatchId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
@@ -402,6 +429,7 @@ export type DispatchLineMinOrderByAggregateInput = {
 }
 
 export type DispatchLineSumOrderByAggregateInput = {
+  unitPrice?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
 }
 
@@ -448,6 +476,7 @@ export type DispatchLineUncheckedUpdateManyWithoutDispatchNestedInput = {
 }
 
 export type DispatchLineCreateWithoutDispatchInput = {
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: string
   productId: string
   lotId?: string | null
@@ -457,6 +486,7 @@ export type DispatchLineCreateWithoutDispatchInput = {
 }
 
 export type DispatchLineUncheckedCreateWithoutDispatchInput = {
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: string
   productId: string
   lotId?: string | null
@@ -495,6 +525,7 @@ export type DispatchLineScalarWhereInput = {
   AND?: Prisma.DispatchLineScalarWhereInput | Prisma.DispatchLineScalarWhereInput[]
   OR?: Prisma.DispatchLineScalarWhereInput[]
   NOT?: Prisma.DispatchLineScalarWhereInput | Prisma.DispatchLineScalarWhereInput[]
+  unitPrice?: Prisma.DecimalNullableFilter<"DispatchLine"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFilter<"DispatchLine"> | string
   dispatchId?: Prisma.StringFilter<"DispatchLine"> | string
   productId?: Prisma.StringFilter<"DispatchLine"> | string
@@ -505,6 +536,7 @@ export type DispatchLineScalarWhereInput = {
 }
 
 export type DispatchLineCreateManyDispatchInput = {
+  unitPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: string
   productId: string
   lotId?: string | null
@@ -514,6 +546,7 @@ export type DispatchLineCreateManyDispatchInput = {
 }
 
 export type DispatchLineUpdateWithoutDispatchInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   lotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -523,6 +556,7 @@ export type DispatchLineUpdateWithoutDispatchInput = {
 }
 
 export type DispatchLineUncheckedUpdateWithoutDispatchInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   lotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -532,6 +566,7 @@ export type DispatchLineUncheckedUpdateWithoutDispatchInput = {
 }
 
 export type DispatchLineUncheckedUpdateManyWithoutDispatchInput = {
+  unitPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   lotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -543,6 +578,7 @@ export type DispatchLineUncheckedUpdateManyWithoutDispatchInput = {
 
 
 export type DispatchLineSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  unitPrice?: boolean
   id?: boolean
   dispatchId?: boolean
   productId?: boolean
@@ -554,6 +590,7 @@ export type DispatchLineSelect<ExtArgs extends runtime.Types.Extensions.Internal
 }, ExtArgs["result"]["dispatchLine"]>
 
 export type DispatchLineSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  unitPrice?: boolean
   id?: boolean
   dispatchId?: boolean
   productId?: boolean
@@ -565,6 +602,7 @@ export type DispatchLineSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 }, ExtArgs["result"]["dispatchLine"]>
 
 export type DispatchLineSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  unitPrice?: boolean
   id?: boolean
   dispatchId?: boolean
   productId?: boolean
@@ -576,6 +614,7 @@ export type DispatchLineSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 }, ExtArgs["result"]["dispatchLine"]>
 
 export type DispatchLineSelectScalar = {
+  unitPrice?: boolean
   id?: boolean
   dispatchId?: boolean
   productId?: boolean
@@ -585,7 +624,7 @@ export type DispatchLineSelectScalar = {
   uomId?: boolean
 }
 
-export type DispatchLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "dispatchId" | "productId" | "lotId" | "fromBinId" | "quantity" | "uomId", ExtArgs["result"]["dispatchLine"]>
+export type DispatchLineOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"unitPrice" | "id" | "dispatchId" | "productId" | "lotId" | "fromBinId" | "quantity" | "uomId", ExtArgs["result"]["dispatchLine"]>
 export type DispatchLineInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   dispatch?: boolean | Prisma.DispatchDefaultArgs<ExtArgs>
 }
@@ -602,6 +641,7 @@ export type $DispatchLinePayload<ExtArgs extends runtime.Types.Extensions.Intern
     dispatch: Prisma.$DispatchPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    unitPrice: runtime.Decimal | null
     id: string
     dispatchId: string
     productId: string
@@ -692,8 +732,8 @@ export interface DispatchLineDelegate<ExtArgs extends runtime.Types.Extensions.I
    * // Get first 10 DispatchLines
    * const dispatchLines = await prisma.dispatchLine.findMany({ take: 10 })
    * 
-   * // Only select the `id`
-   * const dispatchLineWithIdOnly = await prisma.dispatchLine.findMany({ select: { id: true } })
+   * // Only select the `unitPrice`
+   * const dispatchLineWithUnitPriceOnly = await prisma.dispatchLine.findMany({ select: { unitPrice: true } })
    * 
    */
   findMany<T extends DispatchLineFindManyArgs>(args?: Prisma.SelectSubset<T, DispatchLineFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DispatchLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -737,9 +777,9 @@ export interface DispatchLineDelegate<ExtArgs extends runtime.Types.Extensions.I
    *   ]
    * })
    * 
-   * // Create many DispatchLines and only return the `id`
-   * const dispatchLineWithIdOnly = await prisma.dispatchLine.createManyAndReturn({
-   *   select: { id: true },
+   * // Create many DispatchLines and only return the `unitPrice`
+   * const dispatchLineWithUnitPriceOnly = await prisma.dispatchLine.createManyAndReturn({
+   *   select: { unitPrice: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -828,9 +868,9 @@ export interface DispatchLineDelegate<ExtArgs extends runtime.Types.Extensions.I
    *   ]
    * })
    * 
-   * // Update zero or more DispatchLines and only return the `id`
-   * const dispatchLineWithIdOnly = await prisma.dispatchLine.updateManyAndReturn({
-   *   select: { id: true },
+   * // Update zero or more DispatchLines and only return the `unitPrice`
+   * const dispatchLineWithUnitPriceOnly = await prisma.dispatchLine.updateManyAndReturn({
+   *   select: { unitPrice: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1033,6 +1073,7 @@ export interface Prisma__DispatchLineClient<T, Null = never, ExtArgs extends run
  * Fields of the DispatchLine model
  */
 export interface DispatchLineFieldRefs {
+  readonly unitPrice: Prisma.FieldRef<"DispatchLine", 'Decimal'>
   readonly id: Prisma.FieldRef<"DispatchLine", 'String'>
   readonly dispatchId: Prisma.FieldRef<"DispatchLine", 'String'>
   readonly productId: Prisma.FieldRef<"DispatchLine", 'String'>

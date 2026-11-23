@@ -1,8 +1,9 @@
+import {availableForSource} from "../../../shared/stockAvailability";
 import { LoadingBoundary } from "../../../components/ui/Skeleton";
 import { useEffect, useState } from 'react';
 import { CircleCheck } from 'lucide-react';
 import { api } from '../../../shared/api/http';
-import { appToast } from '../../../components/ui/Toast';
+import { appToast } from '../../../components/ui/ToastMessages';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { FormField } from '../../../components/ui/FormField';
@@ -73,7 +74,7 @@ export function ReleaseStockModal({store,stock,onClose,onSaved}:{store:Store;sto
  const [notes,setNotes]=useState('');
  const [saving,setSaving]=useState(false);
  const [requestId]=useState(()=>crypto.randomUUID());
- const fm=store.storeType==='FM_STORE',available=Number(stock.quantity)-Number(stock.reservedQty);
+ const fm=store.storeType==='FM_STORE',available=availableForSource(stock,orderId);
  useEffect(()=>{let active=true;void api<{data:{id:string;number:string}[]}>(`/stores/${store.id}/release-options?productId=${stock.productId}`).then(r=>{if(active)setOrders(r.data)}).catch(e=>appToast.error(e.message)).finally(()=>{if(active)setLoading(false)});return()=>{active=false};},[store.id,stock.productId]);
  const submit=async()=>{
   if(saving)return;

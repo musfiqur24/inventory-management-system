@@ -1,5 +1,5 @@
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback} from "react";
 import { Building2, Check } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { PageContainer } from "../../../components/ui/PageContainer";
@@ -7,7 +7,7 @@ import { Card } from "../../../components/ui/Card";
 import { FormField } from "../../../components/ui/FormField";
 import { Input } from "../../../components/ui/Input";
 import { organizationApi, type Organization } from "./organization.api";
-import { appToast } from "../../../components/ui/Toast";
+import { appToast } from "../../../components/ui/ToastMessages";
 
 export function OrganizationPage() {
   const [pageLoading, runPageLoad] = usePageLoading();
@@ -17,7 +17,7 @@ export function OrganizationPage() {
   const [code, setCode] = useState("");
   const showMessage = (next: string, kind: "success" | "error") => appToast[kind](next);
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     try {
       const organizations = (await organizationApi.list()).data;
       setItems(organizations);
@@ -25,9 +25,9 @@ export function OrganizationPage() {
     } catch (error) {
       showMessage(error instanceof Error ? error.message : "Unable to load organisations.", "error");
     }
-  });};
+  });}, [runPageLoad]);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const select = (organization: Organization) => {
     organizationApi.select(organization);

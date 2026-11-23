@@ -15,7 +15,7 @@ export function Badge({ variant = 'gray', children, dot = true }: BadgeProps) {
   );
 }
 
-export function statusBadge(status: string) {
+export function StatusBadge(status: string) {
   const map: Record<string, { variant: BadgeProps['variant']; label: string }> = {
     DRAFT: { variant: 'gray', label: 'Draft' },
     SUBMITTED: { variant: 'blue', label: 'Submitted' },

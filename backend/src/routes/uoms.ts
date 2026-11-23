@@ -51,6 +51,12 @@ uomsRouter
   .route("/:id")
   .put(async (req, res) => {
     const parsed = createUomSchema.parse(req.body);
+    const current=await prisma.unitOfMeasure.findFirst({where:{id:String(req.params.id),organizationId:req.tenantId!}});
+    if(!current)return res.status(404).json({error:{message:"Unit not found"}});
+    if((parsed.dimension!==undefined&&parsed.dimension!==current.dimension)||(parsed.factorToBase!==undefined&&!current.factorToBase.eq(parsed.factorToBase))){
+      const references=await Promise.all([prisma.product.count({where:{baseUomId:current.id}}),prisma.stockMovement.count({where:{uomId:current.id}}),prisma.recipeLine.count({where:{uomId:current.id}}),prisma.recipe.count({where:{outputUomId:current.id}})]);
+      if(references.some(Boolean))return res.status(409).json({error:{message:"A used unit's dimension and conversion factor cannot change. Create a new unit."}});
+    }
     const uom = await prisma.unitOfMeasure.update({
       where: { id: String(req.params.id), organizationId: req.tenantId! },
       data: {
@@ -63,6 +69,12 @@ uomsRouter
   })
   .patch(async (req, res) => {
     const parsed = updateUomSchema.parse(req.body);
+    const current=await prisma.unitOfMeasure.findFirst({where:{id:String(req.params.id),organizationId:req.tenantId!}});
+    if(!current)return res.status(404).json({error:{message:"Unit not found"}});
+    if((parsed.dimension!==undefined&&parsed.dimension!==current.dimension)||(parsed.factorToBase!==undefined&&!current.factorToBase.eq(parsed.factorToBase))){
+      const references=await Promise.all([prisma.product.count({where:{baseUomId:current.id}}),prisma.stockMovement.count({where:{uomId:current.id}}),prisma.recipeLine.count({where:{uomId:current.id}}),prisma.recipe.count({where:{outputUomId:current.id}})]);
+      if(references.some(Boolean))return res.status(409).json({error:{message:"A used unit's dimension and conversion factor cannot change. Create a new unit."}});
+    }
     const uom = await prisma.unitOfMeasure.update({
       where: { id: String(req.params.id), organizationId: req.tenantId! },
       data: {

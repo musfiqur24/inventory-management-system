@@ -41,7 +41,7 @@ function request(client, options) {
     containers.push(name);
     docker(['run', '-d', '--rm', '--name', name, '--network', network, '-e', 'SERVER_IP=127.0.0.1',
       '-p', '127.0.0.1::443', '-p', '127.0.0.1::80', '--mount',
-      'type=bind,source=' + path.resolve(__dirname, '../../deploy/Caddyfile') + ',target=/etc/caddy/Caddyfile,readonly', 'caddy:2-alpine']);
+      'type=bind,source=' + path.resolve(__dirname, '../../deploy/Caddyfile') + ',target=/etc/caddy/Caddyfile,readonly', process.env.CADDY_TEST_IMAGE||'inventory-audit-caddy:check']);
     const ports = JSON.parse(docker(['inspect', '--format', '{{json .NetworkSettings.Ports}}', name]));
     const tlsPort = Number(ports['443/tcp'][0].HostPort);
     const plainPort = Number(ports['80/tcp'][0].HostPort);

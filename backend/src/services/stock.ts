@@ -46,10 +46,11 @@ export async function convertQuantity(
       "The selected unit is incompatible with the stock unit.",
       422,
     );
-  const result = new Prisma.Decimal(quantity)
+  const exact = new Prisma.Decimal(quantity)
     .mul(from.factorToBase)
-    .div(to.factorToBase)
-    .toDecimalPlaces(3);
+    .div(to.factorToBase);
+  const result=exact.toDecimalPlaces(3);
+  if(!exact.eq(result))throw new StockError('QUANTITY_PRECISION','Quantity cannot be represented exactly in the stock or document unit. Use a quantity with at most three decimals after conversion.',422);
   if (!result.isPositive())
     throw new StockError(
       "INVALID_QUANTITY",
@@ -154,9 +155,12 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
     input.uomId,
     uomId,
   );
+  const reservations=input.direction==="OUT"&&existing&&input.referenceId?await tx.reservation.findMany({where:{organizationId:input.organizationId,balanceId:existing.id,sourceId:input.referenceId,quantity:{gt:0}},orderBy:{createdAt:"asc"}}):[];
+  const owned=reservations.reduce((sum,r)=>sum.plus(r.quantity),new Prisma.Decimal(0));
+  const consume=Prisma.Decimal.min(quantity,owned);
   if (
     input.direction === "OUT" &&
-    (!existing || existing.quantity.minus(existing.reservedQty).lt(quantity))
+    (!existing || existing.quantity.minus(existing.reservedQty).plus(owned).lt(quantity))
   )
     throw new StockError(
       "INSUFFICIENT_STOCK",
@@ -189,6 +193,7 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
     ? await tx.inventoryBalance.update({
         where,
         data: {
+          ...(input.direction==="OUT"?{reservedQty:{decrement:consume}}:{}),
           quantity:
             input.direction === "IN"
               ? { increment: quantity }
@@ -202,6 +207,8 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
           quantity,
         },
       });
+  let toConsume=consume;
+  for(const reservation of reservations){const used=Prisma.Decimal.min(reservation.quantity,toConsume);await tx.reservation.update({where:{id:reservation.id},data:{quantity:{decrement:used}}});toConsume=toConsume.minus(used);if(toConsume.lte(0))break;}
   const movement = await tx.stockMovement.create({
     data: {
       organizationId: input.organizationId,
@@ -226,7 +233,7 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
       balanceAfter: balance.quantity,
     },
   });
-  if (input.storeType === "RM_STORE" && input.direction === "OUT") {
+  if (input.storeType === "RM_STORE") {
     const positions = await tx.inventoryBalance.findMany({
       where: { organizationId: input.organizationId, productId: input.productId, bin: { storeId: bin.storeId } },
       include: { uom: true },
@@ -236,8 +243,11 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
       // Weight factors use kg as their base, matching bin capacity validation.
       const after = positions.filter(b => b.uom.dimension === "WEIGHT").reduce(
         (sum, b) => sum.plus(b.quantity.mul(b.uom.factorToBase)), new Prisma.Decimal(0));
-      const before = after.plus(quantity.mul(unit.factorToBase));
-      if (before.gte(20) && after.lt(20)) {
+      const stateKey={organizationId_storeId_productId:{organizationId:input.organizationId,storeId:bin.storeId,productId:input.productId}};
+      const state=await tx.reorderState.findUnique({where:stateKey});
+      const low=after.lt(20);
+      await tx.reorderState.upsert({where:stateKey,create:{...stateKey.organizationId_storeId_productId,low},update:{low}});
+      if (low && !state?.low) {
         const members = await tx.organizationMember.findMany({
           where: { organizationId: input.organizationId, isActive: true, user: { isActive: true } },
           select: { userId: true },
@@ -250,5 +260,6 @@ export async function postStock(tx: Prisma.TransactionClient, input: Posting) {
       }
     }
   }
+  await tx.auditEvent.create({data:{organizationId:input.organizationId,actorId:input.performedById,action:"STOCK_"+input.direction,resourceId:movement.id,details:{productId:input.productId,lotId:input.lotId,binId:input.binId,quantity:quantity.toString(),balanceAfter:balance.quantity.toString(),sourceDocumentId:input.sourceDocumentId}}});
   return { balance, movement };
 }

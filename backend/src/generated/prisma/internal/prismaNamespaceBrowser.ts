@@ -94,7 +94,14 @@ export const ModelName = {
   UserPermissionOverride: 'UserPermissionOverride',
   RefreshToken: 'RefreshToken',
   PasswordResetToken: 'PasswordResetToken',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  AuditEvent: 'AuditEvent',
+  DocumentSequence: 'DocumentSequence',
+  IdempotencyRequest: 'IdempotencyRequest',
+  AuthThrottle: 'AuthThrottle',
+  ReorderState: 'ReorderState',
+  Reservation: 'Reservation',
+  MailOutbox: 'MailOutbox'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -144,6 +151,10 @@ export const UserScalarFieldEnum = {
   phone: 'phone',
   presentAddress: 'presentAddress',
   permanentAddress: 'permanentAddress',
+  mfaEnabled: 'mfaEnabled',
+  mfaSecret: 'mfaSecret',
+  mfaRecoveryHashes: 'mfaRecoveryHashes',
+  sessionVersion: 'sessionVersion',
   passwordHash: 'passwordHash',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -639,6 +650,7 @@ export type DispatchScalarFieldEnum = (typeof DispatchScalarFieldEnum)[keyof typ
 
 
 export const DispatchLineScalarFieldEnum = {
+  unitPrice: 'unitPrice',
   id: 'id',
   dispatchId: 'dispatchId',
   productId: 'productId',
@@ -702,6 +714,8 @@ export type UserPermissionOverrideScalarFieldEnum = (typeof UserPermissionOverri
 
 
 export const RefreshTokenScalarFieldEnum = {
+  familyId: 'familyId',
+  consumedAt: 'consumedAt',
   id: 'id',
   tokenHash: 'tokenHash',
   userId: 'userId',
@@ -738,12 +752,103 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const AuditEventScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  actorId: 'actorId',
+  action: 'action',
+  resourceId: 'resourceId',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditEventScalarFieldEnum = (typeof AuditEventScalarFieldEnum)[keyof typeof AuditEventScalarFieldEnum]
+
+
+export const DocumentSequenceScalarFieldEnum = {
+  organizationId: 'organizationId',
+  kind: 'kind',
+  value: 'value'
+} as const
+
+export type DocumentSequenceScalarFieldEnum = (typeof DocumentSequenceScalarFieldEnum)[keyof typeof DocumentSequenceScalarFieldEnum]
+
+
+export const IdempotencyRequestScalarFieldEnum = {
+  organizationId: 'organizationId',
+  key: 'key',
+  payloadHash: 'payloadHash',
+  result: 'result',
+  createdAt: 'createdAt'
+} as const
+
+export type IdempotencyRequestScalarFieldEnum = (typeof IdempotencyRequestScalarFieldEnum)[keyof typeof IdempotencyRequestScalarFieldEnum]
+
+
+export const AuthThrottleScalarFieldEnum = {
+  key: 'key',
+  count: 'count',
+  expiresAt: 'expiresAt'
+} as const
+
+export type AuthThrottleScalarFieldEnum = (typeof AuthThrottleScalarFieldEnum)[keyof typeof AuthThrottleScalarFieldEnum]
+
+
+export const ReorderStateScalarFieldEnum = {
+  organizationId: 'organizationId',
+  storeId: 'storeId',
+  productId: 'productId',
+  low: 'low',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReorderStateScalarFieldEnum = (typeof ReorderStateScalarFieldEnum)[keyof typeof ReorderStateScalarFieldEnum]
+
+
+export const ReservationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  balanceId: 'balanceId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  quantity: 'quantity',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
+
+
+export const MailOutboxScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  tokenCipher: 'tokenCipher',
+  status: 'status',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MailOutboxScalarFieldEnum = (typeof MailOutboxScalarFieldEnum)[keyof typeof MailOutboxScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -760,4 +865,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

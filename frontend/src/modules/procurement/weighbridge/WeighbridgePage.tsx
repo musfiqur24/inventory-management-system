@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback} from "react";
 import {
   Scale,
   CheckCircle2,
@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { api, selectedOrg } from "../../../shared/api/http";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
-import { appToast, useToastMessage } from "../../../components/ui/Toast";
+import { appToast, useToastMessage } from "../../../components/ui/ToastMessages";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
 import { DataTable } from "../../../components/ui/DataTable";
@@ -67,7 +67,7 @@ export function WeighbridgePage() {
     [tare, setTare] = useState(""),
     [values, setValues] = useState<Record<string, string>>({}),
     [saving, setSaving] = useState(false);
-  const load = () =>
+  const load = useCallback(() =>
     runPageLoad(async () => {
       if (!selectedOrg()) return setMessage("Select an organisation first.");
       try {
@@ -83,10 +83,10 @@ export function WeighbridgePage() {
           e instanceof Error ? e.message : "Unable to load weighbridge.",
         );
       }
-    });
+    }), [setMessage, runPageLoad]);
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
   const open = (d: QueueItem) => {
     setSelected(d);
     setGross("");

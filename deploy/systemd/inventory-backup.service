@@ -1,0 +1,6 @@
+[Unit]
+Description=Encrypted off-server Inventory backup
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/inventory/backup.env
+ExecStart=/usr/bin/bash %h/.local/lib/inventory/backup-production.sh

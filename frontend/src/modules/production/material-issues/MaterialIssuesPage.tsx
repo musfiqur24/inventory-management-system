@@ -1,7 +1,8 @@
+import {availableForSource} from "../../../shared/stockAvailability";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
-import { useEffect, useState } from "react";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
+import { useEffect, useState , useCallback, useMemo} from "react";
 import { Plus, ArrowLeftRight, Eye, Printer } from "lucide-react";
 import { api, selectedOrg } from "../../../shared/api/http";
 import { PageContainer } from "../../../components/ui/PageContainer";
@@ -10,7 +11,7 @@ import { Button } from "../../../components/ui/Button";
 import { Modal } from "../../../components/ui/Modal";
 import { FormField } from "../../../components/ui/FormField";
 import { Dropdown } from "../../../components/ui/Dropdown";
-import { statusBadge } from "../../../components/ui/Badge";
+import { StatusBadge as statusBadge } from "../../../components/ui/Badge";
 import { printMaterialIssue } from "./materialIssuePrint";
 
 interface MaterialIssue {
@@ -58,6 +59,7 @@ interface Lot {
   currentQty: number;
 }
 interface Position {
+ reservations?:Array<{sourceId:string;quantity:string|number}>;
   id: string;
   productId: string;
   lotId: string;
@@ -74,6 +76,7 @@ interface Position {
   };
 }
 interface UOM {
+ factorToBase:string|number;dimension:string;
   id: string;
   name: string;
   code: string;
@@ -119,7 +122,7 @@ export function MaterialIssuesPage() {
     Record<string, string>
   >({});
 
-  const load = async () => {
+  const load = useCallback(async () => {
     return runPageLoad(async () => {
       if (!selectedOrg()) return setMessage("Select an organisation first.");
       try {
@@ -142,19 +145,19 @@ export function MaterialIssuesPage() {
         setMessage(e.message);
       }
     });
-  };
+  }, [runPageLoad, setMessage]);
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
   useEffect(() => {
     if (open)
       void api<{ data: Position[] }>("/rm-store/balances")
         .then((r) => setPositions(r.data))
         .catch((e) => setMessage(e.message));
-  }, [open]);
+  }, [open, setMessage]);
 
-  const requisitionOptions = [...orders.reduce((groups, order) => {
+  const requisitionOptions = useMemo(()=>[...orders.reduce((groups, order) => {
     const id = order.requisitionId;
     const number = order.requisitionNumber;
     if (!id || !number) return groups;
@@ -173,9 +176,9 @@ export function MaterialIssuesPage() {
     existing.lines = [...lineMap.values()];
     groups.set(id, existing);
     return groups;
-  }, new Map<string, ProductionOrder>()).values()];
+  }, new Map<string, ProductionOrder>()).values()], [orders]);
 
-  const allocateOrder = (
+  const allocateOrder = useCallback((
     productionOrderId: string,
     storeId: string,
     preferred = preferredPositions,
@@ -190,7 +193,7 @@ export function MaterialIssuesPage() {
     const availableByPosition = new Map(
       positions.map((position) => [
         position.id,
-        Math.max(0, Number(position.quantity) - Number(position.reservedQty)),
+        availableForSource(position,productionOrderId),
       ]),
     );
     const generated: IssueLine[] = [];
@@ -214,7 +217,7 @@ export function MaterialIssuesPage() {
           return (
             selectedStore &&
             position.productId === requirement.productId &&
-            position.uomId === requirement.uomId &&
+            uoms.find(u=>u.id===position.uomId)?.dimension===uoms.find(u=>u.id===requirement.uomId)?.dimension &&
             released &&
             unexpired &&
             (availableByPosition.get(position.id) ?? 0) > 0
@@ -236,7 +239,8 @@ export function MaterialIssuesPage() {
       for (const position of candidates) {
         if (remaining <= 0.000001) break;
         const available = availableByPosition.get(position.id) ?? 0;
-        const allocated = Math.min(remaining, available);
+        const factor=Number(uoms.find(u=>u.id===position.uomId)?.factorToBase??1)/Number(uoms.find(u=>u.id===requirement.uomId)?.factorToBase??1);
+        const allocated = Math.floor((Math.min(remaining, available*factor)+1e-9)*1000)/1000;
         if (allocated <= 0) continue;
         generated.push({
           rawMaterialId: requirement.productId,
@@ -245,7 +249,7 @@ export function MaterialIssuesPage() {
           uomId: requirement.uomId,
           issuedQty: String(Number(allocated.toFixed(6))),
         });
-        availableByPosition.set(position.id, available - allocated);
+        availableByPosition.set(position.id, available - allocated/factor);
         remaining -= allocated;
       }
       if (remaining > 0.000001)
@@ -260,12 +264,11 @@ export function MaterialIssuesPage() {
     }
     setLines(generated);
     setAllocationShortfalls(shortfalls);
-  };
+  }, [positions, products, requisitionOptions, preferredPositions, uoms]);
 
   useEffect(() => {
-    if (open && form.productionOrderId && form.storeId)
-      allocateOrder(form.productionOrderId, form.storeId);
-  }, [open, form.productionOrderId, form.storeId, positions]);
+    if(open&&form.productionOrderId&&form.storeId){const timer=window.setTimeout(()=>allocateOrder(form.productionOrderId,form.storeId),0);return()=>window.clearTimeout(timer);}
+  }, [open, form.productionOrderId, form.storeId, positions, allocateOrder]);
 
   const submit = async () => {
     if (saving) return;
@@ -637,11 +640,10 @@ export function MaterialIssuesPage() {
                         return (
                           selectedStore &&
                           position.productId === item.productId &&
-                          position.uomId === item.uomId &&
+                          uoms.find(u=>u.id===position.uomId)?.dimension===uoms.find(u=>u.id===item.uomId)?.dimension &&
                           released &&
                           unexpired &&
-                          Number(position.quantity) -
-                            Number(position.reservedQty) >
+                          availableForSource(position,form.productionOrderId) >
                             0
                         );
                       })

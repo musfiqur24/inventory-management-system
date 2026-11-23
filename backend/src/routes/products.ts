@@ -27,7 +27,8 @@ productsRouter.get("/", async (req, res) => {
       currency: true,
       balances: {
         include: {
-          bin: true,
+          bin: { include: { store: true } },
+          uom: true,
           lot: true,
         },
       },
@@ -37,12 +38,10 @@ productsRouter.get("/", async (req, res) => {
 
   // Calculate total in-stock balance for each product
   const enriched = products.map((prod) => {
-    const totalQty = prod.balances.reduce(
-      (sum, b) => sum + Number(b.quantity),
-      0
-    );
-    const isBelowReorder =
-      prod.reorderLevel !== null && totalQty <= Number(prod.reorderLevel);
+    const totalQty=prod.balances.reduce((sum,b)=>sum+Number(b.quantity)*Number(b.uom.factorToBase)/Number(prod.baseUom.factorToBase),0);
+    const storeWeights=new Map<string,number>();
+    for(const b of prod.balances)if(b.bin.store.storeType==="RM_STORE"&&b.uom.dimension==="WEIGHT")storeWeights.set(b.bin.storeId,(storeWeights.get(b.bin.storeId)??0)+Number(b.quantity)*Number(b.uom.factorToBase));
+    const isBelowReorder=[...storeWeights.values()].some(q=>q<20);
 
     return {
       ...prod,
@@ -101,6 +100,10 @@ productsRouter.put("/:id", async (req, res) => {
   if(!old)return res.status(404).json({error:{code:"NOT_FOUND",message:"Product not found."}});
   const [category,uom,currency]=await Promise.all([prisma.subSubLayer.findFirst({where:{id:x.categoryId,organizationId}}),prisma.unitOfMeasure.findFirst({where:{id:x.baseUomId,organizationId,isActive:true}}),x.currencyId?prisma.currency.findFirst({where:{id:x.currencyId,organizationId,isActive:true}}):null]);
   if(!category||!uom||(x.currencyId&&!currency))return res.status(422).json({error:{code:"INVALID_REFERENCE",message:"Select a Sub- Sub Layer and UOM in this organization."}});
+  if(old.type!==x.type||old.baseUomId!==x.baseUomId){
+    const counts=await Promise.all([prisma.stockMovement.count({where:{organizationId,productId:old.id}}),prisma.recipeLine.count({where:{rawProductId:old.id}}),prisma.recipe.count({where:{finishedProductId:old.id}}),prisma.salesOrderLine.count({where:{productId:old.id}})]);
+    if(counts.some(Boolean))return res.status(409).json({error:{message:"A used product's type and base unit cannot change."}});
+  }
   const data=await prisma.product.update({where:{id:old.id},data:{sku:x.sku,name:x.name.trim(),type:x.type,categoryId:x.categoryId,baseUomId:x.baseUomId,shelfLifeDays:x.shelfLifeDays,reorderLevel:x.reorderLevel?new Prisma.Decimal(x.reorderLevel):null,amount:x.amount!==undefined?new Prisma.Decimal(x.amount):null,currencyId:x.currencyId??null},include:{category:true,baseUom:true,currency:true}});
   res.json({data});
 });

@@ -237,3 +237,38 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  * 
  */
 export type Notification = Prisma.NotificationModel
+/**
+ * Model AuditEvent
+ * 
+ */
+export type AuditEvent = Prisma.AuditEventModel
+/**
+ * Model DocumentSequence
+ * 
+ */
+export type DocumentSequence = Prisma.DocumentSequenceModel
+/**
+ * Model IdempotencyRequest
+ * 
+ */
+export type IdempotencyRequest = Prisma.IdempotencyRequestModel
+/**
+ * Model AuthThrottle
+ * 
+ */
+export type AuthThrottle = Prisma.AuthThrottleModel
+/**
+ * Model ReorderState
+ * 
+ */
+export type ReorderState = Prisma.ReorderStateModel
+/**
+ * Model Reservation
+ * 
+ */
+export type Reservation = Prisma.ReservationModel
+/**
+ * Model MailOutbox
+ * 
+ */
+export type MailOutbox = Prisma.MailOutboxModel

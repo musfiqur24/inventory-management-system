@@ -9,7 +9,7 @@ export function ProductStockTable({ storeId, revision, search }: { storeId: stri
   const [error, setError] = useState("");
   useEffect(() => {
     let active = true;
-    setRows([]); setLoading(true); setError("");
+    queueMicrotask(()=>{if(active){setRows([]);setLoading(true);setError("");}});
     const load = async () => {
       try {
         const result = await api<{ data: ProductStock[] }>(`/stores/${storeId}/product-stock`);

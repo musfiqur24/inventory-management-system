@@ -1,3 +1,6 @@
+import { StockError } from "../services/stock.js";
+import { releaseOrderReservations } from "../services/reservations.js";
+import { nextDocumentNumber } from "../services/documentNumbers.js";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
@@ -91,9 +94,9 @@ productionOrdersRouter.get("/", async (req, res) => {
 
 // Preview scaling calculation without saving
 productionOrdersRouter.post("/preview-scale", async (req, res) => {
-  const { recipeId, plannedQty, expectedWastePercent } = req.body;
+  const { recipeId, plannedQty, expectedWastePercent } = z.object({recipeId:z.string().uuid(),plannedQty:z.coerce.number().positive(),expectedWastePercent:z.coerce.number().min(0).max(50).optional()}).parse(req.body);
   const recipe = await prisma.recipe.findUnique({
-    where: { id: recipeId },
+    where: { id: recipeId, organizationId: req.tenantId! },
     include: { lines: true },
   });
 
@@ -135,7 +138,7 @@ const productionItemSchema = z.object({
   recipeId: z.string().uuid(),
   plannedQty: z.coerce.number().positive(),
   expectedWastePercent: z.coerce.number().min(0).max(50).optional(),
-  scheduledFor: z.string().min(1),
+  scheduledFor: z.string().min(1).refine(value=>!Number.isNaN(Date.parse(value)),"Enter a valid scheduled date"),
 });
 
 const createProductionRequisitionSchema = z.object({
@@ -163,7 +166,7 @@ productionOrdersRouter.post("/", async (req, res) => {
   const manager = await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, parsed.assignedManagerId) });
   if (!manager) return res.status(422).json({ error: { message: "Select a valid manager for this organization." } });
   const [recipes, utilityProducts] = await Promise.all([prisma.recipe.findMany({
-    where: { id: { in: recipeIds }, organizationId, status: { notIn: [DocumentStatus.CANCELLED, DocumentStatus.REJECTED] } },
+    where: { id: { in: recipeIds }, organizationId, status: DocumentStatus.APPROVED },
     include: { lines: true },
   }), prisma.product.findMany({ where: { organizationId, id: { in: parsed.utilities.map(line => line.productId) }, type: "PACKAGING", isActive: true } })]);
   if (recipes.length !== recipeIds.length) return res.status(422).json({ error: { message: "One or more recipes are unavailable." } });
@@ -172,10 +175,10 @@ productionOrdersRouter.post("/", async (req, res) => {
   const recipeMap = new Map(recipes.map((recipe) => [recipe.id, recipe]));
 
   const result = await prisma.$transaction(async (tx) => {
-    const count = await tx.productionRequisition.count({ where: { organizationId } });
+
     const now = new Date();
     const datePart = `${now.getFullYear()}${String(now.getDate()).padStart(2, "0")}${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const requisitionNumber = `FM_${datePart}_${String(count + 1).padStart(4, "0")}`;
+    const requisitionNumber = await nextDocumentNumber(tx,organizationId,"ProductionRequisition",`FM_${datePart}_`);
     const requisition = await tx.productionRequisition.create({
       data: { organizationId, number: requisitionNumber, status: parsed.submit ? DocumentStatus.PENDING : DocumentStatus.DRAFT, createdById: req.auth!.id, assignedManagerId: parsed.assignedManagerId },
     });
@@ -226,7 +229,7 @@ productionOrdersRouter.put("/requisitions/:id", async (req, res) => {
   ]);
   if (!requisition) return res.status(404).json({ error: { message: "Production requisition not found." } });
   if (!managerMembership) return res.status(403).json({ error: { message: "Only a manager can edit production requisitions." } });
-  const linkedIssues = await prisma.materialIssue.count({ where: { productionOrderId: { in: requisition.orders.map((order) => order.id) } } });
+  const linkedIssues = await prisma.materialIssue.count({ where: { productionOrderId: { in: requisition.orders.map((order) => order.id) },status:{not:"CANCELLED"} } });
   if (linkedIssues) return res.status(409).json({ error: { message: "This requisition cannot be edited because RM has already been dispatched." } });
   if (!await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, parsed.assignedManagerId) })) return res.status(422).json({ error: { message: "Select a valid manager for this organization." } });
   const recipeIds = parsed.items.map((item) => item.recipeId);
@@ -238,6 +241,9 @@ productionOrdersRouter.put("/requisitions/:id", async (req, res) => {
   if (utilityProducts.length !== new Set(parsed.utilities.map((line) => line.productId)).size) return res.status(422).json({ error: { message: "One or more utility products are unavailable." } });
   const recipeMap = new Map(recipes.map((recipe) => [recipe.id, recipe]));
   await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "ProductionRequisition" WHERE id=${requisition.id} FOR UPDATE`;
+    const current=await tx.productionRequisition.findUniqueOrThrow({where:{id:requisition.id}});
+    if(!["DRAFT","PENDING"].includes(current.status))throw new StockError("INVALID_STATUS","Only unapproved requisitions can be edited");
     await tx.productionOrder.deleteMany({ where: { requisitionId: requisition.id } });
     await tx.productionRequisition.update({ where: { id: requisition.id }, data: { assignedManagerId: parsed.assignedManagerId, status: DocumentStatus.PENDING, approvedAt: null, approvedById: null } });
     for (const [index, item] of parsed.items.entries()) {
@@ -273,8 +279,11 @@ productionOrdersRouter.delete("/requisitions/:id", async (req, res) => {
   if (linkedIssues) return res.status(409).json({ error: { message: "This requisition cannot be deleted because it is linked to a Dispatch RM record." } });
   try {
     await prisma.$transaction(async (tx) => {
-      await tx.productionOrder.deleteMany({ where: { requisitionId: requisition.id } });
-      await tx.productionRequisition.delete({ where: { id: requisition.id } });
+      await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${organizationId} FOR UPDATE`;
+      if(await tx.materialIssue.count({where:{organizationId,productionOrderId:{in:requisition.orders.map(o=>o.id)},status:{not:"CANCELLED"}}}))throw new StockError("MATERIALS_ISSUED","Cancel the unsubmitted production batch first");
+      await releaseOrderReservations(tx,organizationId,requisition.id);
+      await tx.productionOrder.updateMany({where:{requisitionId:requisition.id},data:{status:DocumentStatus.CANCELLED}});
+      await tx.productionRequisition.update({where:{id:requisition.id},data:{status:DocumentStatus.CANCELLED}});
     });
   } catch {
     return res.status(409).json({ error: { message: "This requisition is already used by another production record and cannot be deleted." } });
@@ -282,37 +291,22 @@ productionOrdersRouter.delete("/requisitions/:id", async (req, res) => {
   res.status(204).end();
 });
 
-productionOrdersRouter.post("/requisitions/:id/reject", async (req, res) => {
-  const organizationId = req.tenantId!;
-  const userId = req.auth!.id;
-  const requisition = await prisma.productionRequisition.findFirst({ where: { id: req.params.id, organizationId } });
-  if (!requisition) return res.status(404).json({ error: { message: "Production requisition not found." } });
-  if (requisition.assignedManagerId !== userId || !await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, userId) })) return res.status(403).json({ error: { message: "Only the assigned manager can reject this requisition." } });
-  if (requisition.status !== DocumentStatus.PENDING) return res.status(409).json({ error: { message: "Only a pending requisition can be rejected." } });
-  await prisma.$transaction([
-    prisma.productionRequisition.update({ where: { id: requisition.id }, data: { status: DocumentStatus.REJECTED, approvedById: userId, approvedAt: new Date() } }),
-    prisma.productionOrder.updateMany({ where: { requisitionId: requisition.id }, data: { status: DocumentStatus.REJECTED } }),
-  ]);
-  res.json({ data: { id: requisition.id, status: DocumentStatus.REJECTED } });
-});
-
-productionOrdersRouter.post("/requisitions/:id/approve", async (req, res) => {
-  const parsed = z.object({ rejectedOrderIds: z.array(z.string().uuid()).default([]) }).parse(req.body ?? {});
-  const organizationId = req.tenantId!;
-  const userId = req.auth!.id;
-  const requisition = await prisma.productionRequisition.findFirst({ where: { id: req.params.id, organizationId }, include: { orders: { select: { id: true } } } });
-  if (!requisition) return res.status(404).json({ error: { message: "Production requisition not found." } });
-  if (requisition.assignedManagerId !== userId || !await prisma.organizationMember.findFirst({ where: managerWhere(organizationId, userId) })) return res.status(403).json({ error: { message: "Only the assigned manager can approve this requisition." } });
-  if (requisition.status !== DocumentStatus.PENDING) return res.status(409).json({ error: { message: "Only a pending requisition can be approved." } });
-  const orderIds = new Set(requisition.orders.map((order) => order.id));
-  const rejectedOrderIds = [...new Set(parsed.rejectedOrderIds)];
-  if (rejectedOrderIds.some((orderId) => !orderIds.has(orderId))) return res.status(422).json({ error: { message: "One or more rejected finished goods do not belong to this requisition." } });
-  if (requisition.orders.length - rejectedOrderIds.length < 1) return res.status(409).json({ error: { message: "A requisition must contain at least one finished good. Reject the whole requisition instead." } });
-  const approvedAt = new Date();
-  await prisma.$transaction(async (tx) => {
-    if (rejectedOrderIds.length) await tx.productionOrder.deleteMany({ where: { requisitionId: requisition.id, id: { in: rejectedOrderIds } } });
-    await tx.productionRequisition.update({ where: { id: requisition.id }, data: { status: DocumentStatus.APPROVED, approvedById: userId, approvedAt } });
-    await tx.productionOrder.updateMany({ where: { requisitionId: requisition.id }, data: { status: DocumentStatus.APPROVED } });
-  });
-  res.json({ data: { id: requisition.id, status: DocumentStatus.APPROVED, approvedAt } });
-});
+const transitionRequisition=(approve:boolean)=>async(req:import("express").Request,res:import("express").Response)=>{
+ const org=req.tenantId!,userId=req.auth!.id;
+ const parsed=z.object({rejectedOrderIds:z.array(z.string().uuid()).default([])}).parse(req.body??{});
+ const data=await prisma.$transaction(async tx=>{
+  await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${org} FOR UPDATE`;
+  await tx.$queryRaw`SELECT id FROM "ProductionRequisition" WHERE id=${String(req.params.id)} AND "organizationId"=${org} FOR UPDATE`;
+  const requisition=await tx.productionRequisition.findFirst({where:{id:String(req.params.id),organizationId:org},include:{orders:true}});
+  if(!requisition)throw new StockError("NOT_FOUND","Production requisition not found",404);
+  if(requisition.status!=="PENDING")throw new StockError("INVALID_STATUS","Only pending requisitions can be reviewed");
+  if(requisition.assignedManagerId!==userId||!await tx.organizationMember.findFirst({where:managerWhere(org,userId)}))throw new StockError("FORBIDDEN","Only the assigned manager can review this requisition",403);
+  const rejected=[...new Set(parsed.rejectedOrderIds)];
+  if(rejected.some(id=>!requisition.orders.some(o=>o.id===id))||(approve&&rejected.length>=requisition.orders.length))throw new StockError("INVALID_LINES","Keep at least one valid finished product",422);
+  await tx.productionOrder.updateMany({where:{requisitionId:requisition.id},data:{status:approve?DocumentStatus.APPROVED:DocumentStatus.REJECTED}});
+  if(approve&&rejected.length)await tx.productionOrder.updateMany({where:{id:{in:rejected}},data:{status:DocumentStatus.REJECTED}});
+  return tx.productionRequisition.update({where:{id:requisition.id},data:{status:approve?DocumentStatus.APPROVED:DocumentStatus.REJECTED,approvedById:userId,approvedAt:new Date()}});
+ });res.json({data});
+};
+productionOrdersRouter.post("/requisitions/:id/reject",transitionRequisition(false));
+productionOrdersRouter.post("/requisitions/:id/approve",transitionRequisition(true));

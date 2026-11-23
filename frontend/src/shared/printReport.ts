@@ -2,8 +2,9 @@
 export function printReport(title: string, content: string) {
   const popup = window.open('', '_blank');
   if (!popup) return;
+  popup.opener=null;
 
-  popup.document.write('<!doctype html><html><head><meta charset="UTF-8"></head><body></body></html>');
+  popup.document.write(`<!doctype html><html><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; base-uri 'none'; form-action 'none'"></head><body></body></html>`);
   popup.document.title = title;
   popup.document.body.className = 'bg-white p-8 font-sans text-[14px] text-[#111]';
   popup.document.body.innerHTML = content;

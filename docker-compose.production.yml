@@ -1,73 +1,127 @@
-# Standalone server deployment; do not merge with docker-compose.yml.
-# docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
 name: inventory-production
-
 services:
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: ./deploy/caddy
+    image: ${INVENTORY_CADDY_IMAGE:-inventory-production/caddy:local}
     restart: unless-stopped
     environment:
       SERVER_IP: ${SERVER_IP:?Set SERVER_IP in .env.production}
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
       frontend:
-        condition: service_started
+        condition: service_healthy
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]
+      test:
+        - CMD
+        - wget
+        - '-q'
+        - '-O'
+        - /dev/null
+        - http://127.0.0.1:2019/config/
       interval: 5s
       timeout: 3s
       retries: 12
       start_period: 10s
-
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '5'
+    pids_limit: 256
   frontend:
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     build:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
     expose:
-      - "80"
+      - '80'
     depends_on:
       backend:
         condition: service_healthy
-
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '5'
+    pids_limit: 256
+    image: ${INVENTORY_FRONTEND_IMAGE:-inventory-production/frontend:local}
   backend:
+    networks:
+      - default
+      - database
+    stop_grace_period: 30s
     build:
       context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      SESSION_COOKIE_SECURE: 'true'
       PORT: 4000
-      DATABASE_URL: postgresql://inventory:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}@db:5432/inventory?schema=public
+      DATABASE_URL: postgresql://inventory_app:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD}@db:5432/inventory?schema=public
       WEB_ORIGIN: https://${SERVER_IP:?Set SERVER_IP in .env.production}
       PASSWORD_RESET_URL: https://${SERVER_IP:?Set SERVER_IP in .env.production}/reset-password
       LOG_LEVEL: info
       JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 32 characters}
       INITIAL_SUPER_ADMIN_EMAIL: ${INITIAL_SUPER_ADMIN_EMAIL:?Set INITIAL_SUPER_ADMIN_EMAIL}
-      INITIAL_SUPER_ADMIN_PASSWORD: ${INITIAL_SUPER_ADMIN_PASSWORD:?Set INITIAL_SUPER_ADMIN_PASSWORD of at least 6 characters}
+      INITIAL_SUPER_ADMIN_PASSWORD: ${INITIAL_SUPER_ADMIN_PASSWORD:?Set INITIAL_SUPER_ADMIN_PASSWORD of at least 12 characters}
       INITIAL_ORGANIZATION_NAME: ${INITIAL_ORGANIZATION_NAME:-FeedTrack Workspace}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-Inventory System <noreply@example.com>}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:?Run scripts/prepare-production-env.sh}
+      REQUIRE_ADMIN_MFA: 'true'
     expose:
-      - "4000"
+      - '4000'
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/v1/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      test:
+        - CMD
+        - node
+        - '-e'
+        - 'fetch(''http://127.0.0.1:4000/api/v1/ready'').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))'
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
-
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '5'
+    pids_limit: 256
+    mem_limit: 768m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    image: ${INVENTORY_BACKEND_IMAGE:-inventory-production/backend:local}
+    read_only: true
+    tmpfs:
+      - /tmp
   db:
-    image: postgres:17-alpine
+    networks:
+      - database
+    stop_grace_period: 30s
+    build:
+      context: ./deploy/postgres
+    image: ${INVENTORY_DB_IMAGE:-inventory-production/db:local}
     restart: unless-stopped
     environment:
       POSTGRES_DB: inventory
@@ -76,12 +130,38 @@ services:
     volumes:
       - inventory_pg:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
+      test:
+        - CMD-SHELL
+        - pg_isready -U inventory -d inventory
       interval: 5s
       timeout: 5s
       retries: 10
-
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '5'
+    pids_limit: 256
+  migrate:
+    networks:
+      - database
+    build:
+      context: ./backend
+      target: migration
+    environment:
+      DATABASE_URL: postgresql://inventory:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@db:5432/inventory?schema=public
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+    image: ${INVENTORY_MIGRATION_IMAGE:-inventory-production/migration:local}
 volumes:
-  inventory_pg:
-  caddy_data:
-  caddy_config:
+  inventory_pg: null
+  caddy_data: null
+  caddy_config: null
+
+networks:
+  default: {}
+  database:
+    internal: true

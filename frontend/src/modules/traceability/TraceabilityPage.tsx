@@ -1,6 +1,7 @@
-import { PageSkeleton, useMinimumLoading } from "../../components/ui/Skeleton";
+import { useMinimumLoading } from "../../shared/hooks/useMinimumLoading";
+import { PageSkeleton} from "../../components/ui/Skeleton";
 import { twMerge } from 'tailwind-merge';
-import { useToastMessage } from "../../components/ui/Toast";
+import { useToastMessage } from "../../components/ui/ToastMessages";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
 import { useState } from 'react';
 import { Search, GitBranch, Package, Truck, Factory, ArrowRight } from 'lucide-react';

@@ -1,3 +1,4 @@
+import { validateProductLines } from "../services/references.js";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
@@ -97,9 +98,13 @@ const createRecipeSchema = z.object({
 recipesRouter.post("/", async (req, res) => {
   if (!requireRecipeManager(req, res)) return;
   const parsed = createRecipeSchema.parse(req.body);
+  await validateProductLines(prisma,req.tenantId!,[{productId:parsed.finishedProductId,uomId:parsed.outputUomId}],["FINISHED_GOOD"]);
+  await validateProductLines(prisma,req.tenantId!,parsed.lines.map(l=>({productId:l.rawProductId,uomId:l.uomId})),["RAW_MATERIAL","PACKAGING"]);
 
+  const recipe=await prisma.$transaction(async tx=>{
+    await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${req.tenantId!} FOR UPDATE`;
   // Auto-increment version if existing recipe exists
-  const latestRecipe = await prisma.recipe.findFirst({
+  const latestRecipe = await tx.recipe.findFirst({
     where: {
       organizationId: req.tenantId,
       finishedProductId: parsed.finishedProductId,
@@ -109,7 +114,7 @@ recipesRouter.post("/", async (req, res) => {
 
   const nextVersion = latestRecipe ? latestRecipe.version + 1 : parsed.version;
 
-  const recipe = await prisma.recipe.create({
+  return tx.recipe.create({
     data: {
       organizationId: req.tenantId!,
       finishedProductId: parsed.finishedProductId,
@@ -132,6 +137,7 @@ recipesRouter.post("/", async (req, res) => {
     },
   });
 
+  });
   res.status(201).json({ data: recipe });
 });
 
@@ -139,12 +145,18 @@ recipesRouter.post("/", async (req, res) => {
 recipesRouter.put("/:id", async (req, res) => {
   if (!requireRecipeManager(req, res)) return;
   const parsed = createRecipeSchema.parse(req.body);
+  await validateProductLines(prisma,req.tenantId!,[{productId:parsed.finishedProductId,uomId:parsed.outputUomId}],["FINISHED_GOOD"]);
+  await validateProductLines(prisma,req.tenantId!,parsed.lines.map(l=>({productId:l.rawProductId,uomId:l.uomId})),["RAW_MATERIAL","PACKAGING"]);
   const existing = await prisma.recipe.findFirst({
     where: { id: req.params.id, organizationId: req.tenantId },
   });
   if (!existing) return res.status(404).json({ error: { message: "Recipe not found" } });
 
+  if(await prisma.productionOrder.count({where:{organizationId:req.tenantId!,recipeId:existing.id}}))return res.status(409).json({error:{message:"Used recipe versions are immutable. Create a new version."}});
+  if(existing.status==="APPROVED")return res.status(409).json({error:{message:"Approved recipe versions are immutable. Create a new version."}});
   const recipe = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Recipe" WHERE id=${existing.id} FOR UPDATE`;
+    if(await tx.productionOrder.count({where:{recipeId:existing.id}}))throw new Error("Recipe became referenced; create a new version.");
     await tx.recipeLine.deleteMany({ where: { recipeId: existing.id } });
     return tx.recipe.update({
       where: { id: existing.id },
@@ -152,7 +164,7 @@ recipesRouter.put("/:id", async (req, res) => {
         finishedProductId: parsed.finishedProductId,
         outputQty: new Prisma.Decimal(parsed.outputQty),
         outputUomId: parsed.outputUomId,
-        wastePercent: new Prisma.Decimal(0),
+        wastePercent: new Prisma.Decimal(parsed.wastePercent),
         lines: {
           create: parsed.lines.map((line) => ({
             rawProductId: line.rawProductId,

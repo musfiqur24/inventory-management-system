@@ -55,6 +55,20 @@ lerna-debug.log*
 *.sqlite3
 *.db
 *.db-journal
+*.dump
+*.dump.partial
+*.tar.gz.age
+*.tar.gz.age.sha256
+
+# Production-readiness reports and document exports (at any directory depth).
+*[Pp]roduction*[Rr]eadiness*.[pP][dD][fF]
+*[Pp]roduction*[Rr]eadiness*.[dD][oO][cC]
+*[Pp]roduction*[Rr]eadiness*.[dD][oO][cC][xX]
+*[Pp]roduction*[Rr]emediation*.[pP][dD][fF]
+*[Pp]roduction*[Rr]emediation*.[dD][oO][cC]
+*[Pp]roduction*[Rr]emediation*.[dD][oO][cC][xX]
+production-readiness-*.txt
+production-remediation-*.txt
 
 # ===== OS FILES =====
 .DS_Store

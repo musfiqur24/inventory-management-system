@@ -1,3 +1,5 @@
+import { MfaSettings } from "./MfaSettings";
+import { api, clearSession } from "../../shared/api/http";
 import { useState } from "react";
 import { Building2, Mail, MapPin, Pencil, Phone, ShieldCheck } from "lucide-react";
 import { PageContainer } from "../../components/ui/PageContainer";
@@ -7,13 +9,14 @@ import { Input } from "../../components/ui/Input";
 import { TextArea } from "../../components/ui/TextArea";
 import { FormField } from "../../components/ui/FormField";
 import { Badge } from "../../components/ui/Badge";
-import { appToast } from "../../components/ui/Toast";
+import { appToast } from "../../components/ui/ToastMessages";
 import { useAuth } from "./AuthContext";
 
 const emptyValue = "Not provided";
 
 export function ProfilePage() {
   const { user, updateProfile } = useAuth();
+  const [currentPassword,setCurrentPassword]=useState(""),[newPassword,setNewPassword]=useState(""),[changingPassword,setChangingPassword]=useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -165,6 +168,8 @@ export function ProfilePage() {
           </div>
         </div>
       </Card>
+      <Card><h2 className="mb-4 font-bold">Change password</h2><form className="space-y-4" onSubmit={async event=>{event.preventDefault();setChangingPassword(true);try{await api('/auth/change-password',{method:'POST',body:JSON.stringify({currentPassword,password:newPassword})});clearSession();window.location.assign('/login');}catch(error){appToast.error(error instanceof Error?error.message:'Unable to change password');}finally{setChangingPassword(false);}}}><FormField label="Current password"><Input type="password" autoComplete="current-password" required value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)}/></FormField><FormField label="New password (12-72 characters)"><Input type="password" autoComplete="new-password" required minLength={12} maxLength={72} value={newPassword} onChange={e=>setNewPassword(e.target.value)}/></FormField><p className="text-sm">Changing your password signs out all devices.</p><Button type="submit" disabled={changingPassword}>Change password</Button></form></Card>
+      <MfaSettings/>
     </PageContainer>
   );
 }

@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useAuth } from "../../auth/AuthContext";
+import { selectedOrg } from "../../../shared/api/http";
+import { useEffect, useState , useCallback} from "react";
 import { Eye, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
@@ -8,8 +10,8 @@ import { Modal } from "../../../components/ui/Modal";
 import { FormField } from "../../../components/ui/FormField";
 import { Dropdown } from "../../../components/ui/Dropdown";
 import { Input } from "../../../components/ui/Input";
-import { statusBadge } from "../../../components/ui/Badge";
-import { appToast } from "../../../components/ui/Toast";
+import { StatusBadge as statusBadge } from "../../../components/ui/Badge";
+import { appToast } from "../../../components/ui/ToastMessages";
 import { salesOrderApi, type Assignee, type Customer, type FinishedProduct, type SalesOrder, type Uom } from "./api";
 
 type DraftLine = { productId: string; uomId: string; quantity: string; unitPrice: string };
@@ -17,6 +19,9 @@ const blankLine = (): DraftLine => ({ productId: "", uomId: "", quantity: "", un
 const money = (value: number) => "BDT " + value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function SalesOrdersPage() {
+  const {user}=useAuth();
+  const canReview=Boolean(user?.isSuperAdmin||user?.organizations.some(o=>o.id===selectedOrg()&&['ADMIN','MANAGER'].includes(o.role.code)));
+  const [cancelOrder,setCancelOrder]=useState<SalesOrder|null>(null),[reason,setReason]=useState('');
   const [rows, setRows] = useState<SalesOrder[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [assignees, setAssignees] = useState<Assignee[]>([]);
@@ -29,7 +34,7 @@ export function SalesOrdersPage() {
   const [form, setForm] = useState({ customerId: "", assignedPersonId: "" });
   const [lines, setLines] = useState<DraftLine[]>([blankLine()]);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [orderRows, customerRows, assigneeRows, productRows, uomRows] = await Promise.all([
@@ -41,8 +46,8 @@ export function SalesOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
-  useEffect(() => { void load(); }, []);
+  }, []);
+  useEffect(() => { const timer=window.setTimeout(()=>void load(),0);return()=>window.clearTimeout(timer); }, [load]);
 
   const reset = () => {
     setForm({ customerId: "", assignedPersonId: "" });
@@ -72,6 +77,13 @@ export function SalesOrdersPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const review=async(order:SalesOrder,action:'approve'|'cancel')=>{
+    setSaving(true);
+    try{if(action==='approve')await salesOrderApi.approve(order.id);else await salesOrderApi.cancel(order.id,reason);setSelected(null);setCancelOrder(null);setReason('');await load();}
+    catch(error){appToast.error(error instanceof Error?error.message:'Unable to update sales order');}
+    finally{setSaving(false);}
   };
 
   return <PageContainer loading={loading} cap="SALES" title="Sales Orders" description="Capture customer demand, assign responsibility, and price finished-material order lines." actions={<Button variant="primary" onClick={openCreate}><Plus size={16}/> New Sales Order</Button>}>
@@ -113,8 +125,9 @@ export function SalesOrdersPage() {
       </div>
     </Modal>}
 
-    {selected && <Modal title={selected.number} description={`${selected.customer?.name ?? "-"} | Assigned to ${selected.assignedPerson?.fullName ?? "-"}`} onClose={() => setSelected(null)} extraWide footer={<Button onClick={() => setSelected(null)}>Close</Button>}>
+    {selected && <Modal title={selected.number} description={`${selected.customer?.name ?? "-"} | Assigned to ${selected.assignedPerson?.fullName ?? "-"}`} onClose={() => setSelected(null)} extraWide footer={<>{canReview&&selected.status==='SUBMITTED'&&<Button variant="primary" disabled={saving} onClick={()=>void review(selected,'approve')}>Approve order</Button>}{canReview&&['SUBMITTED','APPROVED','PARTIALLY_RECEIVED'].includes(selected.status)&&<Button variant="danger" disabled={saving} onClick={()=>{setCancelOrder(selected);setSelected(null);setReason('');}}>Cancel order</Button>}<Button onClick={() => setSelected(null)}>Close</Button></>}>
       <div className="overflow-x-auto rounded-lg border border-[#d7dfd6]"><table className="w-full min-w-[700px] text-sm"><thead className="bg-[#eef4ef]"><tr><th className="p-3 text-left">FM Product</th><th className="p-3 text-right">Quantity</th><th className="p-3 text-right">Unit Price</th><th className="p-3 text-right">Total</th></tr></thead><tbody>{selected.lines.map((line, index) => { const qty=Number(line.quantity), price=Number(line.unitPrice??0); return <tr key={line.id??index} className="border-t"><td className="p-3"><b>{line.product?.name ?? "-"}</b><small className="block text-[#73877c]">{line.product?.sku}</small></td><td className="p-3 text-right">{qty.toLocaleString()} {line.uom?.code}</td><td className="p-3 text-right">{money(price)}</td><td className="p-3 text-right font-semibold">{money(qty*price)}</td></tr>; })}</tbody><tfoot><tr className="border-t-2"><td colSpan={3} className="p-3 text-right font-bold">Grand Total</td><td className="p-3 text-right text-lg font-bold">{money(Number(selected.totalValue??0))}</td></tr></tfoot></table></div>
     </Modal>}
+    {cancelOrder&&<Modal title={'Cancel '+cancelOrder.number} description="Unshipped demand and reservations will be released. Existing shipments remain in the history." onClose={()=>{if(!saving)setCancelOrder(null);}} footer={<><Button disabled={saving} onClick={()=>setCancelOrder(null)}>Keep order</Button><Button variant="danger" disabled={saving||reason.trim().length<10} onClick={()=>void review(cancelOrder,'cancel')}>Cancel order</Button></>}><FormField label="Reason (at least 10 characters)" required><Input value={reason} maxLength={1000} onChange={event=>setReason(event.target.value)}/></FormField></Modal>}
   </PageContainer>;
 }

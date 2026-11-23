@@ -1,3 +1,7 @@
+import { releaseOrderReservations } from "../services/reservations.js";
+import { nextDocumentNumber } from "../services/documentNumbers.js";
+import { lockDocument, StockError } from "../services/stock.js";
+import { validateProductLines } from "../services/references.js";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
@@ -112,6 +116,7 @@ const createSalesOrderSchema = z.object({
 
 salesOrdersRouter.post("/", async (req, res) => {
   const parsed = createSalesOrderSchema.parse(req.body);
+  await validateProductLines(prisma, req.tenantId!, parsed.lines, ["FINISHED_GOOD", "BY_PRODUCT"]);
   const [customer, assignee] = await Promise.all([
     prisma.partner.findFirst({ where: { id: parsed.customerId, organizationId: req.tenantId, partnerType: "CUSTOMER" } }),
     prisma.organizationMember.findFirst({ where: { organizationId: req.tenantId, userId: parsed.assignedPersonId, isActive: true, user: { isActive: true } } }),
@@ -119,13 +124,9 @@ salesOrdersRouter.post("/", async (req, res) => {
   if (!customer) return res.status(422).json({ error: { message: "Select an active customer from this organization." } });
   if (!assignee) return res.status(422).json({ error: { message: "Select an active assigned person from this organization." } });
 
-  const count = await prisma.salesOrder.count({
-    where: { organizationId: req.tenantId },
-  });
-  const year = new Date().getFullYear();
-  const number = `SO-${year}-${String(count + 1).padStart(4, "0")}`;
-
-  const order = await prisma.salesOrder.create({
+  const order = await prisma.$transaction(async tx=>{
+  const number=await nextDocumentNumber(tx,req.tenantId!,"SalesOrder",`SO-${new Date().getFullYear()}-`);
+  return tx.salesOrder.create({
     data: {
       organizationId: req.tenantId!,
       number,
@@ -148,33 +149,47 @@ salesOrdersRouter.post("/", async (req, res) => {
     },
   });
 
+  });
   res.status(201).json({ data: order });
 });
 
-salesOrdersRouter.post("/:id/approve", async (req, res) => {
-  const order = await prisma.salesOrder.findFirst({
-    where: { id: req.params.id, organizationId: req.tenantId },
-  });
-  if (!order) return res.status(404).json({ error: { message: "Sales order not found" } });
-
-  const updated = await prisma.salesOrder.update({
-    where: { id: order.id },
-    data: { status: DocumentStatus.APPROVED },
-    include: { lines: true },
-  });
-
-  res.json({ data: updated });
+salesOrdersRouter.post("/:id/approve", async (req,res)=>{
+  const role=req.auth!.organizations.find(o=>o.id===req.tenantId)?.role.code;
+  if(!req.auth!.isSuperAdmin && !["ADMIN","MANAGER"].includes(role??"")) return res.status(403).json({error:{message:"Only an administrator or manager can approve sales orders."}});
+  const data=await prisma.$transaction(async tx=>{
+    await lockDocument(tx,"SalesOrder",String(req.params.id),req.tenantId!);
+    const order=await tx.salesOrder.findFirst({where:{id:String(req.params.id),organizationId:req.tenantId!}});
+    if(!order)throw new StockError("NOT_FOUND","Sales order not found",404);
+    if(order.status!=="SUBMITTED")throw new StockError("INVALID_STATUS","Only submitted orders can be approved");
+    return tx.salesOrder.update({where:{id:order.id},data:{status:DocumentStatus.APPROVED}});
+  });res.json({data});
 });
 
-salesOrdersRouter.delete("/:id", async (req, res) => {
-  const order = await prisma.salesOrder.findFirst({
-    where: { id: req.params.id, organizationId: req.tenantId },
-  });
-  if (!order) return res.status(404).json({ error: { message: "Sales order not found" } });
+salesOrdersRouter.post("/:id/cancel",async(req,res)=>{
+ const {reason}=z.object({reason:z.string().trim().min(10).max(1000)}).parse(req.body);
+ const org=req.tenantId!,role=req.auth!.organizations.find(o=>o.id===org)?.role.code;
+ if(!req.auth!.isSuperAdmin&&!["ADMIN","MANAGER"].includes(role??""))return res.status(403).json({error:{message:"Only a manager or administrator can cancel an order"}});
+ const data=await prisma.$transaction(async tx=>{
+  await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${org} FOR UPDATE`;
+  await lockDocument(tx,"SalesOrder",String(req.params.id),org);
+  const order=await tx.salesOrder.findFirst({where:{id:String(req.params.id),organizationId:org}});
+  if(!order)throw new StockError("NOT_FOUND","Order not found",404);
+  if(!["SUBMITTED","APPROVED","PARTIALLY_RECEIVED"].includes(order.status))throw new StockError("INVALID_STATUS","Only an open order can be cancelled. Shipped goods require a return.");
+  await releaseOrderReservations(tx,org,order.id);
+  const cancelled=await tx.salesOrder.update({where:{id:order.id},data:{status:"CANCELLED"}});
+  await tx.auditEvent.create({data:{organizationId:org,actorId:req.auth!.id,action:"SALES_ORDER_CANCELLED",resourceId:order.id,details:{reason}}});return cancelled;
+ });res.json({data});
+});
 
-  await prisma.salesOrder.delete({
-    where: { id: order.id },
+salesOrdersRouter.delete("/:id", async (req,res)=>{
+  const organizationId=req.tenantId!;
+  await prisma.$transaction(async tx=>{
+    await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${organizationId} FOR UPDATE`;
+    await lockDocument(tx,"SalesOrder",String(req.params.id),organizationId);
+    const order=await tx.salesOrder.findFirst({where:{id:String(req.params.id),organizationId}});
+    if(!order)throw new StockError("NOT_FOUND","Sales order not found",404);
+    if(!["DRAFT","SUBMITTED"].includes(order.status)||await tx.dispatch.count({where:{organizationId,salesOrderId:order.id}}))throw new StockError("ORDER_LOCKED","Only unapproved, undispatched orders can be removed. Use order cancellation for approved demand.");
+    await tx.salesOrder.update({where:{id:order.id},data:{status:DocumentStatus.CANCELLED}});
   });
-
-  res.json({ data: { message: "Sales order deleted successfully" } });
+  res.json({data:{message:"Sales order cancelled; history retained"}});
 });

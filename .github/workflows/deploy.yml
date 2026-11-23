@@ -1,70 +1,127 @@
 name: CI and production deployment
-
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
-  group: inventory-production
+  group: inventory-${{ github.ref }}
   cancel-in-progress: false
-
 jobs:
   ci:
-    name: Build and test
+    name: Build, secure and test
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      backend: ${{ steps.publish.outputs.backend }}
+      frontend: ${{ steps.publish.outputs.frontend }}
+      migration: ${{ steps.publish.outputs.migration }}
+      caddy: ${{ steps.publish.outputs.caddy }}
+      db: ${{ steps.publish.outputs.db }}
     env:
       DATABASE_URL: postgresql://inventory:ci-only@localhost:5432/inventory?schema=public
     steps:
-      - uses: actions/checkout@v6.1.0
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
-      - name: Install backend dependencies
-        run: npm ci --prefix backend
+      - run: npm ci --prefix backend
+      - run: npm ci --prefix frontend
+      - name: Dependency security gate
+        run: |
+          npm audit --prefix backend --audit-level=high
+          npm audit --prefix frontend --audit-level=high
       - name: Generate database client
         working-directory: backend
         run: npm run db:generate
-      - name: Build backend
-        run: npm run build --prefix backend
-      - name: Test reorder notifications
+      - run: npm run build --prefix backend
+      - name: Test stock boundaries
         working-directory: backend
         run: node node_modules/tsx/dist/cli.mjs --test tests/*.test.ts
-      - name: Install frontend dependencies
-        run: npm ci --prefix frontend
-      - name: Build frontend
-        run: npm run build --prefix frontend
-      - name: Test deployment script
+      - name: Real PostgreSQL security, migrations and stock workflows
+        run: node scripts/tests/integration.cjs
+      - run: npm run build --prefix frontend
+      - name: Zero-warning lint gate
+        run: npm run lint --prefix frontend
+      - name: Test deployment failure handling
         run: bash scripts/tests/deploy-production.test.sh
-      - name: Validate Caddy configuration
-        run: docker run --rm -e SERVER_IP=10.10.252.50 -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-      - name: Test real Caddy HTTPS routing
-        run: node scripts/tests/caddy-https.test.cjs
-      - name: Validate backend Docker build
-        run: docker build --tag inventory-api-ci ./backend
-      - name: Validate frontend Docker build
-        run: docker build --tag inventory-web-ci ./frontend
-
+      - name: Build release artifacts once
+        shell: bash
+        run: |
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
+          docker build --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" -t "$prefix/backend:$GITHUB_SHA" ./backend
+          docker build --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" --target migration -t "$prefix/migration:$GITHUB_SHA" ./backend
+          docker build --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" -t "$prefix/frontend:$GITHUB_SHA" ./frontend
+          docker build --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" -t "$prefix/caddy:$GITHUB_SHA" ./deploy/caddy
+          docker build --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" -t "$prefix/db:$GITHUB_SHA" ./deploy/postgres
+      - name: Test real Caddy HTTPS
+        shell: bash
+        run: |
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
+          CADDY_TEST_IMAGE="$prefix/caddy:$GITHUB_SHA" node scripts/tests/caddy-https.test.cjs
+      - name: Test complete production images over trusted HTTPS
+        shell: bash
+        run: |
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
+          SMOKE_BACKEND_IMAGE="$prefix/backend:$GITHUB_SHA" SMOKE_FRONTEND_IMAGE="$prefix/frontend:$GITHUB_SHA" SMOKE_MIGRATION_IMAGE="$prefix/migration:$GITHUB_SHA" SMOKE_CADDY_IMAGE="$prefix/caddy:$GITHUB_SHA" SMOKE_DB_IMAGE="$prefix/db:$GITHUB_SHA" node scripts/tests/stack-smoke.cjs
+      - name: Container vulnerability gate
+        shell: bash
+        run: |
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
+          bash scripts/check-container-security.sh "$prefix/backend:$GITHUB_SHA" "$prefix/frontend:$GITHUB_SHA" "$prefix/migration:$GITHUB_SHA" "$prefix/caddy:$GITHUB_SHA" "$prefix/db:$GITHUB_SHA"
+      - name: Publish immutable release references
+        id: publish
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          export DOCKER_CONFIG="$(mktemp -d)"
+          trap 'rm -rf -- "$DOCKER_CONFIG"' EXIT
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
+          for service in backend frontend migration caddy db; do
+            docker push "$prefix/$service:$GITHUB_SHA"
+            digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$prefix/$service:$GITHUB_SHA")"
+            printf '%s=%s\n' "$service" "$digest" >> "$GITHUB_OUTPUT"
+          done
   deploy:
-    name: Deploy on production server
+    name: Deploy tested image digests
     needs: ci
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: [self-hosted, Linux, inventory-production]
+    environment: production
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
     steps:
-      - uses: actions/checkout@v6.1.0
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-      - name: Back up database and deploy
+      - name: Back up, migrate and deploy
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INVENTORY_BACKEND_IMAGE: ${{ needs.ci.outputs.backend }}
+          INVENTORY_FRONTEND_IMAGE: ${{ needs.ci.outputs.frontend }}
+          INVENTORY_MIGRATION_IMAGE: ${{ needs.ci.outputs.migration }}
+          INVENTORY_CADDY_IMAGE: ${{ needs.ci.outputs.caddy }}
+          INVENTORY_DB_IMAGE: ${{ needs.ci.outputs.db }}
         shell: bash
-        run: bash scripts/deploy-production.sh
+        run: |
+          export DOCKER_CONFIG="$(mktemp -d)"
+          trap 'rm -rf -- "$DOCKER_CONFIG"' EXIT
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          bash scripts/deploy-production.sh

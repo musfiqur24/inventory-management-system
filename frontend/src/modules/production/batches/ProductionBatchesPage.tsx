@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState , useCallback} from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { api, selectedOrg } from "../../../shared/api/http";
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
 import { Tooltip } from "../../../components/ui/Tooltip";
@@ -26,7 +26,7 @@ import { Input } from "../../../components/ui/Input";
 import { Dropdown } from "../../../components/ui/Dropdown";
 import { TextArea } from "../../../components/ui/TextArea";
 import { DataTable } from "../../../components/ui/DataTable";
-import { statusBadge } from "../../../components/ui/Badge";
+import { StatusBadge as statusBadge } from "../../../components/ui/Badge";
 
 type Product = {
   id: string;
@@ -45,6 +45,7 @@ type Order = {
     product?: Product;
     category?: string;
     requiredQty: number;
+    unit?:string;
     unitPrice?: number;
   }[];
 };
@@ -56,6 +57,7 @@ type Line = {
   unitPrice: string;
   lotCode?: string;
   targetQty?: number;
+  unit?:string;
   expectedQty?: number;
   wastePercent?: number;
   locked?: boolean;
@@ -75,6 +77,7 @@ type Metrics = {
   salesPosted: boolean;
 };
 type FinishedGood = {
+  unit?:string;
   orderId: string;
   orderNumber: string;
   product?: Product;
@@ -142,7 +145,7 @@ export function ProductionBatchesPage() {
     outputs: [blank("OUTPUT")],
     costs: [blank("OPERATING")],
   });
-  const load = () =>
+  const load = useCallback(() =>
     runLoad(async () => {
       if (!selectedOrg()) return setMessage("Select an organisation first.");
       try {
@@ -155,10 +158,10 @@ export function ProductionBatchesPage() {
       } catch (error: any) {
         setMessage(error.message);
       }
-    });
+    }), [runLoad, setMessage]);
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
   const isManager =
     user?.organizations.find(
       (organization) => organization.id === selectedOrg(),
@@ -203,6 +206,7 @@ export function ProductionBatchesPage() {
                 ? "PACKAGING"
                 : "RAW_MATERIAL"),
             quantity: String(line.requiredQty ?? ""),
+            unit:line.unit,
             unitPrice: String(line.unitPrice ?? 0),
             locked: true,
           }))
@@ -216,6 +220,7 @@ export function ProductionBatchesPage() {
             unitPrice: String(item.product?.amount ?? ""),
             lotCode: "",
             targetQty: item.plannedQty,
+            unit:item.unit,
             expectedQty: item.expectedQty,
             wastePercent: item.wastePercent,
             locked: true,
@@ -314,7 +319,7 @@ export function ProductionBatchesPage() {
       <div className="px-4 py-4">
         <h3 className="text-sm font-bold">Finished material outputs</h3>
         <p className="text-xs text-[#7a9185]">
-          Enter the actual finished quantity and per kg price. Requisition
+          Enter the actual finished quantity and price in each displayed unit. Requisition
           products are locked.
         </p>
       </div>
@@ -325,7 +330,7 @@ export function ProductionBatchesPage() {
             <span className="px-2">Target</span>
             <span className="px-2">Expected (waste applied)</span>
             <span>Ready Received FM</span>
-            <span>Per kg price</span>
+            <span>Price per unit</span>
             <span className="px-2 text-right">Total price</span>
             <span />
           </div>
@@ -364,14 +369,14 @@ export function ProductionBatchesPage() {
               <span className="px-2 text-sm font-semibold">
                 {line.targetQty == null
                   ? "-"
-                  : Number(line.targetQty).toLocaleString() + " kg"}
+                  : Number(line.targetQty).toLocaleString() + " " + (line.unit??"kg")}
               </span>
               <span className="whitespace-nowrap px-2 text-sm font-semibold text-[#1b7250]">
                 {line.expectedQty == null ? (
                   "-"
                 ) : (
                   <>
-                    {Number(line.expectedQty).toLocaleString()} kg{" "}
+                    {Number(line.expectedQty).toLocaleString()} {line.unit??"kg"}{" "}
                     <small className="font-normal text-[#7a9185]">
                       ({line.wastePercent}% waste)
                     </small>
@@ -383,7 +388,7 @@ export function ProductionBatchesPage() {
                 min="0"
                 step="0.001"
                 value={line.quantity}
-                placeholder="Actual kg"
+                placeholder={"Actual "+(line.unit??"kg")}
                 onChange={(e) => {
                   const next = [...form.outputs];
                   next[index] = { ...line, quantity: e.target.value };
@@ -395,7 +400,7 @@ export function ProductionBatchesPage() {
                 min="0"
                 step="0.01"
                 value={line.unitPrice}
-                placeholder="Price / kg"
+                placeholder={"Price / "+(line.unit??"kg")}
                 onChange={(e) => {
                   const next = [...form.outputs];
                   next[index] = { ...line, unitPrice: e.target.value };
@@ -460,7 +465,7 @@ export function ProductionBatchesPage() {
                 ? "Raw material"
                 : "Utility / packaging"}
             </span>
-            <span>Total kg</span>
+            <span>Quantity</span>
             <span>Per kg price</span>
             <span className="text-right">Total price</span>
           </div>
@@ -472,7 +477,7 @@ export function ProductionBatchesPage() {
               <strong className="text-sm text-[#243b30]">
                 {line.description}
               </strong>
-              <span>{Number(line.quantity).toLocaleString()} kg</span>
+              <span>{Number(line.quantity).toLocaleString()} {line.unit??"kg"}</span>
               <span>{money(Number(line.unitPrice))}</span>
               <strong className="text-right">
                 {money(Number(line.quantity) * Number(line.unitPrice))}
@@ -563,9 +568,7 @@ export function ProductionBatchesPage() {
                           onClick={() =>
                             setExpanded((current) => {
                               const next = new Set(current);
-                              next.has(row.id)
-                                ? next.delete(row.id)
-                                : next.add(row.id);
+                              if(next.has(row.id))next.delete(row.id);else next.add(row.id);
                               return next;
                             })
                           }
@@ -676,12 +679,12 @@ export function ProductionBatchesPage() {
                                   {item.product?.name ?? "Finished good"}
                                 </strong>
                                 <div className="mt-1 text-xs text-[#708279]">
-                                  Target {item.plannedQty.toLocaleString()} kg -
+                                  Target {item.plannedQty.toLocaleString()} {item.unit??"kg"} -
                                   Output{" "}
                                   {Number(
                                     output?.quantity ?? 0,
                                   ).toLocaleString()}{" "}
-                                  kg - Waste {item.wastePercent}%
+                                  {item.unit??"kg"} - Waste {item.wastePercent}%
                                 </div>
                               </div>
                             );
@@ -847,8 +850,8 @@ export function ProductionBatchesPage() {
                   <div className="min-w-[680px]">
                     <div className="grid grid-cols-[2fr_.7fr_.8fr_.9fr] gap-4 bg-[#f2f5f3] px-4 py-2 text-[10px] font-bold uppercase text-[#53665c]">
                       <span>Product</span>
-                      <span className="text-right">Quantity (kg)</span>
-                      <span className="text-right">Per Kg Price (BDT)</span>
+                      <span className="text-right">Quantity</span>
+                      <span className="text-right">Unit Price (BDT)</span>
                       <span className="text-right">Total Price (BDT)</span>
                     </div>
                     {costLines.map((line, index) => (

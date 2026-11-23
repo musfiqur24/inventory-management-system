@@ -1,3 +1,10 @@
+import { operationsRouter } from "./routes/operations.js";
+import { measureRequests } from "./services/metrics.js";
+import { dashboardRouter } from "./routes/dashboard.js";
+import { reservationsRouter } from "./routes/reservations.js";
+import { prisma } from "./prisma.js";
+import { auditMutation } from "./services/audit.js";
+import { randomUUID } from "node:crypto";
 import { notificationsRouter } from "./routes/notifications.js";
 import { StockError } from "./services/stock.js";
 import express, { type ErrorRequestHandler } from "express";
@@ -50,6 +57,11 @@ export const logger = pino({
     : {}),
   redact: [
     "req.headers.authorization",
+    "req.headers.cookie",
+    'res.headers["set-cookie"]',
+    "req.body.currentPassword",
+    "req.body.code",
+    "req.body.refreshToken",
     "req.body.password",
     "password",
     "*.password",
@@ -66,7 +78,9 @@ export function createApp() {
       .map((value) => value.trim())
       .filter(Boolean),
   );
+  app.use(measureRequests);
   app.disable("x-powered-by");
+  app.set("trust proxy",env.TRUST_PROXY.split(",").map(v=>v.trim()));
   app.use(helmet({ crossOriginResourcePolicy: false }));
   app.use(
     cors({
@@ -81,6 +95,7 @@ export function createApp() {
   app.use(
     pinoHttp({
       logger,
+      genReqId: () => randomUUID(),
       customLogLevel: (_req, res, error) =>
         res.statusCode >= 500 || error
           ? "error"
@@ -97,29 +112,30 @@ export function createApp() {
       timestamp: new Date().toISOString(),
     }),
   );
+  app.get("/api/v1/ready",async(_req,res)=>{try{await prisma.$queryRaw`SELECT 1`;res.json({status:"ready"});}catch{res.status(503).json({status:"unavailable"});}});
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(spec));
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/organizations", organizationsRouter);
   app.get("/api/v1/my-organizations", authenticate, (req, res) =>
     res.json({ data: req.auth!.organizations }),
   );
-  app.use("/api/v1/users", authenticate, usersRouter);
+  app.use("/api/v1/users", authenticate, auditMutation, usersRouter);
 
   app.use("/api/v1/notifications", authenticate, tenant, notificationsRouter);
 
-  app.use("/api/v1/deliveries", authenticate, tenant, (req,res,next)=>{
+  app.use("/api/v1/deliveries", authenticate, tenant, auditMutation, (req,res,next)=>{
     const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
     if(role==="STAFF" && ((req.method==="POST" && req.path==="/") || req.method==="PUT"))return next();
     return requirePermission(req.method==="GET"?"departments.read":"departments.write")(req,res,next);
   }, deliveriesRouter);
 
-  app.use("/api/v1/purchase-requisitions", authenticate, tenant, (req,res,next)=>{
+  app.use("/api/v1/purchase-requisitions", authenticate, tenant, auditMutation, (req,res,next)=>{
     const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
     if(role==='STAFF' && ((req.method==='POST' && req.path==='/') || req.method==='PUT'))return next();
     return requirePermission(req.method==='GET'?'departments.read':'departments.write')(req,res,next);
   }, purchaseRequisitionsRouter);
 
-  app.use("/api/v1", authenticate, tenant, (req, res, next) =>
+  app.use("/api/v1", authenticate, tenant, auditMutation, (req, res, next) =>
     requirePermission(
       req.method === "POST" && req.path === "/weighments/reports"
         ? "weighbridge.submit"
@@ -146,7 +162,10 @@ export function createApp() {
   app.use("/api/v1/fm-store", fmStoreRouter);
   app.use("/api/v1/sales-orders", salesOrdersRouter);
   app.use("/api/v1/dispatches", dispatchesRouter);
+  app.use("/api/v1/dashboard",dashboardRouter);
+  app.use("/api/v1/operations",operationsRouter);
   app.use("/api/v1/inventory", inventoryRouter);
+  app.use("/api/v1/reservations", reservationsRouter);
   app.use("/api/v1/traceability", traceabilityRouter);
 
   app.use((_req, res) =>
@@ -200,10 +219,12 @@ export function createApp() {
               : "The requested record was not found.",
           },
         });
+    if(prismaCode==="P2004"||prismaCode==="P2010")return res.status(409).json({error:{code:"DATA_INVARIANT",message:"This change violates a stock or historical-record rule. Use an approved correction."}});
     if (prismaCode === "P2003")
       return res.status(409).json({ error: { code: "RELATION_CONFLICT", message: "This record is linked to another record and cannot be changed or deleted." } });
     if (prismaCode === "P2014")
       return res.status(409).json({ error: { code: "REQUIRED_RELATION", message: "This change would break a required linked record." } });
+    if(error && typeof error==="object" && "status" in error && [400,413].includes(Number(error.status)))return res.status(Number(error.status)).json({error:{code:"INVALID_REQUEST",message:Number(error.status)===413?"Request body is too large":"Malformed JSON request"}});
     logger.error({ err: error }, "Unhandled request error");
     return res
       .status(500)

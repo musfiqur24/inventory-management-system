@@ -1,8 +1,8 @@
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
-import { useEffect, useState } from "react";
+import { useEffect, useState , useCallback} from "react";
 import { Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { api, selectedOrg } from "../../../shared/api/http";
-import { useToastMessage } from "../../../components/ui/Toast";
+import { useToastMessage } from "../../../components/ui/ToastMessages";
 import { PageContainer } from "../../../components/ui/PageContainer";
 import { Card } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
@@ -88,7 +88,7 @@ export function ProductHierarchyPage() {
     [parentL3, setParentL3] = useState(""),
     [parentL4, setParentL4] = useState("");
   const [form, setForm] = useState(emptyForm);
-  const loadData = async () =>
+  const loadData = useCallback(async () =>
     runPageLoad(async () => {
       if (!selectedOrg())
         return setMessage("Please select an organisation first.");
@@ -107,10 +107,10 @@ export function ProductHierarchyPage() {
       } finally {
         setLoading(false);
       }
-    });
+    }), [setMessage, runPageLoad]);
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [loadData]);
   const map = new Map(categories.map((c) => [c.id, c]));
   const ancestry = (id?: string | null) => {
     const ids: Record<number, string> = {},
@@ -588,16 +588,7 @@ export function ProductHierarchyPage() {
                     ))}
                   </Dropdown>
                 </FormField>
-                <FormField label="Reorder Level Threshold">
-                  <Input
-                    type="number"
-                    min="0"
-                    value={form.reorderLevel}
-                    onChange={(e) =>
-                      setForm({ ...form, reorderLevel: e.target.value })
-                    }
-                  />
-                </FormField>
+                <p className="text-sm text-[#73877c]">RM Store alerts use a fixed reorder level of 20 kg on hand per product.</p>
               </>
             )}
           </div>

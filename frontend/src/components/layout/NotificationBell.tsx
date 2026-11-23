@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../shared/api/http";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
-import { appToast } from "../ui/Toast";
+import { appToast } from "../ui/ToastMessages";
 
 type Notification = {
   id: string;

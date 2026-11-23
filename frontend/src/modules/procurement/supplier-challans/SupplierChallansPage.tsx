@@ -1,7 +1,7 @@
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { appToast } from "../../../components/ui/Toast";
-import { useEffect, useMemo, useState } from "react";
+import { appToast } from "../../../components/ui/ToastMessages";
+import { useEffect, useMemo, useState , useCallback} from "react";
 import { CheckCircle2, CircleDashed, Eye, FileImage, FileText, Pencil, Plus, Printer, Search, Trash2, Truck, XCircle } from "lucide-react";
 import { api, selectedOrg } from "../../../shared/api/http";
 import { printReport } from "../../../shared/printReport";
@@ -15,7 +15,7 @@ import { ConfirmationModal } from "../../../components/ui/ConfirmationModal";
 import { FormField } from "../../../components/ui/FormField";
 import { Input } from "../../../components/ui/Input";
 import { Dropdown } from "../../../components/ui/Dropdown";
-import { statusBadge } from "../../../components/ui/Badge";
+import { StatusBadge as statusBadge } from "../../../components/ui/Badge";
 
 type Line={id?:string;productId:string;uomId:string;declaredQty:string;unitPrice:string;verifiedQty?:string|number|null;measuredQty?:string|number|null;weighbridgeMatched?:boolean|null;product?:{name:string;sku:string};uom?:{code:string}};
 type Weighment={id:string;vehicleNo?:string;grossWeight:number|string;tareWeight:number|string;netWeight:number|string;measuredAt:string;operator?:Manager|null};
@@ -32,9 +32,9 @@ export function SupplierChallansPage(){
  const [form,setForm]=useState(emptyForm),[lines,setLines]=useState<Line[]>([blank()]),[attachment,setAttachment]=useState<{name:string;mime:string;contentBase64:string}|null>(null);
  const [params,setParams]=useSearchParams(),requestedId=params.get("challan");
  const role=user?.organizations.find(o=>o.id===selectedOrg())?.role.code,isManager=role==="MANAGER";
- const load=async()=>runPageLoad(async()=>{if(!selectedOrg())return;try{const[d,r,p,pr,u,m]=await Promise.all([api<{data:Delivery[]}>("/deliveries"),api<{data:Requisition[]}>("/purchase-requisitions"),api<{data:Partner[]}>("/partners"),api<{data:Product[]}>("/products"),api<{data:UOM[]}>("/uoms"),api<{data:Manager[]}>("/deliveries/managers")]);setRows(d.data);setRequisitions(r.data.filter(x=>!["CANCELLED","REJECTED"].includes(x.status)));setSuppliers(p.data.filter(x=>x.partnerType==="SUPPLIER"||x.type==="SUPPLIER"||x.type==="BOTH"));setProducts(pr.data);setUoms(u.data);setManagers(m.data)}catch(e){appToast.error(e instanceof Error?e.message:"Unable to load challans.")}});
- useEffect(()=>{void load()},[]);
- useEffect(()=>{if(requestedId&&rows.length){const found=rows.find(x=>x.id===requestedId);if(found)openDetails(found)}},[requestedId,rows]);
+ const load=useCallback(async()=>runPageLoad(async()=>{if(!selectedOrg())return;try{const[d,r,p,pr,u,m]=await Promise.all([api<{data:Delivery[]}>("/deliveries"),api<{data:Requisition[]}>("/purchase-requisitions"),api<{data:Partner[]}>("/partners"),api<{data:Product[]}>("/products"),api<{data:UOM[]}>("/uoms"),api<{data:Manager[]}>("/deliveries/managers")]);setRows(d.data);setRequisitions(r.data.filter(x=>!["CANCELLED","REJECTED"].includes(x.status)));setSuppliers(p.data.filter(x=>x.partnerType==="SUPPLIER"||x.type==="SUPPLIER"||x.type==="BOTH"));setProducts(pr.data);setUoms(u.data);setManagers(m.data)}catch(e){appToast.error(e instanceof Error?e.message:"Unable to load challans.")}}), [runPageLoad]);
+ useEffect(()=>{void load()},[load]);
+
  const closeDetails=()=>{setSelected(null);setShowWeighbridge(false);setParams(current=>{const next=new URLSearchParams(current);next.delete("challan");return next},{replace:true})};
  const reset=()=>{setEditing(null);setForm(emptyForm);setLines([blank()]);setAttachment(null)};
  const startNew=()=>{reset();setOpen(true)};
@@ -98,6 +98,7 @@ export function SupplierChallansPage(){
     <footer class="footer"><span>Generated from FeedTrack &bull; ${new Date().toLocaleString("en-GB")}</span><span>Challan ${safe(d.number)}</span></footer>
    </main>`);
  };
+ useEffect(()=>{if(requestedId&&rows.length){const found=rows.find(x=>x.id===requestedId);if(found){const timer=window.setTimeout(()=>openDetails(found),0);return()=>window.clearTimeout(timer);}}},[requestedId,rows]);
  const filteredRows=rows.filter(d=>{const q=search.trim().toLowerCase();return !q||[d.number,d.requisition?.number,d.supplier?.name,d.vehicleNo,d.invoiceNo].some(value=>value?.toLowerCase().includes(q))});
  const canEdit=(d:Delivery)=>d.status==="SUBMITTED"&&!d.weighedAt&&!d.approvedAt&&d.createdById===user?.id,canApprove=(d:Delivery)=>isManager&&d.status==="WEIGHED"&&d.assignedManagerId===user?.id;
  return <PageContainer loading={pageLoading} cap="RM PROCUREMENT" title="Supplier Delivery Challans" description="Register supplier challans against RM requisitions." actions={<Button variant="primary" onClick={startNew}><Plus size={16}/> New Challan</Button>}>

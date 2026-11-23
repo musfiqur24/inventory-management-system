@@ -1,0 +1,687 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum StoreType {
+  RM_STORE
+  FM_STORE
+}
+
+enum UomCategory {
+  WEIGHT
+  VOLUME
+  COUNT
+  LENGTH
+  AREA
+  TIME
+}
+
+enum ProductType {
+  RAW_MATERIAL
+  FINISHED_GOOD
+  PACKAGING
+  BY_PRODUCT
+}
+enum DocumentStatus {
+  DRAFT
+  PENDING
+  SUBMITTED
+  WEIGHED
+  AWAITING_DELIVERY
+  APPROVED
+  IN_PRODUCTION
+  READY
+  COMPLETED
+  REJECTED
+  PARTIALLY_RECEIVED
+  INCOMPLETE
+  RECEIVED
+  CLOSED
+  CANCELLED
+}
+enum QualityStatus {
+  PENDING
+  RELEASED
+  HOLD
+  REJECTED
+}
+enum MovementType {
+  RECEIPT
+  ISSUE
+  TRANSFER
+  CONSUMPTION
+  PRODUCTION_OUTPUT
+  DISPATCH
+  ADJUSTMENT
+}
+
+model Organization {
+  id String @id @default(uuid())
+  code String @unique
+  name String
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sites Site[]
+  members OrganizationMember[]
+  uoms UnitOfMeasure[]
+  stores Store[]
+  groupLayers GroupLayer[]
+  controlLayers ControlLayer[]
+  subLayers SubLayer[]
+  subSubLayers SubSubLayer[]
+  products Product[]
+  currencies Currency[]
+}
+model Site {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  address String?
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
+  model User {
+    id String @id @default(uuid())
+    email String @unique
+    fullName String
+    avatarUrl String?
+    phone String?
+    presentAddress String?
+    permanentAddress String?
+    passwordHash String
+    isActive Boolean @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    memberships OrganizationMember[]
+    refreshTokens RefreshToken[]
+    passwordResetTokens PasswordResetToken[]
+    assignedRequisitions PurchaseRequisition[] @relation("RequisitionManager")
+    assignedProductionRequisitions ProductionRequisition[] @relation("ProductionRequisitionManager")
+    approvedProductionRequisitions ProductionRequisition[] @relation("ProductionRequisitionApprover")
+    assignedSalesOrders SalesOrder[] @relation("SalesOrderAssignee")
+    notifications Notification[]
+  }
+model UnitOfMeasure {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  dimension UomCategory
+  factorToBase Decimal @db.Decimal(18,6)
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  products Product[]
+  balances InventoryBalance[]
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
+model GroupLayer {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  children ControlLayer[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
+model ControlLayer {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent GroupLayer @relation(fields:[organizationId,parentId], references:[organizationId,id], onDelete:Restrict, onUpdate:Cascade)
+  children SubLayer[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId])
+}
+model SubLayer {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent ControlLayer @relation(fields:[organizationId,parentId], references:[organizationId,id], onDelete:Restrict, onUpdate:Cascade)
+  children SubSubLayer[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId])
+}
+model SubSubLayer {
+  id String @id @default(uuid())
+  organizationId String
+  parentId String
+  code String
+  name String
+  sortOrder Int @default(0)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  parent SubLayer @relation(fields:[organizationId,parentId], references:[organizationId,id], onDelete:Restrict, onUpdate:Cascade)
+  products Product[]
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,parentId])
+}
+model Currency {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  symbol String
+  decimalPlaces Int @default(2)
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
+  products Product[]
+  @@unique([organizationId,code])
+  @@index([organizationId])
+}
+model Product {
+  id String @id @default(uuid())
+  organizationId String
+  categoryId String
+  baseUomId String
+  sku String
+  name String
+  type ProductType
+  shelfLifeDays Int?
+  reorderLevel Decimal? @db.Decimal(18,3)
+  amount Decimal? @db.Decimal(18,2)
+  currencyId String?
+  isActive Boolean @default(true)
+  organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
+  category SubSubLayer @relation(fields:[organizationId,categoryId],references:[organizationId,id],onDelete:Restrict,onUpdate:Cascade)
+  baseUom UnitOfMeasure @relation(fields:[baseUomId],references:[id])
+  currency Currency? @relation(fields:[currencyId],references:[id],onDelete:Restrict)
+  balances InventoryBalance[]
+  @@unique([organizationId,sku])
+  @@index([organizationId,type,categoryId])
+}
+model Partner {
+  id String @id @default(uuid())
+  organizationId String
+  code String
+  name String
+  partnerType String
+  phone String?
+  address String?
+  email String?
+  contactPerson String?
+  isActive Boolean @default(true)
+  @@unique([organizationId,code])
+  @@index([organizationId,partnerType])
+}
+model Store {
+  id String @id @default(uuid())
+  organizationId String
+  siteId String?
+  code String
+  name String
+  storeType StoreType
+  address String?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  organization Organization @relation(fields:[organizationId],references:[id],onDelete:Cascade)
+  bins Bin[]
+  outgoing StockMovement[] @relation("FromStore")
+  incoming StockMovement[] @relation("ToStore")
+  @@unique([organizationId,id])
+  @@unique([organizationId,code])
+  @@index([organizationId,storeType])
+}
+model Bin {
+  id String @id @default(uuid())
+  organizationId String
+  storeId String
+  code String
+  name String
+  zone String?
+  capacity Decimal? @db.Decimal(18,3)
+  isActive Boolean @default(true)
+  store Store @relation(fields:[organizationId,storeId],references:[organizationId,id],onDelete:Restrict)
+  balances InventoryBalance[]
+  @@unique([organizationId,storeId,code])
+  @@index([organizationId,storeId])
+}
+model PurchaseRequisition {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  salesOrderRef String?
+  supplierId String?
+  status DocumentStatus @default(PENDING)
+  requestedOn DateTime @default(now())
+  approvedAt DateTime?
+  createdById String?
+  deletedAt DateTime?
+  assignedManagerId String?
+  approvedById String?
+  assignedManager User? @relation("RequisitionManager", fields:[assignedManagerId], references:[id], onDelete:Restrict)
+  lines PurchaseRequisitionLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,requestedOn])
+}
+model PurchaseRequisitionLine {
+  id String @id @default(uuid())
+  requisitionId String
+  productId String
+  uomId String
+  requestedQty Decimal @db.Decimal(18,3)
+  receivedQty Decimal @default(0) @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  requisition PurchaseRequisition @relation(fields:[requisitionId],references:[id],onDelete:Cascade)
+  @@index([requisitionId,productId])
+}
+model SupplierDelivery {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  requisitionId String?
+  supplierId String
+  invoiceNo String?
+  vehicleNo String?
+  grossWeight Decimal? @db.Decimal(18,3)
+  tareWeight Decimal? @db.Decimal(18,3)
+  netWeight Decimal? @db.Decimal(18,3)
+  status DocumentStatus @default(DRAFT)
+  deliveredAt DateTime?
+  createdById String?
+  assignedManagerId String?
+  approvedById String?
+  approvedAt DateTime?
+  weighedAt DateTime?
+  weighedById String?
+  deletedAt DateTime?
+  attachmentName String?
+  attachmentMime String?
+  attachmentData String? @db.Text
+  lines SupplierDeliveryLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,requisitionId,status])
+}
+model SupplierDeliveryLine {
+  id String @id @default(uuid())
+  deliveryId String
+  productId String
+  uomId String
+  declaredQty Decimal @db.Decimal(18,3)
+  acceptedQty Decimal? @db.Decimal(18,3)
+  verifiedQty Decimal? @db.Decimal(18,3)
+  measuredQty Decimal? @db.Decimal(18,3)
+  weighbridgeMatched Boolean?
+  weighedAt DateTime?
+  weighedById String?
+  unitPrice Decimal? @db.Decimal(18,4)
+  destinationBinId String?
+  delivery SupplierDelivery @relation(fields:[deliveryId],references:[id],onDelete:Cascade)
+  @@index([deliveryId,productId])
+}
+model Weighment {
+  id String @id @default(uuid())
+  organizationId String
+  deliveryId String?
+  issueId String?
+  vehicleNo String?
+  grossWeight Decimal @db.Decimal(18,3)
+  tareWeight Decimal @db.Decimal(18,3)
+  netWeight Decimal @db.Decimal(18,3)
+  measuredAt DateTime @default(now())
+  operatorId String?
+  @@index([organizationId,deliveryId,measuredAt])
+}
+model Lot {
+  id String @id @default(uuid())
+  organizationId String
+  productId String
+  code String
+  supplierDeliveryId String?
+  productionBatchId String?
+  manufactureDate DateTime?
+  expiryDate DateTime?
+  qualityStatus QualityStatus @default(PENDING)
+  balances InventoryBalance[]
+  @@unique([organizationId,code])
+  @@index([organizationId,productId,expiryDate])
+}
+model InventoryBalance {
+  id String @id @default(uuid())
+  organizationId String
+  productId String
+  lotId String
+  binId String
+  uomId String
+  quantity Decimal @db.Decimal(18,3)
+  reservedQty Decimal @default(0) @db.Decimal(18,3)
+  updatedAt DateTime @updatedAt
+  product Product @relation(fields:[productId],references:[id])
+  lot Lot @relation(fields:[lotId],references:[id])
+  bin Bin @relation(fields:[binId],references:[id])
+  uom UnitOfMeasure @relation(fields:[uomId],references:[id])
+  @@unique([organizationId,productId,lotId,binId])
+  @@index([organizationId,binId])
+}
+model StockMovement {
+  id String @id @default(uuid())
+  organizationId String
+  movementType MovementType
+  productId String
+  lotId String?
+  fromBinId String?
+  toBinId String?
+  fromStoreId String?
+  toStoreId String?
+  fromStore Store? @relation("FromStore",fields:[fromStoreId],references:[id],onDelete:Restrict)
+  toStore Store? @relation("ToStore",fields:[toStoreId],references:[id],onDelete:Restrict)
+  sourceDocumentId String?
+  sourceLineId String?
+  referenceType String?
+  referenceId String?
+  referenceNumber String?
+  postingKey String?
+  balanceAfter Decimal? @db.Decimal(18,3)
+  quantity Decimal @db.Decimal(18,3)
+  uomId String
+  documentType String
+  documentId String
+  occurredAt DateTime @default(now())
+  performedById String?
+  note String?
+  @@index([organizationId,productId,occurredAt])
+  @@index([organizationId,lotId,occurredAt])
+  @@index([organizationId,documentType,documentId])
+  @@unique([organizationId,postingKey])
+  @@index([organizationId,fromStoreId,occurredAt])
+  @@index([organizationId,toStoreId,occurredAt])
+}
+model Recipe {
+  id String @id @default(uuid())
+  organizationId String
+  finishedProductId String
+  version Int
+  outputQty Decimal @db.Decimal(18,3)
+  outputUomId String
+  status DocumentStatus @default(DRAFT)
+  wastePercent Decimal @default(0) @db.Decimal(5,2)
+  effectiveFrom DateTime?
+  lines RecipeLine[]
+  @@unique([organizationId,finishedProductId,version])
+}
+model RecipeLine {
+  id String @id @default(uuid())
+  recipeId String
+  rawProductId String
+  uomId String
+  quantityPerOutput Decimal @db.Decimal(18,3)
+  recipe Recipe @relation(fields:[recipeId],references:[id],onDelete:Cascade)
+  @@index([recipeId,rawProductId])
+}
+model ProductionRequisition {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  status DocumentStatus @default(SUBMITTED)
+  requestedOn DateTime @default(now())
+  createdById String?
+  assignedManagerId String?
+  approvedById String?
+  approvedAt DateTime?
+  assignedManager User? @relation("ProductionRequisitionManager",fields:[assignedManagerId],references:[id],onDelete:Restrict)
+  approvedBy User? @relation("ProductionRequisitionApprover",fields:[approvedById],references:[id],onDelete:Restrict)
+  orders ProductionOrder[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,requestedOn])
+}
+model ProductionOrder {
+  id String @id @default(uuid())
+  organizationId String
+  requisitionId String?
+  number String
+  finishedProductId String
+  recipeId String
+  plannedQty Decimal @db.Decimal(18,3)
+  plannedUomId String
+  expectedWastePercent Decimal @db.Decimal(5,2)
+  status DocumentStatus @default(DRAFT)
+  scheduledFor DateTime?
+  requisition ProductionRequisition? @relation(fields:[requisitionId],references:[id],onDelete:Restrict)
+  lines ProductionOrderLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,scheduledFor])
+  @@index([requisitionId])
+}
+model ProductionOrderLine {
+  id String @id @default(uuid())
+  productionOrderId String
+  productId String
+  uomId String
+  recipeQty Decimal @db.Decimal(18,3)
+  wasteAdjustedQty Decimal @db.Decimal(18,3)
+  issuedQty Decimal @default(0) @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  productionOrder ProductionOrder @relation(fields:[productionOrderId],references:[id],onDelete:Cascade)
+  @@index([productionOrderId,productId])
+}
+model MaterialIssue {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  productionOrderId String
+  fromSiteId String?
+  toSiteId String?
+  status DocumentStatus @default(DRAFT)
+  issuedAt DateTime?
+  lines MaterialIssueLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,productionOrderId,status])
+}
+model MaterialIssueLine {
+  id String @id @default(uuid())
+  issueId String
+  productId String
+  lotId String?
+  fromBinId String?
+  quantity Decimal @db.Decimal(18,3)
+  uomId String
+  materialIssue MaterialIssue @relation(fields:[issueId],references:[id],onDelete:Cascade)
+  @@index([issueId,productId])
+}
+model ProductionBatch {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  productionOrderId String
+  actualRMConsumed Decimal? @db.Decimal(18,3)
+  actualOutputQty Decimal? @db.Decimal(18,3)
+  actualWasteQty Decimal? @db.Decimal(18,3)
+  actualWastePercent Decimal? @db.Decimal(5,2)
+  wasteVariancePercent Decimal? @db.Decimal(5,2)
+  fgLotId String?
+  status DocumentStatus @default(DRAFT)
+  startedAt DateTime?
+  completedAt DateTime?
+  notes String?
+  inputLines ProductionBatchInput[]
+  outputLines ProductionBatchOutput[]
+  costLines ProductionBatchCost[]
+  @@unique([organizationId,number])
+  @@index([organizationId,productionOrderId,status])
+}
+
+model ProductionBatchInput {
+  id String @id @default(uuid())
+  batchId String
+  productId String?
+  description String
+  category String @default("RAW_MATERIAL")
+  quantity Decimal @db.Decimal(18,3)
+  unitPrice Decimal @db.Decimal(18,4)
+  batch ProductionBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  @@index([batchId,category])
+}
+model ProductionBatchOutput {
+  id String @id @default(uuid())
+  batchId String
+  productId String?
+  description String
+  quantity Decimal @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  lotCode String?
+  batch ProductionBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  @@index([batchId,productId])
+}
+model ProductionBatchCost {
+  id String @id @default(uuid())
+  batchId String
+  description String
+  quantity Decimal @default(1) @db.Decimal(18,3)
+  unitPrice Decimal @db.Decimal(18,4)
+  batch ProductionBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  @@index([batchId])
+}
+model SalesOrder {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  customerId String
+  assignedPersonId String?
+  assignedPerson User? @relation("SalesOrderAssignee", fields:[assignedPersonId], references:[id], onDelete:Restrict)
+  status DocumentStatus @default(DRAFT)
+  orderedAt DateTime @default(now())
+  lines SalesOrderLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,status,orderedAt])
+  @@index([assignedPersonId])
+}
+model SalesOrderLine {
+  id String @id @default(uuid())
+  salesOrderId String
+  productId String
+  uomId String
+  quantity Decimal @db.Decimal(18,3)
+  dispatchedQty Decimal @default(0) @db.Decimal(18,3)
+  unitPrice Decimal? @db.Decimal(18,4)
+  salesOrder SalesOrder @relation(fields:[salesOrderId],references:[id],onDelete:Cascade)
+  @@index([salesOrderId,productId])
+}
+model Dispatch {
+  id String @id @default(uuid())
+  organizationId String
+  number String
+  salesOrderId String
+  vehicleNo String?
+  status DocumentStatus @default(DRAFT)
+  dispatchedAt DateTime?
+  lines DispatchLine[]
+  @@unique([organizationId,number])
+  @@index([organizationId,salesOrderId,status])
+}
+model DispatchLine {
+  id String @id @default(uuid())
+  dispatchId String
+  productId String
+  lotId String?
+  fromBinId String?
+  quantity Decimal @db.Decimal(18,3)
+  uomId String
+  dispatch Dispatch @relation(fields:[dispatchId],references:[id],onDelete:Cascade)
+  @@index([dispatchId,productId])
+}
+
+
+
+model Permission {
+  id String @id @default(uuid())
+  key String @unique
+  name String
+  description String?
+  roles RolePermission[]
+  overrides UserPermissionOverride[]
+}
+model Role {
+  id String @id @default(uuid())
+  code String @unique
+  name String
+  description String?
+  isSystem Boolean @default(false)
+  permissions RolePermission[]
+  members OrganizationMember[]
+}
+model RolePermission {
+  roleId String
+  permissionId String
+  role Role @relation(fields:[roleId], references:[id], onDelete:Cascade)
+  permission Permission @relation(fields:[permissionId], references:[id], onDelete:Cascade)
+  @@id([roleId, permissionId])
+}
+model OrganizationMember {
+  id String @id @default(uuid())
+  userId String
+  organizationId String
+  roleId String
+  isActive Boolean @default(true)
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
+  role Role @relation(fields:[roleId], references:[id])
+  overrides UserPermissionOverride[]
+  @@unique([userId, organizationId])
+  @@index([organizationId, roleId])
+}
+model UserPermissionOverride {
+  id String @id @default(uuid())
+  membershipId String
+  permissionId String
+  granted Boolean
+  membership OrganizationMember @relation(fields:[membershipId], references:[id], onDelete:Cascade)
+  permission Permission @relation(fields:[permissionId], references:[id], onDelete:Cascade)
+  @@unique([membershipId, permissionId])
+}
+model RefreshToken {
+  id String @id @default(uuid())
+  tokenHash String @unique
+  userId String
+  expiresAt DateTime
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@index([userId, expiresAt])
+}
+
+model PasswordResetToken {
+  id String @id @default(uuid())
+  tokenHash String @unique
+  userId String
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+  user User @relation(fields:[userId], references:[id], onDelete:Cascade)
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model Notification {
+ id String @id @default(uuid())
+ organizationId String
+ recipientId String
+ requisitionId String?
+ deliveryId String?
+ title String
+ message String
+ createdAt DateTime @default(now())
+ readAt DateTime?
+ recipient User @relation(fields:[recipientId],references:[id],onDelete:Cascade)
+ @@index([organizationId,recipientId,createdAt])
+}

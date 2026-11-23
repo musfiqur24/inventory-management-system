@@ -1,7 +1,7 @@
 import { usePageLoading } from "../../../shared/hooks/usePageLoading";
 import { DataTable } from "../../../components/ui/DataTable";
-import { useToastMessage } from "../../../components/ui/Toast";
-import { useEffect, useState } from 'react';
+import { useToastMessage } from "../../../components/ui/ToastMessages";
+import { useEffect, useState , useCallback} from 'react';
 import { Plus, Pencil, Scale, Search, Trash2 } from 'lucide-react';
 import { api, selectedOrg } from '../../../shared/api/http';
 import { PageContainer } from '../../../components/ui/PageContainer';
@@ -29,13 +29,13 @@ export function UnitsOfMeasurePage() {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [form, setForm] = useState({ name: '', code: '', category: 'WEIGHT', decimalPlaces: '2', conversionFactor: '1' });
 
-  const load = async () => { return runPageLoad(async () => {
+  const load = useCallback(async () => { return runPageLoad(async () => {
     if (!selectedOrg()) return setMessage('Select an organisation first.');
     try { const r = await api<{ data: UOM[] }>('/uoms'); setRows(r.data); setMessage(''); }
     catch (e: any) { setMessage(e.message); }
-  });};
+  });}, [runPageLoad, setMessage]);
 
-  useEffect(() => { void load(); void runPageLoad(() => api<{ data: { value: string; label: string }[] }>('/uoms/categories').then(result => setCategoryOptions(result.data)).catch(error => setMessage(error.message))); }, []);
+  useEffect(() => { void load(); void runPageLoad(() => api<{ data: { value: string; label: string }[] }>('/uoms/categories').then(result => setCategoryOptions(result.data)).catch(error => setMessage(error.message))); }, [load, runPageLoad, setMessage]);
 
   const submit = async () => {
     if (saving) return;
