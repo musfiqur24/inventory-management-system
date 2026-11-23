@@ -7,7 +7,11 @@ ALTER TABLE "DispatchLine" ADD COLUMN     "unitPrice" DECIMAL(18,4);
 
 -- AlterTable
 ALTER TABLE "RefreshToken" ADD COLUMN     "consumedAt" TIMESTAMP(3),
-ADD COLUMN     "familyId" TEXT NOT NULL;
+ADD COLUMN     "familyId" TEXT;
+
+-- Give each existing token its own family before enforcing the required value.
+UPDATE "RefreshToken" SET "familyId" = "id";
+ALTER TABLE "RefreshToken" ALTER COLUMN "familyId" SET NOT NULL;
 
 -- CreateTable
 CREATE TABLE "AuditEvent" (
