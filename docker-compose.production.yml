@@ -76,7 +76,8 @@ services:
       DATABASE_URL: postgresql://inventory_app:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD}@db:5432/inventory?schema=public
       WEB_ORIGIN: https://${SERVER_IP:?Set SERVER_IP in .env.production}
       PASSWORD_RESET_URL: https://${SERVER_IP:?Set SERVER_IP in .env.production}/reset-password
-      LOG_LEVEL: info
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-pretty}
       JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 32 characters}
       INITIAL_SUPER_ADMIN_EMAIL: ${INITIAL_SUPER_ADMIN_EMAIL:?Set INITIAL_SUPER_ADMIN_EMAIL}
       INITIAL_SUPER_ADMIN_PASSWORD: ${INITIAL_SUPER_ADMIN_PASSWORD:?Set INITIAL_SUPER_ADMIN_PASSWORD of at least 12 characters}

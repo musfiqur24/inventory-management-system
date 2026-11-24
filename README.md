@@ -275,3 +275,47 @@ recognized financial profit or a complete accounting ledger. Accounting valuatio
 warehouse transfers/counts/returns/quality approval workflows, broad server-side
 pagination and production-size load testing remain separate work. See
 production-remediation-status-2026-11-23.txt for the precise audit disposition.
+
+### Readable container logs
+
+The backend uses Winston and writes readable logs to standard output in every
+Docker environment. Example (timestamps use Asia/Dhaka):
+
+```text
+[2026-11-24 10:30:00] INFO  | Inventory API started | port=4000
+[2026-11-24 10:30:01] INFO  | GET /api/v1/products -> 200 (12ms) | request completed
+[2026-11-24 10:30:02] ERROR | POST /api/v1/auth/login -> 401 (8ms) | Invalid email or password
+```
+
+After changing the logger, rebuild and recreate the backend from the project
+folder on the Docker host:
+
+```sh
+docker compose up -d --build backend
+docker compose logs --follow --tail=100
+```
+
+The second command combines logs from all services with container/service
+prefixes. To view only backend logs:
+
+```sh
+docker compose logs --follow --tail=100 backend
+```
+
+For the production stack, use the production Compose file and environment:
+
+```sh
+docker compose --env-file .env.production -f docker-compose.production.yml up -d --build backend
+docker compose --env-file .env.production -f docker-compose.production.yml logs --follow --tail=100
+```
+
+Run these commands on the host, rather than inside a backend container. Winston
+formats backend application logs; PostgreSQL, Caddy, frontend, and migration
+containers retain their own logging formats. Docker Compose combines them.
+`LOG_FORMAT=pretty` is the default; set `LOG_FORMAT=json` for a log collector.
+`LOG_LEVEL` defaults to `info` (other supported values: `error`, `warn`, `http`,
+`verbose`, `debug`, `silly`). HTTP logs include method, path, status, duration,
+and the response error message for failed requests. All HTTP failures (4xx/5xx)
+use ERROR. A generated request ID is returned in `X-Request-ID` and included in
+JSON logs. Automatic request logs
+exclude bodies, headers, and query strings.

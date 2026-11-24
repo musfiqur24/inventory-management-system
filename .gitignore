@@ -97,6 +97,8 @@ coverage/
 .nyc_output/
 
 # ===== MISC =====
+/output/pdf/deployment-workflow-guide.pdf
+/tmp/pdfs/
 *.pem
 *.key
 *.cert

@@ -8,10 +8,17 @@ await client.connect();
 try{
  await client.query("SELECT pg_advisory_lock(831142,1)");
  const {rows}=await client.query(`SELECT to_regclass('public."_prisma_migrations"') AS history,to_regclass('public."User"') AS users`);
- if(!rows[0].history&&rows[0].users){
+ // Legacy installations may already have migration history from an older
+ // migration set. A failed attempt also creates history, so check this baseline
+ // itself rather than treating the history table as proof of adoption.
+ const baseline='202611230001_baseline';
+ const applied=rows[0].history
+   ? (await client.query('SELECT 1 FROM "_prisma_migrations" WHERE migration_name=$1 AND finished_at IS NOT NULL AND rolled_back_at IS NULL',[baseline])).rowCount>0
+   : false;
+ if(rows[0].users&&!applied){
    const diff=cli(['migrate','diff','--from-config-datasource','--to-schema','prisma/baseline.prisma','--exit-code'],[0,2]);
    if(diff.status===2)throw new Error('Existing database differs from the recorded baseline. Review drift before adoption; no reset or forced change was attempted.');
-   cli(['migrate','resolve','--applied','202611230001_baseline']);
+   cli(['migrate','resolve','--applied',baseline]);
  }
  const result=cli(['migrate','deploy']);process.stdout.write(result.stdout);
  if(process.env.APP_DB_PASSWORD){

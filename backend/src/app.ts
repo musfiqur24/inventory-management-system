@@ -4,14 +4,13 @@ import { dashboardRouter } from "./routes/dashboard.js";
 import { reservationsRouter } from "./routes/reservations.js";
 import { prisma } from "./prisma.js";
 import { auditMutation } from "./services/audit.js";
-import { randomUUID } from "node:crypto";
+import { requestLogger } from "./logger.js";
+export { logger } from "./logger.js";
 import { notificationsRouter } from "./routes/notifications.js";
 import { StockError } from "./services/stock.js";
 import express, { type ErrorRequestHandler } from "express";
 import cors from "cors";
 import helmet from "helmet";
-import pino from "pino";
-import { pinoHttp } from "pino-http";
 import swaggerUi from "swagger-ui-express";
 import { ZodError } from "zod";
 import { env } from "./config.js";
@@ -41,36 +40,6 @@ import { dispatchesRouter } from "./routes/dispatches.js";
 import { inventoryRouter } from "./routes/inventory.js";
 import { traceabilityRouter } from "./routes/traceability.js";
 
-export const logger = pino({
-  level: env.LOG_LEVEL,
-  ...(env.NODE_ENV === "development"
-    ? {
-        transport: {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "SYS:standard",
-            ignore: "pid,hostname",
-          },
-        },
-      }
-    : {}),
-  redact: [
-    "req.headers.authorization",
-    "req.headers.cookie",
-    'res.headers["set-cookie"]',
-    "req.body.currentPassword",
-    "req.body.code",
-    "req.body.refreshToken",
-    "req.body.password",
-    "password",
-    "*.password",
-    "req.body.token",
-    "token",
-    "*.token",
-  ],
-});
-
 export function createApp() {
   const app = express();
   const allowedOrigins = new Set(
@@ -78,6 +47,7 @@ export function createApp() {
       .map((value) => value.trim())
       .filter(Boolean),
   );
+  app.use(requestLogger);
   app.use(measureRequests);
   app.disable("x-powered-by");
   app.set("trust proxy",env.TRUST_PROXY.split(",").map(v=>v.trim()));
@@ -92,18 +62,6 @@ export function createApp() {
     }),
   );
   app.use(express.json({ limit: "12mb" }));
-  app.use(
-    pinoHttp({
-      logger,
-      genReqId: () => randomUUID(),
-      customLogLevel: (_req, res, error) =>
-        res.statusCode >= 500 || error
-          ? "error"
-          : res.statusCode >= 400
-            ? "warn"
-            : "info",
-    }),
-  );
 
   app.get("/api/v1/health", (_req, res) =>
     res.json({
@@ -151,7 +109,6 @@ export function createApp() {
   app.use("/api/v1/partners", partnersRouter);
   app.use("/api/v1/bins", binsRouter);
   app.use("/api/v1/stores", storesRouter);
-
 
   app.use("/api/v1/weighments", weighmentsRouter);
   app.use("/api/v1/rm-store", rmStoreRouter);
@@ -225,7 +182,7 @@ export function createApp() {
     if (prismaCode === "P2014")
       return res.status(409).json({ error: { code: "REQUIRED_RELATION", message: "This change would break a required linked record." } });
     if(error && typeof error==="object" && "status" in error && [400,413].includes(Number(error.status)))return res.status(Number(error.status)).json({error:{code:"INVALID_REQUEST",message:Number(error.status)===413?"Request body is too large":"Malformed JSON request"}});
-    logger.error({ err: error }, "Unhandled request error");
+    _req.log.error("Unhandled request error", { err: error });
     return res
       .status(500)
       .json({
