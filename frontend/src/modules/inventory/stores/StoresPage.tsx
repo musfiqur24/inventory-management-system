@@ -43,7 +43,7 @@ export function StoresPage({ fixedType }: { fixedType?: StoreType }) {
   const isSetup = !fixedType;
   const [stockView, setStockView] = useState<"detail" | "product">("detail");
   const { can } = useAuth();
-  const writable = can("departments.write");
+  const writable = can("feed.setup.write");
   const [stores, setStores] = useState<Store[]>([]),
     [storeId, setStoreId] = useState("");
   const [bins, setBins] = useState<Bin[]>([]),

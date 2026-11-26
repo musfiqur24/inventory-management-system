@@ -447,7 +447,10 @@ export const ModelName = {
   AuthThrottle: 'AuthThrottle',
   ReorderState: 'ReorderState',
   Reservation: 'Reservation',
-  MailOutbox: 'MailOutbox'
+  MailOutbox: 'MailOutbox',
+  BusinessModule: 'BusinessModule',
+  MembershipModuleAccess: 'MembershipModuleAccess',
+  ModuleReport: 'ModuleReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -463,7 +466,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "currency" | "product" | "partner" | "store" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionRequisition" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "productionBatchInput" | "productionBatchOutput" | "productionBatchCost" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken" | "passwordResetToken" | "notification" | "auditEvent" | "documentSequence" | "idempotencyRequest" | "authThrottle" | "reorderState" | "reservation" | "mailOutbox"
+    modelProps: "organization" | "site" | "user" | "unitOfMeasure" | "groupLayer" | "controlLayer" | "subLayer" | "subSubLayer" | "currency" | "product" | "partner" | "store" | "bin" | "purchaseRequisition" | "purchaseRequisitionLine" | "supplierDelivery" | "supplierDeliveryLine" | "weighment" | "lot" | "inventoryBalance" | "stockMovement" | "recipe" | "recipeLine" | "productionRequisition" | "productionOrder" | "productionOrderLine" | "materialIssue" | "materialIssueLine" | "productionBatch" | "productionBatchInput" | "productionBatchOutput" | "productionBatchCost" | "salesOrder" | "salesOrderLine" | "dispatch" | "dispatchLine" | "permission" | "role" | "rolePermission" | "organizationMember" | "userPermissionOverride" | "refreshToken" | "passwordResetToken" | "notification" | "auditEvent" | "documentSequence" | "idempotencyRequest" | "authThrottle" | "reorderState" | "reservation" | "mailOutbox" | "businessModule" | "membershipModuleAccess" | "moduleReport"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4241,6 +4244,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BusinessModule: {
+      payload: Prisma.$BusinessModulePayload<ExtArgs>
+      fields: Prisma.BusinessModuleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessModuleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessModuleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessModuleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessModuleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>
+        }
+        findMany: {
+          args: Prisma.BusinessModuleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>[]
+        }
+        create: {
+          args: Prisma.BusinessModuleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>
+        }
+        createMany: {
+          args: Prisma.BusinessModuleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessModuleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessModuleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>
+        }
+        update: {
+          args: Prisma.BusinessModuleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessModuleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessModuleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessModuleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessModuleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessModulePayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessModuleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusinessModule>
+        }
+        groupBy: {
+          args: Prisma.BusinessModuleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessModuleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessModuleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessModuleCountAggregateOutputType> | number
+        }
+      }
+    }
+    MembershipModuleAccess: {
+      payload: Prisma.$MembershipModuleAccessPayload<ExtArgs>
+      fields: Prisma.MembershipModuleAccessFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MembershipModuleAccessFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MembershipModuleAccessFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>
+        }
+        findFirst: {
+          args: Prisma.MembershipModuleAccessFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MembershipModuleAccessFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>
+        }
+        findMany: {
+          args: Prisma.MembershipModuleAccessFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>[]
+        }
+        create: {
+          args: Prisma.MembershipModuleAccessCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>
+        }
+        createMany: {
+          args: Prisma.MembershipModuleAccessCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MembershipModuleAccessCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>[]
+        }
+        delete: {
+          args: Prisma.MembershipModuleAccessDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>
+        }
+        update: {
+          args: Prisma.MembershipModuleAccessUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>
+        }
+        deleteMany: {
+          args: Prisma.MembershipModuleAccessDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MembershipModuleAccessUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MembershipModuleAccessUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>[]
+        }
+        upsert: {
+          args: Prisma.MembershipModuleAccessUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipModuleAccessPayload>
+        }
+        aggregate: {
+          args: Prisma.MembershipModuleAccessAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMembershipModuleAccess>
+        }
+        groupBy: {
+          args: Prisma.MembershipModuleAccessGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MembershipModuleAccessGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MembershipModuleAccessCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MembershipModuleAccessCountAggregateOutputType> | number
+        }
+      }
+    }
+    ModuleReport: {
+      payload: Prisma.$ModuleReportPayload<ExtArgs>
+      fields: Prisma.ModuleReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModuleReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModuleReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>
+        }
+        findFirst: {
+          args: Prisma.ModuleReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModuleReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>
+        }
+        findMany: {
+          args: Prisma.ModuleReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>[]
+        }
+        create: {
+          args: Prisma.ModuleReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>
+        }
+        createMany: {
+          args: Prisma.ModuleReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ModuleReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>[]
+        }
+        delete: {
+          args: Prisma.ModuleReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>
+        }
+        update: {
+          args: Prisma.ModuleReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModuleReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModuleReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ModuleReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.ModuleReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModuleReportPayload>
+        }
+        aggregate: {
+          args: Prisma.ModuleReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModuleReport>
+        }
+        groupBy: {
+          args: Prisma.ModuleReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModuleReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModuleReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModuleReportCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4824,6 +5049,9 @@ export type DispatchLineScalarFieldEnum = (typeof DispatchLineScalarFieldEnum)[k
 
 
 export const PermissionScalarFieldEnum = {
+  moduleCode: 'moduleCode',
+  resource: 'resource',
+  action: 'action',
   id: 'id',
   key: 'key',
   name: 'name',
@@ -4834,6 +5062,7 @@ export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof
 
 
 export const RoleScalarFieldEnum = {
+  organizationId: 'organizationId',
   id: 'id',
   code: 'code',
   name: 'name',
@@ -4995,6 +5224,39 @@ export const MailOutboxScalarFieldEnum = {
 export type MailOutboxScalarFieldEnum = (typeof MailOutboxScalarFieldEnum)[keyof typeof MailOutboxScalarFieldEnum]
 
 
+export const BusinessModuleScalarFieldEnum = {
+  code: 'code',
+  name: 'name',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder'
+} as const
+
+export type BusinessModuleScalarFieldEnum = (typeof BusinessModuleScalarFieldEnum)[keyof typeof BusinessModuleScalarFieldEnum]
+
+
+export const MembershipModuleAccessScalarFieldEnum = {
+  membershipId: 'membershipId',
+  moduleCode: 'moduleCode',
+  canRead: 'canRead',
+  canWrite: 'canWrite'
+} as const
+
+export type MembershipModuleAccessScalarFieldEnum = (typeof MembershipModuleAccessScalarFieldEnum)[keyof typeof MembershipModuleAccessScalarFieldEnum]
+
+
+export const ModuleReportScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  moduleCode: 'moduleCode',
+  title: 'title',
+  reportingDate: 'reportingDate',
+  metrics: 'metrics',
+  createdAt: 'createdAt'
+} as const
+
+export type ModuleReportScalarFieldEnum = (typeof ModuleReportScalarFieldEnum)[keyof typeof ModuleReportScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5009,6 +5271,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -5418,6 +5687,9 @@ export type GlobalOmitConfig = {
   reorderState?: Prisma.ReorderStateOmit
   reservation?: Prisma.ReservationOmit
   mailOutbox?: Prisma.MailOutboxOmit
+  businessModule?: Prisma.BusinessModuleOmit
+  membershipModuleAccess?: Prisma.MembershipModuleAccessOmit
+  moduleReport?: Prisma.ModuleReportOmit
 }
 
 /* Types for Logging */

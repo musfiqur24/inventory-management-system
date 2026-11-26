@@ -1,3 +1,5 @@
+import { ReportCards, type ModuleReport } from "../agro/AgroReportsPage";
+import { useAuth } from "../auth/AuthContext";
 import { twMerge } from 'tailwind-merge';
 import { useToastMessage } from "../../components/ui/ToastMessages";
 import { iconVariants, badgeVariants } from '../../shared/styles/variants';
@@ -8,15 +10,17 @@ import { api, selectedOrg } from '../../shared/api/http';
 import { PageContainer } from '../../components/ui/PageContainer';
 
 interface DashboardStats {
-  pendingRequisitions: number;
-  pendingDeliveries: number;
-  activeBatches: number;
-  pendingDispatches: number;
-  lowStockCount: number;
+  reports:ModuleReport[];
+  pendingRequisitions?: number|null;
+  pendingDeliveries: number|null;
+  activeBatches: number|null;
+  pendingDispatches: number|null;
+  lowStockCount: number|null;
   movements: any[];
 }
 
 export function DashboardPage() {
+  const {canModule}=useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [, setMessage] = useToastMessage();
   const [loading, setLoading] = useState(true);
@@ -34,13 +38,13 @@ export function DashboardPage() {
     return()=>{active=false;};
   }, [setMessage]);
 
-  const statCards = stats
+  const statCards = stats && stats.pendingRequisitions!==undefined
     ? [
         { label: 'Open Requisitions', value: stats.pendingRequisitions, icon: ShoppingCart, color: 'yellow', sub: 'Awaiting supply' },
         { label: 'Pending Challans', value: stats.pendingDeliveries, icon: Truck, color: 'purple', sub: 'In transit' },
         { label: 'Active Batches', value: stats.activeBatches, icon: Factory, color: 'brand', sub: 'Production running' },
-        { label: 'Low Stock Items', value: stats.lowStockCount, icon: AlertTriangle, color: stats.lowStockCount > 0 ? 'red' : 'green', sub: 'Below reorder level' },
-      ]
+        { label: 'Low Stock Items', value: stats.lowStockCount, icon: AlertTriangle, color: (stats.lowStockCount ?? 0) > 0 ? 'red' : 'green', sub: 'Below reorder level' },
+      ].filter(card=>card.value!==null)
     : [];
 
   const movementTypeColor: Record<string, string> = {
@@ -52,7 +56,7 @@ export function DashboardPage() {
     <PageContainer loading={loading}
       cap="OPERATIONS OVERVIEW"
       title="Dashboard"
-      description="Live feed production inventory snapshot across the entire workflow."
+      description="Reports and metrics for your accessible modules."
       headerContent={stats && (
         <div className="summary-grid grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
           {statCards.map((card) => (
@@ -71,7 +75,8 @@ export function DashboardPage() {
       )}
    >
 
-      {stats && (
+      {canModule("agro") && stats && <section className="mb-5"><h2 className="mb-3 text-lg font-semibold">Agro reports & metrics</h2><ReportCards reports={stats.reports.filter(r=>r.moduleCode==="agro")}/></section>}
+      {stats && stats.pendingRequisitions!==undefined && (
         <>
           <div className="grid grid-cols-[1fr_1.2fr] gap-5 max-[900px]:grid-cols-[1fr] mt-0">
             <Card>

@@ -9,8 +9,10 @@ function docker(args){const r=spawnSync('docker',args,{encoding:'utf8'});if(r.st
  let ready=false;for(let i=0;i<60;i++){if(spawnSync('docker',['exec',name,'pg_isready','-h','127.0.0.1','-U','inventory','-d','inventory'],{stdio:'ignore'}).status===0){ready=true;break;}await new Promise(r=>setTimeout(r,300));}if(!ready)throw Error('Test DB did not become ready');
  const info=JSON.parse(docker(['inspect','--format','{{json .NetworkSettings.Ports}}',name]));const port=info['5432/tcp'][0].HostPort;
  const env={...process.env,DATABASE_URL:`postgresql://inventory:integration-only@127.0.0.1:${port}/inventory`,NODE_ENV:'test',JWT_SECRET:'integration-test-only-secret-with-at-least-32-characters',WEB_ORIGIN:'http://localhost:5173',SESSION_COOKIE_SECURE:'false',LOG_LEVEL:'error',INITIAL_SUPER_ADMIN_EMAIL:'admin@example.com',INITIAL_SUPER_ADMIN_PASSWORD:'IntegrationPassword123',APP_DB_PASSWORD:'integration-app-only'};
+ env.MIGRATION_DATABASE_URL=env.DATABASE_URL;
  const pg=require(path.resolve(__dirname,'../../backend/node_modules/pg'));
  const baseline=require('node:fs').readFileSync(path.resolve(__dirname,'../../backend/prisma/migrations/202611230001_baseline/migration.sql'),'utf8');
+ await require('./role-upgrade.cjs')(pg,env.DATABASE_URL);
  const connection=new pg.Client({connectionString:env.DATABASE_URL});await connection.connect();
  try{
    for(const database of ['legacy_upgrade','legacy_drift','legacy_history','legacy_failed_baseline']){
@@ -20,16 +22,16 @@ function docker(args){const r=spawnSync('docker',args,{encoding:'utf8'});if(r.st
      try{await legacy.query(baseline);await legacy.query(`INSERT INTO "Organization" (id,code,name,"updatedAt") VALUES ('legacy-kept','LEGACY','Preserve me',now())`);if(database==='legacy_drift')await legacy.query('ALTER TABLE "User" ADD COLUMN unexpected text');}finally{await legacy.end();}
      if(['legacy_history','legacy_failed_baseline'].includes(database)){
        const args=['node_modules/prisma/build/index.js','migrate'];
-       const seeded=spawnSync(process.execPath,[...args,'resolve','--applied','202611230001_baseline'],{cwd:path.resolve(__dirname,'../../backend'),env:{...env,DATABASE_URL:url.toString()},encoding:'utf8'});
+       const seeded=spawnSync(process.execPath,[...args,'resolve','--applied','202611230001_baseline'],{cwd:path.resolve(__dirname,'../../backend'),env:{...env,DATABASE_URL:url.toString(),MIGRATION_DATABASE_URL:url.toString()},encoding:'utf8'});
        if(seeded.status!==0)throw Error(seeded.stderr||seeded.stdout);
        const history=new pg.Client({connectionString:url.toString()});await history.connect();
        try{await history.query(`UPDATE "_prisma_migrations" SET migration_name='20260906090000_baseline_auth_rbac' WHERE migration_name='202611230001_baseline'`);}finally{await history.end();}
        if(database==='legacy_failed_baseline'){
-         const failed=spawnSync(process.execPath,[...args,'deploy'],{cwd:path.resolve(__dirname,'../../backend'),env:{...env,DATABASE_URL:url.toString()},encoding:'utf8'});
+         const failed=spawnSync(process.execPath,[...args,'deploy'],{cwd:path.resolve(__dirname,'../../backend'),env:{...env,DATABASE_URL:url.toString(),MIGRATION_DATABASE_URL:url.toString()},encoding:'utf8'});
          if(failed.status===0||!(failed.stderr+failed.stdout).includes('StoreType'))throw Error('Failed-baseline fixture did not reproduce the enum collision');
        }
      }
-     const migrated=spawnSync(process.execPath,['scripts/migrate.mjs'],{cwd:path.resolve(__dirname,'../../backend'),env:{...env,DATABASE_URL:url.toString()},encoding:'utf8'});
+     const migrated=spawnSync(process.execPath,['scripts/migrate.mjs'],{cwd:path.resolve(__dirname,'../../backend'),env:{...env,DATABASE_URL:url.toString(),MIGRATION_DATABASE_URL:url.toString()},encoding:'utf8'});
      if(database!=='legacy_drift'&&migrated.status!==0)throw Error(migrated.stderr||migrated.stdout);
      if(database==='legacy_drift'&&migrated.status===0)throw Error('Schema drift was not rejected');
      const verify=new pg.Client({connectionString:url.toString()});await verify.connect();try{const result=await verify.query(`SELECT name FROM "Organization" WHERE id='legacy-kept'`);if(result.rows[0]?.name!=='Preserve me')throw Error('Migration changed legacy data');}finally{await verify.end();}

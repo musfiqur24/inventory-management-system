@@ -108,7 +108,7 @@ export function ProductionOrdersPage() {
     return [...materials.values()].sort((a, b) => b.quantity - a.quantity);
   })();
 
-  const isManager = user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code === 'MANAGER';
+  const isManager = can("feed.production.write");
   const selectedUtilityIds = utilities.filter((line) => line.productId).map((line) => line.productId);
   const utilitiesAreUnique = new Set(selectedUtilityIds).size === selectedUtilityIds.length;
   const canCreate = utilitiesAreUnique && Boolean(plannedStartDate) && Boolean(assignedManagerId) && itemPreview.length > 0 && itemPreview.every((item) => item.recipe && item.targetKg > 0) && new Set(itemPreview.map((item) => item.recipe?.finishedProductId)).size === itemPreview.length;
@@ -186,7 +186,7 @@ export function ProductionOrdersPage() {
   });
   const canApproveGroup = (orders: ProductionOrder[]) => {
     const requisition = orders[0];
-    return requisition?.status === 'PENDING' && requisition.assignedManagerId === user?.id && can('departments.write') && user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code === 'MANAGER';
+    return requisition?.status === 'PENDING' && requisition.assignedManagerId === user?.id && can('feed.production.write');
   };
   const approveGroup = async (orders: ProductionOrder[]) => {
     const requisitionId = orders[0]?.requisitionId;

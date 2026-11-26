@@ -42,11 +42,11 @@ export function RmRequisitionsPage() {
   const [editing, setEditing] = useState<Requisition | null>(null);
   const [deleting, setDeleting] = useState<Requisition | null>(null);
   const [deletePending, setDeletePending] = useState(false);
-  const isManager = user?.organizations.find(o=>o.id===selectedOrg())?.role.code === "MANAGER";
+  const isManager = can("feed.procurement.write");
   const canDelete = () => isManager;
   const canEdit = (req:Requisition) => !req.approvedAt && ["DRAFT","PENDING"].includes(req.status) && (req.createdById===user?.id || (isManager && req.assignedManagerId===user?.id));
   const [approving, setApproving] = useState<string | null>(null);
-  const canApprove = (req: Requisition) => req.status === 'PENDING' && req.assignedManagerId === user?.id && can('departments.write') && user?.organizations.find(o=>o.id===selectedOrg())?.role.code === 'MANAGER';
+  const canApprove = (req: Requisition) => req.status === 'PENDING' && req.assignedManagerId === user?.id && can('feed.procurement.write');
   const closeDetails = () => { setSelected(null); setRejectedLineIds([]); setParams(current => { const next = new URLSearchParams(current); next.delete('requisition'); return next; }, {replace:true}); };
   const [rows, setRows] = useState<Requisition[]>([]);
   const [products, setProducts] = useState<Product[]>([]);

@@ -1,5 +1,4 @@
 import { useAuth } from "../../auth/AuthContext";
-import { selectedOrg } from "../../../shared/api/http";
 import { useEffect, useState , useCallback} from "react";
 import { Eye, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { PageContainer } from "../../../components/ui/PageContainer";
@@ -19,8 +18,8 @@ const blankLine = (): DraftLine => ({ productId: "", uomId: "", quantity: "", un
 const money = (value: number) => "BDT " + value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function SalesOrdersPage() {
-  const {user}=useAuth();
-  const canReview=Boolean(user?.isSuperAdmin||user?.organizations.some(o=>o.id===selectedOrg()&&['ADMIN','MANAGER'].includes(o.role.code)));
+  const {can}=useAuth();
+  const canReview=can("feed.sales_approval.write");
   const [cancelOrder,setCancelOrder]=useState<SalesOrder|null>(null),[reason,setReason]=useState('');
   const [rows, setRows] = useState<SalesOrder[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);

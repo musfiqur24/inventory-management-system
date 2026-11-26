@@ -1,3 +1,4 @@
+import { routePermissions } from "./modules/auth/routePermissions";
 import { PageSkeleton } from "./components/ui/Skeleton";
 import { useMinimumLoading } from "./shared/hooks/useMinimumLoading";
 const ResetPasswordPage=lazy(()=>import("./modules/auth/ResetPasswordPage").then(module=>({default:module.ResetPasswordPage})));
@@ -5,14 +6,14 @@ import { SessionSkeleton} from "./components/ui/Skeleton";
 import { NotificationBell } from "./components/layout/NotificationBell";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import {
-  Boxes, Building2, ClipboardList, Factory, FlaskConical,
+  Boxes, Building2, ClipboardList, Factory, FlaskConical, Sprout,
   PackageCheck, Scale, ShoppingCart, Truck, Warehouse, LayoutDashboard,
-  GitBranch, ArrowLeftRight, Users, CircleUserRound, LogOut, BadgeDollarSign, ReceiptText
+  GitBranch, ArrowLeftRight, UsersRound, UserRoundPlus, ShieldCheck, KeyRound, Wheat, ChartNoAxesCombined, CircleUserRound, LogOut, BadgeDollarSign, ReceiptText
 } from 'lucide-react';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { selectedOrgName, ensureOrgDetails } from './shared/api/http';
-import { MobileMenuButton, Sidebar } from './components/layout/Sidebar';
+import { type SidebarGroup, MobileMenuButton, Sidebar } from './components/layout/Sidebar';
 import { AppToaster } from './components/ui/Toast';
 
 // Pages
@@ -42,6 +43,10 @@ const UserManagementPage=lazy(()=>import('./modules/users/UserManagementPage').t
 const ProfilePage=lazy(()=>import('./modules/auth/ProfilePage').then(module=>({default:module.ProfilePage})));
 const ProfitLossPage=lazy(()=>import('./modules/reports/ProfitLossPage').then(module=>({default:module.ProfitLossPage})));
 
+const AgroReportsPage=lazy(()=>import("./modules/agro/AgroReportsPage").then(m=>({default:m.AgroReportsPage})));
+
+const PermissionsPage=lazy(()=>import('./modules/roles/PermissionsPage').then(m=>({default:m.PermissionsPage})));
+const RolesPage=lazy(()=>import('./modules/roles/RolesPage').then(m=>({default:m.RolesPage})));
 const NAV_GROUPS = [
   {
     label: 'Dashboard',
@@ -113,7 +118,7 @@ function focusNextField(event: ReactKeyboardEvent<HTMLElement>) {
 }
 
 function Shell() {
-  const { user, loading, can, logout } = useAuth();
+  const { user, loading, can, canModule, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [orgDisplay, setOrgDisplay] = useState<string>(() => selectedOrgName());
   const [orgRevision, setOrgRevision] = useState(0);
@@ -133,8 +138,20 @@ function Shell() {
  if (sessionLoading) return <SessionSkeleton/>;
   if (!user) return <Navigate to="/login" replace />;
 
-  const visibleGroups = NAV_GROUPS.concat(can('users.manage') ? [{ label: 'Administration', items: [{ path: '/users', label: 'User Management', icon: Users }] }] : []).map(g => ({...g, items: g.items.filter(i => i.path !== '/organizations' || can('organizations.manage'))})).filter(g => g.items.length);
-  const allItems = visibleGroups.flatMap((g) => g.items);
+  const visibleGroups: SidebarGroup[] = [
+    NAV_GROUPS[0],
+    ...(canModule('feed') ? [{ label: 'Feed', icon: Wheat, items: [], children: NAV_GROUPS.slice(1).map(g=>({...g,items:g.items.filter(i=>can(routePermissions[i.path]))})).filter(g=>g.items.length) }] : []),
+    ...(canModule('agro') ? [{ label: 'Agro', icon: Sprout, items: [], children: [
+      { label: 'Reports', items: [{ path: '/agro/reports', label: 'Reports & Metrics', icon: ChartNoAxesCombined }] },
+    ] }] : []),
+    ...((can('users.manage')||can('roles.manage')) ? [{ label: 'User Management', icon: UsersRound, children: [], items: [
+      ...(can('users.manage')?[{path:'/users',label:'Create User',icon:UserRoundPlus}]:[]),
+      ...(can('roles.manage')?[{path:'/roles',label:'Roles',icon:ShieldCheck},{path:'/permissions',label:'Permissions',icon:KeyRound}]:[]),
+    ] }] : []),
+  ];
+  const navigationItems = (groups: SidebarGroup[]): SidebarGroup['items'] =>
+    groups.flatMap(group => [...group.items, ...navigationItems(group.children ?? [])]);
+  const allItems = navigationItems(visibleGroups);
   const currentItem = allItems.find((item) => item.path === location.pathname);
   const pageTitle = currentItem?.label ?? (location.pathname === '/' ? 'Dashboard' : 'FeedTrack');
 
@@ -158,16 +175,17 @@ function Shell() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
-            <NotificationBell key={orgRevision} />
+            {can("feed.procurement.read") && <NotificationBell key={orgRevision} />}
             {can("organizations.manage") ? <Link to="/organizations"><div className="hidden rounded-full border border-[#e0e5dd] bg-[#f8faf7] px-3 py-1.5 text-xs font-medium text-[#445e50] sm:block">{orgDisplay || "Workspace"}</div></Link> : null}
             <Link to="/profile" className="flex items-center gap-2 rounded-xl border border-[#e0e5dd] bg-white px-2.5 py-1.5 text-sm font-semibold text-[#31483d] hover:bg-[#f8faf7]"><span className="grid size-7 place-items-center rounded-lg bg-[#edf6df] text-[#1a5c45]"><CircleUserRound size={16}/></span><span className="hidden max-w-40 truncate text-sm sm:block">{user.fullName}</span></Link>
             <button onClick={() => void logout()} className="grid size-9 place-items-center rounded-xl border border-[#e0e5dd] text-[#7a9185] hover:border-red-200 hover:bg-red-50 hover:text-red-700" title="Log out" aria-label="Log out"><LogOut size={17}/></button>
           </div>
         </header>
 
-        <Suspense fallback={<PageSkeleton/>}><Routes key={orgRevision}>
+        <Suspense fallback={<PageSkeleton/>}>{routePermissions[location.pathname] && !can(routePermissions[location.pathname])?<Navigate to="/" replace/>:<Routes key={orgRevision}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/organizations" element={can("organizations.manage") ? <OrganizationPage /> : <Navigate to="/" replace />} />
+          <Route path="/agro/reports" element={canModule("agro")?<AgroReportsPage/>:<Navigate to="/" replace/>}/>
           <Route path="/uoms" element={<UnitsOfMeasurePage />} />
           <Route path="/currencies" element={<CurrenciesPage />} />
           <Route path="/categories" element={<ProductHierarchyPage />} />
@@ -189,9 +207,11 @@ function Shell() {
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/traceability" element={<TraceabilityPage />} />
           <Route path="/profit-loss" element={<ProfitLossPage />} />
+          <Route path="/permissions" element={can("roles.manage")?<PermissionsPage/>:<Navigate to="/" replace/>}/>
+          <Route path="/roles" element={can("roles.manage")?<RolesPage/>:<Navigate to="/" replace/>}/>
           <Route path="/users" element={can("users.manage") ? <UserManagementPage /> : <Navigate to="/" replace />} />
           <Route path="/profile" element={<ProfilePage />} />
-        </Routes></Suspense>
+        </Routes>}</Suspense>
       </main>
       </div>
     </>

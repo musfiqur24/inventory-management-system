@@ -1,3 +1,5 @@
+import { rolesRouter } from "./modules/roles.js";
+import { modulesRouter, moduleReportsRouter } from "./modules/businessModules.js";
 import { operationsRouter } from "./routes/operations.js";
 import { measureRequests } from "./services/metrics.js";
 import { dashboardRouter } from "./routes/dashboard.js";
@@ -18,7 +20,7 @@ import { spec } from "./swagger.js";
 import { authRouter } from "./modules/auth.js";
 import { usersRouter } from "./modules/users.js";
 import { organizationsRouter } from "./modules/organizations.js";
-import { authenticate, requirePermission, tenant } from "./modules/rbac.js";
+import { authenticate, requirePermission, authorizeFeed, tenant } from "./modules/rbac.js";
 import { uomsRouter } from "./routes/uoms.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { productsRouter } from "./routes/products.js";
@@ -79,29 +81,16 @@ export function createApp() {
   );
   app.use("/api/v1/users", authenticate, auditMutation, usersRouter);
 
-  app.use("/api/v1/notifications", authenticate, tenant, notificationsRouter);
+  app.use("/api/v1/roles", authenticate, tenant, auditMutation, rolesRouter);
+  app.use("/api/v1/modules", authenticate, modulesRouter);
+  app.use("/api/v1/module-reports/:moduleCode", authenticate, tenant, auditMutation, moduleReportsRouter);
+  app.use("/api/v1/dashboard", authenticate, tenant, dashboardRouter);
 
-  app.use("/api/v1/deliveries", authenticate, tenant, auditMutation, (req,res,next)=>{
-    const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
-    if(role==="STAFF" && ((req.method==="POST" && req.path==="/") || req.method==="PUT"))return next();
-    return requirePermission(req.method==="GET"?"departments.read":"departments.write")(req,res,next);
-  }, deliveriesRouter);
+  app.use("/api/v1/notifications", authenticate, tenant, requirePermission("feed.procurement.read"), notificationsRouter);
 
-  app.use("/api/v1/purchase-requisitions", authenticate, tenant, auditMutation, (req,res,next)=>{
-    const role=req.auth?.organizations.find(o=>o.id===req.tenantId)?.role.code;
-    if(role==='STAFF' && ((req.method==='POST' && req.path==='/') || req.method==='PUT'))return next();
-    return requirePermission(req.method==='GET'?'departments.read':'departments.write')(req,res,next);
-  }, purchaseRequisitionsRouter);
-
-  app.use("/api/v1", authenticate, tenant, auditMutation, (req, res, next) =>
-    requirePermission(
-      req.method === "POST" && req.path === "/weighments/reports"
-        ? "weighbridge.submit"
-        : req.method === "GET"
-          ? "departments.read"
-          : "departments.write",
-    )(req, res, next),
-  );
+  app.use("/api/v1", authenticate, tenant, authorizeFeed, auditMutation);
+  app.use("/api/v1/deliveries", deliveriesRouter);
+  app.use("/api/v1/purchase-requisitions", purchaseRequisitionsRouter);
   app.use("/api/v1/uoms", uomsRouter);
   app.use("/api/v1/categories", categoriesRouter);
   app.use("/api/v1/products", productsRouter);
@@ -119,7 +108,7 @@ export function createApp() {
   app.use("/api/v1/fm-store", fmStoreRouter);
   app.use("/api/v1/sales-orders", salesOrdersRouter);
   app.use("/api/v1/dispatches", dispatchesRouter);
-  app.use("/api/v1/dashboard",dashboardRouter);
+
   app.use("/api/v1/operations",operationsRouter);
   app.use("/api/v1/inventory", inventoryRouter);
   app.use("/api/v1/reservations", reservationsRouter);

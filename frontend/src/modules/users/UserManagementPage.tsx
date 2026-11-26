@@ -2,6 +2,7 @@ import { usePageLoading } from "../../shared/hooks/usePageLoading";
 import { useEffect, useState , useCallback} from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { api } from "../../shared/api/http";
+import type { ModuleAccess } from "../auth/AuthContext";
 import { useAuth } from "../auth/AuthContext";
 import { PageContainer } from "../../components/ui/PageContainer";
 import { Card } from "../../components/ui/Card";
@@ -14,7 +15,7 @@ import { Badge } from "../../components/ui/Badge";
 import { Modal } from "../../components/ui/Modal";
 import { appToast } from "../../components/ui/ToastMessages";
 
-type Role = { id: string; code: string; name: string };
+type Role = { id: string; code: string; name: string; organizationId?:string|null };
 type Org = { id: string; name: string };
 type Row = {
   id: string;
@@ -24,6 +25,7 @@ type Row = {
   isActive: boolean;
   organization: Org;
   role: Role;
+  modules: ModuleAccess[];
 };
 type EditForm = { roleId: string; organizationIds: string[] };
 
@@ -40,7 +42,7 @@ export function UserManagementPage() {
   const [editForm, setEditForm] = useState<EditForm>({ roleId: "", organizationIds: [] });
   const [saving, setSaving] = useState(false);
 
-  const availableRoles = roles.filter(role => user?.isSuperAdmin || !["SUPER_ADMIN", "ADMIN"].includes(role.code));
+  const availableRoles = roles.filter(role => (user?.isSuperAdmin || !["SUPER_ADMIN", "ADMIN"].includes(role.code)) && (!role.organizationId || (editing ? editForm.organizationIds : form.organizationIds).every(id=>id===role.organizationId)));
 
   const load = useCallback(async () => { return runPageLoad(async () => {
     try {
@@ -110,27 +112,28 @@ export function UserManagementPage() {
     }
   };
 
+
   const filtered = organizationFilter ? rows.filter(row => row.organization.id === organizationFilter) : rows;
   const pageCount = Math.max(1, Math.ceil(filtered.length / 10));
   const currentPage = Math.min(page, pageCount);
   const shown = filtered.slice((currentPage - 1) * 10, currentPage * 10);
 
   return (
-    <PageContainer loading={pageLoading} cap="ACCESS CONTROL" title="User Management" description="Create users and assign each user to one or more organizations.">
-      <Card>
-        <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
+    <PageContainer loading={pageLoading} cap="ACCESS CONTROL" title="Create User" description="Create users and assign each user to one or more organizations." headerContent={
+<form onSubmit={submit} className="grid gap-3 md:grid-cols-3">
           <Input required placeholder="Full name" value={form.fullName} onChange={event => setForm({ ...form, fullName: event.target.value })} />
           <Input required type="email" placeholder="Email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} />
-          <Input required minLength={12} type="password" placeholder="Temporary password (min 8)" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} />
-          <Dropdown required value={form.roleId} onChange={event => setForm({ ...form, roleId: event.target.value })}>
+          <Input required minLength={12} type="password" placeholder="Temporary password (min 12)" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} />
+          <Dropdown required aria-label="Role" value={form.roleId} onChange={event => setForm({ ...form, roleId: event.target.value })}>
             {availableRoles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}
           </Dropdown>
           <div className="flex flex-wrap gap-3 md:col-span-2">
             {orgs.map(org => <Checkbox key={org.id} label={org.name} checked={form.organizationIds.includes(org.id)} onChange={event => setForm({ ...form, organizationIds: event.target.checked ? [...form.organizationIds, org.id] : form.organizationIds.filter(id => id !== org.id) })} />)}
           </div>
-          <div><Button variant="primary">Create user</Button></div>
+          <div className="md:col-span-3"><Button variant="primary">Create user</Button></div>
         </form>
-      </Card>
+      }>
+
 
       <div className="flex justify-end">
         <Dropdown value={organizationFilter} onChange={event => { setOrganizationFilter(event.target.value); setPage(1); }} className="w-full sm:max-w-70">
@@ -140,12 +143,13 @@ export function UserManagementPage() {
       </div>
 
       <Card padding="none">
-        <DataTable columns={["User", "Organization", "Role", "Status", "Action"]} total={filtered.length} page={currentPage} pageSize={10} onPageChange={setPage}>
+        <DataTable columns={["User", "Organization", "Role", "Modules", "Status", "Action"]} total={filtered.length} page={currentPage} pageSize={10} onPageChange={setPage}>
           {shown.map(row => (
             <tr key={row.membershipId} className="border-b border-[#e0e5dd] last:border-0">
               <td className="px-5 py-4"><b>{row.fullName}</b><br /><small className="text-[#7a9185]">{row.email}</small></td>
               <td className="px-5 py-4">{row.organization.name}</td>
               <td className="px-5 py-4"><Badge variant="brand">{row.role.name}</Badge></td>
+              <td className="px-5 py-4">{row.modules.filter(m=>m.canRead).map(m=>m.name).join(", ") || "None"}</td>
               <td className="px-5 py-4"><Badge variant={row.isActive ? "green" : "gray"}>{row.isActive ? "Active" : "Inactive"}</Badge></td>
               <td className="px-5 py-4">
                 <div className="flex gap-2">

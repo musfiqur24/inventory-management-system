@@ -1,3 +1,4 @@
+import { hasPermission } from "../modules/rbac.js";
 import { Router, type RequestHandler } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma.js";
@@ -6,10 +7,7 @@ import type { Prisma } from "../generated/prisma/client.js";
 export const partnersRouter = Router();
 partnersRouter.use((req, res, next) => {
   if (req.method === "GET") return next();
-  const role = req.auth?.organizations.find(
-    (organization) => organization.id === req.tenantId,
-  )?.role.code;
-  if (req.auth?.isSuperAdmin || role === "SUPER_ADMIN" || role === "MANAGER")
+  if (hasPermission(req.auth,req.tenantId,"feed.partners.write"))
     return next();
   return res.status(403).json({
     error: {

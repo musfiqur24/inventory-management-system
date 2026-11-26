@@ -21,9 +21,8 @@ interface Partner {
 }
 
 export function PartnersPage() {
-  const { user } = useAuth();
-  const organizationRole = user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code;
-  const canManagePartners = Boolean(user?.isSuperAdmin || organizationRole === 'SUPER_ADMIN' || organizationRole === 'MANAGER');
+  const { can } = useAuth();
+  const canManagePartners = can("feed.partners.write");
   const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Partner[]>([]);
   const [open, setOpen] = useState(false);

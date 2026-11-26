@@ -1,23 +1,24 @@
 import { twMerge } from 'tailwind-merge';
 import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { selectedOrg, selectedOrgName, ensureOrgDetails, setOrganizationDetails } from '../../shared/api/http';
 import { useAuth } from '../../modules/auth/AuthContext';
 import { Dropdown } from '../ui/Dropdown';
 
 type Item = { path: string; label: string; icon: LucideIcon };
-type Group = { label: string; items: Item[] };
+export type SidebarGroup = { label: string; items: Item[]; icon?: LucideIcon; children?: SidebarGroup[] };
 
 interface SidebarProps {
-  groups: Group[];
+  groups: SidebarGroup[];
   mobileOpen: boolean;
   onClose: () => void;
 }
 
 export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
+  const { pathname } = useLocation();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [orgId, setOrgId] = useState<string>(() => selectedOrg());
   const [orgName, setOrgName] = useState<string>(() => selectedOrgName());
@@ -31,6 +32,62 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
     window.addEventListener('organizationChanged', handler);
     return () => window.removeEventListener('organizationChanged', handler);
   }, []);
+
+  const containsPage = (group: SidebarGroup): boolean =>
+    group.items.some(item => item.path === pathname) || Boolean(group.children?.some(containsPage));
+
+  const renderLinks = (group: SidebarGroup, label?: string) => (
+    <nav aria-label={group.label} className="grid gap-1">
+      {group.items.map(item => (
+        <NavLink key={item.path} to={item.path} end={item.path === '/'} onClick={onClose}
+          className={({ isActive }) => twMerge(
+            'group relative flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium leading-5 text-white/70 transition-colors hover:bg-white/6 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8d548]',
+            isActive && 'bg-[#a8d548]/12 font-semibold text-[#c8e87a] before:absolute before:inset-y-3 before:left-0 before:w-0.5 before:rounded-full before:bg-[#a8d548]',
+          )}>
+          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white/5 transition-colors group-hover:bg-white/10 group-aria-[current=page]:bg-[#a8d548]/15"><item.icon size={17} strokeWidth={1.75} aria-hidden="true" /></span>
+          <span className="min-w-0 flex-1">{label ?? item.label}</span>
+        </NavLink>
+      ))}
+    </nav>
+  );
+
+  const renderGroup = (group: SidebarGroup, parent = '') => {
+    const key = parent ? parent + '/' + group.label : group.label;
+    const isModule = Boolean(group.children);
+    const active = containsPage(group);
+    const isCollapsed = collapsed[key] ?? (isModule && !active);
+    const panelId = 'sidebar-' + key.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    if (!parent && !isModule) {
+      return <div key={key} className={group.label === 'Administration' ? 'mt-5 border-t border-white/10 pt-4' : ''}>
+        {renderLinks(group, group.label === 'Dashboard' ? 'Dashboard' : undefined)}
+      </div>;
+    }
+
+    return (
+      <div key={key}>
+        <button type="button" aria-expanded={!isCollapsed} aria-controls={panelId}
+          onClick={() => setCollapsed(current => ({ ...current, [key]: !isCollapsed }))}
+          className={twMerge(
+            'flex w-full items-center gap-3 rounded-lg border-0 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8d548]',
+            isModule
+              ? 'min-h-11 px-3 py-2 text-[13px] font-semibold leading-5 text-white/80 hover:bg-white/6 hover:text-white'
+              : 'min-h-9 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/45 hover:text-white/80',
+            isModule && active && 'bg-white/6 text-[#c8e87a]',
+          )}>
+          {group.icon && <span className={twMerge("grid size-7 shrink-0 place-items-center rounded-lg bg-white/5", active && "bg-[#a8d548]/15")}><group.icon size={17} strokeWidth={1.75} aria-hidden="true" /></span>}
+          <span className="min-w-0 flex-1">{group.label}</span>
+          {isCollapsed ? <ChevronRight size={14} className="shrink-0 text-white/40" /> : <ChevronDown size={14} className="shrink-0 text-white/40" />}
+        </button>
+        {!isCollapsed && (
+          <div id={panelId} className={isModule ? 'mb-2 ml-5 mt-1 grid gap-1 border-l border-white/10 pl-3' : 'pb-1'}>
+            {group.items.length > 0 && renderLinks(group)}
+            {group.children?.map(child => renderGroup(child, key))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -69,33 +126,14 @@ export function Sidebar({ groups, mobileOpen, onClose }: SidebarProps) {
         )}
 
         {/* Nav */}
-        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-[6px_0_20px] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[rgba(255,255,255,0.1)] [&::-webkit-scrollbar-thumb]:rounded-[4px]">
-          {groups.map((group) => (
-            <div key={group.label} className="p-[0_8px] [&+div]:mt-1 [&_nav]:grid [&_nav]:gap-0.5 [&_nav_a]:relative [&_nav_a]:flex [&_nav_a]:items-center [&_nav_a]:gap-2.5 [&_nav_a]:min-h-11 [&_nav_a]:p-[9px_10px_9px_14px] [&_nav_a]:rounded-[9px] [&_nav_a]:text-[rgba(255,255,255,0.65)] [&_nav_a]:text-[13.5px] [&_nav_a]:font-medium [&_nav_a]:[transition:background_0.12s,_color_0.12s] [&_nav_a_svg]:w-4 [&_nav_a_svg]:h-4 [&_nav_a_svg]:shrink-0 [&_nav_a:hover]:bg-[rgba(255,255,255,0.07)] [&_nav_a:hover]:text-[#fff] [&_nav_a.active]:bg-[rgba(168,213,72,0.14)] [&_nav_a.active]:text-[#c8e87a] [&_nav_a.active]:font-semibold [&_nav_a.active]:before:absolute [&_nav_a.active]:before:left-0 [&_nav_a.active]:before:inset-y-0 [&_nav_a.active]:before:w-1 [&_nav_a.active]:before:rounded-r-full [&_nav_a.active]:before:bg-[#a8d548] [&_nav_a.active]:before:content-[''] [&_nav_a.active_svg]:text-[#a8d548]">
-              <button
-                className="flex items-center justify-between w-full min-h-10 p-[10px_10px_6px] [border:0] [background:none] text-[rgba(255,255,255,0.35)] text-[10px] font-bold tracking-[0.10em] uppercase [:where(&_svg)]:w-3.5 [:where(&_svg)]:h-3.5"
-                onClick={() => setCollapsed({ ...collapsed, [group.label]: !collapsed[group.label] })}
-             >
-                <span>{group.label}</span>
-                {collapsed[group.label] ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-              </button>
-              {!collapsed[group.label] && (
-                <nav>
-                  {group.items.map((item) => (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      onClick={onClose}
-                      className={({ isActive }) => isActive ? 'active' : ''}
-                   >
-                      <item.icon size={16} />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  ))}
-                </nav>
-              )}
-            </div>
-          ))}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-3 pb-6 pt-3 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.08)_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[rgba(255,255,255,0.1)] [&::-webkit-scrollbar-thumb]:rounded-[4px]">
+          <div className="grid gap-1">
+            {groups.map(group => (
+              <div key={group.label}>
+                {renderGroup(group)}
+              </div>
+            ))}
+          </div>
         </div>
 
       </aside>

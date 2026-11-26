@@ -272,3 +272,18 @@ export type Reservation = Prisma.ReservationModel
  * 
  */
 export type MailOutbox = Prisma.MailOutboxModel
+/**
+ * Model BusinessModule
+ *
+ */
+export type BusinessModule = Prisma.BusinessModuleModel
+/**
+ * Model MembershipModuleAccess
+ *
+ */
+export type MembershipModuleAccess = Prisma.MembershipModuleAccessModel
+/**
+ * Model ModuleReport
+ *
+ */
+export type ModuleReport = Prisma.ModuleReportModel

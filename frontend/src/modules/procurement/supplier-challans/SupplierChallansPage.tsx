@@ -25,13 +25,13 @@ const blank=()=>({productId:"",uomId:"",declaredQty:"",unitPrice:""});
 const emptyForm={requisitionId:"",supplierId:"",assignedManagerId:"",invoiceNo:"",vehicleNo:"",grossWeight:"",tareWeight:""};
 function fileBase64(file:File){return new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error("Unable to read attachment."));reader.onload=()=>resolve(String(reader.result).split(",")[1]??"");reader.readAsDataURL(file)})}
 export function SupplierChallansPage(){
- const [pageLoading,runPageLoad]=usePageLoading(),{user}=useAuth();
+ const [pageLoading,runPageLoad]=usePageLoading(),{user,can}=useAuth();
  const [rows,setRows]=useState<Delivery[]>([]),[requisitions,setRequisitions]=useState<Requisition[]>([]),[suppliers,setSuppliers]=useState<Partner[]>([]),[products,setProducts]=useState<Product[]>([]),[uoms,setUoms]=useState<UOM[]>([]),[managers,setManagers]=useState<Manager[]>([]);
  const [search,setSearch]=useState("");
  const [open,setOpen]=useState(false),[selected,setSelected]=useState<Delivery|null>(null),[showWeighbridge,setShowWeighbridge]=useState(false),[editing,setEditing]=useState<Delivery|null>(null),[deleting,setDeleting]=useState<Delivery|null>(null),[saving,setSaving]=useState(false),[acting,setActing]=useState("");
  const [form,setForm]=useState(emptyForm),[lines,setLines]=useState<Line[]>([blank()]),[attachment,setAttachment]=useState<{name:string;mime:string;contentBase64:string}|null>(null);
  const [params,setParams]=useSearchParams(),requestedId=params.get("challan");
- const role=user?.organizations.find(o=>o.id===selectedOrg())?.role.code,isManager=role==="MANAGER";
+ const isManager=can("feed.procurement.write");
  const load=useCallback(async()=>runPageLoad(async()=>{if(!selectedOrg())return;try{const[d,r,p,pr,u,m]=await Promise.all([api<{data:Delivery[]}>("/deliveries"),api<{data:Requisition[]}>("/purchase-requisitions"),api<{data:Partner[]}>("/partners"),api<{data:Product[]}>("/products"),api<{data:UOM[]}>("/uoms"),api<{data:Manager[]}>("/deliveries/managers")]);setRows(d.data);setRequisitions(r.data.filter(x=>!["CANCELLED","REJECTED"].includes(x.status)));setSuppliers(p.data.filter(x=>x.partnerType==="SUPPLIER"||x.type==="SUPPLIER"||x.type==="BOTH"));setProducts(pr.data);setUoms(u.data);setManagers(m.data)}catch(e){appToast.error(e instanceof Error?e.message:"Unable to load challans.")}}), [runPageLoad]);
  useEffect(()=>{void load()},[load]);
 

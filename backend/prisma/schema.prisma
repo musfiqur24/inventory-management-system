@@ -68,6 +68,8 @@ model Organization {
   isActive Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  moduleReports ModuleReport[]
+  roles Role[]
   sites Site[]
   members OrganizationMember[]
   uoms UnitOfMeasure[]
@@ -611,6 +613,10 @@ model DispatchLine {
 
 
 model Permission {
+  moduleCode String?
+  resource String?
+  action String?
+  module BusinessModule? @relation(fields:[moduleCode], references:[code], onDelete:Restrict,onUpdate:NoAction)
   id String @id @default(uuid())
   key String @unique
   name String
@@ -619,6 +625,8 @@ model Permission {
   overrides UserPermissionOverride[]
 }
 model Role {
+  organizationId String?
+  organization Organization? @relation(fields:[organizationId], references:[id], onDelete:Cascade,onUpdate:NoAction)
   id String @id @default(uuid())
   code String @unique
   name String
@@ -644,6 +652,7 @@ model OrganizationMember {
   organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade)
   role Role @relation(fields:[roleId], references:[id])
   overrides UserPermissionOverride[]
+  moduleAccess MembershipModuleAccess[]
   @@unique([userId, organizationId])
   @@index([organizationId, roleId])
 }
@@ -756,4 +765,37 @@ model MailOutbox {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([status,nextAttemptAt])
+}
+
+// Extensible module catalog and organization-specific membership grants.
+model BusinessModule {
+  code String @id
+  name String
+  isActive Boolean @default(true)
+  sortOrder Int @default(0)
+  memberships MembershipModuleAccess[]
+  reports ModuleReport[]
+  permissions Permission[]
+}
+model MembershipModuleAccess {
+  membershipId String
+  moduleCode String
+  canRead Boolean @default(true)
+  canWrite Boolean @default(false)
+  membership OrganizationMember @relation(fields:[membershipId], references:[id], onDelete:Cascade,onUpdate:NoAction)
+  module BusinessModule @relation(fields:[moduleCode], references:[code], onDelete:Restrict,onUpdate:NoAction)
+  @@id([membershipId,moduleCode])
+  @@index([moduleCode])
+}
+model ModuleReport {
+  id String @id @default(uuid())
+  organizationId String
+  moduleCode String
+  title String
+  reportingDate DateTime
+  metrics Json
+  createdAt DateTime @default(now())
+  module BusinessModule @relation(fields:[moduleCode], references:[code], onDelete:Restrict,onUpdate:NoAction)
+  organization Organization @relation(fields:[organizationId], references:[id], onDelete:Cascade,onUpdate:NoAction)
+  @@index([organizationId,moduleCode,reportingDate])
 }

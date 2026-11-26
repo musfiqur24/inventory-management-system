@@ -124,7 +124,7 @@ const amount = (value: number) =>
   }).format(value || 0);
 
 export function ProductionBatchesPage() {
-  const { user } = useAuth();
+  const { can } = useAuth();
   const [loading, runLoad] = usePageLoading(),
     [, setMessage] = useToastMessage();
   const [rows, setRows] = useState<Batch[]>([]),
@@ -162,10 +162,7 @@ export function ProductionBatchesPage() {
   useEffect(() => {
     void load();
   }, [load]);
-  const isManager =
-    user?.organizations.find(
-      (organization) => organization.id === selectedOrg(),
-    )?.role.code === "MANAGER";
+  const isManager = can("feed.production.write");
   const totals = useMemo(
     () => ({
       input: form.inputs

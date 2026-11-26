@@ -125,7 +125,7 @@ const managerWhere = (organizationId: string, userId: string) => ({
   isActive: true,
   user: { isActive: true },
   organization: { isActive: true },
-  role: { code: "MANAGER" },
+  role:{permissions:{some:{permission:{key:"feed.production.write"}}}},
 });
 
 batchesRouter.post("/:id/approve", async (req, res) => {

@@ -8,7 +8,7 @@ import { Prisma, DocumentStatus } from "../generated/prisma/client.js";
 
 export const productionOrdersRouter = Router();
 const managerSelect = { id: true, fullName: true, email: true };
-const managerWhere = (organizationId: string, userId?: string) => ({ organizationId, ...(userId ? { userId } : {}), isActive: true, user: { isActive: true }, organization: { isActive: true }, role: { code: "MANAGER" } });
+const managerWhere = (organizationId: string, userId?: string) => ({ organizationId, ...(userId ? { userId } : {}), isActive: true, user: { isActive: true }, organization: { isActive: true }, role:{permissions:{some:{permission:{key:"feed.production.write"}}}} });
 
 productionOrdersRouter.get("/managers", async (req, res) => {
   const memberships = await prisma.organizationMember.findMany({ where: managerWhere(req.tenantId!), select: { user: { select: managerSelect } }, orderBy: { user: { fullName: "asc" } } });

@@ -32,8 +32,8 @@ interface Recipe {
 interface Product { id: string; name: string; sku: string; type: string; baseUomId: string; }
 
 export function RecipesPage() {
-  const { user } = useAuth();
-  const isRecipeManager = Boolean(user?.isSuperAdmin || user?.organizations.find((organization) => organization.id === selectedOrg())?.role.code === 'MANAGER');
+  const { can } = useAuth();
+  const isRecipeManager = can("feed.recipes.write");
   const [pageLoading, runPageLoad] = usePageLoading();
   const [rows, setRows] = useState<Recipe[]>([]);
   const [products, setProducts] = useState<Product[]>([]);

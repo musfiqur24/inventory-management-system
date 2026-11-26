@@ -186,6 +186,7 @@ export type OrganizationMemberWhereInput = {
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   overrides?: Prisma.UserPermissionOverrideListRelationFilter
+  moduleAccess?: Prisma.MembershipModuleAccessListRelationFilter
 }
 
 export type OrganizationMemberOrderByWithRelationInput = {
@@ -198,6 +199,7 @@ export type OrganizationMemberOrderByWithRelationInput = {
   organization?: Prisma.OrganizationOrderByWithRelationInput
   role?: Prisma.RoleOrderByWithRelationInput
   overrides?: Prisma.UserPermissionOverrideOrderByRelationAggregateInput
+  moduleAccess?: Prisma.MembershipModuleAccessOrderByRelationAggregateInput
 }
 
 export type OrganizationMemberWhereUniqueInput = Prisma.AtLeast<{
@@ -214,6 +216,7 @@ export type OrganizationMemberWhereUniqueInput = Prisma.AtLeast<{
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   overrides?: Prisma.UserPermissionOverrideListRelationFilter
+  moduleAccess?: Prisma.MembershipModuleAccessListRelationFilter
 }, "id" | "userId_organizationId">
 
 export type OrganizationMemberOrderByWithAggregationInput = {
@@ -245,6 +248,7 @@ export type OrganizationMemberCreateInput = {
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
   role: Prisma.RoleCreateNestedOneWithoutMembersInput
   overrides?: Prisma.UserPermissionOverrideCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberUncheckedCreateInput = {
@@ -254,6 +258,7 @@ export type OrganizationMemberUncheckedCreateInput = {
   roleId: string
   isActive?: boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberUpdateInput = {
@@ -263,6 +268,7 @@ export type OrganizationMemberUpdateInput = {
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutMembersNestedInput
   overrides?: Prisma.UserPermissionOverrideUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateInput = {
@@ -272,6 +278,7 @@ export type OrganizationMemberUncheckedUpdateInput = {
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberCreateManyInput = {
@@ -479,12 +486,27 @@ export type OrganizationMemberUpdateOneRequiredWithoutOverridesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationMemberUpdateToOneWithWhereWithoutOverridesInput, Prisma.OrganizationMemberUpdateWithoutOverridesInput>, Prisma.OrganizationMemberUncheckedUpdateWithoutOverridesInput>
 }
 
+export type OrganizationMemberCreateNestedOneWithoutModuleAccessInput = {
+  create?: Prisma.XOR<Prisma.OrganizationMemberCreateWithoutModuleAccessInput, Prisma.OrganizationMemberUncheckedCreateWithoutModuleAccessInput>
+  connectOrCreate?: Prisma.OrganizationMemberCreateOrConnectWithoutModuleAccessInput
+  connect?: Prisma.OrganizationMemberWhereUniqueInput
+}
+
+export type OrganizationMemberUpdateOneRequiredWithoutModuleAccessNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationMemberCreateWithoutModuleAccessInput, Prisma.OrganizationMemberUncheckedCreateWithoutModuleAccessInput>
+  connectOrCreate?: Prisma.OrganizationMemberCreateOrConnectWithoutModuleAccessInput
+  upsert?: Prisma.OrganizationMemberUpsertWithoutModuleAccessInput
+  connect?: Prisma.OrganizationMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationMemberUpdateToOneWithWhereWithoutModuleAccessInput, Prisma.OrganizationMemberUpdateWithoutModuleAccessInput>, Prisma.OrganizationMemberUncheckedUpdateWithoutModuleAccessInput>
+}
+
 export type OrganizationMemberCreateWithoutOrganizationInput = {
   id?: string
   isActive?: boolean
   user: Prisma.UserCreateNestedOneWithoutMembershipsInput
   role: Prisma.RoleCreateNestedOneWithoutMembersInput
   overrides?: Prisma.UserPermissionOverrideCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberUncheckedCreateWithoutOrganizationInput = {
@@ -493,6 +515,7 @@ export type OrganizationMemberUncheckedCreateWithoutOrganizationInput = {
   roleId: string
   isActive?: boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberCreateOrConnectWithoutOrganizationInput = {
@@ -538,6 +561,7 @@ export type OrganizationMemberCreateWithoutUserInput = {
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
   role: Prisma.RoleCreateNestedOneWithoutMembersInput
   overrides?: Prisma.UserPermissionOverrideCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberUncheckedCreateWithoutUserInput = {
@@ -546,6 +570,7 @@ export type OrganizationMemberUncheckedCreateWithoutUserInput = {
   roleId: string
   isActive?: boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberCreateOrConnectWithoutUserInput = {
@@ -580,6 +605,7 @@ export type OrganizationMemberCreateWithoutRoleInput = {
   user: Prisma.UserCreateNestedOneWithoutMembershipsInput
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
   overrides?: Prisma.UserPermissionOverrideCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberUncheckedCreateWithoutRoleInput = {
@@ -588,6 +614,7 @@ export type OrganizationMemberUncheckedCreateWithoutRoleInput = {
   organizationId: string
   isActive?: boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedCreateNestedManyWithoutMembershipInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberCreateOrConnectWithoutRoleInput = {
@@ -622,6 +649,7 @@ export type OrganizationMemberCreateWithoutOverridesInput = {
   user: Prisma.UserCreateNestedOneWithoutMembershipsInput
   organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
   role: Prisma.RoleCreateNestedOneWithoutMembersInput
+  moduleAccess?: Prisma.MembershipModuleAccessCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberUncheckedCreateWithoutOverridesInput = {
@@ -630,6 +658,7 @@ export type OrganizationMemberUncheckedCreateWithoutOverridesInput = {
   organizationId: string
   roleId: string
   isActive?: boolean
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedCreateNestedManyWithoutMembershipInput
 }
 
 export type OrganizationMemberCreateOrConnectWithoutOverridesInput = {
@@ -654,6 +683,7 @@ export type OrganizationMemberUpdateWithoutOverridesInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutMembersNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateWithoutOverridesInput = {
@@ -662,6 +692,59 @@ export type OrganizationMemberUncheckedUpdateWithoutOverridesInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedUpdateManyWithoutMembershipNestedInput
+}
+
+export type OrganizationMemberCreateWithoutModuleAccessInput = {
+  id?: string
+  isActive?: boolean
+  user: Prisma.UserCreateNestedOneWithoutMembershipsInput
+  organization: Prisma.OrganizationCreateNestedOneWithoutMembersInput
+  role: Prisma.RoleCreateNestedOneWithoutMembersInput
+  overrides?: Prisma.UserPermissionOverrideCreateNestedManyWithoutMembershipInput
+}
+
+export type OrganizationMemberUncheckedCreateWithoutModuleAccessInput = {
+  id?: string
+  userId: string
+  organizationId: string
+  roleId: string
+  isActive?: boolean
+  overrides?: Prisma.UserPermissionOverrideUncheckedCreateNestedManyWithoutMembershipInput
+}
+
+export type OrganizationMemberCreateOrConnectWithoutModuleAccessInput = {
+  where: Prisma.OrganizationMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationMemberCreateWithoutModuleAccessInput, Prisma.OrganizationMemberUncheckedCreateWithoutModuleAccessInput>
+}
+
+export type OrganizationMemberUpsertWithoutModuleAccessInput = {
+  update: Prisma.XOR<Prisma.OrganizationMemberUpdateWithoutModuleAccessInput, Prisma.OrganizationMemberUncheckedUpdateWithoutModuleAccessInput>
+  create: Prisma.XOR<Prisma.OrganizationMemberCreateWithoutModuleAccessInput, Prisma.OrganizationMemberUncheckedCreateWithoutModuleAccessInput>
+  where?: Prisma.OrganizationMemberWhereInput
+}
+
+export type OrganizationMemberUpdateToOneWithWhereWithoutModuleAccessInput = {
+  where?: Prisma.OrganizationMemberWhereInput
+  data: Prisma.XOR<Prisma.OrganizationMemberUpdateWithoutModuleAccessInput, Prisma.OrganizationMemberUncheckedUpdateWithoutModuleAccessInput>
+}
+
+export type OrganizationMemberUpdateWithoutModuleAccessInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
+  role?: Prisma.RoleUpdateOneRequiredWithoutMembersNestedInput
+  overrides?: Prisma.UserPermissionOverrideUpdateManyWithoutMembershipNestedInput
+}
+
+export type OrganizationMemberUncheckedUpdateWithoutModuleAccessInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  overrides?: Prisma.UserPermissionOverrideUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberCreateManyOrganizationInput = {
@@ -677,6 +760,7 @@ export type OrganizationMemberUpdateWithoutOrganizationInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutMembersNestedInput
   overrides?: Prisma.UserPermissionOverrideUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateWithoutOrganizationInput = {
@@ -685,6 +769,7 @@ export type OrganizationMemberUncheckedUpdateWithoutOrganizationInput = {
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateManyWithoutOrganizationInput = {
@@ -707,6 +792,7 @@ export type OrganizationMemberUpdateWithoutUserInput = {
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutMembersNestedInput
   overrides?: Prisma.UserPermissionOverrideUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateWithoutUserInput = {
@@ -715,6 +801,7 @@ export type OrganizationMemberUncheckedUpdateWithoutUserInput = {
   roleId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateManyWithoutUserInput = {
@@ -737,6 +824,7 @@ export type OrganizationMemberUpdateWithoutRoleInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
   overrides?: Prisma.UserPermissionOverrideUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateWithoutRoleInput = {
@@ -745,6 +833,7 @@ export type OrganizationMemberUncheckedUpdateWithoutRoleInput = {
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   overrides?: Prisma.UserPermissionOverrideUncheckedUpdateManyWithoutMembershipNestedInput
+  moduleAccess?: Prisma.MembershipModuleAccessUncheckedUpdateManyWithoutMembershipNestedInput
 }
 
 export type OrganizationMemberUncheckedUpdateManyWithoutRoleInput = {
@@ -761,10 +850,12 @@ export type OrganizationMemberUncheckedUpdateManyWithoutRoleInput = {
 
 export type OrganizationMemberCountOutputType = {
   overrides: number
+  moduleAccess: number
 }
 
 export type OrganizationMemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   overrides?: boolean | OrganizationMemberCountOutputTypeCountOverridesArgs
+  moduleAccess?: boolean | OrganizationMemberCountOutputTypeCountModuleAccessArgs
 }
 
 /**
@@ -784,6 +875,13 @@ export type OrganizationMemberCountOutputTypeCountOverridesArgs<ExtArgs extends 
   where?: Prisma.UserPermissionOverrideWhereInput
 }
 
+/**
+ * OrganizationMemberCountOutputType without action
+ */
+export type OrganizationMemberCountOutputTypeCountModuleAccessArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MembershipModuleAccessWhereInput
+}
+
 
 export type OrganizationMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -795,6 +893,7 @@ export type OrganizationMemberSelect<ExtArgs extends runtime.Types.Extensions.In
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   overrides?: boolean | Prisma.OrganizationMember$overridesArgs<ExtArgs>
+  moduleAccess?: boolean | Prisma.OrganizationMember$moduleAccessArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationMemberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organizationMember"]>
 
@@ -834,6 +933,7 @@ export type OrganizationMemberInclude<ExtArgs extends runtime.Types.Extensions.I
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   overrides?: boolean | Prisma.OrganizationMember$overridesArgs<ExtArgs>
+  moduleAccess?: boolean | Prisma.OrganizationMember$moduleAccessArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationMemberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -854,6 +954,7 @@ export type $OrganizationMemberPayload<ExtArgs extends runtime.Types.Extensions.
     organization: Prisma.$OrganizationPayload<ExtArgs>
     role: Prisma.$RolePayload<ExtArgs>
     overrides: Prisma.$UserPermissionOverridePayload<ExtArgs>[]
+    moduleAccess: Prisma.$MembershipModuleAccessPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1259,6 +1360,7 @@ export interface Prisma__OrganizationMemberClient<T, Null = never, ExtArgs exten
   organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   overrides<T extends Prisma.OrganizationMember$overridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationMember$overridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPermissionOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  moduleAccess<T extends Prisma.OrganizationMember$moduleAccessArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationMember$moduleAccessArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipModuleAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1715,6 +1817,30 @@ export type OrganizationMember$overridesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.UserPermissionOverrideScalarFieldEnum | Prisma.UserPermissionOverrideScalarFieldEnum[]
+}
+
+/**
+ * OrganizationMember.moduleAccess
+ */
+export type OrganizationMember$moduleAccessArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MembershipModuleAccess
+   */
+  select?: Prisma.MembershipModuleAccessSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MembershipModuleAccess
+   */
+  omit?: Prisma.MembershipModuleAccessOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipModuleAccessInclude<ExtArgs> | null
+  where?: Prisma.MembershipModuleAccessWhereInput
+  orderBy?: Prisma.MembershipModuleAccessOrderByWithRelationInput | Prisma.MembershipModuleAccessOrderByWithRelationInput[]
+  cursor?: Prisma.MembershipModuleAccessWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MembershipModuleAccessScalarFieldEnum | Prisma.MembershipModuleAccessScalarFieldEnum[]
 }
 
 /**

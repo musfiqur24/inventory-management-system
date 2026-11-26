@@ -5,7 +5,7 @@ import { prisma } from "../prisma.js";
 import { Prisma, DocumentStatus } from "../generated/prisma/client.js";
 
 export const purchaseRequisitionsRouter = Router();
-const managerWhere = (organizationId: string, userId?: string) => ({organizationId, ...(userId ? {userId} : {}), isActive:true, user:{isActive:true}, organization:{isActive:true}, role:{code:'MANAGER'}});
+const managerWhere = (organizationId: string, userId?: string) => ({organizationId, ...(userId ? {userId} : {}), isActive:true, user:{isActive:true}, organization:{isActive:true}, role:{permissions:{some:{permission:{key:"feed.procurement.write"}}}}});
 const managerSelect = {id:true,fullName:true,email:true};
 purchaseRequisitionsRouter.get('/managers',async(req,res)=>{
  const memberships=await prisma.organizationMember.findMany({where:managerWhere(req.tenantId!),select:{user:{select:managerSelect}},orderBy:{user:{fullName:'asc'}}});

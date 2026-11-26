@@ -101,7 +101,10 @@ export const ModelName = {
   AuthThrottle: 'AuthThrottle',
   ReorderState: 'ReorderState',
   Reservation: 'Reservation',
-  MailOutbox: 'MailOutbox'
+  MailOutbox: 'MailOutbox',
+  BusinessModule: 'BusinessModule',
+  MembershipModuleAccess: 'MembershipModuleAccess',
+  ModuleReport: 'ModuleReport'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -664,6 +667,9 @@ export type DispatchLineScalarFieldEnum = (typeof DispatchLineScalarFieldEnum)[k
 
 
 export const PermissionScalarFieldEnum = {
+  moduleCode: 'moduleCode',
+  resource: 'resource',
+  action: 'action',
   id: 'id',
   key: 'key',
   name: 'name',
@@ -674,6 +680,7 @@ export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof
 
 
 export const RoleScalarFieldEnum = {
+  organizationId: 'organizationId',
   id: 'id',
   code: 'code',
   name: 'name',
@@ -835,6 +842,39 @@ export const MailOutboxScalarFieldEnum = {
 export type MailOutboxScalarFieldEnum = (typeof MailOutboxScalarFieldEnum)[keyof typeof MailOutboxScalarFieldEnum]
 
 
+export const BusinessModuleScalarFieldEnum = {
+  code: 'code',
+  name: 'name',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder'
+} as const
+
+export type BusinessModuleScalarFieldEnum = (typeof BusinessModuleScalarFieldEnum)[keyof typeof BusinessModuleScalarFieldEnum]
+
+
+export const MembershipModuleAccessScalarFieldEnum = {
+  membershipId: 'membershipId',
+  moduleCode: 'moduleCode',
+  canRead: 'canRead',
+  canWrite: 'canWrite'
+} as const
+
+export type MembershipModuleAccessScalarFieldEnum = (typeof MembershipModuleAccessScalarFieldEnum)[keyof typeof MembershipModuleAccessScalarFieldEnum]
+
+
+export const ModuleReportScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  moduleCode: 'moduleCode',
+  title: 'title',
+  reportingDate: 'reportingDate',
+  metrics: 'metrics',
+  createdAt: 'createdAt'
+} as const
+
+export type ModuleReportScalarFieldEnum = (typeof ModuleReportScalarFieldEnum)[keyof typeof ModuleReportScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -849,6 +889,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

@@ -1,3 +1,4 @@
+import { hasPermission } from "../modules/rbac.js";
 import { releaseOrderReservations } from "../services/reservations.js";
 import { nextDocumentNumber } from "../services/documentNumbers.js";
 import { lockDocument, StockError } from "../services/stock.js";
@@ -155,7 +156,7 @@ salesOrdersRouter.post("/", async (req, res) => {
 
 salesOrdersRouter.post("/:id/approve", async (req,res)=>{
   const role=req.auth!.organizations.find(o=>o.id===req.tenantId)?.role.code;
-  if(!req.auth!.isSuperAdmin && !["ADMIN","MANAGER"].includes(role??"")) return res.status(403).json({error:{message:"Only an administrator or manager can approve sales orders."}});
+  if(!hasPermission(req.auth,req.tenantId,"feed.sales_approval.write")) return res.status(403).json({error:{message:"Only an administrator or manager can approve sales orders."}});
   const data=await prisma.$transaction(async tx=>{
     await lockDocument(tx,"SalesOrder",String(req.params.id),req.tenantId!);
     const order=await tx.salesOrder.findFirst({where:{id:String(req.params.id),organizationId:req.tenantId!}});
@@ -168,7 +169,7 @@ salesOrdersRouter.post("/:id/approve", async (req,res)=>{
 salesOrdersRouter.post("/:id/cancel",async(req,res)=>{
  const {reason}=z.object({reason:z.string().trim().min(10).max(1000)}).parse(req.body);
  const org=req.tenantId!,role=req.auth!.organizations.find(o=>o.id===org)?.role.code;
- if(!req.auth!.isSuperAdmin&&!["ADMIN","MANAGER"].includes(role??""))return res.status(403).json({error:{message:"Only a manager or administrator can cancel an order"}});
+ if(!hasPermission(req.auth,req.tenantId,"feed.sales_approval.write"))return res.status(403).json({error:{message:"Only a manager or administrator can cancel an order"}});
  const data=await prisma.$transaction(async tx=>{
   await tx.$queryRaw`SELECT id FROM "Organization" WHERE id=${org} FOR UPDATE`;
   await lockDocument(tx,"SalesOrder",String(req.params.id),org);

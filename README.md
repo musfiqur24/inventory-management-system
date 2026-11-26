@@ -319,3 +319,17 @@ and the response error message for failed requests. All HTTP failures (4xx/5xx)
 use ERROR. A generated request ID is returned in `X-Request-ID` and included in
 JSON logs. Automatic request logs
 exclude bodies, headers, and query strings.
+
+## Feed and Agro access control
+
+Access is assigned through roles. Each module area has separate read and write permissions, such as feed.procurement.read, feed.rm_store.write, and agro.reports.read. Write includes read for the same area. Roles & Permissions provides a permission matrix for creating and editing roles; User Management assigns the role and organizations without individual module switches. Menus and shared dashboard metrics follow the selected organization's role permissions.
+
+Custom roles belong to one organization. Administrators can delegate only permissions they hold and edit only their organization's custom roles. Super Admin can edit system roles except the protected Super Admin role, and extend the module permission catalog with read/write pairs. The existing administrative users.manage, roles.manage, and organizations.manage permissions remain separate. Feature code must enforce a new catalog permission when its operational endpoint is implemented; creating a catalog entry does not create a new feature.
+
+Feed areas include RM Procurement, RM Store, FM Store, Production, Recipes, Sales, Sales Approval, Master Setup, Suppliers & Customers, Weighbridge, and Reports. Grant Master Setup read and Suppliers & Customers read when an operational page needs those lookup lists. Approval actions continue to enforce document state and assigned-person rules. Feed Reports read permits Feed summary metrics and ledger reports. Agro reports and numeric metrics use organization-scoped ModuleReport records; Agro workflows and formulas are not assumed.
+
+From backend, run node --import dotenv/config scripts/migrate.mjs and npm run db:generate. Migration 202611270002_role_area_permissions seeds area permissions and preserves exceptional legacy membership grants in organization-owned roles. MembershipModuleAccess and UserPermissionOverride rows remain as historical data; runtime authorization uses assigned role permissions. The old default module-grant trigger is removed. Role permission changes take effect on the next authenticated API request without issuing a new token.
+
+GET/POST /api/v1/roles and PUT /api/v1/roles/:id manage roles. GET /api/v1/roles/permissions lists the catalog; POST creates a module area with a read/write pair. Role payloads contain name, description, and permissionIds. User creation and assignment updates accept roleId and organizationIds. Per-user modules and overrides payloads are rejected.
+
+Run node scripts/tests/integration.cjs from the repository root for isolated PostgreSQL migrations, role-upgrade fixtures, API authorization, stock rules, and restore checks. The runner overrides both database URLs to a disposable Docker database. Run node backend/node_modules/tsx/dist/cli.mjs --test backend/tests/unit/area-permissions.test.ts for route mapping checks.

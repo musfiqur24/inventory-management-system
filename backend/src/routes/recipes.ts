@@ -1,3 +1,4 @@
+import { hasPermission } from "../modules/rbac.js";
 import { validateProductLines } from "../services/references.js";
 import { Router } from "express";
 import { z } from "zod";
@@ -7,8 +8,7 @@ import { Prisma, DocumentStatus } from "../generated/prisma/client.js";
 export const recipesRouter = Router();
 
 const requireRecipeManager = (req: any, res: any) => {
-  const role = req.auth?.organizations.find((organization: any) => organization.id === req.tenantId)?.role.code;
-  if (role === "MANAGER" || req.auth?.isSuperAdmin) return true;
+  if (hasPermission(req.auth,req.tenantId,"feed.recipes.write")) return true;
   res.status(403).json({ error: { code: "FORBIDDEN", message: "Only a manager can create, edit, or delete recipes." } });
   return false;
 };
